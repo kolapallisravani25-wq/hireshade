@@ -9,6 +9,7 @@ on:
       - "artifacts/craft-vita/**"
       - "lib/**"
       - "package.json"
+      - ".npmrc"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "scripts/ci-patch-tauri-build.sh"
@@ -60,7 +61,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -79,28 +80,9 @@ jobs:
             libssl-dev
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --config.optional=true
-
-      - name: Install Rollup native package explicitly
         run: |
-          set -euo pipefail
-          ROLLUP_VERSION="4.60.3"
-          case "${{ runner.os }}" in
-            Windows)
-              pnpm add -Dw "@rollup/rollup-win32-x64-msvc@$ROLLUP_VERSION" --config.frozen-lockfile=false
-              ;;
-            macOS)
-              ARCH="$(uname -m)"
-              if [ "$ARCH" = "arm64" ]; then
-                pnpm add -Dw "@rollup/rollup-darwin-arm64@$ROLLUP_VERSION" --config.frozen-lockfile=false
-              else
-                pnpm add -Dw "@rollup/rollup-darwin-x64@$ROLLUP_VERSION" --config.frozen-lockfile=false
-              fi
-              ;;
-            Linux)
-              pnpm add -Dw "@rollup/rollup-linux-x64-gnu@$ROLLUP_VERSION" --config.frozen-lockfile=false
-              ;;
-          esac
+          pnpm store prune || true
+          pnpm install --no-frozen-lockfile --config.optional=true
 
       - name: Verify Rollup native package
         run: |
@@ -129,26 +111,11 @@ jobs:
         working-directory: artifacts/craft-vita
         run: pnpm tauri build
 
-      - name: Upload Linux bundles
-        if: runner.os == 'Linux'
+      - name: Upload desktop bundles
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: hireshade-linux
-          path: |
-            artifacts/craft-vita/src-tauri/target/release/bundle/**/*
-
-      - name: Upload Windows bundles
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: hireshade-windows
-          path: |
-            artifacts/craft-vita/src-tauri/target/release/bundle/**/*
-
-      - name: Upload macOS bundles
-        if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
-        with:
-          name: hireshade-macos
+          name: hireshade-${{ runner.os }}
+          if-no-files-found: ignore
           path: |
             artifacts/craft-vita/src-tauri/target/release/bundle/**/*
