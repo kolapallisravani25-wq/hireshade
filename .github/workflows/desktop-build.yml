@@ -61,7 +61,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -80,28 +79,42 @@ jobs:
             libssl-dev
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --config.optional=true
+        run: pnpm install --no-frozen-lockfile --config.optional=true
 
-      - name: Repair Rollup native optional dependency
+      - name: Install Rollup native package explicitly
         run: |
           set -euo pipefail
           ROLLUP_VERSION="4.60.3"
           case "${{ runner.os }}" in
             Windows)
-              pnpm add -Dw "@rollup/rollup-win32-x64-msvc@$ROLLUP_VERSION"
+              pnpm add -Dw "@rollup/rollup-win32-x64-msvc@$ROLLUP_VERSION" --config.frozen-lockfile=false
               ;;
             macOS)
               ARCH="$(uname -m)"
               if [ "$ARCH" = "arm64" ]; then
-                pnpm add -Dw "@rollup/rollup-darwin-arm64@$ROLLUP_VERSION"
+                pnpm add -Dw "@rollup/rollup-darwin-arm64@$ROLLUP_VERSION" --config.frozen-lockfile=false
               else
-                pnpm add -Dw "@rollup/rollup-darwin-x64@$ROLLUP_VERSION"
+                pnpm add -Dw "@rollup/rollup-darwin-x64@$ROLLUP_VERSION" --config.frozen-lockfile=false
               fi
               ;;
             Linux)
-              pnpm add -Dw "@rollup/rollup-linux-x64-gnu@$ROLLUP_VERSION"
+              pnpm add -Dw "@rollup/rollup-linux-x64-gnu@$ROLLUP_VERSION" --config.frozen-lockfile=false
               ;;
           esac
+
+      - name: Verify Rollup native package
+        run: |
+          node - <<'NODE'
+          const os = process.platform;
+          const arch = process.arch;
+          const pkg = os === 'win32'
+            ? '@rollup/rollup-win32-x64-msvc'
+            : os === 'darwin'
+              ? (arch === 'arm64' ? '@rollup/rollup-darwin-arm64' : '@rollup/rollup-darwin-x64')
+              : '@rollup/rollup-linux-x64-gnu';
+          require.resolve(pkg);
+          console.log(`Verified ${pkg}`);
+          NODE
 
       - name: Apply CI Tauri compatibility patch
         run: bash scripts/ci-patch-tauri-build.sh
