@@ -3,6 +3,9 @@ import { logger } from "./logger.js";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_MODEL = process.env["ANSWER_MODEL"] || "google/gemini-2.5-flash-lite";
 
+const OPENROUTER_TIMEOUT_MS = Number(process.env["OPENROUTER_TIMEOUT_MS"] ?? "60000") || 60000;
+const OPENROUTER_STREAM_IDLE_MS = Number(process.env["OPENROUTER_STREAM_IDLE_MS"] ?? "45000") || 45000;
+
 export type ChatRole = "system" | "user" | "assistant";
 
 export interface ChatImagePart {
@@ -115,59 +118,73 @@ export async function streamChatComplete(
   },
   onDelta: (chunk: string) => void,
 ): Promise<string> {
-  const res = await fetch(OPENROUTER_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${getApiKey()}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: resolveModel(opts.model),
-      messages: opts.messages,
-      temperature: opts.temperature ?? 0.6,
-      max_tokens: opts.maxTokens ?? 1200,
-      stream: true,
-    }),
-  });
+  const controller = new AbortController();
+  let idleTimer: ReturnType<typeof setTimeout> | undefined;
+  const armIdle = () => {
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => controller.abort(), OPENROUTER_STREAM_IDLE_MS);
+  };
 
-  if (!res.ok || !res.body) {
-    const text = await res.text().catch(() => "");
-    logger.error({ status: res.status, text }, "[openrouter] streamChatComplete failed");
-    throw new Error(`OpenRouter request failed (${res.status})`);
-  }
+  try {
+    armIdle();
+    const res = await fetch(OPENROUTER_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getApiKey()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: resolveModel(opts.model),
+        messages: opts.messages,
+        temperature: opts.temperature ?? 0.5,
+        max_tokens: opts.maxTokens ?? 2000,
+        stream: true,
+      }),
+      signal: controller.signal,
+    });
 
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-  let full = "";
+    if (!res.ok || !res.body) {
+      const text = await res.text().catch(() => "");
+      logger.error({ status: res.status, text }, "[openrouter] streamChatComplete failed");
+      throw new Error(`OpenRouter request failed (${res.status})`);
+    }
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let full = "";
 
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      armIdle();
+      buffer += decoder.decode(value, { stream: true });
 
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) continue;
-      const data = trimmed.slice(5).trim();
-      if (data === "[DONE]") continue;
-      try {
-        const parsed = JSON.parse(data) as {
-          choices?: { delta?: { content?: string } }[];
-        };
-        const delta = parsed.choices?.[0]?.delta?.content;
-        if (delta) {
-          full += delta;
-          onDelta(delta);
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith("data:")) continue;
+        const data = trimmed.slice(5).trim();
+        if (data === "[DONE]") continue;
+        try {
+          const parsed = JSON.parse(data) as {
+            choices?: { delta?: { content?: string } }[];
+          };
+          const delta = parsed.choices?.[0]?.delta?.content;
+          if (delta) {
+            full += delta;
+            onDelta(delta);
+          }
+        } catch {
+          // Ignore malformed/partial SSE lines.
         }
-      } catch {
-        // Ignore malformed/partial SSE lines.
       }
     }
-  }
 
-  return full;
+    return full;
+  } finally {
+    if (idleTimer) clearTimeout(idleTimer);
+  }
 }

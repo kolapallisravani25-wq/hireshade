@@ -7,7 +7,7 @@ import {
   sessionMessagesTable,
   answerRevisionsTable,
 } from "@workspace/db/schema";
-import { eq, and, desc, ilike, gte, lte } from "drizzle-orm";
+import { eq, and, desc, ilike, gte, lte, inArray, ne } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { streamChatComplete, chatComplete } from "../lib/openrouter.js";
 import { buildInterviewSystemPrompt } from "../lib/interviewPrompt.js";
@@ -29,6 +29,29 @@ const screenshotParser = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
 }).single("screenshot");
+
+/** Free-session cap in minutes. Mirrors the client countdown. */
+const FREE_SESSION_MINUTES = 5;
+const BLOCKING_STATUSES = ["ACTIVE", "COMPLETING"] as const;
+
+async function findBlockingSession(userId: string, excludeId?: string) {
+  const conditions = [
+    eq(sessionsTable.userId, userId),
+    inArray(sessionsTable.status, [...BLOCKING_STATUSES]),
+  ];
+  if (excludeId) conditions.push(ne(sessionsTable.id, excludeId));
+  const [blocking] = await db.select().from(sessionsTable).where(and(...conditions)).limit(1);
+  return blocking;
+}
+
+function maxAllowedMinutesFor(session: typeof sessionsTable.$inferSelect) {
+  return session.free ? FREE_SESSION_MINUTES : null;
+}
+
+function activeSessionConflict(id: string) {
+  const token = `ACTIVE_SESSION_EXISTS:${id}`;
+  return { error: token, message: token };
+}
 
 function toFrontendSession(s: typeof sessionsTable.$inferSelect) {
   return {
@@ -55,7 +78,9 @@ function toFrontendSession(s: typeof sessionsTable.$inferSelect) {
     creditsDeducted: s.creditsDeducted,
     deductionReason: s.deductionReason,
     aiUsage: s.aiUsage,
+    startedAt: (s as any).startedAt,
     endedAt: s.endedAt,
+    maxAllowedMinutes: maxAllowedMinutesFor(s),
     createdAt: s.createdAt,
     updatedAt: s.updatedAt,
     company: s.companyName ? { name: s.companyName } : undefined,
@@ -89,6 +114,12 @@ router.post("/create-session", requireAuth, formParser, async (req, res) => {
       projectIds = [];
     }
     const primaryProjectId = body["primaryProjectId"] || null;
+
+    const blocking = await findBlockingSession(userId);
+    if (blocking) {
+      res.status(409).json(activeSessionConflict(blocking.id));
+      return;
+    }
 
     const sessionId = uuidv4();
     const now = new Date();
@@ -230,13 +261,38 @@ router.post("/:id/activate", requireAuth, async (req, res) => {
     const userId = req.userId!;
     const sessionId = String(req.params["id"] ?? "");
 
+    const [session] = await db
+      .select()
+      .from(sessionsTable)
+      .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)))
+      .limit(1);
+
+    if (!session) {
+      res.status(404).json({ error: "Session not found" });
+      return;
+    }
+
+    const blocking = await findBlockingSession(userId, sessionId);
+    if (blocking) {
+      res.status(409).json(activeSessionConflict(blocking.id));
+      return;
+    }
+
+    const startedAt = (session as any).startedAt ?? new Date();
+
     await db
       .update(sessionsTable)
-      .set({ status: "ACTIVE", updatedAt: new Date() })
+      .set({ status: "ACTIVE", startedAt, updatedAt: new Date() } as any)
       .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)));
 
-    res.json({ success: true, status: "ACTIVE" });
+    res.json({
+      success: true,
+      status: "ACTIVE",
+      startedAt,
+      maxAllowedMinutes: maxAllowedMinutesFor(session),
+    });
   } catch (err) {
+    console.error("[sessions] activate error", err);
     res.status(500).json({ error: "Failed to activate session" });
   }
 });
