@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Hardened Runtime entitlements for ScribeShade.app (macOS release builds).
+
+    Without this file, codesign --options runtime (hardened runtime) will:
+      1. Block WKWebView's JIT compiler → blank white window.
+      2. Silently revoke mic/screen-capture access even when the user already
+         granted it in System Preferences — TCC grants are per-identity, and
+         the hardened runtime strips capabilities not listed in entitlements.
+      3. Refuse to load third-party dylibs (cpal, screencapturekit, axum)
+         that aren't signed by Apple, crashing at launch.
+
+    Referenced in tauri.conf.json → bundle.macOS.entitlements.
+  -->
+
+  <!-- Required by WKWebView to JIT-compile JavaScript. Without this the
+       webview renders a blank page in hardened-runtime release builds. -->
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+
+  <!-- Required to load cpal, screencapturekit, and axum dylibs that are not
+       signed by Apple. Without this the app crashes at launch with
+       "Library not loaded: … code signature in <…> not valid for use in
+       process using Library Validation". -->
+  <key>com.apple.security.cs.disable-library-validation</key>
+  <true/>
+
+  <!-- Explicit microphone entitlement.
+       macOS 12+ enforces this even for non-sandboxed apps when they are
+       signed with the hardened runtime. Without it cpal's default_input_device()
+       returns None and the TCC mic-grant the user already approved is silently
+       ignored. -->
+  <key>com.apple.security.device.audio-input</key>
+  <true/>
+
+  <!-- Screen recording / ScreenCaptureKit (macOS 12.3+).
+       SCShareableContent.get() triggers the macOS TCC screen-recording
+       prompt (kTCCServiceScreenCapture).  There is no dedicated
+       entitlement key for this; the OS uses NSScreenCaptureUsageDescription
+       from Info.plist + the TCC grant stored against this binary's
+       code-signing identity.
+
+       com.apple.security.cs.allow-dyld-environment-variables lets
+       ScreenCaptureKit and its helper XPC services load their dylibs under
+       the hardened runtime without triggering library-validation failures. -->
+  <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+  <true/>
+
+</dict>
+</plist>

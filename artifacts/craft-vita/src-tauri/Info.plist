@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Register hireshade:// as a handled URL scheme so macOS routes
+       deep links back to the installed .app bundle. Without this entry
+       the OS has no record of the scheme and the browser shows
+       "Failed to launch 'hireshade://'" in both the address bar and the
+       browser console. This entry is merged into the generated Info.plist
+       at bundle time by Tauri (bundle.macOS.infoPlist in tauri.conf.json).
+       Note: scheme registration only takes effect in a *signed & installed*
+       .app — it is intentionally unavailable in `tauri dev` mode. -->
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>hireshade</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>hireshade</string>
+      </array>
+    </dict>
+  </array>
+
+  <!-- Required for getDisplayMedia audio — WKWebView checks this key before
+       offering the "Include audio" / "Share tab audio" toggle in the macOS
+       screen-share picker. Without it the toggle is hidden and the stream
+       always has zero audio tracks. -->
+  <key>NSMicrophoneUsageDescription</key>
+  <string>HireShade needs microphone access to transcribe the conversation in real time.</string>
+
+  <!-- Required for getDisplayMedia video on macOS 14 + -->
+  <key>NSScreenCaptureUsageDescription</key>
+  <string>HireShade needs screen capture access to display and analyze the shared content.</string>
+</dict>
+</plist>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Allow microphone access inside the Tauri WebView2 (Windows) and WKWebView (macOS).
+         Without this, getUserMedia({ audio: true }) is silently denied by the webview's
+         Permissions-Policy, which surfaces as a WebSocket "Connection error" because
+         the MediaRecorder is never created and the socket handshake never completes. -->
+    <meta http-equiv="Permissions-Policy" content="microphone=*, camera=()">
+    <title>Floating Mini-Screen</title>
+    <style>
+        html, body {
+            background-color: transparent !important;
+            background: transparent !important;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            border: none !important;
+            outline: none !important;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        /* Completely remove all outlines and focus rings globally */
+        * {
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        *:focus, *:focus-visible, *:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        #mini-app-root {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mini-app-root"></div>
+    <script type="module" src="/src/pages/Sessions/ActiveSession/FloatingApp.tsx"></script>
+</body>
+
+</html>

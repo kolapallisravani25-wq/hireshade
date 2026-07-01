@@ -1,0 +1,163 @@
+// ---------------------------------------------------------------------------
+// behavioral.markers.ts
+// Behavioral STAR question markers
+// ---------------------------------------------------------------------------
+
+import type { SemanticMarker } from "../types/marker.types";
+
+export const BEHAVIORAL_MARKERS: SemanticMarker[] = [
+  {
+    id: "behavioral_tell_me_about_a_time",
+    phrase: "tell me about a time",
+    type: "phrase",
+    weight: 0.95,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_describe_situation_where",
+    phrase: "describe a situation where",
+    type: "phrase",
+    weight: 0.92,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_give_example_of",
+    phrase: "give me an example of",
+    type: "phrase",
+    weight: 0.88,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_have_you_ever",
+    phrase: "have you ever",
+    type: "phrase",
+    weight: 0.82,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_walk_through_challenge",
+    phrase: "walk me through a challenge",
+    type: "phrase",
+    weight: 0.90,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_share_experience",
+    phrase: "share an experience",
+    type: "phrase",
+    weight: 0.85,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_tell_challenge",
+    phrase: "tell me about a challenge",
+    type: "phrase",
+    weight: 0.90,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_describe_time_when",
+    phrase: "describe a time when",
+    type: "phrase",
+    weight: 0.92,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_give_example",
+    phrase: "can you give an example",
+    type: "phrase",
+    weight: 0.85,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_tell_situation",
+    phrase: "tell me about a situation",
+    type: "phrase",
+    weight: 0.88,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_recall_time",
+    phrase: "recall a time",
+    type: "phrase",
+    weight: 0.85,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_think_time",
+    phrase: "think of a time",
+    type: "phrase",
+    weight: 0.85,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_walk_through_time",
+    phrase: "walk me through a time",
+    type: "phrase",
+    weight: 0.90,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_share_time",
+    phrase: "share a time when",
+    type: "phrase",
+    weight: 0.88,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_describe_instance",
+    phrase: "describe an instance",
+    type: "phrase",
+    weight: 0.85,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_give_example_when",
+    phrase: "give an example of when",
+    type: "phrase",
+    weight: 0.88,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_tell_when",
+    phrase: "tell me about when you",
+    type: "phrase",
+    weight: 0.85,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_what_most",
+    phrase: "what was the most",
+    type: "phrase",
+    weight: 0.82,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_what_biggest",
+    phrase: "what was the biggest",
+    type: "phrase",
+    weight: 0.85,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_had_to",
+    phrase: "have you had to",
+    type: "phrase",
+    weight: 0.82,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_when_last_time",
+    phrase: "when was the last time",
+    type: "phrase",
+    weight: 0.80,
+    category: "behavioral_star",
+  },
+  {
+    id: "behavioral_tell_experience",
+    phrase: "tell me about your experience",
+    type: "phrase",
+    weight: 0.82,
+    category: "behavioral_star",
+  },
+];

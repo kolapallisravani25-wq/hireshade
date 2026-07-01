@@ -1,0 +1,36 @@
+.env
+.env.*
+*.env
+node_modules
+dist
+build
+.next
+.vite
+.cache
+logs
+*.log
+*.pid
+uploads
+attached_assets
+exports
+*.pem
+*.key
+*.crt
+*.p12
+*.sqlite
+*.db
+.DS_Store
+
+# Local development
+.local/
+.agents/
+
+# Temporary and backups
+.migration-backup/
+*.bak
+*.backup
+
+# Personal files
+*.opus
+*.mp3
+*.wav

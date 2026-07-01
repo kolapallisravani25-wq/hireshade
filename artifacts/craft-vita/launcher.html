@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launcher</title>
+    <style>
+        html, body {
+            background-color: transparent !important;
+            background: transparent !important;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+            height: auto;
+            border: none !important;
+            outline: none !important;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        * {
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        *:focus, *:focus-visible, *:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        #launcher-root {
+            width: 100%;
+            height: auto;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="launcher-root"></div>
+    <script type="module" src="/src/pages/Launcher/WidgetApp.tsx"></script>
+</body>
+
+</html>

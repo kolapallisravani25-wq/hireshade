@@ -1,0 +1,58 @@
+[package]
+name = "hireshade"
+version = "0.0.10"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "hireshade_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[profile.dev]
+# Incremental compilation cache regrows by ~1GB per rebuild and isn't
+# essential on this small crate (the 550 dependency crates are already
+# cached separately) — disabling it avoids recurring disk-space crises
+# on this machine.
+incremental = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["macos-private-api", "devtools", "unstable"] }
+tauri-plugin-opener = "2"
+tauri-plugin-oauth = "2"
+tauri-plugin-deep-link = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+url = "2"
+screenshots = "0.8.10"
+base64 = "0.22.1"
+tokio = { version = "1", features = ["full"] }
+axum = { version = "0.7", features = ["ws"] }
+tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
+futures-util = "0.3"
+dotenvy = "0.15"
+[target.'cfg(target_os = "macos")'.dependencies]
+# cpal captures the default input device (mic) â€” kept for user mic transcription.
+cpal = "0.15"
+# screencapturekit captures system/display audio without a virtual audio device.
+# requires macOS 13.0+ for audio capture APIs.
+screencapturekit = { version = "1", features = ["macos_13_0"] }
+# objc2 for macOS-native window level APIs (NSStatusWindowLevel, etc.)
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", features = ["NSWindow", "NSRunningApplication"] }
+[target.'cfg(target_os = "windows")'.dependencies]
+winvd = "0.0.49"
+windows = { version = "0.58", features = ["Win32_Foundation", "Win32_Graphics_Dwm", "Win32_UI_WindowsAndMessaging", "Win32_UI_Shell"] }
+cpal = "0.15"
