@@ -145,17 +145,17 @@ const controller = app.defineCustomController({
       const keysRes = await orFetch<{ data: OpenRouterKeyItem[] }>('/keys', { include_disabled: 'false' });
       const keys = keysRes.data || [];
 
-      const ScribeShadeKey = keys.find(k =>
-        (k.name || '').toLowerCase().includes('ScribeShade') ||
-        (k.label || '').toLowerCase().includes('ScribeShade')
+      const HireShadeKey = keys.find(k =>
+        (k.name || '').toLowerCase().includes('HireShade') ||
+        (k.label || '').toLowerCase().includes('HireShade')
       );
 
       const activityParams: Record<string, string> = {};
       if (filterDate) {
         activityParams.date = filterDate;
       }
-      if (ScribeShadeKey) {
-        activityParams.api_key_hash = ScribeShadeKey.hash;
+      if (HireShadeKey) {
+        activityParams.api_key_hash = HireShadeKey.hash;
       }
 
       const [activityRes, modelsRes, creditsRes] = await Promise.all([
@@ -168,7 +168,7 @@ const controller = app.defineCustomController({
       const modelsData = modelsRes.data || [];
       const creditsData = creditsRes.data || { total_credits: 0, total_usage: 0 };
 
-      const filteredKeys = ScribeShadeKey ? [ScribeShadeKey] : keys;
+      const filteredKeys = HireShadeKey ? [HireShadeKey] : keys;
 
       const modelUsage = aggregateByModel(activityItems, modelsData);
       const dailyUsage = aggregateByDay(activityItems);

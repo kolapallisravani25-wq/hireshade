@@ -64,7 +64,7 @@ export default function HomeRedirect() {
                             <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
                     </div>
-                    <h1 className="text-3xl font-bold mb-3">Welcome to CraftVita</h1>
+                    <h1 className="text-3xl font-bold mb-3">Welcome to HireShade</h1>
                     <p className="text-gray-500 max-w-md mx-auto text-lg">
                         You have successfully logged in. Please select a module from the sidebar to start managing your data.
                     </p>
