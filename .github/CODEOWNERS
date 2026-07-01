@@ -1,0 +1,22 @@
+# HireShade Code Ownership
+
+# Default owner
+* @kolapallisravani25-wq
+
+# Product documentation
+/docs/ @kolapallisravani25-wq
+*.md @kolapallisravani25-wq
+
+# Backend API
+/artifacts/api-server/ @kolapallisravani25-wq
+/lib/db/ @kolapallisravani25-wq
+/lib/api-spec/ @kolapallisravani25-wq
+
+# Web and desktop app
+/artifacts/craft-vita/ @kolapallisravani25-wq
+
+# Admin
+/admin/ @kolapallisravani25-wq
+
+# Release and operations
+/scripts/ @kolapallisravani25-wq
