@@ -19,6 +19,7 @@ exports
 *.p12
 *.sqlite
 *.db
+*.tsbuildinfo
 .DS_Store
 
 # Local development
