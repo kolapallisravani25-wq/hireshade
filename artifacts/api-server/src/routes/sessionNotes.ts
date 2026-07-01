@@ -31,24 +31,36 @@ router.get("/:sessionId", requireAuth, async (req, res) => {
     const transcript = messages.map((m) => ({
       id: m.id,
       role: m.role,
-      content: m.content,
-      question: m.question,
-      answer: m.answer,
-      source: m.source,
+      content: m.content ?? "",
+      text: m.content ?? m.answer ?? m.question ?? "",
+      question: m.question ?? null,
+      answer: m.answer ?? null,
+      source: m.source ?? null,
+      aiModel: m.aiModel ?? null,
       createdAt: m.createdAt,
+      updatedAt: m.updatedAt,
     }));
 
+    const summary = {
+      sessionId,
+      totalMessages: transcript.length,
+      totalAiAnswers: transcript.filter((m) => m.role === "assistant" || m.answer).length,
+      status: session.status,
+      endedAt: session.endedAt,
+    };
+
+    // Compatibility response:
+    // Older frontend code calls `response.data.map(...)`, while newer code may
+    // call `response.data.transcript.map(...)`. Return both shapes to prevent
+    // runtime crashes while Session Engine v2 is being rebuilt.
     res.json({
       success: true,
-      data: {
-        sessionId,
-        transcript,
-        summary: {
-          totalMessages: transcript.length,
-          status: session.status,
-          endedAt: session.endedAt,
-        },
-      },
+      data: transcript,
+      transcript,
+      messages: transcript,
+      notes: transcript,
+      summary,
+      meta: summary,
     });
   } catch (err) {
     console.error("[session-notes] fetch error", err);
