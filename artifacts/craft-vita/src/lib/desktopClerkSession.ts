@@ -1,4 +1,4 @@
-const DESKTOP_CLERK_SESSION_KEY = "ss.desktop.clerk_session_id";
+const DESKTOP_CLERK_SESSION_KEY = "hireshade.desktop.clerk_session_id";
 
 export function getDesktopClerkSessionId(): string | null {
   try {

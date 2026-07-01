@@ -249,7 +249,7 @@ async fn show_mini_top_center(app: AppHandle) -> Result<(), String> {
             "mini",
             WebviewUrl::App("floating.html".into()),
         )
-        .title("ScribeShade Floating Screen")
+        .title("HireShade Floating Screen")
         .inner_size(700f64, 360f64)
         .transparent(true)
         .decorations(false)
@@ -2015,6 +2015,77 @@ fn open_microphone_settings(app: tauri::AppHandle) -> Result<(), String> {
     }
 }
 
+
+// ── Desktop auth persistence and cross-window sync ───────────────────────────
+// Clerk session IDs are persisted natively for Tauri desktop windows so the
+// launcher/main/mini webviews can restore and synchronize auth state reliably.
+// The frontend still keeps a localStorage fallback, but these commands are the
+// preferred desktop path.
+const DESKTOP_AUTH_SESSION_KEY: &str = "hireshade.desktop.clerk_session_id";
+
+#[tauri::command]
+fn auth_get_persisted_session(app: AppHandle) -> Result<Option<String>, String> {
+    let store = app.path().app_config_dir().map_err(|e| e.to_string())?;
+    let file = store.join("auth_session.txt");
+
+    match std::fs::read_to_string(file) {
+        Ok(value) => {
+            let session = value.trim().to_string();
+            if session.is_empty() { Ok(None) } else { Ok(Some(session)) }
+        }
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(err) => Err(err.to_string()),
+    }
+}
+
+#[tauri::command]
+fn auth_set_persisted_session(app: AppHandle, session_id: String) -> Result<(), String> {
+    let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    std::fs::write(dir.join("auth_session.txt"), session_id.trim()).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn auth_clear_persisted_session(app: AppHandle) -> Result<(), String> {
+    let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
+    let file = dir.join("auth_session.txt");
+    match std::fs::remove_file(file) {
+        Ok(_) => Ok(()),
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(err) => Err(err.to_string()),
+    }
+}
+
+#[derive(Clone, serde::Serialize)]
+struct DesktopAuthStateChangedPayload {
+    source: String,
+    #[serde(rename = "sessionId")]
+    session_id: Option<String>,
+    #[serde(rename = "signedIn")]
+    signed_in: bool,
+    #[serde(rename = "emittedAt")]
+    emitted_at: String,
+}
+
+#[tauri::command]
+fn auth_emit_state_changed(
+    app: AppHandle,
+    source: String,
+    session_id: Option<String>,
+    signed_in: bool,
+) -> Result<(), String> {
+    let payload = DesktopAuthStateChangedPayload {
+        source,
+        session_id,
+        signed_in,
+        emitted_at: std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_millis().to_string())
+            .unwrap_or_else(|_| "0".to_string()),
+    };
+    app.emit("auth:state-changed", payload).map_err(|e| e.to_string())
+}
+
 #[command]
 fn set_session_active(active: bool) {
     SESSION_ACTIVE.store(active, Ordering::SeqCst);
@@ -2110,7 +2181,7 @@ async fn open_main_dashboard(
         let url = WebviewUrl::App(path.into());
 
         WebviewWindowBuilder::new(&app, "main", url)
-            .title("ScribeShade")
+            .title("HireShade")
             .decorations(false)
             .inner_size(1200.0, 800.0)
             .center()
@@ -2610,6 +2681,8 @@ pub fn run() {
             start_mic_transcription, stop_mic_transcription,
             open_screen_recording_settings, open_microphone_settings,
             ensure_microphone_permission,
+            auth_get_persisted_session, auth_set_persisted_session,
+            auth_clear_persisted_session, auth_emit_state_changed,
             set_session_active, handle_launcher_click,
             open_main_dashboard, show_launcher_widget,
         ])
