@@ -11,6 +11,7 @@ on:
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
+      - "scripts/ci-patch-tauri-build.sh"
       - ".github/workflows/desktop-build.yml"
 
 permissions:
@@ -33,6 +34,7 @@ jobs:
           - macos-latest
 
     env:
+      CI: true
       NODE_ENV: production
       VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
       VITE_DEEPGRAM_API_KEY: ${{ secrets.VITE_DEEPGRAM_API_KEY }}
@@ -78,7 +80,31 @@ jobs:
             libssl-dev
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --config.optional=true
+
+      - name: Repair Rollup native optional dependency
+        run: |
+          set -euo pipefail
+          ROLLUP_VERSION="4.60.3"
+          case "${{ runner.os }}" in
+            Windows)
+              pnpm add -Dw "@rollup/rollup-win32-x64-msvc@$ROLLUP_VERSION"
+              ;;
+            macOS)
+              ARCH="$(uname -m)"
+              if [ "$ARCH" = "arm64" ]; then
+                pnpm add -Dw "@rollup/rollup-darwin-arm64@$ROLLUP_VERSION"
+              else
+                pnpm add -Dw "@rollup/rollup-darwin-x64@$ROLLUP_VERSION"
+              fi
+              ;;
+            Linux)
+              pnpm add -Dw "@rollup/rollup-linux-x64-gnu@$ROLLUP_VERSION"
+              ;;
+          esac
+
+      - name: Apply CI Tauri compatibility patch
+        run: bash scripts/ci-patch-tauri-build.sh
 
       - name: Typecheck desktop package
         run: pnpm --filter @workspace/craft-vita typecheck
