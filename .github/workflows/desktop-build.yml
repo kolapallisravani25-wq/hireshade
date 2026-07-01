@@ -1,0 +1,115 @@
+name: Desktop Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - "artifacts/craft-vita/**"
+      - "lib/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/desktop-build.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  desktop-build:
+    name: Build desktop (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    env:
+      NODE_ENV: production
+      VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+      VITE_DEEPGRAM_API_KEY: ${{ secrets.VITE_DEEPGRAM_API_KEY }}
+      VITE_RAZORPAY_KEY_ID: ${{ secrets.VITE_RAZORPAY_KEY_ID }}
+      VITE_FRONTEND_URL: ${{ secrets.VITE_FRONTEND_URL }}
+      VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+      VITE_CLERK_SIGN_IN_URL: ${{ secrets.VITE_CLERK_SIGN_IN_URL }}
+      VITE_CLERK_SIGN_UP_URL: ${{ secrets.VITE_CLERK_SIGN_UP_URL }}
+      VITE_CLERK_AFTER_SIGN_IN_URL: ${{ secrets.VITE_CLERK_AFTER_SIGN_IN_URL }}
+      VITE_CLERK_AFTER_SIGN_UP_URL: ${{ secrets.VITE_CLERK_AFTER_SIGN_UP_URL }}
+      VITE_INACTIVITY_TIMEOUT_MS: ${{ secrets.VITE_INACTIVITY_TIMEOUT_MS }}
+      VITE_INACTIVITY_WARNING_MS: ${{ secrets.VITE_INACTIVITY_WARNING_MS }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux Tauri dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            pkg-config \
+            libssl-dev
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck desktop package
+        run: pnpm --filter @workspace/craft-vita typecheck
+
+      - name: Build desktop frontend
+        run: pnpm --filter @workspace/craft-vita build
+
+      - name: Build Tauri desktop app
+        working-directory: artifacts/craft-vita
+        run: pnpm tauri build
+
+      - name: Upload Linux bundles
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hireshade-linux
+          path: |
+            artifacts/craft-vita/src-tauri/target/release/bundle/**/*
+
+      - name: Upload Windows bundles
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hireshade-windows
+          path: |
+            artifacts/craft-vita/src-tauri/target/release/bundle/**/*
+
+      - name: Upload macOS bundles
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hireshade-macos
+          path: |
+            artifacts/craft-vita/src-tauri/target/release/bundle/**/*
