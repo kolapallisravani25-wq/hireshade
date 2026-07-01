@@ -1,7 +1,7 @@
 import { logger } from "./logger.js";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_MODEL = "anthropic/claude-haiku-4-5";
+const DEFAULT_MODEL = process.env["ANSWER_MODEL"] || "google/gemini-2.5-flash-lite";
 
 export type ChatRole = "system" | "user" | "assistant";
 
@@ -28,8 +28,10 @@ function getApiKey(): string {
   return key;
 }
 
-function resolveModel(model?: string | null): string {
-  return model && model.trim() ? model : DEFAULT_MODEL;
+function resolveModel(_model?: string | null): string {
+  // Launch rule: keep the in-session model controlled server-side.
+  // Do not trust client-supplied model slugs for session answer generation.
+  return DEFAULT_MODEL;
 }
 
 /** Non-streaming chat completion. Returns the assistant's full text reply. */
@@ -48,8 +50,8 @@ export async function chatComplete(opts: {
     body: JSON.stringify({
       model: resolveModel(opts.model),
       messages: opts.messages,
-      temperature: opts.temperature ?? 0.5,
-      max_tokens: opts.maxTokens ?? 2000,
+      temperature: opts.temperature ?? 0.6,
+      max_tokens: opts.maxTokens ?? 1200,
     }),
   });
 
@@ -122,8 +124,8 @@ export async function streamChatComplete(
     body: JSON.stringify({
       model: resolveModel(opts.model),
       messages: opts.messages,
-      temperature: opts.temperature ?? 0.5,
-      max_tokens: opts.maxTokens ?? 2000,
+      temperature: opts.temperature ?? 0.6,
+      max_tokens: opts.maxTokens ?? 1200,
       stream: true,
     }),
   });
