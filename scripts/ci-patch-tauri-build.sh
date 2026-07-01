@@ -9,13 +9,12 @@ if [[ ! -f "$LIB_RS" ]]; then
   exit 1
 fi
 
-python3 - <<'PY'
-from pathlib import Path
+node <<'JS'
+const fs = require('fs');
+const path = 'artifacts/craft-vita/src-tauri/src/lib.rs';
+let text = fs.readFileSync(path, 'utf8');
 
-path = Path("artifacts/craft-vita/src-tauri/src/lib.rs")
-text = path.read_text()
-
-old = '''    #[cfg(not(target_os = "macos"))]
+const oldPermission = `    #[cfg(not(target_os = "macos"))]
     {
         // Windows/Linux: permission is either always granted (Windows) or
         // managed by the DE (Linux).  Probe the device as a basic sanity check.
@@ -25,8 +24,9 @@ old = '''    #[cfg(not(target_os = "macos"))]
             .ok_or_else(|| "No default input device found".to_string())
             .and_then(|d| d.default_input_config().map(|_| ()).map_err(|e| e.to_string()))
     }
-'''
-new = '''    #[cfg(target_os = "windows")]
+`;
+
+const newPermission = `    #[cfg(target_os = "windows")]
     {
         // Windows: permission is managed by the OS. Probe the device as a basic sanity check.
         use cpal::traits::{DeviceTrait, HostTrait};
@@ -41,11 +41,13 @@ new = '''    #[cfg(target_os = "windows")]
         // so Linux CI can validate the rest of the Tauri build.
         Err("Microphone permission preflight is supported on macOS/Windows only".to_string())
     }
-'''
-if old in text:
-    text = text.replace(old, new, 1)
+`;
 
-old_run = '''        .run(|app, event| {
+if (text.includes(oldPermission)) {
+  text = text.replace(oldPermission, newPermission);
+}
+
+const oldRun = `        .run(|app, event| {
             // macOS: clicking the Dock icon when no windows are visible fires
             // Reopen instead of relaunching the process. Tauri has no default
             // handler for it, so without this the Dock icon does nothing once
@@ -56,17 +58,20 @@ old_run = '''        .run(|app, event| {
                 }
             }
         });
-'''
-new_run = '''        .run(|_app, _event| {
+`;
+
+const newRun = `        .run(|_app, _event| {
             // Tauri 2.10 no longer exposes the old RunEvent::Reopen variant used by
             // the recovered code. Keep the run loop explicit and handle launcher
             // restoration through normal window/deep-link events for now.
         });
-'''
-if old_run in text:
-    text = text.replace(old_run, new_run, 1)
+`;
 
-path.write_text(text)
-PY
+if (text.includes(oldRun)) {
+  text = text.replace(oldRun, newRun);
+}
+
+fs.writeFileSync(path, text);
+JS
 
 echo "CI Tauri build patch applied."
