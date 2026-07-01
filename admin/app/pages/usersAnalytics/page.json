@@ -1,0 +1,15 @@
+{
+  "version": "3.4",
+  "type": "custom",
+  "title": "Users Analytics",
+  "hideInSidebar": false,
+  "allowedRoles": [
+    "admin",
+    "User Analytics",
+    "Users Analytics"
+  ],
+  "config": {
+    "hideEditButton": true
+  },
+  "icon": "barChart"
+}

@@ -1,0 +1,51 @@
+{
+  "version": "3.4",
+  "type": "table",
+  "title": "Idempotency Key",
+  "hideInSidebar": false,
+  "config": {
+    "dataSource": "postgres_tk07",
+    "fetchStrategy": "databaseTable",
+    "table": "IdempotencyKey",
+    "columns": [
+      {
+        "column": "expiresAt",
+        "hiddenInForm": true
+      },
+      {
+        "column": "createdAt",
+        "hiddenInForm": true
+      },
+      {
+        "column": "completedAt",
+        "hiddenInForm": true
+      },
+      {
+        "column": "userId",
+        "label": "User",
+        "hiddenInTable": true,
+        "hiddenInForm": false,
+        "filterable": true,
+        "sortable": false,
+        "searchable": true,
+        "fieldInput": {
+          "type": "textarea",
+          "asArray": false
+        },
+        "fieldRequirement": "notEmpty",
+        "formFieldSpan": "12"
+      }
+    ],
+    "calculatedColumns": [
+      {
+        "alias": "user_email",
+        "label": "User",
+        "sqlExpression": "SELECT email FROM \"User\" WHERE id = main.\"userId\""
+      }
+    ]
+  },
+  "icon": "flag",
+  "allowedRoles": [
+    "Idempotency Key"
+  ]
+}

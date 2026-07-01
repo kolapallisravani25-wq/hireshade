@@ -1,0 +1,14 @@
+{
+  "version": "3.4",
+  "type": "custom",
+  "title": "ATS Analytics",
+  "hideInSidebar": false,
+  "allowedRoles": [
+    "admin",
+    "ATS Analytics"
+  ],
+  "config": {
+    "hideEditButton": true
+  },
+  "icon": "activity"
+}

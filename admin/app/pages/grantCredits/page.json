@@ -1,0 +1,17 @@
+{
+  "version": "3.4",
+  "type": "table",
+  "title": "Grant Credits",
+  "hideInSidebar": false,
+  "allowedRoles": [
+    "Grant Credits"
+  ],
+  "icon": "briefcase",
+  "config": {
+    "dataSource": "postgres_tk07",
+    "fetchStrategy": "customFetch",
+    "allowInsert": true,
+    "allowUpdate": true,
+    "allowDelete": true
+  }
+}

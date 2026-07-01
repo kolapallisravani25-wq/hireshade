@@ -1,0 +1,74 @@
+{
+  "version": "3.4",
+  "type": "table",
+  "title": "Built Resume",
+  "hideInSidebar": false,
+  "config": {
+    "dataSource": "postgres_tk07",
+    "fetchStrategy": "databaseTable",
+    "table": "BuiltResume",
+    "columns": [
+      {
+        "column": "id",
+        "label": "Id",
+        "hiddenInTable": true,
+        "hiddenInForm": true,
+        "filterable": true,
+        "sortable": false,
+        "searchable": true,
+        "fieldInput": {
+          "type": "textarea",
+          "asArray": false
+        },
+        "fieldRequirement": "notEmpty",
+        "formFieldSpan": "12"
+      },
+      {
+        "column": "createdAt",
+        "hiddenInForm": true
+      },
+      {
+        "column": "updatedAt",
+        "hiddenInForm": true
+      },
+      {
+        "column": "downloadedAt",
+        "hiddenInForm": true
+      },
+      {
+        "column": "lastAtsAt",
+        "hiddenInForm": true
+      },
+      {
+        "column": "lastAtsResult",
+        "hiddenInForm": false
+      },
+      {
+        "column": "userId",
+        "label": "User",
+        "hiddenInTable": true,
+        "hiddenInForm": false,
+        "filterable": true,
+        "sortable": false,
+        "searchable": true,
+        "fieldInput": {
+          "type": "textarea",
+          "asArray": false
+        },
+        "fieldRequirement": "notEmpty",
+        "formFieldSpan": "12"
+      }
+    ],
+    "calculatedColumns": [
+      {
+        "alias": "user_email",
+        "label": "User",
+        "sqlExpression": "SELECT email FROM \"User\" WHERE id = main.\"userId\""
+      }
+    ]
+  },
+  "icon": "image",
+  "allowedRoles": [
+    "Built Resume"
+  ]
+}

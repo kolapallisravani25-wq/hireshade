@@ -1,0 +1,17 @@
+{
+  "version": "3.4",
+  "type": "table",
+  "title": "Quick Links",
+  "hideInSidebar": false,
+  "icon": "sliders",
+  "config": {
+    "fetchStrategy": "customFetch",
+    "allowInsert": false,
+    "allowUpdate": false,
+    "allowDelete": false
+  },
+  "allowedRoles": [
+    "admin",
+    "Quick Links"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "version": "3.4",
+  "type": "table",
+  "title": "Policy",
+  "hideInSidebar": false,
+  "config": {
+    "dataSource": "postgres_tk07",
+    "fetchStrategy": "databaseTable",
+    "table": "Policy",
+    "columns": [
+      {
+        "column": "id",
+        "label": "Id",
+        "hiddenInTable": true,
+        "hiddenInForm": true,
+        "filterable": true,
+        "sortable": false,
+        "searchable": true,
+        "fieldInput": {
+          "type": "textarea",
+          "asArray": false
+        },
+        "fieldRequirement": "notEmpty",
+        "formFieldSpan": "12"
+      },
+      {
+        "column": "updatedAt",
+        "label": "Updated at",
+        "hiddenInTable": false,
+        "hiddenInForm": true,
+        "filterable": true,
+        "sortable": true,
+        "searchable": false,
+        "fieldInput": {
+          "type": "dateTimePicker",
+          "asArray": false
+        },
+        "fieldRequirement": "notEmpty",
+        "formFieldSpan": "12"
+      }
+    ]
+  },
+  "allowedRoles": [
+    "Policy"
+  ]
+}

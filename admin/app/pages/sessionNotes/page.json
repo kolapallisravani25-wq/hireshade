@@ -1,0 +1,34 @@
+{
+  "version": "3.4",
+  "type": "table",
+  "title": "Session Notes",
+  "hideInSidebar": false,
+  "config": {
+    "dataSource": "postgres_tk07",
+    "fetchStrategy": "databaseTable",
+    "table": "SessionNotes",
+    "columns": [
+      {
+        "column": "id",
+        "hiddenInForm": true,
+        "hiddenInTable": true
+      },
+      {
+        "column": "sessionId",
+        "hiddenInForm": false
+      },
+      {
+        "column": "createdAt",
+        "hiddenInForm": true
+      },
+      {
+        "column": "updatedAt",
+        "hiddenInForm": true
+      }
+    ]
+  },
+  "icon": "calendar",
+  "allowedRoles": [
+    "Session Notes"
+  ]
+}

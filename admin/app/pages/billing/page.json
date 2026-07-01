@@ -1,0 +1,13 @@
+{
+  "version": "3.4",
+  "type": "custom",
+  "title": "Billing",
+  "hideInSidebar": false,
+  "config": {
+    "hideEditButton": true
+  },
+  "icon": "coins",
+  "allowedRoles": [
+    "admin"
+  ]
+}

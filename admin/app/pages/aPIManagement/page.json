@@ -1,0 +1,14 @@
+{
+  "version": "3.4",
+  "type": "custom",
+  "title": "API Management",
+  "hideInSidebar": false,
+  "config": {
+    "hideEditButton": true
+  },
+  "icon": "creditCard",   
+  "allowedRoles": [
+    "admin",
+    "API Management"
+  ]
+}

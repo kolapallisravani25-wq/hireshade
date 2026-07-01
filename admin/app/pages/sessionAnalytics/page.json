@@ -1,0 +1,14 @@
+{
+  "version": "3.4",
+  "type": "table",
+  "title": "Session Analytics",
+  "hideInSidebar": false,
+  "config": {
+    "fetchStrategy": "customFetch",
+    "hideEditButton": true
+  },
+  "allowedRoles": [
+    "Session Analytics"
+  ],
+  "icon": "pieChart"
+}

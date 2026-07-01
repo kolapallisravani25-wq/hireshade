@@ -1,0 +1,43 @@
+{
+  "version": "3.4",
+  "type": "table",
+  "icon": "users",
+  "title": "User Credit Balance",
+  "hideInSidebar": false,
+  "config": {
+    "dataSource": "postgres_tk07",
+    "fetchStrategy": "databaseTable",
+    "table": "UserCreditBalance",
+    "columns": [
+      {
+        "column": "lastUpdated",
+        "hiddenInForm": true
+      },
+      {
+        "column": "userId",
+        "label": "User ",
+        "hiddenInTable": true,
+        "hiddenInForm": false,
+        "filterable": true,
+        "sortable": false,
+        "searchable": true,
+        "fieldInput": {
+          "type": "textarea",
+          "asArray": false
+        },
+        "fieldRequirement": "notEmpty",
+        "formFieldSpan": "12"
+      }
+    ],
+    "calculatedColumns": [
+      {
+        "alias": "user_email",
+        "label": "User",
+        "sqlExpression": "SELECT email FROM \"User\" WHERE id = main.\"userId\""
+      }
+    ]
+  },
+  "allowedRoles": [
+    "User Credit Balance"
+  ]
+}
