@@ -94,6 +94,7 @@ export const sessionsTable = pgTable(
     creditsDeducted: numeric("credits_deducted"),
     deductionReason: text("deduction_reason"),
     aiUsage: integer("ai_usage").default(0),
+    startedAt: timestamp("started_at"),
     endedAt: timestamp("ended_at"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
