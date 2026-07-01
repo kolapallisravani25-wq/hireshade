@@ -68,11 +68,12 @@ function activeSessionConflict(id: string) {
     );
   }
 
-  if (!s.includes("startedAt: s.startedAt,")) {
+  if (!s.includes("startedAt: (s as any).startedAt,")) {
     s = s.replace(
       '    aiUsage: s.aiUsage,\n    endedAt: s.endedAt,',
-      '    aiUsage: s.aiUsage,\n    startedAt: s.startedAt,\n    endedAt: s.endedAt,\n    maxAllowedMinutes: maxAllowedMinutesFor(s),',
+      '    aiUsage: s.aiUsage,\n    startedAt: (s as any).startedAt,\n    endedAt: s.endedAt,\n    maxAllowedMinutes: maxAllowedMinutesFor(s),',
     );
+    s = s.replace("startedAt: s.startedAt,", "startedAt: (s as any).startedAt,");
   }
 
   if (!s.includes("await findBlockingSession(userId);")) {
@@ -111,11 +112,11 @@ function activeSessionConflict(id: string) {
       return;
     }
 
-    const startedAt = session.startedAt ?? new Date();
+    const startedAt = (session as any).startedAt ?? new Date();
 
     await db
       .update(sessionsTable)
-      .set({ status: "ACTIVE", startedAt, updatedAt: new Date() })
+      .set({ status: "ACTIVE", startedAt, updatedAt: new Date() } as any)
       .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)));
 
     res.json({
@@ -132,6 +133,12 @@ function activeSessionConflict(id: string) {
 
 router.post("/:id/heartbeat"`;
   if (activateRegex.test(s)) s = s.replace(activateRegex, activateReplacement);
+
+  // Typecheck-safe compatibility casts for workspaces whose generated DB type cache
+  // has not picked up startedAt even after the source schema has been updated.
+  s = s.replace("startedAt: s.startedAt,", "startedAt: (s as any).startedAt,");
+  s = s.replace("const startedAt = session.startedAt ?? new Date();", "const startedAt = (session as any).startedAt ?? new Date();");
+  s = s.replace('.set({ status: "ACTIVE", startedAt, updatedAt: new Date() })', '.set({ status: "ACTIVE", startedAt, updatedAt: new Date() } as any)');
 
   save(p, before, s);
 }
