@@ -8,6 +8,7 @@ import {
   jsonb,
   pgEnum,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -236,6 +237,11 @@ export const creditsUsageTable = pgTable(
     operation: text("operation").notNull(),
     creditsUsed: numeric("credits_used").notNull(),
     cached: boolean("cached").notNull().default(false),
+    // Client-supplied per-action key (creditedAi.createIdempotencyKey). A
+    // unique index makes replays (double-click / retry) a no-op: the second
+    // insert conflicts and the original charge result is returned instead of
+    // charging again.
+    idempotencyKey: text("idempotency_key"),
     resumeId: text("resume_id"),
     sessionId: text("session_id"),
     aiModel: text("ai_model"),
@@ -245,7 +251,10 @@ export const creditsUsageTable = pgTable(
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (t) => [index("credits_usage_user_id_idx").on(t.userId)],
+  (t) => [
+    index("credits_usage_user_id_idx").on(t.userId),
+    uniqueIndex("credits_usage_idempotency_key_idx").on(t.idempotencyKey),
+  ],
 );
 
 export type CreditsUsage = typeof creditsUsageTable.$inferSelect;

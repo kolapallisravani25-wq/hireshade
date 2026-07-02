@@ -259,7 +259,10 @@ export default function ProjectRecommendations() {
         });
         if (!res.ok) {
           const e = await res.json().catch(() => ({}));
-          const msg = (e as { error?: string }).error ?? "Regeneration failed";
+          const msg =
+            (e as { message?: string; error?: string }).message ??
+            (e as { error?: string }).error ??
+            "Regeneration failed";
           toast.error(msg, { id: tid });
           dispatch(errorRegenJob(msg));
           return;

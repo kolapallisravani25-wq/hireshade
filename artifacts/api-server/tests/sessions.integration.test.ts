@@ -575,3 +575,91 @@ describe("transcript persistence", () => {
     expect(msgs).toHaveLength(0);
   });
 });
+
+// ── Per-feature credit charging (resume / project AI) ─────────────────────────
+import { chargeFeature, InsufficientCreditsError } from "../src/lib/featureCredits.js";
+
+describe("chargeFeature — per-action metering", () => {
+  it("charges the configured cost and records an idempotency-keyed ledger row", async () => {
+    await seedUser(USER_A, "20");
+    const key = uuidv4();
+    const r = await chargeFeature({
+      userId: USER_A,
+      operation: "resume_generate", // cost 10
+      idempotencyKey: key,
+    });
+    expect(r.creditsUsed).toBe(10);
+    expect(r.cached).toBe(false);
+    expect(r.creditsRemaining).toBeCloseTo(10, 2);
+    expect(await balanceOf(USER_A)).toBeCloseTo(10, 2);
+
+    const usage = await db.select().from(creditsUsageTable);
+    expect(usage).toHaveLength(1);
+    expect(usage[0]!.idempotencyKey).toBe(key);
+  });
+
+  it("is idempotent — replaying the same key never double-charges", async () => {
+    await seedUser(USER_A, "20");
+    const key = uuidv4();
+    const opts = { userId: USER_A, operation: "resume_generate", idempotencyKey: key };
+    const r1 = await chargeFeature(opts);
+    const r2 = await chargeFeature(opts);
+    expect(r1.cached).toBe(false);
+    expect(r2.cached).toBe(true);
+    expect(r2.creditsUsed).toBe(10);
+    expect(await balanceOf(USER_A)).toBeCloseTo(10, 2);
+    expect(await db.select().from(creditsUsageTable)).toHaveLength(1);
+  });
+
+  it("concurrent duplicate keys charge exactly once", async () => {
+    await seedUser(USER_A, "20");
+    const key = uuidv4();
+    const opts = { userId: USER_A, operation: "resume_generate", idempotencyKey: key };
+    const results = await Promise.all([
+      chargeFeature(opts),
+      chargeFeature(opts),
+      chargeFeature(opts),
+    ]);
+    expect(await db.select().from(creditsUsageTable)).toHaveLength(1);
+    expect(await balanceOf(USER_A)).toBeCloseTo(10, 2);
+    expect(results.filter((r) => !r.cached)).toHaveLength(1);
+  });
+
+  it("throws InsufficientCreditsError and charges nothing when balance can't cover", async () => {
+    await seedUser(USER_A, "3"); // < 10
+    await expect(
+      chargeFeature({ userId: USER_A, operation: "resume_generate", idempotencyKey: uuidv4() }),
+    ).rejects.toBeInstanceOf(InsufficientCreditsError);
+    expect(await balanceOf(USER_A)).toBeCloseTo(3, 2);
+    expect(await db.select().from(creditsUsageTable)).toHaveLength(0);
+  });
+
+  it("free operations (cost 0) never write a ledger row and always succeed", async () => {
+    await seedUser(USER_A, "0");
+    const r = await chargeFeature({
+      userId: USER_A,
+      operation: "resume_rewrite", // cost 0 (unpriced)
+      idempotencyKey: uuidv4(),
+    });
+    expect(r.creditsUsed).toBe(0);
+    expect(await db.select().from(creditsUsageTable)).toHaveLength(0);
+  });
+
+  it("spends earned credits before purchased", async () => {
+    await db.delete(creditsBalanceTable).where(eq(creditsBalanceTable.userId, USER_A));
+    await db.insert(creditsBalanceTable).values({
+      id: uuidv4(),
+      userId: USER_A,
+      earnedCredits: "6",
+      purchasedCredits: "10",
+      heldCredits: "0",
+    });
+    await chargeFeature({ userId: USER_A, operation: "resume_generate", idempotencyKey: uuidv4() }); // 10
+    const [b] = await db
+      .select()
+      .from(creditsBalanceTable)
+      .where(eq(creditsBalanceTable.userId, USER_A));
+    expect(parseFloat(b!.earnedCredits)).toBeCloseTo(0, 2); // 6 earned drained first
+    expect(parseFloat(b!.purchasedCredits)).toBeCloseTo(6, 2); // 4 taken from purchased
+  });
+});

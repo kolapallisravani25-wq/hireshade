@@ -7,7 +7,6 @@ import { useAIChat } from "@/hooks/useAIChat";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { useFreeSessionTimer } from "@/hooks/useFreeSessionTimer";
 import { useSessionHeartbeat } from "@/hooks/useSessionHeartbeat";
-import { useSessionEvents } from "@/hooks/useSessionEvents";
 import { createAudioSessionController } from "@/features/session/audio/audioSessionController";
 import { toast } from "sonner";
 import { getAuthHeaders } from "@/lib/globalAuth";
@@ -519,14 +518,14 @@ export default function ActiveSession() {
     onSessionEnded: onSessionEndedRemotely,
   });
 
-  // SSE: real-time events for paid sessions
-  useSessionEvents({
-    sessionId: id,
-    enabled:
-      !isFreeSession && !isConnectDialogOpen && sessionStartedAt !== null,
-    onExhausted: onCreditExhausted,
-    onWarning: onCreditWarning,
-  });
+  // NOTE: a separate SSE ("/events") channel used to run alongside the
+  // heartbeat here. It was retired: the endpoint had no auth/ownership check
+  // (any caller could open an SSE stream for any session id) and never
+  // actually emitted CREDIT_WARNING/SESSION_CLOSED — it only sent keep-alive
+  // pings, so the listener was permanently dead code promising a contract it
+  // never fulfilled. useSessionHeartbeat (above) already delivers the same
+  // CREDIT_WARNING / CREDIT_EXHAUSTED / TIME_EXHAUSTED / SESSION_NOT_ACTIVE
+  // outcomes every 60s via an authenticated, ownership-checked endpoint.
 
   // Keep the ref current so endSessionNow (defined above) can call stop
   stopHeartbeatRef.current = stopHeartbeat;

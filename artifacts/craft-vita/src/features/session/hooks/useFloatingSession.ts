@@ -21,7 +21,6 @@ import { useAIChat } from "@/hooks/useAIChat";
 import { detectIntent, isFillerPhrase } from "@/lib/intent-detector";
 import { useFreeSessionTimer } from "@/hooks/useFreeSessionTimer";
 import { useSessionHeartbeat } from "@/hooks/useSessionHeartbeat";
-import { useSessionEvents } from "@/hooks/useSessionEvents";
 import { createAudioSessionController } from "@/features/session/audio/audioSessionController";
 import { extractInterviewKeywordsFromParts } from "@/utils/keywordExtractor";
 import { normalizeSttTranscript } from "@/features/session/transcript/stt-normalizer";
@@ -1264,12 +1263,9 @@ export function useFloatingSession() {
     onSessionEnded: handleSessionEndedRemotely,
   });
 
-  useSessionEvents({
-    sessionId: heartbeatParams.sessionId,
-    enabled: heartbeatParams.enabled,
-    onExhausted: handleExhausted,
-    onWarning: handleCreditWarning,
-  });
+  // Retired dead SSE ("/events") channel — see the identical note in
+  // pages/Sessions/ActiveSession/page.tsx. useSessionHeartbeat above already
+  // covers the full exhaustion/warning/remote-end contract.
 
   // ── System audio (Rust STT) ─────────────────────────────────────────────────
 

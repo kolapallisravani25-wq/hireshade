@@ -13,20 +13,9 @@ import {
   CREDITS_PER_MINUTE,
   GRACE_ZONE_MINUTES,
 } from "../lib/sessionCredits.js";
+import { allFeatureCosts } from "../lib/featureCredits.js";
 
 const router: IRouter = Router();
-
-const FEATURE_COSTS: Record<string, number> = {
-  ai_answer: 2,
-  ai_answer_cached: 0,
-  analyze_screen: 3,
-  resume_ats: 5,
-  resume_cover_letter: 8,
-  resume_generate: 10,
-  resume_enhance_section: 3,
-  project_generate: 10,
-  session_minute: 1,
-};
 
 // The client reads brackets[0].graceZoneMinutes and .creditsPerMinute for the
 // live-session billing UX — these MUST be present or the client silently falls
@@ -185,7 +174,17 @@ router.get("/usage", requireAuth, async (req, res) => {
 });
 
 router.get("/feature-costs", requireAuth, async (_req, res) => {
-  res.json({ data: FEATURE_COSTS });
+  // Live costs from the charging engine (single source of truth). In-session
+  // AI (ai_answer / analyze_screen) is billed via the per-minute session meter,
+  // so it is advertised as 0 here to avoid implying a separate per-action charge.
+  res.json({
+    data: {
+      ...allFeatureCosts(),
+      ai_answer: 0,
+      analyze_screen: 0,
+      session_minute: CREDITS_PER_MINUTE,
+    },
+  });
 });
 
 router.get("/purchases", requireAuth, async (req, res) => {

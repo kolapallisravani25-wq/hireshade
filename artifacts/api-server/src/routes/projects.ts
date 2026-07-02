@@ -6,6 +6,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { chatCompleteJSON } from "../lib/openrouter.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
+import { chargeOr402 } from "../lib/featureCredits.js";
 
 const router: IRouter = Router();
 
@@ -201,6 +202,19 @@ router.post("/generate", requireAuth, async (req, res) => {
       res.status(400).json({ error: "Selected resume not found or unavailable" });
       return;
     }
+
+    // Charge upfront, before any streaming headers are flushed — this endpoint
+    // streams its results so it can't carry the JSON meter in a body, and a
+    // late 402 mid-stream would be unreadable by the client. Idempotency-Key
+    // makes a retried generation a no-op charge. On insufficient credits the
+    // client's !res.ok branch shows the error toast.
+    const _meter = await chargeOr402(res, {
+      userId,
+      operation: "project_generate",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: body.resumeId,
+    });
+    if (!_meter) return;
 
     const normalizedIndustry = (body.industry || body.sector || "").trim();
     const normalizedPosition = (body.position || "").trim();
@@ -502,6 +516,13 @@ router.post("/:id/edit-component", requireAuth, async (req, res) => {
       maxTokens: 2000,
     });
 
+    const _meter = await chargeOr402(res, {
+      userId,
+      operation: "project_edit_component",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+    });
+    if (!_meter) return;
+
     const updatedContent = { ...content, [body.component]: revisedValue };
     const newVersion = project.version + 1;
 
@@ -517,7 +538,7 @@ router.post("/:id/edit-component", requireAuth, async (req, res) => {
       content: updatedContent,
     });
 
-    res.json({ success: true, data: updatedContent });
+    res.json({ success: true, data: { content: updatedContent, ..._meter } });
   } catch (err) {
     console.error("[projects] edit-component error", err);
     res.status(500).json({ error: "Failed to edit component" });

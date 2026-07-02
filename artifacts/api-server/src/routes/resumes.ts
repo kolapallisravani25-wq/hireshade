@@ -12,6 +12,7 @@ import {
   deleteResumeObject,
 } from "../lib/resumeStorage.js";
 import { chatComplete, chatCompleteJSON } from "../lib/openrouter.js";
+import { chargeOr402 } from "../lib/featureCredits.js";
 import {
   getResumeContextById,
   getResumeContextText,
@@ -449,7 +450,14 @@ router.post("/builder/generate", requireAuth, async (req, res) => {
       maxTokens: 2500,
     });
 
-    res.json({ success: true, data: { fields } });
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_generate",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: null,
+    });
+    if (!_meter) return;
+    res.json({ success: true, data: { fields, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/generate error", err);
     res.status(500).json({ error: "Failed to generate resume" });
@@ -477,7 +485,14 @@ router.post("/builder/extract-fields", requireAuth, async (req, res) => {
       maxTokens: 2500,
     });
 
-    res.json({ success: true, data: { fields } });
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_extract_fields",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: body.resumeId ?? null,
+    });
+    if (!_meter) return;
+    res.json({ success: true, data: { fields, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/extract-fields error", err);
     res.status(500).json({ error: "Failed to extract fields" });
@@ -499,7 +514,14 @@ router.post("/builder/enhance-section", requireAuth, async (req, res) => {
 
     const text = await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 });
 
-    res.json({ success: true, data: { text } });
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_enhance_section",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: null,
+    });
+    if (!_meter) return;
+    res.json({ success: true, data: { text, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/enhance-section error", err);
     res.status(500).json({ error: "Failed to enhance section" });
@@ -574,7 +596,14 @@ router.post("/builder/tailor", requireAuth, async (req, res) => {
       matchScore: number;
     }>({ messages: [{ role: "user", content: prompt }], maxTokens: 2500 });
 
-    res.json({ success: true, data: result });
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_tailor",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: body.resumeId ?? null,
+    });
+    if (!_meter) return;
+    res.json({ success: true, data: { ...result, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/tailor error", err);
     res.status(500).json({ error: "Failed to tailor resume" });
@@ -598,7 +627,14 @@ router.post("/builder/rewrite", requireAuth, async (req, res) => {
 
     const text = await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 });
 
-    res.json({ success: true, data: { text } });
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_rewrite",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: null,
+    });
+    if (!_meter) return;
+    res.json({ success: true, data: { text, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/rewrite error", err);
     res.status(500).json({ error: "Failed to rewrite text" });
@@ -629,7 +665,14 @@ router.post("/builder/inject-skills", requireAuth, async (req, res) => {
       maxTokens: 800,
     });
 
-    res.json({ success: true, data: { fields } });
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_inject_skills",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: body.resumeId ?? null,
+    });
+    if (!_meter) return;
+    res.json({ success: true, data: { fields, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/inject-skills error", err);
     res.status(500).json({ error: "Failed to suggest skills" });
@@ -660,7 +703,14 @@ router.post("/builder/inject-keywords", requireAuth, async (req, res) => {
 
     const text = await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 });
 
-    res.json({ success: true, data: { text } });
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_inject_keywords",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: null,
+    });
+    if (!_meter) return;
+    res.json({ success: true, data: { text, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/inject-keywords error", err);
     res.status(500).json({ error: "Failed to inject keywords" });
@@ -694,7 +744,14 @@ router.post("/builder/analyze-keywords", requireAuth, async (req, res) => {
       maxTokens: 1000,
     });
 
-    res.json({ success: true, data: result });
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_analyze_keywords",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: body.resumeId ?? null,
+    });
+    if (!_meter) return;
+    res.json({ success: true, data: { ...result, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/analyze-keywords error", err);
     res.status(500).json({ error: "Failed to analyze keywords" });

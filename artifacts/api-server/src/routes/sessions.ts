@@ -910,21 +910,15 @@ router.get("/:id/analytics", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/:id/events", async (req, res) => {
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-  res.flushHeaders();
-
-  const keepAlive = setInterval(() => {
-    res.write(`: ping\n\n`);
-  }, 30000);
-
-  req.on("close", () => {
-    clearInterval(keepAlive);
-    res.end();
-  });
-});
+// NOTE: the previous GET /:id/events SSE endpoint was removed. It had no
+// requireAuth / ownership check (any caller could open a stream for any
+// session id — an unauthenticated resource-exhaustion surface) and only ever
+// sent keep-alive pings; it never emitted the CREDIT_WARNING/SESSION_CLOSED
+// events its (now-removed) client listener expected. The heartbeat endpoint
+// above is authenticated, ownership-checked, and already delivers the full
+// CREDIT_WARNING / CREDIT_EXHAUSTED / TIME_EXHAUSTED / SESSION_NOT_ACTIVE
+// contract every 60s, so this channel added an open unauthenticated
+// connection per session with no corresponding benefit.
 
 // ── Answer endpoints (require auth — called from AskAIWorkspace) ──────────────
 

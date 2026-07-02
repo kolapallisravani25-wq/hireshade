@@ -282,7 +282,10 @@ export default function AIProjectsPage() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        const errMsg = (err as { error?: string }).error ?? "Generation failed";
+        const errMsg =
+          (err as { message?: string; error?: string }).message ??
+          (err as { error?: string }).error ??
+          "Generation failed";
         localStorage.removeItem(PENDING_GEN_KEY);
         dispatch(setGenerationError(errMsg));
         toast.error(errMsg, { id: GEN_TOAST_ID });
