@@ -185,7 +185,14 @@ export function useAssistant() {
           body: JSON.stringify({ query, aiModel }),
         });
 
-        if (!res.ok) throw new Error("Stream request failed");
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}) as { message?: string; error?: string });
+          throw new Error(
+            (err as { message?: string; error?: string }).message ??
+              (err as { error?: string }).error ??
+              "Stream request failed",
+          );
+        }
 
         const reader = res.body?.getReader();
         const decoder = new TextDecoder();

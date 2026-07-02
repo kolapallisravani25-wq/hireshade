@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { requireAuth } from "../middlewares/requireAuth.js";
 import { chatCompleteJSON } from "../lib/openrouter.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
+import { chargeOr402 } from "../lib/featureCredits.js";
 
 const router: IRouter = Router();
 
@@ -25,7 +26,17 @@ router.post("/project-generation", requireAuth, async (req, res) => {
       maxTokens: 1500,
     });
 
-    res.json({ success: true, data: ideas });
+    // Not currently wired to any UI (see endpoints.ts aiProjectGeneration) —
+    // registered at 0 so it can't silently go unmetered the moment a future
+    // UI wires it up (same treatment as projects/:id/edit-component).
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "ai_project_generation",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+    });
+    if (!_meter) return;
+
+    res.json({ success: true, data: { ideas, ..._meter } });
   } catch (err) {
     console.error("[ai] project-generation error", err);
     res.status(500).json({ error: "Failed to generate project ideas" });

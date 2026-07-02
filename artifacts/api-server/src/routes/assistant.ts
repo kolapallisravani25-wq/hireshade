@@ -11,6 +11,7 @@ import { eq, and, desc, or, ilike, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { streamChatComplete } from "../lib/openrouter.js";
 import type { ChatMessage } from "../lib/openrouter.js";
+import { chargeOr402 } from "../lib/featureCredits.js";
 
 const router: IRouter = Router();
 
@@ -357,6 +358,18 @@ router.post("/:chatId/query", requireAuth, async (req, res) => {
         })),
       { role: "user", content: query },
     ];
+
+    // Charge (if this feature has been priced via FEATURE_COST_ASSISTANT_CHAT)
+    // BEFORE any SSE header is flushed, so a 402 can still be a clean JSON
+    // response the client's `!res.ok` branch handles normally. Idempotency-Key
+    // makes a retried send a no-op charge.
+    const _meter = await chargeOr402(res, {
+      userId,
+      operation: "assistant_chat",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      aiModel: body.aiModel ?? null,
+    });
+    if (!_meter) return;
 
     res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");

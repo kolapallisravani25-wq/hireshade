@@ -663,3 +663,41 @@ describe("chargeFeature — per-action metering", () => {
     expect(parseFloat(b!.purchasedCredits)).toBeCloseTo(6, 2); // 4 taken from purchased
   });
 });
+
+// ── Newly-metered routes: assistant chat + ai/project-generation ──────────────
+import assistantRouter from "../src/routes/assistant.js";
+import aiRouter from "../src/routes/ai.js";
+app.use("/api/assistant", assistantRouter);
+app.use("/api/ai", aiRouter);
+
+describe("assistant chat metering scaffold", () => {
+  it("is registered in the feature-cost registry (was previously invisible to billing)", async () => {
+    const res = await request(app)
+      .get("/api/credits/feature-costs")
+      .set("x-test-user", USER_A);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty("assistant_chat");
+    expect(res.body.data).toHaveProperty("ai_project_generation");
+  });
+
+  it("charges when priced via env, blocking on 402 with zero side effects", async () => {
+    process.env["FEATURE_COST_ASSISTANT_CHAT"] = "4";
+    try {
+      await seedUser(USER_A, "1"); // below the 4-credit cost
+      // Create an assistant chat row directly (chat creation route not under test here)
+      const chatId = uuidv4();
+      await db.insert(
+        (await import("@workspace/db/schema")).assistantChatsTable,
+      ).values({ id: chatId, userId: USER_A, title: "test chat" });
+
+      const res = await request(app)
+        .post(`/api/assistant/${chatId}/query`)
+        .set("x-test-user", USER_A)
+        .send({ query: "hello" });
+      expect(res.status).toBe(402);
+      expect(await balanceOf(USER_A)).toBeCloseTo(1, 2); // untouched
+    } finally {
+      delete process.env["FEATURE_COST_ASSISTANT_CHAT"];
+    }
+  });
+});

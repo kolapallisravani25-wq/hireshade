@@ -33,6 +33,14 @@ const DEFAULT_FEATURE_COSTS: Record<string, number> = {
   // projectsEditComponent) — registered now so it can't silently go unmetered
   // the moment a future UI wires it up.
   project_edit_component: 0,
+  // "Assistant" chat (chat with your interview history, outside any live
+  // session) — was previously invisible to the credit system entirely: no
+  // charge, no usage row, no tracking of any kind despite calling OpenRouter
+  // on every message. Registered at 0 by default (no surprise price change
+  // for existing users) so usage is now at least tracked in credits_usage;
+  // set FEATURE_COST_ASSISTANT_CHAT to price it.
+  assistant_chat: 0,
+  ai_project_generation: 0,
 };
 
 export function featureCost(operation: string): number {
