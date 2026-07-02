@@ -27,8 +27,18 @@ vi.mock("../src/lib/openrouter.js", () => ({
   chatComplete: vi.fn(async () => "mock AI text response"),
   chatCompleteJSON: vi.fn(async () => ({
     score: 82,
+    confidence: 75,
+    communication: 80,
+    interactivity: 70,
+    technicalDepth: 78,
+    conciseness: 72,
+    interviewerMood: "engaged and receptive",
     summary: "mock summary",
     strengths: ["mock strength"],
+    improvements: ["mock improvement"],
+    keyTopics: ["spark", "kafka"],
+    studyAreas: ["system design"],
+    resumeGaps: [],
     weaknesses: [],
     missingKeywords: [],
     suggestions: [],
@@ -49,6 +59,7 @@ import {
   creditsUsageTable,
   creditsPurchasesTable,
   resumesTable,
+  sessionFeedbackTable,
 } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -141,6 +152,7 @@ beforeEach(async () => {
   await db.delete(sessionMessagesTable);
   await db.delete(creditsUsageTable);
   await db.delete(creditsPurchasesTable);
+  await db.delete(sessionFeedbackTable);
   await db.delete(sessionsTable);
   await db.delete(resumesTable);
   await seedUser(USER_A);
@@ -847,5 +859,96 @@ describe("resume AI routes — closing the last billing gaps", () => {
     } finally {
       delete process.env["FEATURE_COST_RESUME_ATS"];
     }
+  });
+});
+
+// ── Session Insights / Analytics (spec §4.3 / §7 / §8 / §13) ──────────────────
+describe("session insights", () => {
+  async function seedTranscript(sessionId: string) {
+    const base = Date.now();
+    await db.insert(sessionMessagesTable).values([
+      { id: uuidv4(), sessionId, role: "INTERVIEWER", content: "Tell me about a hard bug you fixed.", createdAt: new Date(base) },
+      { id: uuidv4(), sessionId, role: "USER", content: "I debugged a Kafka consumer lag issue in a Spark pipeline.", createdAt: new Date(base + 4000) },
+      { id: uuidv4(), sessionId, role: "INTERVIEWER", content: "How did you measure it?", createdAt: new Date(base + 8000) },
+      { id: uuidv4(), sessionId, role: "USER", content: "I tracked end-to-end latency and consumer offsets.", createdAt: new Date(base + 11000) },
+    ]);
+  }
+
+  it("existing returns null before generation, object after", async () => {
+    const s = await makeSession(USER_A, { status: "COMPLETED", endedAt: new Date() });
+    await seedTranscript(s.id);
+
+    const before = await request(app)
+      .get(`/api/session/${s.id}/analytics/existing`)
+      .set("x-test-user", USER_A);
+    expect(before.status).toBe(200);
+    expect(before.body).toBeNull();
+
+    const gen = await request(app)
+      .get(`/api/session/${s.id}/analytics`)
+      .set("x-test-user", USER_A);
+    expect(gen.status).toBe(200);
+    expect(gen.body.id).toBeTruthy();
+    expect(gen.body.score).toBe(82);
+    expect(gen.body.communication).toBe(80);
+    expect(gen.body.interviewerMood).toContain("engaged");
+    expect(Array.isArray(gen.body.strengths)).toBe(true);
+    expect(gen.body.strengths.length).toBeGreaterThan(0);
+    expect(Array.isArray(gen.body.improvements)).toBe(true);
+    // avgResponseTime computed from the interviewer→candidate gaps
+    expect(typeof gen.body.avgResponseTime === "number" || gen.body.avgResponseTime === null).toBe(true);
+
+    const after = await request(app)
+      .get(`/api/session/${s.id}/analytics/existing`)
+      .set("x-test-user", USER_A);
+    expect(after.status).toBe(200);
+    expect(after.body.id).toBe(gen.body.id);
+  });
+
+  it("generation is idempotent — repeated calls return the same row, no duplicates", async () => {
+    const s = await makeSession(USER_A, { status: "COMPLETED", endedAt: new Date() });
+    await seedTranscript(s.id);
+
+    const r1 = await request(app).get(`/api/session/${s.id}/analytics`).set("x-test-user", USER_A);
+    const r2 = await request(app).get(`/api/session/${s.id}/analytics`).set("x-test-user", USER_A);
+    expect(r1.body.id).toBe(r2.body.id);
+    const rows = await db.select().from(sessionFeedbackTable).where(eq(sessionFeedbackTable.sessionId, s.id));
+    expect(rows).toHaveLength(1);
+  });
+
+  it("concurrent generation converges on one row", async () => {
+    const s = await makeSession(USER_A, { status: "COMPLETED", endedAt: new Date() });
+    await seedTranscript(s.id);
+    await Promise.all([
+      request(app).get(`/api/session/${s.id}/analytics`).set("x-test-user", USER_A),
+      request(app).get(`/api/session/${s.id}/analytics`).set("x-test-user", USER_A),
+      request(app).get(`/api/session/${s.id}/analytics`).set("x-test-user", USER_A),
+    ]);
+    const rows = await db.select().from(sessionFeedbackTable).where(eq(sessionFeedbackTable.sessionId, s.id));
+    expect(rows).toHaveLength(1);
+  });
+
+  it("returns 422 when there's not enough transcript to evaluate", async () => {
+    const s = await makeSession(USER_A, { status: "COMPLETED", endedAt: new Date() });
+    // only one line — not a conversation
+    await db.insert(sessionMessagesTable).values({
+      id: uuidv4(), sessionId: s.id, role: "USER", content: "hi", createdAt: new Date(),
+    });
+    const res = await request(app).get(`/api/session/${s.id}/analytics`).set("x-test-user", USER_A);
+    expect(res.status).toBe(422);
+    expect(res.body.error).toBe("NOT_ENOUGH_TRANSCRIPT");
+  });
+
+  it("blocks insights access to another user's session (ownership)", async () => {
+    const s = await makeSession(USER_A, { status: "COMPLETED", endedAt: new Date() });
+    await seedTranscript(s.id);
+    const existing = await request(app)
+      .get(`/api/session/${s.id}/analytics/existing`)
+      .set("x-test-user", USER_B);
+    expect(existing.status).toBe(404);
+    const gen = await request(app)
+      .get(`/api/session/${s.id}/analytics`)
+      .set("x-test-user", USER_B);
+    expect(gen.status).toBe(404);
   });
 });

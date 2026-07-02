@@ -23,6 +23,12 @@ import {
   FREE_SESSION_MINUTES,
   STALE_ACTIVE_MS,
 } from "../lib/sessionCredits.js";
+import {
+  generateSessionFeedback,
+  getExistingFeedback,
+  triggerSessionFeedbackAsync,
+  loadOwnedSession,
+} from "../lib/sessionFeedback.js";
 
 const router: IRouter = Router();
 
@@ -598,6 +604,15 @@ router.post("/:id/deactivate", requireAuth, async (req, res) => {
       aiUsage: typeof body.aiUsage === "number" ? body.aiUsage : null,
     });
 
+    // Spec §6.5 / §8.8b: insights generation is triggered asynchronously on
+    // session end. Fire-and-forget — a slow/failed model call must never fail
+    // or delay the end-session response; the review page will regenerate on
+    // open if this didn't complete. Only worth triggering when the session
+    // actually reached a terminal (settled) state with a saved transcript.
+    if (isTerminalStatus(settled.status) && session.saveTranscription) {
+      triggerSessionFeedbackAsync({ ...session, status: settled.status, endedAt: new Date() });
+    }
+
     res.json({
       success: true,
       status: settled.status,
@@ -873,40 +888,61 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/:id/analytics", requireAuth, async (req, res) => {
+/**
+ * Insights / Analytics (spec §4.3 Insights tab, §7 session_insights, §8).
+ *
+ *  GET /:id/analytics/existing — returns the stored feedback object, or null
+ *    if it hasn't been generated yet. The review dialog calls this first so a
+ *    previously-generated evaluation loads instantly without a model call.
+ *  GET /:id/analytics — generate-or-return: produces the evaluation if missing
+ *    (idempotent, persisted), otherwise returns the stored one. Returns the
+ *    feedback object DIRECTLY (not wrapped) because the client reads it as-is.
+ */
+router.get("/:id/analytics/existing", requireAuth, async (req, res) => {
   try {
     const userId = req.userId!;
     const sessionId = String(req.params["id"] ?? "");
 
-    const [session] = await db
-      .select()
-      .from(sessionsTable)
-      .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)))
-      .limit(1);
-
+    const session = await loadOwnedSession(userId, sessionId);
     if (!session) {
       res.status(404).json({ error: "Session not found" });
       return;
     }
 
-    const messages = await db
-      .select()
-      .from(sessionMessagesTable)
-      .where(eq(sessionMessagesTable.sessionId, sessionId));
-
-    res.json({
-      success: true,
-      data: {
-        sessionId,
-        totalMessages: messages.length,
-        duration: session.endedAt
-          ? Math.round((session.endedAt.getTime() - session.createdAt.getTime()) / 1000)
-          : null,
-        creditsDeducted: session.creditsDeducted,
-      },
-    });
+    const existing = await getExistingFeedback(sessionId);
+    res.json(existing ?? null);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch analytics" });
+    console.error("[sessions] analytics/existing error", err);
+    res.status(500).json({ error: "Failed to fetch insights" });
+  }
+});
+
+router.get("/:id/analytics", requireAuth, async (req, res) => {
+  try {
+    const userId = req.userId!;
+    const sessionId = String(req.params["id"] ?? "");
+
+    const session = await loadOwnedSession(userId, sessionId);
+    if (!session) {
+      res.status(404).json({ error: "Session not found" });
+      return;
+    }
+
+    const feedback = await generateSessionFeedback(session);
+    if (!feedback) {
+      res.status(422).json({
+        error: "NOT_ENOUGH_TRANSCRIPT",
+        message: "Not enough conversation in this session to generate insights.",
+      });
+      return;
+    }
+
+    // Returned directly — the client's SessionAnalyticsDialog reads the
+    // feedback object at the top level (feedback.score, .strengths, etc.).
+    res.json(feedback);
+  } catch (err) {
+    console.error("[sessions] analytics error", err);
+    res.status(502).json({ error: "Failed to generate insights" });
   }
 });
 

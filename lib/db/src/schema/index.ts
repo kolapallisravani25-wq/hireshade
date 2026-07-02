@@ -401,3 +401,42 @@ export const assistantMessagesTable = pgTable(
 );
 
 export type AssistantMessage = typeof assistantMessagesTable.$inferSelect;
+
+/**
+ * Session feedback / Insights (spec §4.3, §7 session_insights, §8, §13).
+ * One row per session — the AI-generated post-session evaluation surfaced in
+ * the review page's Insights/Analytics tab. Generated once (idempotent),
+ * persisted, and re-served on subsequent opens. Numeric metrics are 0–100.
+ */
+export const sessionFeedbackTable = pgTable(
+  "session_feedback",
+  {
+    id: text("id").primaryKey(),
+    sessionId: text("session_id")
+      .notNull()
+      .references(() => sessionsTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    // Core 0–100 metrics the review dialog renders.
+    score: integer("score").notNull().default(0),
+    confidence: integer("confidence").notNull().default(0),
+    communication: integer("communication").notNull().default(0),
+    interactivity: integer("interactivity").notNull().default(0),
+    technicalDepth: integer("technical_depth").notNull().default(0),
+    conciseness: integer("conciseness").notNull().default(0),
+    avgResponseTime: integer("avg_response_time"), // seconds, nullable
+    interviewerMood: text("interviewer_mood"),
+    summary: text("summary"),
+    strengths: jsonb("strengths").$type<string[]>().notNull().default([]),
+    improvements: jsonb("improvements").$type<string[]>().notNull().default([]),
+    // Spec §7 session_insights fields.
+    keyTopics: jsonb("key_topics").$type<string[]>().notNull().default([]),
+    studyAreas: jsonb("study_areas").$type<string[]>().notNull().default([]),
+    resumeGaps: jsonb("resume_gaps").$type<string[]>().notNull().default([]),
+    generatedAt: timestamp("generated_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("session_feedback_session_id_idx").on(t.sessionId)],
+);
+
+export type SessionFeedback = typeof sessionFeedbackTable.$inferSelect;
