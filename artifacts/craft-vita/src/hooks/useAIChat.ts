@@ -977,15 +977,15 @@ export const useAIChat = () => {
         const latestAnswerContext = buildLatestAnswerContextPayload(aiChatRef.current);
         const screenRequestContext = sanitizeAIAnswerPayload({
           transcript: "Analyze and answer the interview task visible in the screenshot.",
-          currentQuestion:
-            "Analyze and answer the interview task visible in the screenshot.",
           sourcePlatform: contextPayload?.sourcePlatform,
           answerMode: contextPayload?.answerMode || "auto",
           // Screen content is authoritative for the question itself (we don't
-          // want a stale voice transcript overriding what's on screen), but
-          // the backend still needs to know what was already answered so it
-          // can identify the CURRENTLY active question among multiple and
-          // avoid regenerating an answer for one already covered.
+          // want a stale voice transcript overriding what's on screen), so we
+          // deliberately do NOT send a currentQuestion here — the backend now
+          // instructs the model to identify and state the real question from
+          // the image itself. We still tell the backend what was already
+          // answered so it can identify the CURRENTLY active question among
+          // multiple and avoid regenerating an answer for one already covered.
           previousAiAnswer: latestAnswerContext.previousAiAnswer,
           previousAiAnswers: latestAnswerContext.previousAiAnswers,
         });
