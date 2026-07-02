@@ -113,16 +113,24 @@ export function ATSPanel() {
     setScoreError(null);
     try {
       const token = await getToken();
+      const idempotencyKey = createIdempotencyKey();
       const res = await fetch(ENDPOINTS.resumeBuilderAtsScore(), {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "Idempotency-Key": idempotencyKey,
+        },
         body: JSON.stringify({ 
           resumeId: savedResumeId,
           jobDescription: isJdEnabled ? jdText : undefined
         }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "ATS scan failed");
+      if (!res.ok) {
+        if (res.status === 402) throw new InsufficientCreditsError(json.message ?? json.error);
+        throw new Error(json.message || json.error || "ATS scan failed");
+      }
       const data = json.data as AtsResult;
       const at = new Date().toISOString();
       setResult(data);
@@ -130,8 +138,9 @@ export function ATSPanel() {
       writeCache(data, at);
       toast.success(`ATS score: ${data.score}/100`);
     } catch (err) {
-      setScoreError(err instanceof Error ? err.message : "ATS scan failed");
-      toast.error("ATS scan failed");
+      const msg = err instanceof Error ? err.message : "ATS scan failed";
+      setScoreError(msg);
+      toast.error(msg);
     } finally {
       setIsScoring(false);
     }

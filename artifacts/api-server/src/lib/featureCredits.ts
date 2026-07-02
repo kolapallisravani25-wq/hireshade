@@ -29,6 +29,7 @@ const DEFAULT_FEATURE_COSTS: Record<string, number> = {
   resume_inject_skills: 0,
   resume_inject_keywords: 0,
   resume_analyze_keywords: 0,
+  resume_keyword_match: 0,
   // Defined but not yet wired to any UI surface (see endpoints.ts
   // projectsEditComponent) — registered now so it can't silently go unmetered
   // the moment a future UI wires it up.

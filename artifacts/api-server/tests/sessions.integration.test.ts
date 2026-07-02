@@ -22,6 +22,23 @@ vi.mock("../src/middlewares/requireAuth.js", () => ({
   },
 }));
 
+// ── AI mock: deterministic responses, zero network egress to OpenRouter ───────
+vi.mock("../src/lib/openrouter.js", () => ({
+  chatComplete: vi.fn(async () => "mock AI text response"),
+  chatCompleteJSON: vi.fn(async () => ({
+    score: 82,
+    summary: "mock summary",
+    strengths: ["mock strength"],
+    weaknesses: [],
+    missingKeywords: [],
+    suggestions: [],
+    matchScore: 70,
+    matched: [],
+    missing: [],
+  })),
+  streamChatComplete: vi.fn(async () => "mock streamed response"),
+}));
+
 import { db } from "@workspace/db";
 import {
   usersTable,
@@ -31,11 +48,13 @@ import {
   creditsBalanceTable,
   creditsUsageTable,
   creditsPurchasesTable,
+  resumesTable,
 } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 
 import sessionsRouter from "../src/routes/sessions.js";
 import askAIRouter from "../src/routes/askAI.js";
+import resumesRouter from "../src/routes/resumes.js";
 import creditsRouter from "../src/routes/credits.js";
 import {
   settleSession,
@@ -106,12 +125,24 @@ beforeAll(async () => {
   await seedUser(USER_B);
 });
 
+async function makeResume(userId: string) {
+  const id = uuidv4();
+  await db.insert(resumesTable).values({
+    id,
+    userId,
+    filename: "resume.pdf",
+    resumeContext: "Experienced software engineer.",
+  });
+  return id;
+}
+
 beforeEach(async () => {
   await db.delete(answerRevisionsTable);
   await db.delete(sessionMessagesTable);
   await db.delete(creditsUsageTable);
   await db.delete(creditsPurchasesTable);
   await db.delete(sessionsTable);
+  await db.delete(resumesTable);
   await seedUser(USER_A);
   await seedUser(USER_B);
 });
@@ -671,6 +702,7 @@ import aiRouter from "../src/routes/ai.js";
 app.use("/api/assistant", assistantRouter);
 app.use("/api/ai", aiRouter);
 app.use("/api/ask-ai", askAIRouter);
+app.use("/api/resume", resumesRouter);
 
 describe("assistant chat metering scaffold", () => {
   it("is registered in the feature-cost registry (was previously invisible to billing)", async () => {
@@ -724,6 +756,96 @@ describe("ask-ai query metering on completed sessions", () => {
       expect(await balanceOf(USER_A)).toBeCloseTo(1, 2);
     } finally {
       delete process.env["FEATURE_COST_ASK_AI_QUERY"];
+    }
+  });
+});
+
+// ── Previously-unmetered resume routes (final audit sweep) ────────────────────
+describe("resume AI routes — closing the last billing gaps", () => {
+  it("/api/resume/ats-score charges resume_ats (5) and marks the resume scored", async () => {
+    process.env["FEATURE_COST_RESUME_ATS"] = "5";
+    try {
+      const resumeId = await makeResume(USER_A);
+      const res = await request(app)
+        .post("/api/resume/ats-score")
+        .set("x-test-user", USER_A)
+        .send({ resumeId });
+      expect(res.status).toBe(200);
+      expect(res.body.creditsUsed).toBe(5);
+      expect(await balanceOf(USER_A)).toBeCloseTo(95, 2);
+      const [resume] = await db.select().from(resumesTable).where(eq(resumesTable.id, resumeId));
+      expect(resume!.ats).toBe(true);
+    } finally {
+      delete process.env["FEATURE_COST_RESUME_ATS"];
+    }
+  });
+
+  it("/api/resume/builder/ats-score charges resume_ats too (duplicate route, same cost)", async () => {
+    process.env["FEATURE_COST_RESUME_ATS"] = "5";
+    try {
+      const resumeId = await makeResume(USER_A);
+      const res = await request(app)
+        .post("/api/resume/builder/ats-score")
+        .set("x-test-user", USER_A)
+        .send({ resumeId });
+      expect(res.status).toBe(200);
+      expect(res.body.data.creditsUsed).toBe(5);
+      expect(await balanceOf(USER_A)).toBeCloseTo(95, 2);
+    } finally {
+      delete process.env["FEATURE_COST_RESUME_ATS"];
+    }
+  });
+
+  it("/api/resume/generate-cover-letter charges resume_cover_letter (8) and blocks at 402 when unaffordable", async () => {
+    process.env["FEATURE_COST_RESUME_COVER_LETTER"] = "8";
+    try {
+      await seedUser(USER_A, "3"); // below cost
+      const res = await request(app)
+        .post("/api/resume/generate-cover-letter")
+        .set("x-test-user", USER_A)
+        .send({ resumeId: null, jobRole: "Engineer", company: "Acme" });
+      expect(res.status).toBe(402);
+      expect(await balanceOf(USER_A)).toBeCloseTo(3, 2); // untouched
+    } finally {
+      delete process.env["FEATURE_COST_RESUME_COVER_LETTER"];
+    }
+  });
+
+  it("/api/resume/builder/keyword-match is registered and idempotent even at cost 0", async () => {
+    const costsRes = await request(app)
+      .get("/api/credits/feature-costs")
+      .set("x-test-user", USER_A);
+    expect(costsRes.body.data).toHaveProperty("resume_keyword_match");
+
+    const res = await request(app)
+      .post("/api/resume/builder/keyword-match")
+      .set("x-test-user", USER_A)
+      .send({ jobDescription: "React engineer", fields: {} });
+    expect(res.status).toBe(200);
+    expect(res.body.data.creditsUsed).toBe(0);
+  });
+
+  it("double-submitting ats-score with the same Idempotency-Key charges exactly once", async () => {
+    process.env["FEATURE_COST_RESUME_ATS"] = "5";
+    try {
+      const resumeId = await makeResume(USER_A);
+      const key = uuidv4();
+      const r1 = await request(app)
+        .post("/api/resume/ats-score")
+        .set("x-test-user", USER_A)
+        .set("Idempotency-Key", key)
+        .send({ resumeId });
+      const r2 = await request(app)
+        .post("/api/resume/ats-score")
+        .set("x-test-user", USER_A)
+        .set("Idempotency-Key", key)
+        .send({ resumeId });
+      expect(r1.status).toBe(200);
+      expect(r2.status).toBe(200);
+      expect(r2.body.cached).toBe(true);
+      expect(await balanceOf(USER_A)).toBeCloseTo(95, 2); // charged once, not twice
+    } finally {
+      delete process.env["FEATURE_COST_RESUME_ATS"];
     }
   });
 });

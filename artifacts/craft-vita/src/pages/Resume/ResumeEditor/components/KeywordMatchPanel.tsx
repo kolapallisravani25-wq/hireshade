@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ENDPOINTS } from "@/lib/endpoints";
 import { useAuth } from "@clerk/clerk-react";
 import { toast } from "sonner";
+import { createIdempotencyKey } from "@/lib/creditedAi";
 
 interface KeywordMatchResult {
   present: string[];
@@ -49,6 +50,7 @@ export function KeywordMatchPanel({ onDone, onOpenTool }: KeywordMatchPanelProps
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Idempotency-Key": createIdempotencyKey(),
         },
         body: JSON.stringify({
           jobDescription: jd,
@@ -56,7 +58,10 @@ export function KeywordMatchPanel({ onDone, onOpenTool }: KeywordMatchPanelProps
         }),
       });
 
-      if (!resp.ok) throw new Error("Failed to analyze keywords");
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}) as { message?: string; error?: string });
+        throw new Error((err as any).message || (err as any).error || "Failed to analyze keywords");
+      }
 
       const { data } = await resp.json();
       console.log("Keyword Match Result:", data);

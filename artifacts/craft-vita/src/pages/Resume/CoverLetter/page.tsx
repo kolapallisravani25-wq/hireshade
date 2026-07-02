@@ -9,6 +9,7 @@ import { jsPDF } from "jspdf";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getAuthHeaders } from "@/lib/globalAuth";
+import { createIdempotencyKey } from "@/lib/creditedAi";
 
 export default function CoverLetter() {
   const [loading, setLoading] = React.useState(false);
@@ -44,6 +45,7 @@ export default function CoverLetter() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Idempotency-Key": createIdempotencyKey(),
             ...(await getAuthHeaders()),
           },
           body: JSON.stringify({
@@ -60,13 +62,14 @@ export default function CoverLetter() {
       console.log("🚀 ~ handleGenerate ~ data:", data);
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to generate");
+        throw new Error(data.message || data.error || "Failed to generate");
       }
 
       setContent(data.coverLetter);
     } catch (err: any) {
       console.error("Error generating cover letter:", err);
-      setContent("❌ Failed to generate cover letter. Try again.");
+      const msg = err instanceof Error && err.message ? err.message : "Failed to generate cover letter. Try again.";
+      setContent(`❌ ${msg}`);
     } finally {
       setLoading(false);
     }

@@ -235,12 +235,20 @@ router.post("/ats-score", requireAuth, async (req, res) => {
     const resumeText = await getResumeContextText(resume);
     const result = await scoreResumeText(resumeText, body.jobDescription);
 
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_ats",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: resume.id,
+    });
+    if (!_meter) return;
+
     await db
       .update(resumesTable)
       .set({ ats: true, score: result.score })
       .where(eq(resumesTable.id, resume.id));
 
-    res.json(result);
+    res.json({ ...result, ..._meter });
   } catch (err) {
     console.error("[resumes] ats-score error", err);
     res.status(500).json({ error: "Failed to score resume" });
@@ -277,7 +285,15 @@ router.post("/generate-cover-letter", requireAuth, async (req, res) => {
 
     const coverLetter = await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 1200 });
 
-    res.json({ coverLetter });
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_cover_letter",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: body.resumeId ?? null,
+    });
+    if (!_meter) return;
+
+    res.json({ coverLetter, ..._meter });
   } catch (err) {
     console.error("[resumes] generate-cover-letter error", err);
     res.status(500).json({ error: "Failed to generate cover letter" });
@@ -549,12 +565,20 @@ router.post("/builder/ats-score", requireAuth, async (req, res) => {
     const resumeText = await getResumeContextText(resume);
     const result = await scoreResumeText(resumeText, body.jobDescription);
 
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_ats",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: resume.id,
+    });
+    if (!_meter) return;
+
     await db
       .update(resumesTable)
       .set({ ats: true, score: result.score })
       .where(eq(resumesTable.id, resume.id));
 
-    res.json({ success: true, data: result });
+    res.json({ success: true, data: { ...result, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/ats-score error", err);
     res.status(500).json({ error: "Failed to score resume" });
@@ -785,7 +809,15 @@ router.post("/builder/keyword-match", requireAuth, async (req, res) => {
       maxTokens: 1000,
     });
 
-    res.json({ success: true, data: result });
+    const _meter = await chargeOr402(res, {
+      userId: req.userId!,
+      operation: "resume_keyword_match",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      resumeId: body.resumeId ?? null,
+    });
+    if (!_meter) return;
+
+    res.json({ success: true, data: { ...result, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/keyword-match error", err);
     res.status(500).json({ error: "Failed to match keywords" });
