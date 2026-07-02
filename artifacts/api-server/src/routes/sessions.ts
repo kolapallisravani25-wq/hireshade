@@ -469,31 +469,41 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
       .map((entry, i) => `${i + 1}. ${entry.question!.trim()}`)
       .join("\n");
 
-    const question =
-      contextPayload.currentQuestion ||
-      [
-        "Analyze the screenshot. If multiple questions or tasks are visible, identify the ONE that is currently active — typically the most recent one that does not yet have a visible answer — and answer only that one. Do not regenerate an answer for a question already covered below.",
-        alreadyAnswered ? `Already answered in this session:\n${alreadyAnswered}` : "",
-      ]
-        .filter(Boolean)
-        .join("\n\n");
+    // The frontend deliberately does NOT send a real currentQuestion for
+    // screen analysis (the screenshot is authoritative — a possibly-stale
+    // voice transcript must not override it). That means only the model
+    // itself, having seen the image, can say what the actual question is.
+    // So instead of the backend pre-writing a guessed/generic "**QUESTION:**"
+    // line, the model is instructed to state it, and its output is streamed
+    // through untouched. The frontend's `parseAnswerContent` already parses
+    // "**QUESTION:** ... **ANSWER:** ..." out of raw stream text regardless
+    // of whether the backend or the model produced it.
+    const instruction = [
+      "Analyze the screenshot. If multiple questions or tasks are visible, identify the ONE that is currently active — typically the most recent one that does not yet have a visible answer.",
+      alreadyAnswered
+        ? `Already answered in this session — do not regenerate an answer for these:\n${alreadyAnswered}`
+        : "",
+      'Respond in exactly this format: the first line is "**QUESTION:** " followed by the exact question or task text as it appears on screen. Then, starting on a new line, "**ANSWER:** " followed by your answer.',
+    ]
+      .filter(Boolean)
+      .join("\n\n");
 
     const messages: ChatMessage[] = [
       { role: "system", content: systemPrompt },
       {
         role: "user",
         content: [
-          { type: "text", text: question },
+          { type: "text", text: instruction },
           { type: "image_url", image_url: { url: dataUrl } },
         ],
       },
     ];
 
-    const estimatedTokens = Math.ceil((systemPrompt.length + question.length) / 4);
+    const estimatedTokens = Math.ceil((systemPrompt.length + instruction.length) / 4);
     console.log("[sessions] analyze-screen context", {
       sessionId,
       systemPromptChars: systemPrompt.length,
-      questionChars: question.length,
+      instructionChars: instruction.length,
       previousAnswersIncluded: contextPayload.previousAiAnswers?.length ?? 0,
       estimatedTokens,
     });
@@ -501,7 +511,8 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.flushHeaders();
-    res.write(`**QUESTION:** ${contextPayload.currentQuestion || "Screen analysis"}\n**ANSWER:** `);
+    // No hardcoded "**QUESTION:** ..." prefix here on purpose — see comment
+    // above. The model streams its own structured output directly.
 
     await streamChatComplete({ model: aiModel, messages, maxTokens: OPENROUTER_MAX_TOKENS }, (chunk) => {
       res.write(chunk);
