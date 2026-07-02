@@ -69,7 +69,9 @@ import { resolveDeepgramKey } from "@/lib/deepgramAuth";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 const DEEPGRAM_API_KEY = import.meta.env.VITE_DEEPGRAM_API_KEY || "";
-const ANALYZE_SCREEN_FAST_MODEL = "openai/gpt-4o-mini";
+// Spec §8c/§8.7a: GPT-4o is excluded platform-wide. Screen analysis uses the
+// fastest PERMITTED model (Gemini Flash-Lite) for low-latency question reads.
+const ANALYZE_SCREEN_FAST_MODEL = "google/gemini-3.1-flash-lite-preview";
 
 function deepgramKeyFingerprint(key: string): string {
   const trimmed = (key || "").trim();

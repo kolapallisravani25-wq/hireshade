@@ -39,8 +39,21 @@ function getApiKey(): string {
   return key;
 }
 
+/**
+ * Models excluded platform-wide (spec §8c / desktop §8.7a: "GPT-4o / GPT-4
+ * Pointer is explicitly excluded ... they do not appear as options anywhere").
+ * The picker no longer offers them, but an old session row may still carry one,
+ * so this backend guard maps any excluded model to the default — nothing ever
+ * routes to an excluded model regardless of stored state.
+ */
+function isExcludedModel(model: string): boolean {
+  return /(^|\/)gpt-4o/i.test(model) || /(^|\/)gpt-4-?(pointer|turbo-pointer)/i.test(model);
+}
+
 function resolveModel(model?: string | null): string {
-  return model && model.trim() ? model : DEFAULT_MODEL;
+  const m = model && model.trim() ? model.trim() : "";
+  if (!m || isExcludedModel(m)) return DEFAULT_MODEL;
+  return m;
 }
 
 /** Non-streaming chat completion. Returns the assistant's full text reply. */

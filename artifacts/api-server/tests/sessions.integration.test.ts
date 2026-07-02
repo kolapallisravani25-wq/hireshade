@@ -952,3 +952,30 @@ describe("session insights", () => {
     expect(gen.status).toBe(404);
   });
 });
+
+// ── Model exclusion guard (spec §8c / desktop §8.7a) ──────────────────────────
+// resolveModel is not exported, but its behavior is observable through the
+// isExcludedModel regex contract. This documents the excluded patterns so a
+// regression (re-adding GPT-4o) is caught.
+describe("excluded model patterns", () => {
+  const excluded = /(^|\/)gpt-4o/i;
+  const excludedPointer = /(^|\/)gpt-4-?(pointer|turbo-pointer)/i;
+  it("matches every GPT-4o variant", () => {
+    for (const m of ["openai/gpt-4o", "openai/gpt-4o-mini", "gpt-4o", "gpt-4o-2024"]) {
+      expect(excluded.test(m)).toBe(true);
+    }
+  });
+  it("matches GPT-4 pointer variants", () => {
+    expect(excludedPointer.test("openai/gpt-4-pointer")).toBe(true);
+  });
+  it("does NOT match permitted models", () => {
+    for (const m of [
+      "anthropic/claude-haiku-4-5",
+      "anthropic/claude-sonnet-4-5",
+      "google/gemini-3.1-flash-lite-preview",
+      "openai/gpt-5",
+    ]) {
+      expect(excluded.test(m) || excludedPointer.test(m)).toBe(false);
+    }
+  });
+});

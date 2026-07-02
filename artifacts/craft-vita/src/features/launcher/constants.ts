@@ -51,7 +51,6 @@ export const AI_MODELS_WIDGET = [
   { value: "anthropic/claude-haiku-4-5",          label: "Claude Haiku 4.5",       badge: "fast"      },
   { value: "anthropic/claude-sonnet-4-5",          label: "Claude Sonnet 4.5",      badge: "reasoning" },
   { value: "google/gemini-3.1-flash-lite-preview", label: "Gemini 3.1 Flash Lite"                      },
-  { value: "openai/gpt-4o-mini",                    label: "GPT-4o Mini"                                },
   { value: "openai/gpt-5",                          label: "GPT-5"                                      },
 ];
 

@@ -71,7 +71,6 @@ const AVAILABLE_MODELS = [
   "anthropic/claude-haiku-4-5",
   "anthropic/claude-sonnet-4-5",
   "google/gemini-3.1-flash-lite-preview",
-  "openai/gpt-4o-mini",
   "openai/gpt-5",
 ];
 

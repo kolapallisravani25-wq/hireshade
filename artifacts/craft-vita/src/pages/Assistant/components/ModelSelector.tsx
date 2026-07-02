@@ -10,7 +10,6 @@ import { Cpu } from "lucide-react";
 const MODELS = [
   { id: "auto", label: "Auto (Gemini 2.0 Flash)" },
   { id: "google/gemini-2.0-flash-001", label: "Gemini 2.0 Flash" },
-  { id: "openai/gpt-4o-mini", label: "GPT-4o Mini" },
   { id: "anthropic/claude-3-haiku", label: "Claude 3 Haiku" },
   { id: "anthropic/claude-3.5-sonnet", label: "Claude 3.5 Sonnet" },
   { id: "deepseek/deepseek-chat", label: "DeepSeek Chat" },

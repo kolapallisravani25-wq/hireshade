@@ -10,7 +10,6 @@ const AI_MODELS = [
   { id: "anthropic/claude-haiku-4-5",          name: "Claude Haiku 4.5",      badge: "fast"      },
   { id: "anthropic/claude-sonnet-4-5",          name: "Claude Sonnet 4.5",     badge: "reasoning" },
   { id: "google/gemini-3.1-flash-lite-preview", name: "Gemini 3.1 Flash Lite", badge: undefined   },
-  { id: "openai/gpt-4o-mini",                    name: "GPT-4o Mini",           badge: undefined   },
   { id: "openai/gpt-5",                          name: "GPT-5",                 badge: undefined   },
 ];
 
