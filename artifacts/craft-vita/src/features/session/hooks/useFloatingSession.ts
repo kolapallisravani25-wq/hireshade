@@ -66,6 +66,7 @@ import {
   type SessionLifecycleState,
 } from "@/features/session/runtime/sessionRuntime";
 import type { AIAnswerRequestPayload } from "@/types/ai-answer";
+import { resolveDeepgramKey } from "@/lib/deepgramAuth";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 const DEEPGRAM_API_KEY = import.meta.env.VITE_DEEPGRAM_API_KEY || "";
@@ -1220,6 +1221,14 @@ export function useFloatingSession() {
     dispatch(endSessionThunk());
   }, [dispatch]);
 
+  const handleSessionEndedRemotely = useCallback(() => {
+    toast.info(
+      "This session was ended (inactive too long or ended on another device).",
+      { duration: 6000 },
+    );
+    dispatch(endSessionThunk());
+  }, [dispatch]);
+
   const handleCreditWarning = useCallback(
     (remaining: number) => {
       dispatch(setCreditWarning(remaining));
@@ -1252,6 +1261,7 @@ export function useFloatingSession() {
     startedAt: heartbeatParams.startedAt,
     onExhausted: handleExhausted,
     onWarning: handleCreditWarning,
+    onSessionEnded: handleSessionEndedRemotely,
   });
 
   useSessionEvents({
@@ -1391,7 +1401,7 @@ export function useFloatingSession() {
           language: lang,
           model: "nova-3",
           keyterms,
-          apiKey: DEEPGRAM_API_KEY,
+          apiKey: await resolveDeepgramKey(DEEPGRAM_API_KEY),
         });
       } catch (e: unknown) {
         const msg = String(e);
@@ -2558,7 +2568,7 @@ export function useFloatingSession() {
             language: getLanguageCode(sessionInfoRef.current.language ?? "English"),
             model: "nova-3",
             keyterms,
-            apiKey: DEEPGRAM_API_KEY,
+            apiKey: await resolveDeepgramKey(DEEPGRAM_API_KEY),
           });
         } catch (e: unknown) {
           toast.error(`Mic: ${String(e)}`);

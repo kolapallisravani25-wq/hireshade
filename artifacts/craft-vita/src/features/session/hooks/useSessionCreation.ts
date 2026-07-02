@@ -154,6 +154,12 @@ export function useSessionCreation(): UseSessionCreationReturn {
     });
 
     if (!activateRes.ok) {
+      if (activateRes.status === 402) {
+        toast.error(
+          "Insufficient credits. Please purchase credits to start a session.",
+        );
+        return false;
+      }
       if (activateRes.status === 409) {
         const errData = await safeJson<{ error?: string; message?: string }>(activateRes);
         const msg = (errData?.error ?? errData?.message ?? "") as string;
@@ -165,6 +171,10 @@ export function useSessionCreation(): UseSessionCreationReturn {
             setConflict(conflictData);
             return false;
           }
+        }
+        if (msg.startsWith("SESSION_ALREADY_ENDED")) {
+          toast.error("This session has already ended — please create a new one.");
+          return false;
         }
       }
       throw new Error("Failed to activate session");
@@ -261,12 +271,27 @@ export function useSessionCreation(): UseSessionCreationReturn {
     setConflict(null);
     pendingSessionInfoRef.current = null;
     try {
-      // End the conflicting session first
-      await fetch(`${BACKEND_URL}/api/session/${conflictId}/deactivate`, {
+      // End the conflicting session first. This call MUST be authenticated —
+      // without the token it 401s, the conflicting session stays ACTIVE, and
+      // the retried create loops back into the same 409 forever.
+      const token = await getToken();
+      const endRes = await fetch(`${BACKEND_URL}/api/session/${conflictId}/deactivate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ transcript: "", aiUsage: 0 }),
-      }).catch(console.error);
+      }).catch((err) => {
+        console.error("[useSessionCreation] end conflict deactivate failed", err);
+        return null;
+      });
+      if (!endRes || !endRes.ok) {
+        toast.error(
+          "Couldn't end the previous session — please try again in a moment.",
+        );
+        return;
+      }
       // Retry the create flow
       await runCreateFlow(pending);
     } catch (err) {
@@ -284,10 +309,18 @@ export function useSessionCreation(): UseSessionCreationReturn {
     setConflict(null);
     pendingSessionInfoRef.current = null;
     try {
-      // Re-activate the existing session (DISCONNECTED → ACTIVE is idempotent)
+      // Re-activate the existing session (DISCONNECTED → ACTIVE is idempotent).
+      // Must be authenticated — an unauthenticated call 401s silently and the
+      // rejoin proceeds against a session the server never re-activated.
+      const joinToken = await getToken();
       const activateRes = await fetch(`${BACKEND_URL}/api/session/${sessionId}/activate`, {
         method: "POST",
+        headers: joinToken ? { Authorization: `Bearer ${joinToken}` } : {},
       });
+      if (!activateRes.ok) {
+        toast.error("Couldn't rejoin the session — it may have already ended.");
+        return;
+      }
       const activateData =
         (await safeJson<{ startedAt?: string; maxAllowedMinutes?: number }>(activateRes)) ?? {};
 

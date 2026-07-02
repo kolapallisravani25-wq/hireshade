@@ -206,7 +206,7 @@ pub async fn run_session(
         running.store(false, Ordering::SeqCst);
         let _ = app.emit(status_evt, SttStatusPayload {
             status: "error".into(),
-            error: Some("Deepgram API key is missing (check VITE_DEEPGRAM_API_KEY in .env)".into()),
+            error: Some("Transcription credentials missing — server key mint failed and no local fallback key is set".into()),
         });
         return;
     }

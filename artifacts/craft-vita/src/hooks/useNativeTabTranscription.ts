@@ -19,6 +19,7 @@
  */
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { resolveDeepgramKey } from "@/lib/deepgramAuth";
 import { invoke } from "@tauri-apps/api/core";
 import { isTauri } from "@/lib/utils";
 
@@ -114,7 +115,7 @@ export function useNativeTabTranscription({
 
   // openDeepgramWs is redefined each render but always stored in the ref so
   // closures inside WS handlers get the freshest version.
-  const openDeepgramWs = useCallback((meta: { sampleRate: number; channels: number }) => {
+  const openDeepgramWs = useCallback(async (meta: { sampleRate: number; channels: number }) => {
     clearDgTimers();
     // Null handlers BEFORE close so the existing onclose doesn't trigger a reconnect
     if (dgWsRef.current) {
@@ -142,7 +143,10 @@ export function useNativeTabTranscription({
       (meta.channels > 1 ? `&multichannel=true` : ``) +
       `&tag=hireshade-display`;
 
-    const dgWs = new WebSocket(dgUrl, ["token", apiKeyRef.current]);
+    // Resolve at connect time: server-minted short-lived key preferred,
+    // caller-provided/build-time key as fallback (see lib/deepgramAuth.ts).
+    const dgKey = await resolveDeepgramKey(apiKeyRef.current);
+    const dgWs = new WebSocket(dgUrl, ["token", dgKey]);
     dgWsRef.current = dgWs;
 
     dgWs.onopen = () => {

@@ -1421,7 +1421,7 @@ const FloatingApp: React.FC = () => {
                           )}
                           {session.isSystemAuthError && (
                             <span className="text-[10px] text-amber-300/90">
-                              Invalid Deepgram key. Update VITE_DEEPGRAM_API_KEY and rebuild/restart.
+                              Transcription auth failed. Check the server Deepgram configuration, then retry.
                             </span>
                           )}
                           {session.permissionRequiresRestart && (

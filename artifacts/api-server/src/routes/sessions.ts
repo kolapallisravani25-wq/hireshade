@@ -13,6 +13,16 @@ import { streamChatComplete, chatComplete } from "../lib/openrouter.js";
 import { buildInterviewSystemPrompt } from "../lib/interviewPrompt.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
 import type { ChatMessage } from "../lib/openrouter.js";
+import {
+  settleSession,
+  isTerminalStatus,
+  elapsedMinutes,
+  getAvailableCredits,
+  CREDITS_PER_MINUTE,
+  GRACE_ZONE_MINUTES,
+  FREE_SESSION_MINUTES,
+  STALE_ACTIVE_MS,
+} from "../lib/sessionCredits.js";
 
 const router: IRouter = Router();
 
@@ -31,13 +41,6 @@ const screenshotParser = multer({
 }).single("screenshot");
 
 /**
- * Cap for free sessions, in minutes. Mirrors FREE_SESSION_DURATION on the
- * client (useFreeSessionTimer). Kept here so `maxAllowedMinutes` in the
- * activate/session responses stays in sync with the countdown the UI runs.
- */
-const FREE_SESSION_MINUTES = 5;
-
-/**
  * Statuses that occupy the user's single "live session" slot. PRE_CHECK is a
  * not-yet-started draft and deliberately does NOT block (an abandoned wizard
  * must not lock the user out). Anything terminal (COMPLETED/ABANDONED/etc.)
@@ -48,6 +51,13 @@ const BLOCKING_STATUSES = ["ACTIVE", "COMPLETING"] as const;
 /**
  * Returns the user's currently-live session (ACTIVE/COMPLETING), if any,
  * optionally excluding one session id (used when re-activating that same row).
+ *
+ * STALE-SESSION REAPER: an ACTIVE session whose `updatedAt` hasn't been
+ * bumped in STALE_ACTIVE_MS (heartbeats bump it every 60 s) means the client
+ * crashed / lost power / was killed without deactivating. Previously such a
+ * zombie blocked ALL new sessions until manually cleared. Now it is
+ * auto-settled (AUTO_ENDED, billed up to its last heartbeat) and no longer
+ * blocks. COMPLETING rows past the threshold are finalized the same way.
  */
 async function findBlockingSession(userId: string, excludeId?: string) {
   const conditions = [
@@ -57,12 +67,37 @@ async function findBlockingSession(userId: string, excludeId?: string) {
   if (excludeId) {
     conditions.push(ne(sessionsTable.id, excludeId));
   }
-  const [blocking] = await db
+  const candidates = await db
     .select()
     .from(sessionsTable)
-    .where(and(...conditions))
-    .limit(1);
-  return blocking;
+    .where(and(...conditions));
+
+  const now = Date.now();
+  for (const candidate of candidates) {
+    const lastSeen = candidate.updatedAt?.getTime() ?? 0;
+    if (now - lastSeen > STALE_ACTIVE_MS) {
+      try {
+        // Bill only up to the moment the client was last known alive.
+        await settleSession({
+          session: candidate,
+          endedAt: candidate.updatedAt ?? new Date(),
+          reason: "AUTO_ENDED",
+        });
+        console.log(
+          "[sessions] reaped stale live session",
+          candidate.id,
+          "last seen",
+          candidate.updatedAt,
+        );
+        continue; // reaped — no longer blocking
+      } catch (err) {
+        console.error("[sessions] failed to reap stale session", candidate.id, err);
+        return candidate; // settlement failed — keep blocking (fail safe)
+      }
+    }
+    return candidate; // genuinely live → blocks
+  }
+  return undefined;
 }
 
 function maxAllowedMinutesFor(s: typeof sessionsTable.$inferSelect) {
@@ -301,12 +336,38 @@ router.post("/:id/activate", requireAuth, async (req, res) => {
       return;
     }
 
+    // A session that already ended can never be re-activated — otherwise a
+    // stale tab could resurrect a settled session and evade billing.
+    if (isTerminalStatus(session.status)) {
+      res.status(409).json({
+        error: "SESSION_ALREADY_ENDED",
+        message: "SESSION_ALREADY_ENDED",
+        status: session.status,
+      });
+      return;
+    }
+
     // A *different* live session blocks activation. Re-activating this same row
     // (rejoin / DISCONNECTED → ACTIVE) is idempotent and must be allowed.
     const blocking = await findBlockingSession(userId, sessionId);
     if (blocking) {
       res.status(409).json(activeSessionConflict(blocking.id));
       return;
+    }
+
+    // Paid sessions require at least one billable minute of credit beyond the
+    // grace zone — otherwise metering would let a zero-balance user run
+    // indefinitely inside repeated grace windows.
+    if (!session.free) {
+      const { total: available } = await getAvailableCredits(userId);
+      if (available < CREDITS_PER_MINUTE) {
+        res.status(402).json({
+          error: "INSUFFICIENT_CREDITS",
+          message: "INSUFFICIENT_CREDITS",
+          available: String(available),
+        });
+        return;
+      }
     }
 
     // Anchor the start time once. On rejoin we keep the original startedAt so
@@ -330,34 +391,222 @@ router.post("/:id/activate", requireAuth, async (req, res) => {
   }
 });
 
+/**
+ * Heartbeat — the client posts every 60 s while a session is live.
+ * Responsibilities:
+ *  1. Liveness: bump `updatedAt` so the stale-session reaper knows the
+ *     client is alive (this now applies to FREE sessions too).
+ *  2. Free cap: server-side enforcement of FREE_SESSION_MINUTES — a free
+ *     session past its cap (+1 min tolerance for clock skew) is settled and
+ *     the client is told to stop.
+ *  3. Credits: for paid sessions, compute the accrued cost and emit
+ *     CREDIT_WARNING / CREDIT_EXHAUSTED per the contract the client's
+ *     useSessionHeartbeat hook already implements.
+ */
 router.post("/:id/heartbeat", requireAuth, async (req, res) => {
   try {
     const userId = req.userId!;
     const sessionId = String(req.params["id"] ?? "");
 
+    const [session] = await db
+      .select()
+      .from(sessionsTable)
+      .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)))
+      .limit(1);
+
+    if (!session) {
+      res.status(404).json({ error: "Session not found" });
+      return;
+    }
+
+    // Session already ended (another device / exhausted / reaped) — tell the
+    // client to stop heartbeating and clean up.
+    if (session.status !== "ACTIVE") {
+      res.json({ success: false, action: "SESSION_NOT_ACTIVE", status: session.status });
+      return;
+    }
+
+    const now = new Date();
+    const elapsed = elapsedMinutes(session.startedAt, now);
+
+    // Free-session cap (server-side; client timer is advisory only).
+    if (session.free && elapsed > FREE_SESSION_MINUTES + 1) {
+      const settled = await settleSession({
+        session,
+        endedAt: now,
+        reason: "AUTO_ENDED",
+      });
+      res.json({ success: true, action: "TIME_EXHAUSTED", status: settled.status });
+      return;
+    }
+
+    if (!session.free) {
+      const { total: available } = await getAvailableCredits(userId);
+      const accrued =
+        elapsed > GRACE_ZONE_MINUTES ? elapsed * CREDITS_PER_MINUTE : 0;
+
+      if (accrued > 0 && accrued >= available + CREDITS_PER_MINUTE) {
+        // Cost has overtaken the balance — force-end and settle (charges
+        // whatever remains, marks CREDIT_EXHAUSTED if it can't cover).
+        const settled = await settleSession({
+          session,
+          endedAt: now,
+          reason: "FORCE_ENDED",
+        });
+        res.json({
+          success: true,
+          action: "CREDIT_EXHAUSTED",
+          status: settled.status,
+          creditsDeducted: settled.creditsDeducted,
+        });
+        return;
+      }
+
+      // Liveness bump BEFORE responding so the reaper never races a live client.
+      await db
+        .update(sessionsTable)
+        .set({ updatedAt: now })
+        .where(eq(sessionsTable.id, sessionId));
+
+      const remainingMinutes = Math.max(
+        0,
+        Math.floor((available - accrued) / CREDITS_PER_MINUTE),
+      );
+      if (remainingMinutes <= 5) {
+        res.json({
+          success: true,
+          action: "CREDIT_WARNING",
+          remainingMinutes: Math.max(1, remainingMinutes),
+        });
+        return;
+      }
+
+      res.json({ success: true, remainingMinutes });
+      return;
+    }
+
+    // Live free session within its cap — just bump liveness.
     await db
       .update(sessionsTable)
-      .set({ updatedAt: new Date() })
-      .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)));
+      .set({ updatedAt: now })
+      .where(eq(sessionsTable.id, sessionId));
 
-    res.json({ success: true });
+    res.json({
+      success: true,
+      remainingMinutes: Math.max(0, FREE_SESSION_MINUTES - elapsed),
+    });
   } catch (err) {
+    console.error("[sessions] heartbeat error", err);
     res.status(500).json({ error: "Failed to process heartbeat" });
   }
 });
 
+/**
+ * Deactivate — the terminal "end session" call. Implements the full contract
+ * the client already speaks:
+ *   body: { transcript?, aiUsage?, durationMinutes? }
+ *   response: { success, status, creditsDeducted, deductionReason, minutes }
+ *
+ * Guarantees:
+ *  - 404 for unknown/foreign sessions (previously returned success:true —
+ *    which hid the exact failure mode that left sessions stuck ACTIVE).
+ *  - Idempotent: repeated calls (retry button, double click, heartbeat race)
+ *    never double-charge — settlement claims the row transactionally.
+ *  - Transcript persistence: when the session opted into saveTranscription,
+ *    the raw live transcript is upserted as a single role="transcript"
+ *    message row so the review page can show it.
+ */
 router.post("/:id/deactivate", requireAuth, async (req, res) => {
   try {
     const userId = req.userId!;
     const sessionId = String(req.params["id"] ?? "");
 
-    await db
-      .update(sessionsTable)
-      .set({ status: "COMPLETED", endedAt: new Date(), updatedAt: new Date() })
-      .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)));
+    const [session] = await db
+      .select()
+      .from(sessionsTable)
+      .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)))
+      .limit(1);
 
-    res.json({ success: true, status: "COMPLETED" });
+    if (!session) {
+      res.status(404).json({ error: "Session not found" });
+      return;
+    }
+
+    const body = (req.body ?? {}) as {
+      transcript?: string;
+      aiUsage?: number;
+      durationMinutes?: number;
+    };
+
+    // Persist the live transcript (idempotent). The client sends lines in the
+    // form "[User]: ..." / "[Interviewer]: ..." — parse them into individual
+    // USER / INTERVIEWER message rows, which is exactly what the review page's
+    // TranscriptDialog renders natively. Idempotency: transcript rows are only
+    // written while the session is still non-terminal AND none exist yet, so a
+    // retried deactivate can't duplicate them. Ephemeral sessions never send one.
+    const transcript = typeof body.transcript === "string" ? body.transcript.trim() : "";
+    if (transcript && session.saveTranscription && !isTerminalStatus(session.status)) {
+      const [existingTranscript] = await db
+        .select({ id: sessionMessagesTable.id })
+        .from(sessionMessagesTable)
+        .where(
+          and(
+            eq(sessionMessagesTable.sessionId, sessionId),
+            inArray(sessionMessagesTable.role, ["USER", "INTERVIEWER", "transcript"]),
+          ),
+        )
+        .limit(1);
+
+      if (!existingTranscript) {
+        const base = Date.now();
+        const rows = transcript
+          .split("\n")
+          .map((line, i) => {
+            const m = line.match(/^\[([^\]]+)\]:\s*(.*)$/);
+            if (!m || !m[2]?.trim()) return null;
+            const senderRaw = m[1]!.trim().toLowerCase();
+            const role =
+              senderRaw === "user"
+                ? "USER"
+                : senderRaw === "interviewer"
+                  ? "INTERVIEWER"
+                  : null;
+            if (!role) return null; // AI lines are already saved via save-message
+            return {
+              id: uuidv4(),
+              sessionId,
+              role,
+              content: m[2]!.trim(),
+              source: "live",
+              // Preserve ordering: 1 ms apart so createdAt sorts correctly.
+              createdAt: new Date(base + i),
+              updatedAt: new Date(base + i),
+            };
+          })
+          .filter((r): r is NonNullable<typeof r> => r !== null);
+
+        if (rows.length > 0) {
+          await db.insert(sessionMessagesTable).values(rows);
+        }
+      }
+    }
+
+    const settled = await settleSession({
+      session,
+      endedAt: new Date(),
+      reason: "COMPLETED",
+      aiUsage: typeof body.aiUsage === "number" ? body.aiUsage : null,
+    });
+
+    res.json({
+      success: true,
+      status: settled.status,
+      creditsDeducted: settled.creditsDeducted,
+      deductionReason: settled.deductionReason,
+      minutes: settled.minutes,
+    });
   } catch (err) {
+    console.error("[sessions] deactivate error", err);
     res.status(500).json({ error: "Failed to deactivate session" });
   }
 });
@@ -521,9 +770,13 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
   } catch (err) {
     console.error("[sessions] analyze-screen error", err);
     if (res.headersSent) {
+      // Mid-stream provider failure: without a marker the client renders a
+      // silently truncated answer as if it were complete. Emit a visible
+      // error tail so the UI (and the user) can tell it failed and retry.
+      res.write("\n\n**ERROR:** Screen analysis failed mid-generation — please retry.");
       res.end();
     } else {
-      res.status(500).json({ error: "Failed to analyze screen" });
+      res.status(502).json({ error: "Failed to analyze screen" });
     }
   }
 });
@@ -612,9 +865,10 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
   } catch (err) {
     console.error("[sessions] ai-answer error", err);
     if (res.headersSent) {
+      res.write("\n\n**ERROR:** Answer generation failed mid-stream — please retry.");
       res.end();
     } else {
-      res.status(500).json({ error: "Failed to generate answer" });
+      res.status(502).json({ error: "Failed to generate answer" });
     }
   }
 });
@@ -674,28 +928,53 @@ router.get("/:id/events", async (req, res) => {
 
 // ── Answer endpoints (require auth — called from AskAIWorkspace) ──────────────
 
+/**
+ * Ownership-checked loader for the answer endpoints. Every route below MUST
+ * go through this: previously these endpoints looked messages up by id alone,
+ * which let any authenticated user read or rewrite any other user's answers
+ * (IDOR). Returns null unless the session belongs to `userId` AND the message
+ * belongs to that session.
+ */
+async function loadOwnedMessage(
+  userId: string,
+  sessionId: string,
+  messageId: string,
+) {
+  const [session] = await db
+    .select()
+    .from(sessionsTable)
+    .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)))
+    .limit(1);
+  if (!session) return null;
+
+  const [message] = await db
+    .select()
+    .from(sessionMessagesTable)
+    .where(
+      and(
+        eq(sessionMessagesTable.id, messageId),
+        eq(sessionMessagesTable.sessionId, sessionId),
+      ),
+    )
+    .limit(1);
+  if (!message) return null;
+
+  return { session, message };
+}
+
 router.get("/:sessionId/answers/:messageId", requireAuth, async (req, res) => {
   try {
-    const sessionId = String(req.params["sessionId"] ?? "");
-    const messageId = String(req.params["messageId"] ?? "");
-
-    const [message] = await db
-      .select()
-      .from(sessionMessagesTable)
-      .where(
-        and(
-          eq(sessionMessagesTable.id, messageId),
-          eq(sessionMessagesTable.sessionId, sessionId),
-        ),
-      )
-      .limit(1);
-
-    if (!message) {
+    const owned = await loadOwnedMessage(
+      req.userId!,
+      String(req.params["sessionId"] ?? ""),
+      String(req.params["messageId"] ?? ""),
+    );
+    if (!owned) {
       res.status(404).json({ error: "Message not found" });
       return;
     }
 
-    res.json({ success: true, data: message });
+    res.json({ success: true, data: owned.message });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch answer" });
   }
@@ -706,68 +985,93 @@ router.patch("/:sessionId/answers/:messageId", requireAuth, async (req, res) => 
     const sessionId = String(req.params["sessionId"] ?? "");
     const messageId = String(req.params["messageId"] ?? "");
 
+    const owned = await loadOwnedMessage(req.userId!, sessionId, messageId);
+    if (!owned) {
+      res.status(404).json({ error: "Message not found" });
+      return;
+    }
+    const existing = owned.message;
+
     const body = req.body as {
-      answer: string;
-      baseVersion: number;
-      source: string;
+      answer?: string;
+      baseVersion?: number;
+      source?: string;
       aiMode?: string;
       instruction?: string;
       model?: string;
     };
 
-    const [existing] = await db
-      .select()
-      .from(sessionMessagesTable)
-      .where(
-        and(
-          eq(sessionMessagesTable.id, messageId),
-          eq(sessionMessagesTable.sessionId, sessionId),
-        ),
-      )
-      .limit(1);
+    if (typeof body.answer !== "string" || !body.answer.trim()) {
+      res.status(400).json({ error: "Answer text is required" });
+      return;
+    }
 
-    if (!existing) {
-      res.status(404).json({ error: "Message not found" });
+    // Optimistic concurrency: the client sends the version it edited from.
+    // A mismatch means someone (another tab/device) saved in between — reject
+    // instead of silently clobbering their edit.
+    if (
+      typeof body.baseVersion === "number" &&
+      body.baseVersion !== existing.currentVersion
+    ) {
+      res.status(409).json({
+        error: "VERSION_CONFLICT",
+        currentVersion: existing.currentVersion,
+      });
       return;
     }
 
     const newVersion = existing.currentVersion + 1;
-
-    await db.insert(answerRevisionsTable).values({
-      id: uuidv4(),
-      messageId,
-      sessionId,
-      version: existing.currentVersion,
-      question: existing.question ?? "",
-      answer: existing.answer ?? "",
-      source: body.source,
-      aiMode: body.aiMode ?? null,
-      instruction: body.instruction ?? null,
-      model: body.model ?? null,
-    });
-
-    await db
-      .update(sessionMessagesTable)
-      .set({
-        answer: body.answer,
-        content: body.answer,
-        currentVersion: newVersion,
-        updatedAt: new Date(),
-      })
-      .where(eq(sessionMessagesTable.id, messageId));
-
     const revisionId = uuidv4();
-    await db.insert(answerRevisionsTable).values({
-      id: revisionId,
-      messageId,
-      sessionId,
-      version: newVersion,
-      question: existing.question ?? "",
-      answer: body.answer,
-      source: body.source,
-      aiMode: body.aiMode ?? null,
-      instruction: body.instruction ?? null,
-      model: body.model ?? null,
+
+    await db.transaction(async (tx) => {
+      // Seed the baseline revision ONCE (first edit only) so "restore to
+      // original" works. Previous code inserted the old version on EVERY
+      // edit, duplicating each version row from the second edit onward.
+      const [baselineExists] = await tx
+        .select({ id: answerRevisionsTable.id })
+        .from(answerRevisionsTable)
+        .where(
+          and(
+            eq(answerRevisionsTable.messageId, messageId),
+            eq(answerRevisionsTable.version, existing.currentVersion),
+          ),
+        )
+        .limit(1);
+
+      if (!baselineExists) {
+        await tx.insert(answerRevisionsTable).values({
+          id: uuidv4(),
+          messageId,
+          sessionId,
+          version: existing.currentVersion,
+          question: existing.question ?? "",
+          answer: existing.answer ?? "",
+          source: "original",
+        });
+      }
+
+      await tx
+        .update(sessionMessagesTable)
+        .set({
+          answer: body.answer,
+          content: body.answer,
+          currentVersion: newVersion,
+          updatedAt: new Date(),
+        })
+        .where(eq(sessionMessagesTable.id, messageId));
+
+      await tx.insert(answerRevisionsTable).values({
+        id: revisionId,
+        messageId,
+        sessionId,
+        version: newVersion,
+        question: existing.question ?? "",
+        answer: body.answer!,
+        source: body.source ?? "manual",
+        aiMode: body.aiMode ?? null,
+        instruction: body.instruction ?? null,
+        model: body.model ?? null,
+      });
     });
 
     res.json({
@@ -788,16 +1092,16 @@ router.get("/:sessionId/answers/:messageId/revisions", requireAuth, async (req, 
   try {
     const messageId = String(req.params["messageId"] ?? "");
 
-    const [message] = await db
-      .select()
-      .from(sessionMessagesTable)
-      .where(eq(sessionMessagesTable.id, messageId))
-      .limit(1);
-
-    if (!message) {
+    const owned = await loadOwnedMessage(
+      req.userId!,
+      String(req.params["sessionId"] ?? ""),
+      messageId,
+    );
+    if (!owned) {
       res.status(404).json({ error: "Message not found" });
       return;
     }
+    const message = owned.message;
 
     const revisions = await db
       .select()
@@ -827,25 +1131,28 @@ router.post(
       const revisionId = String(req.params["revisionId"] ?? "");
       const sessionId = String(req.params["sessionId"] ?? "");
 
+      const owned = await loadOwnedMessage(req.userId!, sessionId, messageId);
+      if (!owned) {
+        res.status(404).json({ error: "Message not found" });
+        return;
+      }
+      const existing = owned.message;
+
+      // The revision must belong to THIS message — otherwise a crafted
+      // revisionId could inject another message's (or user's) content here.
       const [revision] = await db
         .select()
         .from(answerRevisionsTable)
-        .where(eq(answerRevisionsTable.id, revisionId))
+        .where(
+          and(
+            eq(answerRevisionsTable.id, revisionId),
+            eq(answerRevisionsTable.messageId, messageId),
+          ),
+        )
         .limit(1);
 
       if (!revision) {
         res.status(404).json({ error: "Revision not found" });
-        return;
-      }
-
-      const [existing] = await db
-        .select()
-        .from(sessionMessagesTable)
-        .where(eq(sessionMessagesTable.id, messageId))
-        .limit(1);
-
-      if (!existing) {
-        res.status(404).json({ error: "Message not found" });
         return;
       }
 
@@ -891,22 +1198,12 @@ router.post("/:sessionId/answers/:messageId/ai-preview", requireAuth, async (req
     const sessionId = String(req.params["sessionId"] ?? "");
     const messageId = String(req.params["messageId"] ?? "");
 
-    const [session] = await db
-      .select()
-      .from(sessionsTable)
-      .where(eq(sessionsTable.id, sessionId))
-      .limit(1);
-
-    const [message] = await db
-      .select()
-      .from(sessionMessagesTable)
-      .where(eq(sessionMessagesTable.id, messageId))
-      .limit(1);
-
-    if (!session || !message) {
+    const owned = await loadOwnedMessage(req.userId!, sessionId, messageId);
+    if (!owned) {
       res.status(404).json({ error: "Message not found" });
       return;
     }
+    const { session, message } = owned;
 
     const body = req.body as { instruction?: string; mode?: string; model?: string };
 

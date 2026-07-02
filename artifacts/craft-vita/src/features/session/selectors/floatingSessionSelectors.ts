@@ -82,7 +82,10 @@ export const selectHeartbeatParams = createSelector(
   selectFloatingSessionRoot,
   ({ sessionInfo }) => ({
     sessionId: sessionInfo?.sessionId,
-    enabled: !!(sessionInfo && !sessionInfo.isFree && sessionInfo.startedAt),
+    // Heartbeat runs for ALL sessions (free included): it is the liveness
+    // signal the server's stale-session reaper uses to distinguish a crashed
+    // client from a live one, and it enforces the free-session cap server-side.
+    enabled: !!(sessionInfo && sessionInfo.startedAt),
     startedAt: sessionInfo?.startedAt ?? null,
   }),
 );

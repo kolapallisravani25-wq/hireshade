@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { resolveDeepgramKey, invalidateDeepgramKey } from "@/lib/deepgramAuth";
 
 interface UseDeepgramProps {
   apiKey: string;
@@ -200,10 +201,12 @@ export const useDeepgram = ({
     // live value even when called from a stale setTimeout closure.
     if (isTranscribingRef.current || isStartingRef.current || socketRef.current) return;
 
-    // Guard: missing API key produces an unhelpful WebSocket protocol error;
-    // surface a clear message instead.
-    if (!apiKey) {
-      setError("Deepgram API key is not configured");
+    // Resolve credentials at CONNECT time: prefer a short-lived key minted by
+    // the backend; fall back to the caller-provided / build-time key. This
+    // decouples live transcription from build-time env vars entirely.
+    const dgKey = await resolveDeepgramKey(apiKey);
+    if (!dgKey) {
+      setError("Transcription is unavailable — no Deepgram credentials (server mint failed and no local key)");
       return;
     }
 
@@ -315,7 +318,7 @@ export const useDeepgram = ({
       // Browser WebSocket cannot set custom headers, so Deepgram's
       // subprotocol-based auth is the only option here. Keep this list in
       // sync with the Rust desktop path's `Authorization: Token <key>` header.
-      const socket = new WebSocket(url, ["token", apiKey]);
+      const socket = new WebSocket(url, ["token", dgKey]);
       socketRef.current = socket;
 
       socket.onopen = () => {
@@ -417,11 +420,23 @@ export const useDeepgram = ({
         // 1008 = Policy Violation: invalid/expired API key, or unsupported
         // parameter for the chosen model — no point retrying.
         if (evt.code === 1008) {
-          setError(
-            apiKey
-              ? "Deepgram auth failed — check VITE_DEEPGRAM_API_KEY or account credits"
-              : "Deepgram API key is missing — set VITE_DEEPGRAM_API_KEY"
-          );
+          // A minted short-lived key may have expired mid-session — drop it
+          // so the next attempt (retry below) mints a fresh one.
+          invalidateDeepgramKey();
+          setError("Deepgram auth failed — refreshing credentials and retrying...");
+          if (retryCountRef.current < MAX_RETRIES) {
+            const delay = Math.min(1000 * 2 ** retryCountRef.current, 15_000);
+            retryCountRef.current += 1;
+            retryTimerRef.current = setTimeout(() => {
+              if (!intentionalStopRef.current) {
+                setError(null);
+                startTranscriptionRef.current();
+              }
+            }, delay);
+          } else {
+            retryCountRef.current = 0;
+            setError("Deepgram auth failed — check server Deepgram configuration or account credits");
+          }
           return;
         }
 

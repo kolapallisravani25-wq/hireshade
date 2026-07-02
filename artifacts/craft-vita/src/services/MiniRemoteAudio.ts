@@ -27,6 +27,7 @@
  *   • All reconnects are cancelled when stop() is called.
  */
 
+import { resolveDeepgramKey } from "@/lib/deepgramAuth";
 import { invoke } from "@tauri-apps/api/core";
 import { isTauri } from "@/lib/utils";
 
@@ -230,7 +231,7 @@ export class MiniRemoteAudio {
 
   // ── Private: Deepgram WebSocket ────────────────────────────────────────────
 
-  private _openDeepgramWs(meta: AudioMeta): void {
+  private async _openDeepgramWs(meta: AudioMeta): Promise<void> {
     // Null handlers before closing the old WS so its onclose doesn't fire
     // a spurious reconnect.
     if (this.dgWs) {
@@ -258,7 +259,7 @@ export class MiniRemoteAudio {
       // 300 ms endpointing gives the fastest possible finalisation latency
       // while still handling natural speech pauses.
       `&endpointing=300` +
-      `&utterance_end_ms=600` +
+      `&utterance_end_ms=1000` +
       `&vad_events=true` +
       `&encoding=linear16` +
       // Rust always downmixes to mono (channels=1) before sending; no multichannel
@@ -268,7 +269,10 @@ export class MiniRemoteAudio {
       `&channels=${meta.channels}` +
       `&tag=hireshade-remote`;
 
-    const dg = new WebSocket(url, ["token", this.apiKey]);
+    // Resolve at connect time: server-minted short-lived key preferred,
+    // configured key as fallback (see lib/deepgramAuth.ts).
+    const dgKey = await resolveDeepgramKey(this.apiKey);
+    const dg = new WebSocket(url, ["token", dgKey]);
     this.dgWs = dg;
 
     dg.onopen = () => {
@@ -322,7 +326,7 @@ export class MiniRemoteAudio {
       // 1008 = Policy Violation: invalid / missing API key. No point retrying.
       if (evt.code === 1008) {
         this._setStatus("error");
-        this.onError?.("Remote audio: Deepgram auth failed — check VITE_DEEPGRAM_API_KEY");
+        this.onError?.("Remote audio: Deepgram auth failed — check server Deepgram configuration");
         return;
       }
 

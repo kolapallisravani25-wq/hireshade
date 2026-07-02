@@ -9,6 +9,10 @@ import {
 } from "@workspace/db/schema";
 import { eq, and, desc, ilike } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
+import {
+  CREDITS_PER_MINUTE,
+  GRACE_ZONE_MINUTES,
+} from "../lib/sessionCredits.js";
 
 const router: IRouter = Router();
 
@@ -24,11 +28,20 @@ const FEATURE_COSTS: Record<string, number> = {
   session_minute: 1,
 };
 
+// The client reads brackets[0].graceZoneMinutes and .creditsPerMinute for the
+// live-session billing UX — these MUST be present or the client silently falls
+// back to hardcoded defaults that can drift from server-side settlement.
 const CREDIT_BRACKETS = [
-  { min: 0, max: 50, label: "Starter" },
-  { min: 51, max: 200, label: "Basic" },
-  { min: 201, max: 500, label: "Pro" },
-  { min: 501, max: Infinity, label: "Enterprise" },
+  {
+    min: 0,
+    max: 50,
+    label: "Starter",
+    graceZoneMinutes: GRACE_ZONE_MINUTES,
+    creditsPerMinute: String(CREDITS_PER_MINUTE),
+  },
+  { min: 51, max: 200, label: "Basic", graceZoneMinutes: GRACE_ZONE_MINUTES, creditsPerMinute: String(CREDITS_PER_MINUTE) },
+  { min: 201, max: 500, label: "Pro", graceZoneMinutes: GRACE_ZONE_MINUTES, creditsPerMinute: String(CREDITS_PER_MINUTE) },
+  { min: 501, max: Infinity, label: "Enterprise", graceZoneMinutes: GRACE_ZONE_MINUTES, creditsPerMinute: String(CREDITS_PER_MINUTE) },
 ];
 
 router.get("/balance", requireAuth, async (req, res) => {
@@ -290,32 +303,64 @@ router.post("/purchase/verify", requireAuth, async (req, res) => {
       return;
     }
 
-    await db
-      .update(creditsPurchasesTable)
-      .set({
-        status: "completed",
-        paymentId: paymentId ?? null,
-        updatedAt: new Date(),
-      })
-      .where(eq(creditsPurchasesTable.id, purchase.id));
-
-    const [balance] = await db
-      .select()
-      .from(creditsBalanceTable)
-      .where(eq(creditsBalanceTable.userId, userId))
-      .limit(1);
-
-    if (balance) {
-      const newPurchased =
-        parseFloat(balance.purchasedCredits) +
-        parseFloat(purchase.creditsPurchased ?? "0");
-      await db
-        .update(creditsBalanceTable)
+    // IDEMPOTENCY: a valid signature can be replayed. Without this guard,
+    // re-posting the same verification credited the balance AGAIN on every
+    // call — an unlimited free-credits exploit. Claim the purchase row
+    // transactionally; only the claimer credits the balance.
+    const credited = await db.transaction(async (tx) => {
+      const claimed = await tx
+        .update(creditsPurchasesTable)
         .set({
-          purchasedCredits: String(newPurchased),
+          status: "completed",
+          paymentId: paymentId ?? null,
           updatedAt: new Date(),
         })
-        .where(eq(creditsBalanceTable.userId, userId));
+        .where(
+          and(
+            eq(creditsPurchasesTable.id, purchase.id),
+            eq(creditsPurchasesTable.status, "pending"),
+          ),
+        )
+        .returning({ id: creditsPurchasesTable.id });
+
+      if (claimed.length === 0) return false; // already completed — no re-credit
+
+      const creditsToAdd = parseFloat(purchase.creditsPurchased ?? "0") || 0;
+
+      const [balance] = await tx
+        .select()
+        .from(creditsBalanceTable)
+        .where(eq(creditsBalanceTable.userId, userId))
+        .for("update")
+        .limit(1);
+
+      if (balance) {
+        const newPurchased =
+          (parseFloat(balance.purchasedCredits) || 0) + creditsToAdd;
+        await tx
+          .update(creditsBalanceTable)
+          .set({
+            purchasedCredits: String(newPurchased),
+            updatedAt: new Date(),
+          })
+          .where(eq(creditsBalanceTable.userId, userId));
+      } else {
+        // Previously a missing balance row meant the purchase was marked
+        // completed but the credits were silently dropped. Seed the row.
+        await tx.insert(creditsBalanceTable).values({
+          id: uuidv4(),
+          userId,
+          purchasedCredits: String(creditsToAdd),
+          earnedCredits: "100",
+          heldCredits: "0",
+          updatedAt: new Date(),
+        });
+      }
+      return true;
+    });
+
+    if (!credited) {
+      console.warn("[credits] purchase verify replay ignored", purchase.id);
     }
 
     res.json({ success: true });

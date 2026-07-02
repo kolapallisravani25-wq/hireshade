@@ -105,7 +105,6 @@ const initialState: FloatingSessionState = {
 
 // ─── Async thunk: end session ─────────────────────────────────────────────────
 
-const FREE_ZONE_MINUTES = 5;
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 interface EndSessionArgs {
@@ -156,13 +155,20 @@ export const endSessionThunk = createAsyncThunk<void, EndSessionArgs | void>(
       : null;
 
     const authHeaders = await getAuthHeaders();
-    await Promise.all([
+    // Deactivate FIRST and inspect the result — previously the failure was
+    // swallowed (fire-and-forget), which could leave the session ACTIVE on
+    // the server. The stale-session reaper now self-heals that within a few
+    // minutes, but the user deserves to know immediately.
+    const [, deactivateRes] = await Promise.all([
       invoke("stop_all_audio_transcription").catch(() => {}),
       fetch(`${BACKEND_URL}/api/session/${sessionInfo.sessionId}/deactivate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({ transcript, aiUsage, durationMinutes }),
-      }).catch((err) => console.error("Deactivate fetch failed:", err)),
+      }).catch((err) => {
+        console.error("Deactivate fetch failed:", err);
+        return null;
+      }),
       invoke("set_session_active", { active: false }).catch(() => {}),
       emit("overlay-end-session-direct").catch(() => {}),
     ]);
@@ -171,8 +177,35 @@ export const endSessionThunk = createAsyncThunk<void, EndSessionArgs | void>(
     try { sessionStorage.removeItem("hireshade.session-init"); } catch {}
     resetOverlaySettings();
 
-    if (durationMinutes !== null && durationMinutes <= FREE_ZONE_MINUTES) {
-      toast.success("Session ended — no credits charged (under 5 min)");
+    if (!deactivateRes || !deactivateRes.ok) {
+      toast.error(
+        "Couldn't confirm session end with the server — it will auto-end within a few minutes. You may see a rejoin prompt until then.",
+      );
+    } else {
+      // Use the server's authoritative settlement instead of guessing
+      // client-side from the local clock.
+      try {
+        const settled = (await deactivateRes.json()) as {
+          creditsDeducted?: string;
+          deductionReason?: string;
+          minutes?: number;
+        };
+        if (
+          settled.deductionReason === "FREE_ZONE" ||
+          settled.deductionReason === "FREE_SESSION"
+        ) {
+          toast.success("Session ended — no credits charged");
+        } else if (
+          settled.creditsDeducted &&
+          parseFloat(settled.creditsDeducted) > 0
+        ) {
+          toast.info(
+            `Session ended — ${settled.creditsDeducted} credits deducted (${settled.minutes ?? durationMinutes ?? 0} min)`,
+          );
+        }
+      } catch {
+        // Response body unreadable — session still ended; stay quiet.
+      }
     }
 
     // Notify launcher to reset its UI before showing it.

@@ -3,12 +3,19 @@ import { getAuthHeaders } from "@/lib/globalAuth";
 
 interface UseSessionHeartbeatOptions {
   sessionId: string | undefined;
-  /** Enable heartbeat only for paid sessions */
+  /** Enable heartbeat only while the session is live */
   enabled: boolean;
   /** ISO string from activate response — used to calculate elapsed minutes accurately */
   startedAt: string | null;
   onExhausted: () => void;
   onWarning?: (remainingMinutes: number) => void;
+  /**
+   * Fired when the server reports the session is no longer ACTIVE (ended on
+   * another device, auto-ended by the stale-session reaper after the machine
+   * slept, etc.). The page should tear down its live UI; deactivate is
+   * idempotent so calling the normal end flow is safe.
+   */
+  onSessionEnded?: (status?: string) => void;
 }
 
 export function useSessionHeartbeat({
@@ -17,15 +24,18 @@ export function useSessionHeartbeat({
   startedAt,
   onExhausted,
   onWarning,
+  onSessionEnded,
 }: UseSessionHeartbeatOptions) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
   // Keep callback refs stable to avoid re-running the effect
   const onExhaustedRef = useRef(onExhausted);
   const onWarningRef = useRef(onWarning);
+  const onSessionEndedRef = useRef(onSessionEnded);
 
   useEffect(() => { onExhaustedRef.current = onExhausted; }, [onExhausted]);
   useEffect(() => { onWarningRef.current = onWarning; }, [onWarning]);
+  useEffect(() => { onSessionEndedRef.current = onSessionEnded; }, [onSessionEnded]);
 
   useEffect(() => {
     if (!enabled || !sessionId) return;
@@ -51,9 +61,21 @@ export function useSessionHeartbeat({
 
         if (data.action === "CREDIT_WARNING") {
           onWarningRef.current?.(data.remainingMinutes ?? 1);
-        } else if (data.action === "CREDIT_EXHAUSTED") {
+        } else if (
+          data.action === "CREDIT_EXHAUSTED" ||
+          data.action === "TIME_EXHAUSTED"
+        ) {
+          // Server force-ended the session (credits ran out, or a free
+          // session passed its cap). Stop heartbeating and let the page run
+          // its end flow — deactivate is idempotent server-side, so the
+          // follow-up call cannot double-charge.
           if (intervalRef.current) clearInterval(intervalRef.current);
           onExhaustedRef.current();
+        } else if (data.action === "SESSION_NOT_ACTIVE") {
+          // Session was ended elsewhere (another device, reaper after sleep,
+          // admin). Stop heartbeating and let the page tear down its live UI.
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          onSessionEndedRef.current?.(data.status);
         }
       } catch {
         // Network failure — do NOT stop; retry on next tick

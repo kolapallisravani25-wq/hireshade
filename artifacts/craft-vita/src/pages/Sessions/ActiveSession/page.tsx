@@ -47,6 +47,7 @@ import { detectActiveQuestion } from "@/features/session/detection/activeQuestio
 import { extractInterviewKeywordsFromParts } from "@/utils/keywordExtractor";
 import { buildAdaptiveAiContext } from "@/features/session/context/adaptiveAiContext";
 import { normalizeSttTranscript } from "@/features/session/transcript/stt-normalizer";
+import { resolveDeepgramKey } from "@/lib/deepgramAuth";
 
 /**
  * Segments a single transcript chunk into individual interview questions.
@@ -383,8 +384,10 @@ export default function ActiveSession() {
         toast.success(`Session ended — no credits charged (under ${graceZoneMinutes} min)`);
       }
 
-      // For paid sessions, wait up to 8 seconds for the BullMQ job to mark
-      // the session COMPLETED before navigating away.
+      // For paid sessions, read the settlement result. The backend now
+      // settles synchronously and returns { status, creditsDeducted,
+      // deductionReason } directly; the COMPLETING poll below remains as a
+      // fallback for async settlement paths.
       if (res.ok && maxAllowedMinutes !== null && !isFreeZone) {
         const data = await res.json();
         if (data.status === "COMPLETING") {
@@ -418,6 +421,11 @@ export default function ActiveSession() {
             const mins = durationMinutes ?? 0;
             toast.info(`Session ended — ${deductedCredits} credits deducted (${mins} min × ${creditsPerMinute} credits/min)`);
           }
+        } else if (data.deductionReason === "FREE_ZONE") {
+          toast.success(`Session ended — no credits charged (under ${graceZoneMinutes} min)`);
+        } else if (data.creditsDeducted && parseFloat(data.creditsDeducted) > 0) {
+          const mins = data.minutes ?? durationMinutes ?? 0;
+          toast.info(`Session ended — ${data.creditsDeducted} credits deducted (${mins} min × ${creditsPerMinute} credits/min)`);
         }
       }
     } catch (error) {
@@ -490,14 +498,25 @@ export default function ActiveSession() {
     maxAllowedMinutes,
   });
 
-  // Heartbeat: runs every 60s for paid sessions after activation
+  const onSessionEndedRemotely = useCallback(() => {
+    toast.info(
+      "This session was ended (inactive too long or ended on another device).",
+      { duration: 6000 },
+    );
+    endSessionNow();
+  }, [endSessionNow]);
+
+  // Heartbeat: runs every 60s for ALL sessions after activation.
+  // Free sessions need it too: it's the liveness signal that (a) lets the
+  // server's stale-session reaper distinguish a crashed client from a live
+  // one, and (b) enforces the free-session time cap server-side.
   const { stop: stopHeartbeat } = useSessionHeartbeat({
     sessionId: id,
-    enabled:
-      !isFreeSession && !isConnectDialogOpen && sessionStartedAt !== null,
+    enabled: !isConnectDialogOpen && sessionStartedAt !== null,
     startedAt: sessionStartedAt,
     onExhausted: onCreditExhausted,
     onWarning: onCreditWarning,
+    onSessionEnded: onSessionEndedRemotely,
   });
 
   // SSE: real-time events for paid sessions
@@ -1103,7 +1122,7 @@ export default function ActiveSession() {
             language: getLanguageCode(selectedLanguage),
             model: "nova-3",
             keyterms: deepgramKeyterms,
-            apiKey: import.meta.env.VITE_DEEPGRAM_API_KEY || "",
+            apiKey: await resolveDeepgramKey(),
           });
         } catch (e) {
           toast.error(`Mic: ${String(e)}`);
