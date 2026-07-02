@@ -17,12 +17,12 @@ import type { ChatMessage } from "../lib/openrouter.js";
 const router: IRouter = Router();
 
 const parsedOpenRouterMaxTokens = Number(
-  process.env["OPENROUTER_MAX_TOKENS"] ?? "400",
+  process.env["OPENROUTER_MAX_TOKENS"] ?? "1200",
 );
 const OPENROUTER_MAX_TOKENS =
   Number.isFinite(parsedOpenRouterMaxTokens) && parsedOpenRouterMaxTokens > 0
     ? Math.floor(parsedOpenRouterMaxTokens)
-    : 400;
+    : 1200;
 
 const formParser = multer().none();
 const screenshotParser = multer({
@@ -30,24 +30,51 @@ const screenshotParser = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
 }).single("screenshot");
 
-/** Free-session cap in minutes. Mirrors the client countdown. */
+/**
+ * Cap for free sessions, in minutes. Mirrors FREE_SESSION_DURATION on the
+ * client (useFreeSessionTimer). Kept here so `maxAllowedMinutes` in the
+ * activate/session responses stays in sync with the countdown the UI runs.
+ */
 const FREE_SESSION_MINUTES = 5;
+
+/**
+ * Statuses that occupy the user's single "live session" slot. PRE_CHECK is a
+ * not-yet-started draft and deliberately does NOT block (an abandoned wizard
+ * must not lock the user out). Anything terminal (COMPLETED/ABANDONED/etc.)
+ * is likewise free to coexist.
+ */
 const BLOCKING_STATUSES = ["ACTIVE", "COMPLETING"] as const;
 
+/**
+ * Returns the user's currently-live session (ACTIVE/COMPLETING), if any,
+ * optionally excluding one session id (used when re-activating that same row).
+ */
 async function findBlockingSession(userId: string, excludeId?: string) {
   const conditions = [
     eq(sessionsTable.userId, userId),
     inArray(sessionsTable.status, [...BLOCKING_STATUSES]),
   ];
-  if (excludeId) conditions.push(ne(sessionsTable.id, excludeId));
-  const [blocking] = await db.select().from(sessionsTable).where(and(...conditions)).limit(1);
+  if (excludeId) {
+    conditions.push(ne(sessionsTable.id, excludeId));
+  }
+  const [blocking] = await db
+    .select()
+    .from(sessionsTable)
+    .where(and(...conditions))
+    .limit(1);
   return blocking;
 }
 
-function maxAllowedMinutesFor(session: typeof sessionsTable.$inferSelect) {
-  return session.free ? FREE_SESSION_MINUTES : null;
+function maxAllowedMinutesFor(s: typeof sessionsTable.$inferSelect) {
+  return s.free ? FREE_SESSION_MINUTES : null;
 }
 
+/**
+ * 409 payload for the single live-session conflict. The token is emitted under
+ * BOTH `error` and `message`: the web CreateSessionDialog reads `message`, the
+ * Tauri useSessionCreation hook reads `error`. Keeping both in sync makes the
+ * conflict + rejoin UX fire on every surface.
+ */
 function activeSessionConflict(id: string) {
   const token = `ACTIVE_SESSION_EXISTS:${id}`;
   return { error: token, message: token };
@@ -78,7 +105,7 @@ function toFrontendSession(s: typeof sessionsTable.$inferSelect) {
     creditsDeducted: s.creditsDeducted,
     deductionReason: s.deductionReason,
     aiUsage: s.aiUsage,
-    startedAt: (s as any).startedAt,
+    startedAt: s.startedAt,
     endedAt: s.endedAt,
     maxAllowedMinutes: maxAllowedMinutesFor(s),
     createdAt: s.createdAt,
@@ -115,6 +142,8 @@ router.post("/create-session", requireAuth, formParser, async (req, res) => {
     }
     const primaryProjectId = body["primaryProjectId"] || null;
 
+    // Enforce the single live-session invariant. The client (useSessionCreation /
+    // ConnectDialog) keys its conflict + rejoin UX on this exact error shape.
     const blocking = await findBlockingSession(userId);
     if (blocking) {
       res.status(409).json(activeSessionConflict(blocking.id));
@@ -272,17 +301,21 @@ router.post("/:id/activate", requireAuth, async (req, res) => {
       return;
     }
 
+    // A *different* live session blocks activation. Re-activating this same row
+    // (rejoin / DISCONNECTED → ACTIVE) is idempotent and must be allowed.
     const blocking = await findBlockingSession(userId, sessionId);
     if (blocking) {
       res.status(409).json(activeSessionConflict(blocking.id));
       return;
     }
 
-    const startedAt = (session as any).startedAt ?? new Date();
+    // Anchor the start time once. On rejoin we keep the original startedAt so
+    // the timer resumes from real elapsed time instead of restarting.
+    const startedAt = session.startedAt ?? new Date();
 
     await db
       .update(sessionsTable)
-      .set({ status: "ACTIVE", startedAt, updatedAt: new Date() } as any)
+      .set({ status: "ACTIVE", startedAt, updatedAt: new Date() })
       .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)));
 
     res.json({
@@ -403,14 +436,19 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
       return;
     }
 
-    let contextPayload: { currentQuestion?: string; answerMode?: string } = {};
+    let contextPayload: {
+      currentQuestion?: string;
+      answerMode?: string;
+      previousAiAnswer?: string;
+      previousAiAnswers?: { question?: string; answer: string }[];
+    } = {};
     try {
       contextPayload = JSON.parse((req.body?.["contextPayload"] as string) ?? "{}");
     } catch {
       // Ignore malformed context payload; proceed with defaults.
     }
 
-    const aiModel = (req.body?.["aiModel"] as string) || session.aiModel || undefined;
+    const aiModel = process.env["ANSWER_MODEL"] || session.aiModel || undefined;
     const resumeContext = await getResumeContextById(session.resumeId);
     const systemPrompt = buildInterviewSystemPrompt({
       session,
@@ -420,9 +458,25 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
 
     const base64 = file.buffer.toString("base64");
     const dataUrl = `data:${file.mimetype};base64,${base64}`;
+
+    // Multi-question screens: tell the model explicitly what's already been
+    // answered so it can identify the CURRENTLY active question (typically
+    // the most recent one without a visible answer) instead of re-answering
+    // something already covered.
+    const alreadyAnswered = (contextPayload.previousAiAnswers ?? [])
+      .filter((entry) => entry.question?.trim())
+      .slice(-5)
+      .map((entry, i) => `${i + 1}. ${entry.question!.trim()}`)
+      .join("\n");
+
     const question =
       contextPayload.currentQuestion ||
-      "Analyze and answer the interview task visible in the screenshot.";
+      [
+        "Analyze the screenshot. If multiple questions or tasks are visible, identify the ONE that is currently active — typically the most recent one that does not yet have a visible answer — and answer only that one. Do not regenerate an answer for a question already covered below.",
+        alreadyAnswered ? `Already answered in this session:\n${alreadyAnswered}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n\n");
 
     const messages: ChatMessage[] = [
       { role: "system", content: systemPrompt },
@@ -435,10 +489,19 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
       },
     ];
 
+    const estimatedTokens = Math.ceil((systemPrompt.length + question.length) / 4);
+    console.log("[sessions] analyze-screen context", {
+      sessionId,
+      systemPromptChars: systemPrompt.length,
+      questionChars: question.length,
+      previousAnswersIncluded: contextPayload.previousAiAnswers?.length ?? 0,
+      estimatedTokens,
+    });
+
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.flushHeaders();
-    res.write(`**QUESTION:** ${question}\n**ANSWER:** `);
+    res.write(`**QUESTION:** ${contextPayload.currentQuestion || "Screen analysis"}\n**ANSWER:** `);
 
     await streamChatComplete({ model: aiModel, messages, maxTokens: OPENROUTER_MAX_TOKENS }, (chunk) => {
       res.write(chunk);
@@ -511,7 +574,20 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       messages.push({ role: "user", content: question });
     }
 
-    const aiModel = body.aiModel || session.aiModel || undefined;
+    const aiModel = process.env["ANSWER_MODEL"] || session.aiModel || undefined;
+
+    const promptChars = messages.reduce(
+      (sum, m) => sum + (typeof m.content === "string" ? m.content.length : 0),
+      0,
+    );
+    console.log("[sessions] ai-answer context", {
+      sessionId,
+      questionChars: question.length,
+      messageCount: messages.length,
+      promptChars,
+      estimatedTokens: Math.ceil(promptChars / 4),
+      isRegenerate: !!body.regenerateInstruction,
+    });
 
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");

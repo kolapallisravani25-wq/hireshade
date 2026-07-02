@@ -1,10 +1,18 @@
 import { logger } from "./logger.js";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_MODEL = process.env["ANSWER_MODEL"] || "google/gemini-2.5-flash-lite";
+const DEFAULT_MODEL = "anthropic/claude-haiku-4-5";
 
-const OPENROUTER_TIMEOUT_MS = Number(process.env["OPENROUTER_TIMEOUT_MS"] ?? "60000") || 60000;
-const OPENROUTER_STREAM_IDLE_MS = Number(process.env["OPENROUTER_STREAM_IDLE_MS"] ?? "45000") || 45000;
+/**
+ * Overall timeout for a non-streaming completion, and idle (no-bytes) timeout
+ * for a streaming completion. Both bound the case where OpenRouter accepts the
+ * connection then stalls — without these the Node request hangs indefinitely
+ * and, under load, exhausts the connection pool.
+ */
+const OPENROUTER_TIMEOUT_MS =
+  Number(process.env["OPENROUTER_TIMEOUT_MS"] ?? "60000") || 60000;
+const OPENROUTER_STREAM_IDLE_MS =
+  Number(process.env["OPENROUTER_STREAM_IDLE_MS"] ?? "45000") || 45000;
 
 export type ChatRole = "system" | "user" | "assistant";
 
@@ -31,10 +39,8 @@ function getApiKey(): string {
   return key;
 }
 
-function resolveModel(_model?: string | null): string {
-  // Launch rule: keep the in-session model controlled server-side.
-  // Do not trust client-supplied model slugs for session answer generation.
-  return DEFAULT_MODEL;
+function resolveModel(model?: string | null): string {
+  return model && model.trim() ? model : DEFAULT_MODEL;
 }
 
 /** Non-streaming chat completion. Returns the assistant's full text reply. */
@@ -53,9 +59,10 @@ export async function chatComplete(opts: {
     body: JSON.stringify({
       model: resolveModel(opts.model),
       messages: opts.messages,
-      temperature: opts.temperature ?? 0.6,
-      max_tokens: opts.maxTokens ?? 1200,
+      temperature: opts.temperature ?? 0.5,
+      max_tokens: opts.maxTokens ?? 2000,
     }),
+    signal: AbortSignal.timeout(OPENROUTER_TIMEOUT_MS),
   });
 
   if (!res.ok) {
@@ -118,6 +125,9 @@ export async function streamChatComplete(
   },
   onDelta: (chunk: string) => void,
 ): Promise<string> {
+  // Idle guard: abort only if OpenRouter goes silent for OPENROUTER_STREAM_IDLE_MS.
+  // Armed before the fetch (so a stalled connect is also bounded) and reset on
+  // every received chunk, so a healthy long stream is never cut off.
   const controller = new AbortController();
   let idleTimer: ReturnType<typeof setTimeout> | undefined;
   const armIdle = () => {

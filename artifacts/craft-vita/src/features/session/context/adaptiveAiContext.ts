@@ -5,8 +5,16 @@ const CONNECTOR_TAIL_RE = /\b(and|or|then|also|plus|because|so|where)\s*$/i;
 const INCOMPLETE_TAIL_RE = /\b(for|to|of|in|and|or|where|with)\s*$/i;
 const QUESTION_LIKE_RE =
   /^(what|why|how|when|where|which|who|can|could|would|should|is|are|do|does|did|explain|describe|tell me|walk me|write|implement|create|build|show|give)\b/i;
+// Anchored (^) on purpose: this is used to decide whether a chunk OPENS a new
+// question. An earlier unanchored version matched these words anywhere in the
+// chunk, so a chunk like "...how you resolved them, and any performance..."
+// (a subordinate clause of an ongoing question, containing "how" mid-sentence)
+// was mistaken for the start of a brand-new question, and everything before
+// it was discarded — truncating long multi-clause interviewer questions down
+// to their last fragment.
 const INTERVIEW_PROMPT_START_RE =
-  /\b(before we start|technical round|quick intro|introduce|tell me|explain|describe|walk me|can you|could you|would you|what|how|why|where|when|write|implement|create|build|show|give)\b/i;
+  /^(before we start|technical round|quick intro|introduce|tell me|explain|describe|walk me|can you|could you|would you|what|how|why|where|when|write|implement|create|build|show|give)\b/i;
+const SENTENCE_END_RE = /[.?!]\s*$/;
 
 export interface AdaptiveTranscriptEntry {
   sender: "User" | "Interviewer";
@@ -179,6 +187,22 @@ function dedupeAndMergeEntries(
   return merged.filter((entry) => entry.text.trim().length > 0);
 }
 
+/**
+ * True only when `chunk` genuinely OPENS a new question: it must start
+ * (after stripping leading fillers/connectors) with a question-opener word,
+ * AND the immediately preceding chunk — if any — must end at a sentence
+ * boundary. The second condition is what prevents an STT chunk that was
+ * split mid-question (on a pause, not a full stop) from being mistaken for
+ * the start of a new question just because it happens to begin with a
+ * subordinate-clause word like "how" or "what".
+ */
+function looksLikeNewQuestionStart(chunk: string, precedingChunk?: string): boolean {
+  const stripped = stripLeadingConjunctionsAndFillers(chunk).trim();
+  if (!stripped || !INTERVIEW_PROMPT_START_RE.test(stripped)) return false;
+  if (precedingChunk && !SENTENCE_END_RE.test(precedingChunk.trim())) return false;
+  return true;
+}
+
 function buildInterviewerCompoundQuestion(
   entries: AdaptiveTranscriptEntry[],
 ): string {
@@ -202,7 +226,8 @@ function buildInterviewerCompoundQuestion(
   // Find the LAST question-start marker to anchor to the most recent question.
   let startIndex = -1;
   for (let i = interviewerChunks.length - 1; i >= 0; i--) {
-    if (INTERVIEW_PROMPT_START_RE.test(interviewerChunks[i])) {
+    const preceding = i > 0 ? interviewerChunks[i - 1] : undefined;
+    if (looksLikeNewQuestionStart(interviewerChunks[i], preceding)) {
       startIndex = i;
       break;
     }
@@ -226,7 +251,8 @@ function buildTranscriptCompoundQuestion(
   if (!chunks.length) return "";
   let startIndex = -1;
   for (let index = chunks.length - 1; index >= 0; index -= 1) {
-    if (INTERVIEW_PROMPT_START_RE.test(chunks[index])) {
+    const preceding = index > 0 ? chunks[index - 1] : undefined;
+    if (looksLikeNewQuestionStart(chunks[index], preceding)) {
       startIndex = index;
       break;
     }
