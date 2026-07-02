@@ -41,6 +41,13 @@ const DEFAULT_FEATURE_COSTS: Record<string, number> = {
   // set FEATURE_COST_ASSISTANT_CHAT to price it.
   assistant_chat: 0,
   ai_project_generation: 0,
+  // "Ask AI" on the session review page (post-session Q&A against the saved
+  // transcript). Operates on sessions of ANY status including COMPLETED, so
+  // it is NOT covered by the per-minute session meter (which only accrues
+  // while a session is ACTIVE) — it was calling OpenRouter with zero credit
+  // tracking. Same 0-by-default treatment: enforcement is live and tested,
+  // pricing is opt-in via FEATURE_COST_ASK_AI_QUERY.
+  ask_ai_query: 0,
 };
 
 export function featureCost(operation: string): number {
@@ -101,6 +108,7 @@ export async function chargeFeature(opts: {
   operation: string;
   idempotencyKey?: string | null;
   resumeId?: string | null;
+  sessionId?: string | null;
   aiModel?: string | null;
   metadata?: Record<string, unknown>;
 }): Promise<ChargeResult> {
@@ -153,6 +161,7 @@ export async function chargeFeature(opts: {
         creditsUsed: String(cost),
         idempotencyKey: opts.idempotencyKey ?? null,
         resumeId: opts.resumeId ?? null,
+        sessionId: opts.sessionId ?? null,
         aiModel: opts.aiModel ?? null,
         metadata: opts.metadata ?? null,
         createdAt: new Date(),

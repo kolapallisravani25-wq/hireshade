@@ -35,6 +35,7 @@ import {
 import { eq } from "drizzle-orm";
 
 import sessionsRouter from "../src/routes/sessions.js";
+import askAIRouter from "../src/routes/askAI.js";
 import creditsRouter from "../src/routes/credits.js";
 import {
   settleSession,
@@ -669,6 +670,7 @@ import assistantRouter from "../src/routes/assistant.js";
 import aiRouter from "../src/routes/ai.js";
 app.use("/api/assistant", assistantRouter);
 app.use("/api/ai", aiRouter);
+app.use("/api/ask-ai", askAIRouter);
 
 describe("assistant chat metering scaffold", () => {
   it("is registered in the feature-cost registry (was previously invisible to billing)", async () => {
@@ -698,6 +700,30 @@ describe("assistant chat metering scaffold", () => {
       expect(await balanceOf(USER_A)).toBeCloseTo(1, 2); // untouched
     } finally {
       delete process.env["FEATURE_COST_ASSISTANT_CHAT"];
+    }
+  });
+});
+
+describe("ask-ai query metering on completed sessions", () => {
+  it("is registered and charges/blocks correctly once priced, even on a COMPLETED session", async () => {
+    const res0 = await request(app)
+      .get("/api/credits/feature-costs")
+      .set("x-test-user", USER_A);
+    expect(res0.body.data).toHaveProperty("ask_ai_query");
+
+    process.env["FEATURE_COST_ASK_AI_QUERY"] = "2";
+    try {
+      await seedUser(USER_A, "1"); // below cost
+      const s = await makeSession(USER_A, { status: "COMPLETED", endedAt: new Date() });
+      const res = await request(app)
+        .post(`/api/ask-ai/${s.id}/query`)
+        .set("x-test-user", USER_A)
+        .send({ query: "how did I do?" });
+      // Blocked before any SSE header/stream — 402 with zero side effects.
+      expect(res.status).toBe(402);
+      expect(await balanceOf(USER_A)).toBeCloseTo(1, 2);
+    } finally {
+      delete process.env["FEATURE_COST_ASK_AI_QUERY"];
     }
   });
 });

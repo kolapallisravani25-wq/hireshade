@@ -198,7 +198,14 @@ export function AskAIWorkspace({ sessionId, internalUserId, onNavigateToTimeline
         body: JSON.stringify({ query: text, userId: internalUserId || clerkUserId }),
       });
 
-      if (!response.ok) throw new Error("Failed to query AI");
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}) as { message?: string; error?: string });
+        throw new Error(
+          (err as { message?: string; error?: string }).message ??
+            (err as { error?: string }).error ??
+            "Failed to query AI",
+        );
+      }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -235,10 +242,11 @@ export function AskAIWorkspace({ sessionId, internalUserId, onNavigateToTimeline
       fetchHistory();
     } catch (err) {
       console.error("Chat error:", err);
+      const msg = err instanceof Error && err.message ? err.message : "Failed to connect to the AI service. Please try again.";
       setMessages(prev => [...prev, {
         id: "err-" + Date.now(),
         role: "assistant",
-        content: "**Error:** Failed to connect to the AI service. Please try again.",
+        content: `**Error:** ${msg}`,
         timestamp: new Date().toISOString(),
       }]);
     } finally {

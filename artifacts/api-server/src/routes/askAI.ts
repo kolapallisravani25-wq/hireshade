@@ -8,6 +8,7 @@ import { streamChatComplete } from "../lib/openrouter.js";
 import { buildInterviewSystemPrompt } from "../lib/interviewPrompt.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
 import type { ChatMessage } from "../lib/openrouter.js";
+import { chargeOr402 } from "../lib/featureCredits.js";
 
 const router: IRouter = Router();
 
@@ -168,6 +169,17 @@ router.post("/:sessionId/query", requireAuth, async (req, res) => {
       messages.push({ role: m.role === "assistant" ? "assistant" : "user", content });
     }
     messages.push({ role: "user", content: query });
+
+    // Charge (if priced) BEFORE the SSE header flush, same upfront pattern as
+    // the other streaming AI routes — keeps a 402 a clean JSON response.
+    const _meter = await chargeOr402(res, {
+      userId,
+      operation: "ask_ai_query",
+      idempotencyKey: req.header("Idempotency-Key") ?? null,
+      sessionId,
+      aiModel: session.aiModel ?? null,
+    });
+    if (!_meter) return;
 
     res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
