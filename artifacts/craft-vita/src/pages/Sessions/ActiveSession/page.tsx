@@ -1613,11 +1613,26 @@ export default function ActiveSession() {
         }
       } catch (err) {
         const msg = String(err);
-        if (import.meta.env.DEV && /denied|permission|not allowed|screen recording/i.test(msg)) {
+        const isPermission =
+          /denied|permission|not allowed|screen recording|notallowederror/i.test(msg);
+        if (import.meta.env.DEV && isPermission) {
           console.warn("[audio-lifecycle] screenPermissionDenied", { error: msg });
         }
-        if (isTauri() && /denied|permission|not allowed|screen recording/i.test(msg)) {
-          toast.error("Screen Recording permission denied. Open Settings and retry. You may need to restart the app.");
+        // Spec §14: surface a clear error and let the session continue without
+        // screen analysis. Previously this toast was gated behind isTauri(), so
+        // WEB users whose getDisplayMedia was denied/cancelled saw nothing.
+        if (isTauri()) {
+          toast.error(
+            isPermission
+              ? "Screen Recording permission denied. Open Settings and retry — you may need to restart the app."
+              : "Screen analysis failed. You can retry, or continue without it.",
+          );
+        } else {
+          toast.error(
+            isPermission
+              ? "Screen share was denied or cancelled — screen analysis is unavailable for this session. The session continues normally."
+              : "Screen analysis failed. You can retry, or continue the session without it.",
+          );
         }
         console.error("Error analyzing screen:", err);
       } finally {
