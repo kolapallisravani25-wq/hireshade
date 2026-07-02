@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -51,15 +52,28 @@ export function EndSessionDialog({
           },
         );
         if (!response.ok) {
-          console.error("Failed to deactivate session");
-        } else {
-          localStorage.removeItem(`aiUsage_${sessionId}`);
+          console.error("Failed to deactivate session", response.status);
+          toast.error(
+            "Couldn't end the session — please try again. Leaving without confirming can block starting a new session later.",
+          );
+          setIsLoading(false);
+          // Stay on the dialog so the user can retry, instead of silently
+          // navigating away as if the session had actually ended — a failed
+          // deactivate here can leave the session ACTIVE in the database,
+          // which (with the single-active-session rule) blocks any new
+          // session from starting until it's cleared.
+          return;
         }
+        localStorage.removeItem(`aiUsage_${sessionId}`);
       } catch (error) {
         console.error("Error deactivating session:", error);
-      } finally {
+        toast.error(
+          "Couldn't end the session — check your connection and try again.",
+        );
         setIsLoading(false);
+        return;
       }
+      setIsLoading(false);
     }
     navigate("/sessions");
     onClose();
