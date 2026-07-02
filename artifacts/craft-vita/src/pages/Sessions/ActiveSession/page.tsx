@@ -1155,13 +1155,16 @@ export default function ActiveSession() {
   const handleStableTranscript = useCallback((stableTranscript: string) => {
     if (!id || !handleAiAnswer) return;
 
-    // Get classification with previous context for continuation detection
-    const classification = classifyTranscript(
-      stableTranscript,
-      previousAutoContextRef.current?.transcript,
-    );
-
     // Check continuation — if within 8s of previous, check if it's a follow-up
+    // ("Why?", "How did you solve it?", "Why Spark?"). When detected, the
+    // current chunk is merged onto the previous auto-answer context so the
+    // follow-up is answered WITH its antecedent question's context, instead
+    // of being classified/segmented in isolation.
+    //
+    // Previously this merge was computed and only logged — `stableTranscript`
+    // (unmerged) was what actually flowed into classification/segmentation/
+    // generation below, so genuine follow-ups never inherited prior context.
+    let effectiveTranscript = stableTranscript;
     if (previousAutoContextRef.current) {
       const timeDelta = Date.now() - previousAutoContextRef.current.timestamp;
       if (
@@ -1171,18 +1174,22 @@ export default function ActiveSession() {
           timeDelta,
         )
       ) {
-        // Merge with previous and re-classify
-        const merged =
-          previousAutoContextRef.current.transcript + " " + stableTranscript;
-        // The pipeline's prepareGeneration handles merging internally,
-        // but we pass the previous context so it can detect continuation
+        effectiveTranscript = `${previousAutoContextRef.current.transcript} ${stableTranscript}`
+          .replace(/\s+/g, " ")
+          .trim();
         // eslint-disable-next-line no-console
         console.log(
           "[AutoAnswer] Continuation detected, merged:",
-          merged.slice(0, 80),
+          effectiveTranscript.slice(0, 80),
         );
       }
     }
+
+    // Get classification with previous context for continuation detection
+    const classification = classifyTranscript(
+      effectiveTranscript,
+      previousAutoContextRef.current?.transcript,
+    );
 
     // Prevent auto-generation from overlapping manual generation.
     // Manual button/shortcut flows set `isExecutingRef` while triggering AI.
@@ -1196,7 +1203,7 @@ export default function ActiveSession() {
 
     // Use shouldTriggerGeneration to decide
     const triggerResult = shouldTriggerGeneration({
-      transcript: stableTranscript,
+      transcript: effectiveTranscript,
       isStable: true,
       classification,
       lastGenerationTimestamp: previousAutoContextRef.current?.timestamp ?? 0,
@@ -1231,15 +1238,15 @@ export default function ActiveSession() {
           text: m.text,
           question: m.question,
         })),
-      liveInterimQuestion: stableTranscript,
+      liveInterimQuestion: effectiveTranscript,
     });
 
-    const segmentedQuestions = segmentQuestions(stableTranscript);
+    const segmentedQuestions = segmentQuestions(effectiveTranscript);
     const segmentsToGenerate =
       segmentedQuestions.length >= 2
         ? segmentedQuestions
         : classification.shouldGroup
-          ? [stableTranscript]
+          ? [effectiveTranscript]
           : classification.segments;
 
     // Route based on segmentation/classification
@@ -1248,8 +1255,8 @@ export default function ActiveSession() {
       handleAiAnswer(
         id,
         {
-          transcript: stableTranscript,
-          currentQuestion: adaptiveCtx.currentQuestion || stableTranscript,
+          transcript: effectiveTranscript,
+          currentQuestion: adaptiveCtx.currentQuestion || effectiveTranscript,
           recentTranscriptWindow: adaptiveCtx.recentTranscriptWindow,
           speakerSeparatedTranscript: adaptiveCtx.speakerSeparatedTranscript,
           previousAiAnswers: adaptiveCtx.previousAiAnswers,
@@ -1261,7 +1268,7 @@ export default function ActiveSession() {
       );
       recentAutoQuestionsRef.current = [
         ...recentAutoQuestionsRef.current.filter((entry) => Date.now() - entry.t < 10_000),
-        { q: stableTranscript, t: Date.now() },
+        { q: effectiveTranscript, t: Date.now() },
       ].slice(-20);
     } else {
       // Independent questions: call for each segment with stagger.
@@ -1295,7 +1302,7 @@ export default function ActiveSession() {
 
     // Update previous context for continuation detection
     previousAutoContextRef.current = {
-      transcript: stableTranscript,
+      transcript: effectiveTranscript,
       timestamp: Date.now(),
     };
   }, [id, selectedModel, handleAiAnswer]);
