@@ -4,6 +4,15 @@ packages:
   - lib/integrations/*
   - scripts
 
+# pnpm 11 runs a dependency-status check before every `pnpm run <script>`.
+# In this monorepo that pre-check re-runs install and aborts on an
+# ignored-build-scripts prompt, turning `pnpm --filter api-server build`
+# into a hard failure even though the build itself is fine. Disabling it
+# makes scripts run directly. Harmless on pnpm 9/10, which lack this check.
+# The real allowlist of packages permitted to run build scripts is
+# onlyBuiltDependencies below.
+verifyDepsBeforeRun: false
+
 autoInstallPeers: false
 
 catalog:
@@ -119,3 +128,4 @@ overrides:
   rollup>@rollup/rollup-win32-ia32-msvc: '-'
   rollup>@rollup/rollup-win32-x64-gnu: '-'
   rollup>@rollup/rollup-win32-x64-msvc: '-'
+
