@@ -6,6 +6,7 @@ import {
 import { and, eq, inArray } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "./logger.js";
+import { SIGNUP_CREDITS } from "./signupGrant.js";
 
 export type ApplyPurchaseResult =
   | { outcome: "credited"; purchaseId: string; credits: number }
@@ -98,7 +99,7 @@ export async function applyPurchaseCreditByOrderId(opts: {
         id: uuidv4(),
         userId: purchase.userId,
         purchasedCredits: String(creditsToAdd),
-        earnedCredits: "100",
+        earnedCredits: String(SIGNUP_CREDITS),
         heldCredits: "0",
         updatedAt: new Date(),
       });

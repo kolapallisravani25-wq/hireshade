@@ -16,6 +16,7 @@ import {
 } from "../lib/sessionCredits.js";
 import { allFeatureCosts } from "../lib/featureCredits.js";
 import { applyPurchaseCreditByOrderId } from "../lib/purchaseCredit.js";
+import { SIGNUP_CREDITS } from "../lib/signupGrant.js";
 
 const router: IRouter = Router();
 
@@ -48,9 +49,9 @@ router.get("/balance", requireAuth, async (req, res) => {
     if (!balance) {
       res.json({
         purchasedCredits: "0",
-        earnedCredits: "100",
+        earnedCredits: String(SIGNUP_CREDITS),
         heldCredits: "0",
-        totalAvailable: "100",
+        totalAvailable: String(SIGNUP_CREDITS),
       });
       return;
     }
@@ -85,10 +86,11 @@ router.get("/brackets", requireAuth, async (_req, res) => {
 /**
  * Canonical credit packs — single server-side source of truth for both the
  * /plans listing and order creation (amounts can never be client-supplied).
+ * Values are verbatim from the ScribeShade Pricing & Credits document
+ * (Apr 25, 2026): 7 one-time packs, INR / USD / GBP, Standard marked
+ * popular, Mega best-value (client derives the badge from valuePct).
  * Shape matches the client's CreditPlan (useCreditPlans.ts): code,
- * amountMajor/amountMinor, isPopular, valuePct. The previous handler returned
- * { id, price, popular } — none of which the client reads — so the billing
- * page rendered undefined prices and sent packCode: undefined.
+ * amountMajor/amountMinor, isPopular, valuePct.
  */
 const CREDIT_PACKS: {
   code: string;
@@ -97,14 +99,19 @@ const CREDIT_PACKS: {
   amountMinor: Record<string, number>; // currency → minor units
   isPopular: boolean;
 }[] = [
-  { code: "plan_100", name: "Starter Pack", credits: 100, amountMinor: { INR: 39900, USD: 499 }, isPopular: false },
-  { code: "plan_500", name: "Pro Pack", credits: 500, amountMinor: { INR: 159900, USD: 1999 }, isPopular: true },
-  { code: "plan_1000", name: "Power Pack", credits: 1000, amountMinor: { INR: 279900, USD: 3499 }, isPopular: false },
-  { code: "plan_5000", name: "Enterprise Pack", credits: 5000, amountMinor: { INR: 1199900, USD: 14999 }, isPopular: false },
+  { code: "quick_5", name: "Quick 5", credits: 5, amountMinor: { INR: 9900, USD: 299, GBP: 249 }, isPopular: false },
+  { code: "starter_10", name: "Starter", credits: 10, amountMinor: { INR: 14900, USD: 399, GBP: 349 }, isPopular: false },
+  { code: "basic_25", name: "Basic", credits: 25, amountMinor: { INR: 34900, USD: 999, GBP: 899 }, isPopular: false },
+  { code: "standard_60", name: "Standard", credits: 60, amountMinor: { INR: 69900, USD: 1999, GBP: 1799 }, isPopular: true },
+  { code: "professional_120", name: "Professional", credits: 120, amountMinor: { INR: 129900, USD: 3999, GBP: 3499 }, isPopular: false },
+  { code: "power_300", name: "Power", credits: 300, amountMinor: { INR: 299900, USD: 8999, GBP: 7999 }, isPopular: false },
+  { code: "mega_600", name: "Mega", credits: 600, amountMinor: { INR: 499900, USD: 14999, GBP: 12999 }, isPopular: false },
 ];
 
 function packsForCurrency(currency: string) {
-  const cur = currency === "USD" ? "USD" : "INR";
+  // The client auto-detects and sends INR / USD / GBP (userCurrency.ts).
+  // Previously GBP was silently coerced to INR — UK users saw rupee prices.
+  const cur = currency === "USD" || currency === "GBP" ? currency : "INR";
   const withValue = CREDIT_PACKS.map((p) => {
     const minor = p.amountMinor[cur]!;
     return { ...p, minor, creditsPerMinor: p.credits / minor };
@@ -227,7 +234,8 @@ router.post("/purchase/order", requireAuth, async (req, res) => {
 
     // FE sends packCode; planId kept for backward compatibility.
     const code = body.packCode ?? body.planId ?? "";
-    const currency = body.currency === "USD" ? "USD" : "INR";
+    const currency =
+      body.currency === "USD" || body.currency === "GBP" ? body.currency : "INR";
     const pack = packsForCurrency(currency).find((p) => p.code === code);
     if (!pack) {
       // Exact string is a client contract (BuyCreditsDialog maps it to copy).

@@ -14,41 +14,34 @@ import { logger } from "./logger.js";
  * Env-overridable via FEATURE_COST_<OPERATION> (e.g. FEATURE_COST_RESUME_GENERATE=8).
  */
 const DEFAULT_FEATURE_COSTS: Record<string, number> = {
-  // Founder-declared prices (from the original credits FEATURE_COSTS map).
-  resume_ats: 5,
-  resume_cover_letter: 8,
-  resume_generate: 10,
-  resume_enhance_section: 3,
-  project_generate: 10,
-  // Not yet priced by the product — free until set via FEATURE_COST_* env.
-  // Listed explicitly so /feature-costs advertises them and the meter
-  // contract is uniform across every credited endpoint.
-  resume_extract_fields: 0,
-  resume_rewrite: 0,
-  resume_tailor: 0,
-  resume_inject_skills: 0,
-  resume_inject_keywords: 0,
-  resume_analyze_keywords: 0,
-  resume_keyword_match: 0,
-  // Defined but not yet wired to any UI surface (see endpoints.ts
-  // projectsEditComponent) — registered now so it can't silently go unmetered
-  // the moment a future UI wires it up.
-  project_edit_component: 0,
-  // "Assistant" chat (chat with your interview history, outside any live
-  // session) — was previously invisible to the credit system entirely: no
-  // charge, no usage row, no tracking of any kind despite calling OpenRouter
-  // on every message. Registered at 0 by default (no surprise price change
-  // for existing users) so usage is now at least tracked in credits_usage;
-  // set FEATURE_COST_ASSISTANT_CHAT to price it.
-  assistant_chat: 0,
+  // Canonical prices from the ScribeShade Pricing & Credits document
+  // (Apr 25, 2026). Every value remains env-overridable via
+  // FEATURE_COST_<OPERATION>.
+  //
+  // Resume Builder
+  resume_extract_fields: 2, // "Parse uploaded resume"
+  resume_enhance_section: 1, // "Section edit (AI enhance)" / bullet enhancement
+  resume_rewrite: 5, // "Full resume rewrite"
+  resume_generate: 5, // full-resume generation (builder/generate) — priced as a full rewrite
+  resume_tailor: 4, // "JD tailoring (first time)" (regenerate-free needs a client flag; flat for now)
+  resume_inject_skills: 1, // "Skill injection"
+  resume_inject_keywords: 2, // "Bulk keyword inject"
+  resume_cover_letter: 3, // "Cover letter"
+  resume_ats: 0, // "ATS scoring: FREE" (was wrongly charged 5)
+  resume_analyze_keywords: 0, // "Keyword highlighting: FREE"
+  resume_keyword_match: 0, // "Keyword highlighting: FREE"
+  //
+  // Project Generator
+  project_generate: 4, // "Generate full project (20 components)"
+  project_edit_component: 1, // "Edit single component"
+  //
+  // AI Assistant / chat surfaces
+  assistant_chat: 1, // "Chat query"
+  ask_ai_query: 1, // session-review Ask AI — priced as a chat query
+  //
+  // Defined but not wired to any UI surface (see endpoints.ts) — registered
+  // at 0 so it can't silently go unmetered the moment a future UI wires it up.
   ai_project_generation: 0,
-  // "Ask AI" on the session review page (post-session Q&A against the saved
-  // transcript). Operates on sessions of ANY status including COMPLETED, so
-  // it is NOT covered by the per-minute session meter (which only accrues
-  // while a session is ACTIVE) — it was calling OpenRouter with zero credit
-  // tracking. Same 0-by-default treatment: enforcement is live and tested,
-  // pricing is opt-in via FEATURE_COST_ASK_AI_QUERY.
-  ask_ai_query: 0,
 };
 
 export function featureCost(operation: string): number {

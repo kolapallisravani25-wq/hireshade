@@ -8,6 +8,7 @@ import {
 import { eq, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "./logger.js";
+import { SIGNUP_CREDITS } from "./signupGrant.js";
 
 /**
  * Session metering constants. Env-overridable so pricing changes don't need a
@@ -78,7 +79,12 @@ export async function getAvailableCredits(
   if (!row) {
     // requireAuth seeds a balance row on first login; a missing row means a
     // legacy user — treat as the default signup grant.
-    return { purchased: 0, earned: 100, held: 0, total: 100 };
+    return {
+      purchased: 0,
+      earned: SIGNUP_CREDITS,
+      held: 0,
+      total: SIGNUP_CREDITS,
+    };
   }
   const purchased = parseFloat(row.purchasedCredits) || 0;
   const earned = parseFloat(row.earnedCredits) || 0;
@@ -210,7 +216,7 @@ export async function settleSession(opts: {
       } else {
         // Legacy user without a balance row: seed one reflecting the spend
         // against the default 100-credit signup grant.
-        const grant = 100;
+        const grant = SIGNUP_CREDITS;
         charged = Math.min(cost, grant);
         if (charged < cost) {
           finalStatus = "CREDIT_EXHAUSTED";

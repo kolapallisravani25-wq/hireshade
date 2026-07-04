@@ -2,6 +2,7 @@ import { db } from "@workspace/db";
 import { usersTable, creditsBalanceTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
+import { SIGNUP_CREDITS } from "./signupGrant.js";
 
 export async function findInternalUserId(clerkUserId: string): Promise<string | null> {
   const rows = await db
@@ -34,7 +35,7 @@ export async function upsertUserByClerkId(clerkUserId: string): Promise<string> 
     id: uuidv4(),
     userId: newUserId,
     purchasedCredits: "0",
-    earnedCredits: "100",
+    earnedCredits: String(SIGNUP_CREDITS),
     heldCredits: "0",
   });
 

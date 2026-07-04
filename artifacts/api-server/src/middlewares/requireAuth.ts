@@ -7,6 +7,7 @@ import {
 } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
+import { SIGNUP_CREDITS } from "../lib/signupGrant.js";
 
 declare global {
   namespace Express {
@@ -64,7 +65,7 @@ export async function requireAuth(
         id: uuidv4(),
         userId: newUserId,
         purchasedCredits: "0",
-        earnedCredits: "100",
+        earnedCredits: String(SIGNUP_CREDITS),
         heldCredits: "0",
       });
 
