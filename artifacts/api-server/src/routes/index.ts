@@ -12,7 +12,6 @@ import projectCategoriesRouter from "./projectCategories.js";
 import assistantRouter from "./assistant.js";
 import askAIRouter from "./askAI.js";
 import sessionNotesRouter from "./sessionNotes.js";
-import sessionNotesLegacyRouter from "./sessionNotesLegacy.js";
 
 const router: IRouter = Router();
 
@@ -20,7 +19,6 @@ router.use(healthRouter);
 router.use("/auth", authRouter);
 router.use("/session", sessionsRouter);
 router.use("/session-notes", sessionNotesRouter);
-router.use("/session-notes", sessionNotesLegacyRouter);
 router.use("/ask-ai", askAIRouter);
 router.use("/credits", creditsRouter);
 router.use("/resume", resumesRouter);

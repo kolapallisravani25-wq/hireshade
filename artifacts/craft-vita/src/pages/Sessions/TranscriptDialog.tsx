@@ -58,13 +58,29 @@ interface TranscriptEntry {
 }
 
 interface SessionNotes {
-  id: string;
-  sessionId: string;
-  companyName: string;
-  jobDescription: string;
   summary: string;
   questions: string[];
-  updatedAt: string;
+}
+
+/**
+ * Map the Insights feedback object (session_feedback) to the shape the AI
+ * Notes tab renders. The tab shows an executive summary + the list of key
+ * topics/questions surfaced by the evaluator, which is a subset of the full
+ * Insights payload already produced by GET /session/:id/analytics. Reusing
+ * that endpoint means both this tab and SessionAnalyticsDialog share one
+ * persisted, idempotent evaluation — no second code path, no double spend.
+ */
+function feedbackToNotes(feedback: unknown): SessionNotes | null {
+  if (!feedback || typeof feedback !== "object") return null;
+  const f = feedback as Record<string, unknown>;
+  const summary = typeof f["summary"] === "string" ? (f["summary"] as string) : "";
+  const keyTopics = Array.isArray(f["keyTopics"]) ? (f["keyTopics"] as string[]) : [];
+  const studyAreas = Array.isArray(f["studyAreas"]) ? (f["studyAreas"] as string[]) : [];
+  const questions = [...keyTopics, ...studyAreas].filter(
+    (q): q is string => typeof q === "string" && q.trim().length > 0,
+  );
+  if (!summary && questions.length === 0) return null;
+  return { summary, questions };
 }
 
 interface TranscriptDialogProps {
@@ -331,7 +347,7 @@ export function TranscriptDialog({
     getAuthHeaders().then((authHeaders) => Promise.all([
       fetch(`${import.meta.env.VITE_BACKEND_URL}/api/session/${sessionId}`, { headers: authHeaders }),
       fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/session-notes/${sessionId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/session/${sessionId}/analytics/existing`,
         { headers: authHeaders },
       ),
     ]))
@@ -358,7 +374,7 @@ export function TranscriptDialog({
         if (active) {
           setNotes(
             notesResponse.ok
-              ? (await notesResponse.json()).data
+              ? feedbackToNotes(await notesResponse.json())
               : null,
           );
         }
@@ -474,13 +490,24 @@ export function TranscriptDialog({
     setIsGenerating(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/session-notes/${sessionId}/generate`,
-        { method: "POST", headers: await getAuthHeaders() },
+        `${import.meta.env.VITE_BACKEND_URL}/api/session/${sessionId}/analytics`,
+        { method: "GET", headers: await getAuthHeaders() },
       );
       if (response.ok) {
-        setNotes((await response.json()).data);
+        const mapped = feedbackToNotes(await response.json());
+        setNotes(mapped);
         setActiveTab("ai-notes");
+      } else if (response.status === 422) {
+        // Not enough conversation to evaluate — surface it instead of
+        // spinning forever then silently doing nothing.
+        window.alert(
+          "There isn't enough conversation in this session to generate insights yet.",
+        );
+      } else {
+        window.alert("Couldn't generate insights right now. Please try again.");
       }
+    } catch {
+      window.alert("Couldn't generate insights right now. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -511,7 +538,7 @@ export function TranscriptDialog({
               Interview Intelligence
             </DialogTitle>
             <p className="text-xs text-muted-foreground">
-              {notes?.jobDescription || "AI-powered Session Workspace"}
+              {"AI-powered Session Workspace"}
               {isEphemeral ? " · Ephemeral" : ""}
             </p>
           </div>
