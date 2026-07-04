@@ -65,6 +65,28 @@ function removeEmptyAiPlaceholders(messages: Message[]): Message[] {
 
 type AIAnswerRequestInput = string | AIAnswerRequestPayload;
 type OriginalGenerationContext = NonNullable<Message["originalGenerationContext"]>;
+/**
+ * Session-gone (HTTP 410) contract. The server returns 410 SESSION_NOT_ACTIVE
+ * from /ai-answer and /analyze-screen when the session has been settled
+ * (credit exhaustion, free-cap, reaper, ended on another device) — in-session
+ * AI is billed by the per-minute meter, so it is only reachable while ACTIVE.
+ * 409 could not be reused: these hooks treat 409 as "duplicate request in
+ * flight" and silently drop the card, which is exactly the wrong UX for an
+ * ended session. On 410 we notify the page (same teardown path the heartbeat
+ * uses) and let the caller clean up its placeholder.
+ */
+export const SESSION_NOT_ACTIVE_EVENT = "hireshade:session-not-active";
+
+function notifySessionGone(sessionId: string): void {
+  try {
+    window.dispatchEvent(
+      new CustomEvent(SESSION_NOT_ACTIVE_EVENT, { detail: { sessionId } }),
+    );
+  } catch {
+    /* non-DOM context */
+  }
+}
+
 const REGENERATE_DEFAULT_INSTRUCTION =
   "Regenerate the same answer with more depth and clearer structure. Do not say previous context is unavailable.";
 
@@ -1013,6 +1035,12 @@ export const useAIChat = () => {
           signal: controller.signal,
         });
 
+        if (response.status === 410) {
+          console.warn("[useAIChat] handleAnalyzeScreen: session not active (410)");
+          notifySessionGone(sessionId);
+          throw new Error("Session has ended");
+        }
+
         if (!response.ok) {
           console.error(`[useAIChat] handleAnalyzeScreen: Server returned status ${response.status}`);
           throw new Error(`Analysis failed: ${response.status}`);
@@ -1350,6 +1378,15 @@ export const useAIChat = () => {
           body: JSON.stringify(requestBody),
           signal: controller.signal,
         });
+
+        if (response.status === 410) {
+          // Session has ended (settled server-side). Remove the placeholder
+          // and hand off to the page's session-ended teardown.
+          console.warn("[useAIChat] handleAiAnswer: session not active (410)", { requestId });
+          safeSetAiChat((prev) => prev.filter((msg) => msg.id !== messageId));
+          notifySessionGone(sessionId);
+          return;
+        }
 
         if (response.status === 409) {
           // A request is already in flight for this session (e.g. user
@@ -1731,6 +1768,13 @@ export const useAIChat = () => {
             });
 	        }
 
+	        if (response.status === 410) {
+	          console.warn("[useAIChat] handleCustomQuery: session not active (410)");
+	          setAiChat((prev) => prev.filter((msg) => msg.id !== aiMessageId));
+	          notifySessionGone(sessionId);
+	          return;
+	        }
+
 	        if (response.status === 409) {
 	          console.warn("[useAIChat] handleCustomQuery: duplicate_in_flight, dropping placeholder", {
 	            requestId,
@@ -1952,6 +1996,17 @@ export const useAIChat = () => {
           body: JSON.stringify(requestBody),
           signal: controller.signal,
 	        });
+
+	        if (response.status === 410) {
+	          console.warn("[useAIChat] handleRegenerate: session not active (410), restoring answer");
+	          setAiChat((prev) =>
+	            prev.map((msg) =>
+	              msg.id === messageId ? { ...msg, text: originalMessageText } : msg,
+	            ),
+	          );
+	          notifySessionGone(sessionId);
+	          return;
+	        }
 
 	        if (response.status === 409) {
 	          console.warn("[useAIChat] handleRegenerate: duplicate_in_flight, restoring active answer", {

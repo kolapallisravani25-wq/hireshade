@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useDeepgram } from "@/hooks/useDeepgram";
 import { useScreenShare } from "@/hooks/useScreenShare";
 import { useNativeTabTranscription } from "@/hooks/useNativeTabTranscription";
-import { useAIChat } from "@/hooks/useAIChat";
+import { useAIChat, SESSION_NOT_ACTIVE_EVENT } from "@/hooks/useAIChat";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { useFreeSessionTimer } from "@/hooks/useFreeSessionTimer";
 import { useSessionHeartbeat } from "@/hooks/useSessionHeartbeat";
@@ -496,13 +496,32 @@ export default function ActiveSession() {
     maxAllowedMinutes,
   });
 
+  const sessionEndedHandledRef = useRef(false);
   const onSessionEndedRemotely = useCallback(() => {
+    // Fire the toast + teardown once, no matter how many signals arrive
+    // (heartbeat + several 410s from in-flight AI calls can all land).
+    if (sessionEndedHandledRef.current) return;
+    sessionEndedHandledRef.current = true;
     toast.info(
       "This session was ended (inactive too long or ended on another device).",
       { duration: 6000 },
     );
     endSessionNow();
   }, [endSessionNow]);
+
+  // The AI hooks (ai-answer / analyze-screen / custom query / regenerate)
+  // surface an HTTP 410 SESSION_NOT_ACTIVE the moment a settled session
+  // tries to generate — up to 60s before the next heartbeat would notice.
+  // Same teardown path as the heartbeat's SESSION_NOT_ACTIVE.
+  useEffect(() => {
+    const onGone = (e: Event) => {
+      const detail = (e as CustomEvent<{ sessionId?: string }>).detail;
+      if (detail?.sessionId && detail.sessionId !== id) return;
+      onSessionEndedRemotely();
+    };
+    window.addEventListener(SESSION_NOT_ACTIVE_EVENT, onGone);
+    return () => window.removeEventListener(SESSION_NOT_ACTIVE_EVENT, onGone);
+  }, [id, onSessionEndedRemotely]);
 
   // Heartbeat: runs every 60s for ALL sessions after activation.
   // Free sessions need it too: it's the liveness signal that (a) lets the

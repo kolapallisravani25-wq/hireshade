@@ -868,8 +868,11 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
     // screen analysis indefinitely — unmetered OpenRouter usage. The review
     // page's post-session Q&A lives on /ask-ai (per-action metered), so this
     // gate cannot affect it.
+    // 410 (not 409): the client's AI hooks treat 409 as "duplicate request
+    // in flight" and silently drop the answer card — an ended session must
+    // surface as a distinct, visible outcome.
     if (session.status !== "ACTIVE") {
-      res.status(409).json({ error: "SESSION_NOT_ACTIVE", status: session.status });
+      res.status(410).json({ error: "SESSION_NOT_ACTIVE", status: session.status });
       return;
     }
 
@@ -1008,8 +1011,10 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
     // by the per-minute meter, so they must only be reachable while the meter
     // is running (status ACTIVE). Never-activated or settled sessions were
     // previously able to generate answers for free, indefinitely.
+    // 410 (not 409): 409 is the client's "duplicate in flight" contract and
+    // silently drops the card; 410 routes to visible error handling.
     if (session.status !== "ACTIVE") {
-      res.status(409).json({ error: "SESSION_NOT_ACTIVE", status: session.status });
+      res.status(410).json({ error: "SESSION_NOT_ACTIVE", status: session.status });
       return;
     }
 
