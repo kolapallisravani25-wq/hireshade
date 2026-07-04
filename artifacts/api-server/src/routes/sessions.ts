@@ -915,6 +915,7 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       answerMode?: string;
       aiModel?: string;
       triggerSource?: string;
+      sourcePlatform?: string;
     };
 
     const question =
@@ -928,13 +929,19 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       return;
     }
 
-    // Readiness guard (protects BOTH web-auto and desktop paths). An explicit
-    // user action — a manual/overlay click, or a regenerate — forces through;
-    // the automatic stabilizer path must present a COMPLETE question. This is
-    // what stops in-flight STT fragments ("...walk me through your") from
-    // reaching the model and producing "I don't see the actual question"
-    // non-answers. A regenerate always carries a real prior question.
+    // Readiness guard. This ONLY gates the web auto-stabilizer path, and even
+    // then only rejects clearly-unanswerable noise. Everything else is forced
+    // through:
+    //  - Desktop (sourcePlatform "tauri") already runs its own confidence-gated
+    //    question resolution before calling us — we must not second-guess it.
+    //  - Any explicit click, regenerate, or patched transcript is a deliberate
+    //    user action.
+    // A too-aggressive guard here rejected a COMPLETE question ("...Can you
+    // introduce yourself? And walk...") because the snapshot ended on "and",
+    // surfacing as "Sorry, I couldn't generate an answer" — worse than the
+    // fragment problem it was meant to fix.
     const isForced =
+      body.sourcePlatform === "tauri" ||
       body.triggerSource === "overlay_click" ||
       body.triggerSource === "manual_click" ||
       !!body.regenerateInstruction ||

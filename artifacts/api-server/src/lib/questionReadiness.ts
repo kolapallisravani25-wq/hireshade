@@ -62,11 +62,17 @@ export function assessQuestionReadiness(
   const words = trimmed.split(/\s+/).filter(Boolean);
   const wordCount = words.length;
 
+  // A reasonably long utterance that already contains a complete question
+  // (has a '?' somewhere, not just at the very end) is answerable even if STT
+  // appended a trailing fragment. e.g. "Can you introduce yourself? And walk"
+  // — the '?' proves a real question is present. Answer it; don't reject on the
+  // dangling tail.
+  if (trimmed.includes("?") && wordCount >= 4) {
+    return { ready: true, reason: "contains_complete_question" };
+  }
+
   // Too short to be a real question (single words, "self introduction" stubs).
-  // Follow-ups like "Why?" are handled by the caller passing force/previous
-  // context; the bare auto path needs at least a few words.
   if (wordCount < 4) {
-    // Allow a short line only if it clearly terminates as a question.
     if (!trimmed.endsWith("?")) {
       return { ready: false, reason: `too_short (${wordCount} words)` };
     }
@@ -76,9 +82,15 @@ export function assessQuestionReadiness(
     .toLowerCase()
     .replace(/[^a-z']/g, "");
 
-  // Ends on a dangling conjunction/preposition/article and has no terminal
-  // punctuation → an STT fragment mid-sentence, e.g. "...walk me through your".
+  // Ends on a dangling conjunction/preposition/article with no terminal
+  // punctuation → likely an STT fragment mid-sentence. But ONLY treat this as
+  // unready when the utterance is also short (< 10 words). A long utterance is
+  // probably a real, already-stated question that STT is still extending — we'd
+  // rather answer it than drop it. This keeps the guard narrow: it catches
+  // genuine lead-in fragments ("Write a Dockerfile to containerize a") without
+  // rejecting substantial questions.
   if (
+    wordCount < 10 &&
     !/[.?!:;]$/.test(trimmed) &&
     TRAILING_INCOMPLETE_WORDS.has(lastWord)
   ) {

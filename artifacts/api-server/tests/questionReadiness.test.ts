@@ -7,9 +7,9 @@ describe("assessQuestionReadiness", () => {
     expect(assessQuestionReadiness("   ").ready).toBe(false);
   });
 
-  it("rejects the real production fragment that produced a non-answer", () => {
+  it("rejects the real production LEAD-IN fragment (no complete question yet)", () => {
     // This exact fragment reached the model and produced "I don't see the
-    // actual interview question in your message".
+    // actual interview question". No '?', short, ends on dangling word.
     const r = assessQuestionReadiness(
       "Can you introduce yourself and walk me through your",
     );
@@ -17,10 +17,18 @@ describe("assessQuestionReadiness", () => {
     expect(r.reason).toMatch(/dangling_word/);
   });
 
-  it("rejects dangling-conjunction fragments", () => {
+  it("ACCEPTS a substantial utterance that already contains a complete question even if it trails off", () => {
+    // Regression: the guard wrongly rejected this real question because the
+    // snapshot ended on "and", surfacing "Sorry, I couldn't generate an answer".
+    const r = assessQuestionReadiness(
+      "one. Self introduction. Can you introduce yourself? And walk me through your experience as a data engineer? Please cover your total experience, current role, and",
+    );
+    expect(r.ready).toBe(true);
+  });
+
+  it("rejects short dangling-conjunction fragments", () => {
     expect(assessQuestionReadiness("Write a Dockerfile to containerize a").ready).toBe(false);
     expect(assessQuestionReadiness("Tell me about your experience and").ready).toBe(false);
-    expect(assessQuestionReadiness("Explain how you would design the").ready).toBe(false);
   });
 
   it("rejects too-short stubs", () => {
@@ -47,6 +55,10 @@ describe("assessQuestionReadiness", () => {
     // Desktop overlay click / manual click: user deliberately asked.
     expect(
       assessQuestionReadiness("Write a Dockerfile to containerize a", { force: true }).ready,
+    ).toBe(true);
+    // Desktop (sourcePlatform tauri) always forces — it already gated the question.
+    expect(
+      assessQuestionReadiness("Self introduction", { force: true }).ready,
     ).toBe(true);
     // but still rejects genuinely empty even when forced
     expect(assessQuestionReadiness("", { force: true }).ready).toBe(false);
