@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import crypto from "crypto";
+import { createRazorpayOrder, getRazorpayKeyId, RazorpayNotConfiguredError } from "../lib/razorpay.js";
 import { requireAuth } from "../middlewares/requireAuth.js";
 import { db } from "@workspace/db";
 import {
@@ -80,43 +81,50 @@ router.get("/brackets", requireAuth, async (_req, res) => {
   res.json({ data: CREDIT_BRACKETS });
 });
 
+/**
+ * Canonical credit packs — single server-side source of truth for both the
+ * /plans listing and order creation (amounts can never be client-supplied).
+ * Shape matches the client's CreditPlan (useCreditPlans.ts): code,
+ * amountMajor/amountMinor, isPopular, valuePct. The previous handler returned
+ * { id, price, popular } — none of which the client reads — so the billing
+ * page rendered undefined prices and sent packCode: undefined.
+ */
+const CREDIT_PACKS: {
+  code: string;
+  name: string;
+  credits: number;
+  amountMinor: Record<string, number>; // currency → minor units
+  isPopular: boolean;
+}[] = [
+  { code: "plan_100", name: "Starter Pack", credits: 100, amountMinor: { INR: 39900, USD: 499 }, isPopular: false },
+  { code: "plan_500", name: "Pro Pack", credits: 500, amountMinor: { INR: 159900, USD: 1999 }, isPopular: true },
+  { code: "plan_1000", name: "Power Pack", credits: 1000, amountMinor: { INR: 279900, USD: 3499 }, isPopular: false },
+  { code: "plan_5000", name: "Enterprise Pack", credits: 5000, amountMinor: { INR: 1199900, USD: 14999 }, isPopular: false },
+];
+
+function packsForCurrency(currency: string) {
+  const cur = currency === "USD" ? "USD" : "INR";
+  const withValue = CREDIT_PACKS.map((p) => {
+    const minor = p.amountMinor[cur]!;
+    return { ...p, minor, creditsPerMinor: p.credits / minor };
+  });
+  const base = withValue[0]!.creditsPerMinor;
+  return withValue.map((p) => ({
+    code: p.code,
+    name: p.name,
+    credits: p.credits,
+    currency: cur,
+    amountMinor: p.minor,
+    amountMajor: (p.minor / 100).toFixed(2),
+    isPopular: p.isPopular,
+    // % more credits-per-money than the smallest pack.
+    valuePct: Math.round((p.creditsPerMinor / base - 1) * 100),
+  }));
+}
+
 router.get("/plans", requireAuth, async (req, res) => {
   const currency = (req.query["currency"] as string) ?? "INR";
-  const plans = [
-    {
-      id: "plan_100",
-      name: "Starter Pack",
-      credits: 100,
-      price: currency === "USD" ? 4.99 : 399,
-      currency,
-      popular: false,
-    },
-    {
-      id: "plan_500",
-      name: "Pro Pack",
-      credits: 500,
-      price: currency === "USD" ? 19.99 : 1599,
-      currency,
-      popular: true,
-    },
-    {
-      id: "plan_1000",
-      name: "Power Pack",
-      credits: 1000,
-      price: currency === "USD" ? 34.99 : 2799,
-      currency,
-      popular: false,
-    },
-    {
-      id: "plan_5000",
-      name: "Enterprise Pack",
-      credits: 5000,
-      price: currency === "USD" ? 149.99 : 11999,
-      currency,
-      popular: false,
-    },
-  ];
-  res.json({ data: plans });
+  res.json({ data: packsForCurrency(currency) });
 });
 
 router.get("/ledger", requireAuth, async (req, res) => {
@@ -214,43 +222,89 @@ router.get("/purchases", requireAuth, async (req, res) => {
 router.post("/purchase/order", requireAuth, async (req, res) => {
   try {
     const userId = req.userId!;
-    const body = req.body as { planId?: string; currency?: string };
+    const body = req.body as { packCode?: string; planId?: string; currency?: string };
 
-    const planId = body.planId ?? "plan_100";
-    const currency = body.currency ?? "INR";
+    // FE sends packCode; planId kept for backward compatibility.
+    const code = body.packCode ?? body.planId ?? "";
+    const currency = body.currency === "USD" ? "USD" : "INR";
+    const pack = packsForCurrency(currency).find((p) => p.code === code);
+    if (!pack) {
+      // Exact string is a client contract (BuyCreditsDialog maps it to copy).
+      res.status(400).json({ error: "Invalid packCode" });
+      return;
+    }
 
-    const planAmounts: Record<string, { amount: number; credits: number }> = {
-      plan_100: { amount: currency === "USD" ? 499 : 39900, credits: 100 },
-      plan_500: { amount: currency === "USD" ? 1999 : 159900, credits: 500 },
-      plan_1000: { amount: currency === "USD" ? 3499 : 279900, credits: 1000 },
-      plan_5000: { amount: currency === "USD" ? 14999 : 1199900, credits: 5000 },
-    };
+    // REAL Razorpay order — checkout rejects ids it didn't issue, which is why
+    // the previous locally-fabricated order_<uuid> made purchases impossible.
+    let rzpOrder;
+    try {
+      rzpOrder = await createRazorpayOrder({
+        amountMinor: pack.amountMinor,
+        currency,
+        receipt: `hs_${userId.slice(0, 20)}_${Date.now()}`,
+        notes: { userId, packCode: pack.code },
+      });
+    } catch (err) {
+      if (err instanceof RazorpayNotConfiguredError) {
+        // Exact string is a client contract.
+        res.status(503).json({ error: "Razorpay is not configured" });
+        return;
+      }
+      throw err;
+    }
 
-    const plan = planAmounts[planId] ?? planAmounts["plan_100"]!;
-    const orderId = `order_${uuidv4().replace(/-/g, "").slice(0, 16)}`;
-
-    const purchaseId = uuidv4();
     await db.insert(creditsPurchasesTable).values({
-      id: purchaseId,
+      id: uuidv4(),
       userId,
-      orderId,
-      amount: String(plan.amount / 100),
+      orderId: rzpOrder.id,
+      amount: String(pack.amountMinor / 100),
       currency,
-      creditsPurchased: String(plan.credits),
+      creditsPurchased: String(pack.credits),
       status: "pending",
     });
 
     res.json({
       success: true,
       data: {
-        orderId,
-        amount: plan.amount,
+        orderId: rzpOrder.id,
+        keyId: getRazorpayKeyId(),
+        amountMinor: pack.amountMinor,
         currency,
-        credits: plan.credits,
+        credits: pack.credits,
       },
     });
   } catch (err) {
+    console.error("[credits] purchase order error", err);
     res.status(500).json({ error: "Failed to create order" });
+  }
+});
+
+/**
+ * FE calls this on checkout failure/dismiss to mark the pending purchase —
+ * the endpoint previously did not exist (silent 404 on every failed payment,
+ * leaving pending rows forever).
+ */
+router.post("/purchase/fail", requireAuth, async (req, res) => {
+  try {
+    const userId = req.userId!;
+    const body = req.body as { orderId?: string; reason?: string };
+    if (!body.orderId) {
+      res.status(400).json({ error: "orderId is required" });
+      return;
+    }
+    await db
+      .update(creditsPurchasesTable)
+      .set({ status: "failed" })
+      .where(
+        and(
+          eq(creditsPurchasesTable.userId, userId),
+          eq(creditsPurchasesTable.orderId, body.orderId),
+          eq(creditsPurchasesTable.status, "pending"),
+        ),
+      );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to record failure" });
   }
 });
 
@@ -281,7 +335,9 @@ router.post("/purchase/verify", requireAuth, async (req, res) => {
       .update(`${orderId}|${paymentId}`)
       .digest("hex");
 
-    if (expectedSig !== signature) {
+    const sigBuf = Buffer.from(signature);
+    const expBuf = Buffer.from(expectedSig);
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(expBuf, sigBuf)) {
       res.status(400).json({ error: "Invalid payment signature" });
       return;
     }

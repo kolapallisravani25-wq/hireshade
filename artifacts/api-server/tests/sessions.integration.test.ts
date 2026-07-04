@@ -35,6 +35,23 @@ vi.mock("../src/lib/htmlPdf.js", async (importOriginal) => {
   };
 });
 
+// ── Razorpay mock: sandbox cannot reach api.razorpay.com; the client is a thin
+// fetch wrapper — the route contract (pack integrity, error strings, persisted
+// order id) is what needs testing.
+vi.mock("../src/lib/razorpay.js", async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    getRazorpayKeyId: vi.fn(() => "rzp_test_mockkey"),
+    createRazorpayOrder: vi.fn(async (opts: { amountMinor: number; currency: string }) => ({
+      id: `order_RZPMOCK${Math.random().toString(36).slice(2, 10)}`,
+      amount: opts.amountMinor,
+      currency: opts.currency,
+      status: "created",
+    })),
+  };
+});
+
 // ── AI mock: deterministic responses, zero network egress to OpenRouter ───────
 vi.mock("../src/lib/openrouter.js", () => ({
   chatComplete: vi.fn(async () => "mock AI text response"),
@@ -1201,5 +1218,89 @@ describe("PDF export routes", () => {
       .get(`/api/projects/${pid}/export-pdf`)
       .set("x-test-user", USER_B);
     expect(foreign.status).toBe(404);
+  });
+});
+
+// ── Billing: plans contract, real order creation, fail endpoint ───────────────
+import {
+  createRazorpayOrder as mockedCreateOrder,
+  RazorpayNotConfiguredError,
+} from "../src/lib/razorpay.js";
+
+describe("credit purchase pipeline", () => {
+  it("/plans returns the client's CreditPlan shape (code/amountMinor/amountMajor/isPopular/valuePct)", async () => {
+    const res = await request(app).get("/api/credits/plans?currency=USD").set("x-test-user", USER_A);
+    expect(res.status).toBe(200);
+    const p = res.body.data[0];
+    expect(p.code).toBe("plan_100");
+    expect(p.amountMinor).toBe(499);
+    expect(p.amountMajor).toBe("4.99");
+    expect(typeof p.isPopular).toBe("boolean");
+    expect(typeof p.valuePct).toBe("number");
+    // larger packs must be strictly better value
+    const vals = res.body.data.map((x: any) => x.valuePct);
+    expect(vals[3]).toBeGreaterThan(vals[0]);
+  });
+
+  it("order: creates a REAL razorpay order, persists its id, returns keyId + server-side amount", async () => {
+    const res = await request(app)
+      .post("/api/credits/purchase/order")
+      .set("x-test-user", USER_A)
+      .send({ packCode: "plan_500", currency: "INR" });
+    expect(res.status).toBe(200);
+    expect(res.body.data.orderId).toMatch(/^order_RZPMOCK/);
+    expect(res.body.data.keyId).toBe("rzp_test_mockkey");
+    expect(res.body.data.amountMinor).toBe(159900); // server-side, never client-supplied
+    expect(res.body.data.credits).toBe(500);
+    const [row] = await db
+      .select()
+      .from(creditsPurchasesTable)
+      .where(eq(creditsPurchasesTable.orderId, res.body.data.orderId));
+    expect(row).toBeTruthy();
+    expect(row!.status).toBe("pending");
+    expect(row!.creditsPurchased).toBe("500");
+  });
+
+  it("order: rejects unknown packCode with the exact client-contract string", async () => {
+    const res = await request(app)
+      .post("/api/credits/purchase/order")
+      .set("x-test-user", USER_A)
+      .send({ packCode: "plan_999", currency: "INR" });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Invalid packCode");
+  });
+
+  it("order: maps missing keys to 503 'Razorpay is not configured'", async () => {
+    vi.mocked(mockedCreateOrder).mockRejectedValueOnce(new RazorpayNotConfiguredError());
+    const res = await request(app)
+      .post("/api/credits/purchase/order")
+      .set("x-test-user", USER_A)
+      .send({ packCode: "plan_100", currency: "INR" });
+    expect(res.status).toBe(503);
+    expect(res.body.error).toBe("Razorpay is not configured");
+  });
+
+  it("fail endpoint marks the user's pending purchase failed (and only theirs)", async () => {
+    const order = await request(app)
+      .post("/api/credits/purchase/order")
+      .set("x-test-user", USER_A)
+      .send({ packCode: "plan_100", currency: "INR" });
+    const orderId = order.body.data.orderId;
+
+    // Another user cannot fail it.
+    await request(app)
+      .post("/api/credits/purchase/fail")
+      .set("x-test-user", USER_B)
+      .send({ orderId });
+    let [row] = await db.select().from(creditsPurchasesTable).where(eq(creditsPurchasesTable.orderId, orderId));
+    expect(row!.status).toBe("pending");
+
+    const res = await request(app)
+      .post("/api/credits/purchase/fail")
+      .set("x-test-user", USER_A)
+      .send({ orderId });
+    expect(res.status).toBe(200);
+    [row] = await db.select().from(creditsPurchasesTable).where(eq(creditsPurchasesTable.orderId, orderId));
+    expect(row!.status).toBe("failed");
   });
 });
