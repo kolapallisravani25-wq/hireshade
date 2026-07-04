@@ -12,6 +12,7 @@ import projectCategoriesRouter from "./projectCategories.js";
 import assistantRouter from "./assistant.js";
 import askAIRouter from "./askAI.js";
 import sessionNotesRouter from "./sessionNotes.js";
+import desktopRouter from "./desktop.js";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use("/projects", projectsRouter);
 router.use("/ai", aiRouter);
 router.use("/project-categories", projectCategoriesRouter);
 router.use("/assistant", assistantRouter);
+router.use("/desktop", desktopRouter);
 
 export default router;

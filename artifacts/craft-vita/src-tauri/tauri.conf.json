@@ -85,7 +85,7 @@
     },
     "updater": {
       "endpoints": [
-        "https://github.com/kolapallisravani25-wq/hireshade/releases/latest/download/latest.json"
+        "https://hireshade.com/api/desktop/latest"
       ],
       "pubkey": "REPLACE_WITH_TAURI_UPDATER_PUBLIC_KEY"
     }

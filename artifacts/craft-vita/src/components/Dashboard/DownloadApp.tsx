@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,13 +8,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
-// The updater manifest is published to the GitHub Release by the
-// desktop-release workflow (tauri-action, includeUpdaterJson). This is the
-// same latest.json the in-app auto-updater reads, so the download button and
-// the updater never diverge. The previous Cloudflare R2 URL was never
-// populated by any workflow — downloads silently failed against it.
-const UPDATES_MANIFEST_URL =
-  "https://github.com/kolapallisravani25-wq/hireshade/releases/latest/download/latest.json";
+// Served by OUR backend (/api/desktop/latest), which proxies the private
+// GitHub repo's latest release with a server-side token. The previous URL
+// pointed straight at github.com/<owner>/<repo>/releases — a PRIVATE repo —
+// so every browser request 404'd and no download could ever succeed. The
+// Tauri auto-updater reads the same endpoint, so the download buttons and
+// the updater can never diverge.
+const UPDATES_MANIFEST_URL = `${import.meta.env.VITE_BACKEND_URL}/api/desktop/latest`;
 
 type DownloadArtifact = {
   url: string;
@@ -128,6 +129,46 @@ async function openLatestDesktopDownload(
 }
 
 export function DownloadApp() {
+  // Latest-release metadata for the version badge / release notes / empty
+  // state. Failure modes are explicit: 404 NO_RELEASE means no desktop build
+  // has been published yet; network/5xx keeps the buttons visible (each
+  // button re-checks the manifest on click and reports its own error).
+  const [releaseInfo, setReleaseInfo] = useState<{
+    version?: string;
+    notes?: string;
+    pubDate?: string;
+    state: "loading" | "ready" | "none" | "error";
+  }>({ state: "loading" });
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(UPDATES_MANIFEST_URL, { cache: "no-store" })
+      .then(async (r) => {
+        if (cancelled) return;
+        if (r.status === 404) {
+          setReleaseInfo({ state: "none" });
+          return;
+        }
+        if (!r.ok) {
+          setReleaseInfo({ state: "error" });
+          return;
+        }
+        const m = (await r.json()) as { version?: string; notes?: string; pub_date?: string };
+        setReleaseInfo({
+          state: "ready",
+          version: m.version,
+          notes: m.notes,
+          pubDate: m.pub_date,
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setReleaseInfo({ state: "error" });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div className="w-full max-w-6xl mx-auto py-8 sm:py-10 lg:py-12 px-5 sm:px-8 lg:px-10 bg-linear-to-br from-brand to-blue-700 rounded-2xl sm:rounded-3xl overflow-hidden relative shadow-2xl shadow-brand/20 my-4 sm:my-8 border border-white/10">
       {/* Background decorative blobs */}
@@ -144,6 +185,28 @@ export function DownloadApp() {
             shortcuts, and seamless interview assistance directly from your
             desktop.
           </p>
+          {releaseInfo.state === "ready" && releaseInfo.version && (
+            <div className="flex flex-col gap-2 items-center lg:items-start">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold text-white backdrop-blur">
+                Latest version: v{releaseInfo.version}
+                {releaseInfo.pubDate && (
+                  <span className="text-blue-100 font-normal">
+                    · {new Date(releaseInfo.pubDate).toLocaleDateString()}
+                  </span>
+                )}
+              </span>
+              {releaseInfo.notes && (
+                <p className="text-blue-100/90 text-sm max-w-2xl whitespace-pre-line line-clamp-4">
+                  {releaseInfo.notes}
+                </p>
+              )}
+            </div>
+          )}
+          {releaseInfo.state === "none" && (
+            <span className="inline-flex items-center rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold text-white backdrop-blur">
+              First public build coming soon — downloads will appear here automatically.
+            </span>
+          )}
         </div>
 
         <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">

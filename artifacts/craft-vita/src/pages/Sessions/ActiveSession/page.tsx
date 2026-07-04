@@ -896,6 +896,17 @@ export default function ActiveSession() {
           // word-numbered list) gets its own AI call with a small stagger.
           if (sender === "Interviewer" && autoGenerateResponse && id) {
             pendingTranscriptRef.current.push(cleanText);
+            // The buffer only clears after a FIRED generation — skipped
+            // triggers (noise, too-short) intentionally accumulate so a
+            // question keeps its lead-in context. But a long non-question
+            // monologue would grow it unboundedly (huge classify inputs +
+            // token-heavy payloads), so cap to the most recent material.
+            while (
+              pendingTranscriptRef.current.length > 1 &&
+              pendingTranscriptRef.current.join(" ").length > 2400
+            ) {
+              pendingTranscriptRef.current.shift();
+            }
             const joined = pendingTranscriptRef.current.join(" ").trim();
             stabilizerRef.current?.feed(joined);
           }

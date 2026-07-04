@@ -2,6 +2,7 @@ import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { Play, FileText, Download, Ticket, HelpCircle, Coins } from "lucide-react";
 import { OnboardingStepper } from "@/components/Dashboard/OnboardingStepper";
+import { DownloadApp } from "@/components/Dashboard/DownloadApp";
 import { useCreditsBalance } from "@/hooks/useCreditsBalance";
 
 function greeting() {
@@ -78,7 +79,12 @@ export default function Dashboard() {
               iconColor: "text-emerald-600",
               title: "Download desktop app",
               sub: "Windows & macOS available",
-              onClick: () => navigate("/help"),
+              // Scroll to the download section below — this used to dump the
+              // user on /help, which contains no download UI at all.
+              onClick: () =>
+                document
+                  .getElementById("download-desktop-app")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" }),
             },
             {
               icon: Ticket,
@@ -112,6 +118,11 @@ export default function Dashboard() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* ── Download desktop app ── */}
+      <div id="download-desktop-app" className="scroll-mt-6">
+        <DownloadApp />
       </div>
 
       {/* ── Onboarding stepper ── */}
