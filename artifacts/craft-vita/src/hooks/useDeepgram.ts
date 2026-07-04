@@ -549,6 +549,34 @@ export const useDeepgram = ({
   }, [inputStream, stopTranscription]);
 
   useEffect(() => {
+    // Network-recovery reconnect. The onclose retry loop uses bounded
+    // exponential backoff and, after MAX_RETRIES, gives up permanently — which
+    // is the right behaviour for a genuinely-broken connection but WRONG for a
+    // transient outage: if Wi-Fi drops for 30s+ (retries exhaust) and then
+    // returns, nothing was restarting transcription, so the mic stayed dead for
+    // the rest of the session. The browser fires `online` the moment
+    // connectivity is back; use it to kick a fresh attempt.
+    //
+    // Guards: only restart if the user didn't intentionally stop, we're not
+    // already (re)connecting, and there's no live socket. Reset the retry
+    // counter so the recovered attempt gets a full budget again.
+    const handleOnline = () => {
+      if (intentionalStopRef.current) return;
+      if (isTranscribingRef.current || isStartingRef.current) return;
+      if (socketRef.current) return;
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+      retryCountRef.current = 0;
+      setError(null);
+      startTranscriptionRef.current();
+    };
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, []);
+
+  useEffect(() => {
     return () => {
       stopTranscription();
     };
