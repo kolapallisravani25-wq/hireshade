@@ -985,7 +985,7 @@ export default function ActiveSession() {
   );
 
   const micTranscription = useDeepgram({
-    apiKey: import.meta.env.VITE_DEEPGRAM_API_KEY || "",
+    apiKey: "", // minted server-side via resolveDeepgramKey; never bundled
     model: "nova-3",
     language: getLanguageCode(selectedLanguage),
     keyterms: deepgramKeyterms,
@@ -999,7 +999,7 @@ export default function ActiveSession() {
   // so YouTube/tab audio is transcribed — not the microphone.
   // SCKit works independently of getDisplayMedia — no need to wait for stream.
   const tabTranscription = useNativeTabTranscription({
-    apiKey: import.meta.env.VITE_DEEPGRAM_API_KEY || "",
+    apiKey: "", // minted server-side via resolveDeepgramKey; never bundled
     model: "nova-3",
     language: getLanguageCode(selectedLanguage),
     onTranscript: onInterviewerTranscript,
@@ -1014,7 +1014,7 @@ export default function ActiveSession() {
   const streamHasAudio = !!stream && stream.getAudioTracks().length > 0;
 
   const tabAudioTranscription = useDeepgram({
-    apiKey: import.meta.env.VITE_DEEPGRAM_API_KEY || "",
+    apiKey: "", // minted server-side via resolveDeepgramKey; never bundled
     model: "nova-3",
     language: getLanguageCode(selectedLanguage),
     keyterms: deepgramKeyterms,

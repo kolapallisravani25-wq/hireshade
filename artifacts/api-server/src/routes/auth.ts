@@ -86,7 +86,10 @@ router.post("/deepgram-token", requireAuth, async (req, res) => {
     const userId = req.userId!;
     const masterKey = process.env["DEEPGRAM_API_KEY"]?.trim();
     if (!masterKey) {
-      // Client falls back to its build-time key (if any) on 503.
+      // Web has no build-time key fallback anymore (removing it kept the
+      // master key out of the shipped bundle), so a 503 here means web
+      // transcription is unavailable until DEEPGRAM_API_KEY is set on the
+      // server. The desktop app has its own compiled-in key path.
       res.status(503).json({ error: "Deepgram is not configured on the server" });
       return;
     }

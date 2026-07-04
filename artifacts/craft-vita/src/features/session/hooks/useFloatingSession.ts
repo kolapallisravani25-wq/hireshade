@@ -68,7 +68,9 @@ import type { AIAnswerRequestPayload } from "@/types/ai-answer";
 import { resolveDeepgramKey } from "@/lib/deepgramAuth";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
-const DEEPGRAM_API_KEY = import.meta.env.VITE_DEEPGRAM_API_KEY || "";
+// Deepgram credentials are minted server-side per-session via
+// resolveDeepgramKey(); the long-lived master key is never read here, so it
+// can't be inlined into the shipped bundle. (Was VITE_DEEPGRAM_API_KEY.)
 // Spec §8c/§8.7a: GPT-4o is excluded platform-wide. Screen analysis uses the
 // fastest PERMITTED model (Gemini Flash-Lite) for low-latency question reads.
 const ANALYZE_SCREEN_FAST_MODEL = "google/gemini-3.1-flash-lite-preview";
@@ -1389,17 +1391,18 @@ export function useFloatingSession() {
       setTabStatus("connecting");
       audioControllerRef.current.startAudioSession("system", "start_system_audio");
       try {
+        const dgKey = await resolveDeepgramKey();
         if (import.meta.env.DEV) {
           console.log("[audio-lifecycle] deepgramKeyFingerprint", {
             source: "floating_invoke_system",
-            fingerprint: deepgramKeyFingerprint(DEEPGRAM_API_KEY),
+            fingerprint: deepgramKeyFingerprint(dgKey),
           });
         }
         await invoke("start_system_audio_transcription", {
           language: lang,
           model: "nova-3",
           keyterms,
-          apiKey: await resolveDeepgramKey(DEEPGRAM_API_KEY),
+          apiKey: dgKey,
         });
       } catch (e: unknown) {
         const msg = String(e);
@@ -2556,17 +2559,18 @@ export function useFloatingSession() {
         setIsMicConnecting(true);
         const keyterms = buildDeepgramKeyterms();
         try {
+          const dgKey = await resolveDeepgramKey();
           if (import.meta.env.DEV) {
             console.log("[audio-lifecycle] deepgramKeyFingerprint", {
               source: "floating_invoke_mic",
-              fingerprint: deepgramKeyFingerprint(DEEPGRAM_API_KEY),
+              fingerprint: deepgramKeyFingerprint(dgKey),
             });
           }
           await invoke("start_mic_transcription", {
             language: getLanguageCode(sessionInfoRef.current.language ?? "English"),
             model: "nova-3",
             keyterms,
-            apiKey: await resolveDeepgramKey(DEEPGRAM_API_KEY),
+            apiKey: dgKey,
           });
         } catch (e: unknown) {
           toast.error(`Mic: ${String(e)}`);
