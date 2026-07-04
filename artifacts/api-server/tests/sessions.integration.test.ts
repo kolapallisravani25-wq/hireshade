@@ -60,6 +60,7 @@ import {
   creditsPurchasesTable,
   resumesTable,
   sessionFeedbackTable,
+  projectsTable,
 } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -155,6 +156,7 @@ beforeEach(async () => {
   await db.delete(sessionFeedbackTable);
   await db.delete(sessionsTable);
   await db.delete(resumesTable);
+  await db.delete(projectsTable);
   await seedUser(USER_A);
   await seedUser(USER_B);
 });
@@ -977,5 +979,99 @@ describe("excluded model patterns", () => {
     ]) {
       expect(excluded.test(m) || excludedPointer.test(m)).toBe(false);
     }
+  });
+});
+
+// ── Answer grounding: AI project + document context (spec items 21–22) ────────
+import { streamChatComplete as mockedStream } from "../src/lib/openrouter.js";
+import { getProjectContext } from "../src/lib/sessionGrounding.js";
+
+describe("answer grounding — project and document context", () => {
+  it("resolves the selected project into prompt text (primary first, ownership enforced)", async () => {
+    const pid = uuidv4();
+    await db.insert(projectsTable).values({
+      id: pid,
+      userId: USER_A,
+      title: "Realtime Fraud Detection",
+      roleType: "Data Engineer",
+      description: "Streaming pipeline that flags fraudulent transactions.",
+      content: { stack: "Kafka, Flink, Postgres", impact: "Cut fraud losses 40%" },
+    });
+    // Another user's project with the same id-shape must NOT leak in.
+    const foreign = uuidv4();
+    await db.insert(projectsTable).values({
+      id: foreign, userId: USER_B, title: "SECRET-B-PROJECT",
+    });
+
+    const s = await makeSession(USER_A, {
+      projectIds: [pid, foreign],
+      primaryProjectId: pid,
+    });
+    const ctx = await getProjectContext(s);
+    expect(ctx).toContain("Realtime Fraud Detection");
+    expect(ctx).toContain("Kafka");
+    expect(ctx).not.toContain("SECRET-B-PROJECT");
+  });
+
+  it("ai-answer system prompt actually includes the project grounding end-to-end", async () => {
+    const pid = uuidv4();
+    await db.insert(projectsTable).values({
+      id: pid,
+      userId: USER_A,
+      title: "GROUNDING-MARKER-PROJECT-7731",
+      description: "marker project",
+    });
+    const s = await makeSession(USER_A, { projectIds: [pid], primaryProjectId: pid });
+
+    vi.mocked(mockedStream).mockClear();
+    const res = await request(app)
+      .post(`/api/session/${s.id}/ai-answer`)
+      .set("x-test-user", USER_A)
+      .send({ currentQuestion: "Tell me about your fraud detection project." });
+    expect(res.status).toBe(200);
+
+    expect(vi.mocked(mockedStream)).toHaveBeenCalledTimes(1);
+    const callArgs = vi.mocked(mockedStream).mock.calls[0]![0] as {
+      messages: { role: string; content: string }[];
+    };
+    const system = callArgs.messages.find((m) => m.role === "system")!.content;
+    expect(system).toContain("GROUNDING-MARKER-PROJECT-7731");
+  });
+
+  it("sessions without project/document get an unchanged prompt (no empty grounding blocks)", async () => {
+    const s = await makeSession(USER_A, {});
+    vi.mocked(mockedStream).mockClear();
+    const res = await request(app)
+      .post(`/api/session/${s.id}/ai-answer`)
+      .set("x-test-user", USER_A)
+      .send({ currentQuestion: "What is a mutex?" });
+    expect(res.status).toBe(200);
+    const callArgs = vi.mocked(mockedStream).mock.calls[0]![0] as {
+      messages: { role: string; content: string }[];
+    };
+    const system = callArgs.messages.find((m) => m.role === "system")!.content;
+    expect(system).not.toContain("AI project(s) selected");
+    expect(system).not.toContain("Supporting document");
+  });
+});
+
+// ── Contract: GET /:id returns the settings the live page hydrates from ──────
+describe("session GET contract for live-page settings hydration", () => {
+  it("returns autoGenerateResponse, language, simpleLanguage, aiModel", async () => {
+    const s = await makeSession(USER_A, {
+      autoGenerateResponse: true,
+      language: "Hindi",
+      simpleLanguage: true,
+      aiModel: "anthropic/claude-haiku-4-5",
+    });
+    const res = await request(app)
+      .get(`/api/session/${s.id}`)
+      .set("x-test-user", USER_A);
+    expect(res.status).toBe(200);
+    const body = res.body.data ?? res.body;
+    expect(body.autoGenerateResponse).toBe(true);
+    expect(body.language).toBe("Hindi");
+    expect(body.simpleLanguage).toBe(true);
+    expect(body.aiModel).toBe("anthropic/claude-haiku-4-5");
   });
 });

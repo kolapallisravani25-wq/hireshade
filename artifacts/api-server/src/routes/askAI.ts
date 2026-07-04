@@ -9,6 +9,7 @@ import { buildInterviewSystemPrompt } from "../lib/interviewPrompt.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
 import type { ChatMessage } from "../lib/openrouter.js";
 import { chargeOr402 } from "../lib/featureCredits.js";
+import { getSessionGrounding } from "../lib/sessionGrounding.js";
 
 const router: IRouter = Router();
 
@@ -132,6 +133,7 @@ router.post("/:sessionId/query", requireAuth, async (req, res) => {
     }
 
     const resumeContext = await getResumeContextById(session.resumeId);
+    const grounding = await getSessionGrounding(session);
     const transcript = await getSessionTranscript(sessionId);
     const askHistory = await db
       .select()
@@ -152,7 +154,16 @@ router.post("/:sessionId/query", requireAuth, async (req, res) => {
     });
 
     const systemPrompt = [
-      buildInterviewSystemPrompt({ session, resumeContext, answerMode: "system_design" }),
+      buildInterviewSystemPrompt({
+        session,
+        resumeContext,
+        projectContext: grounding.projectContext,
+        documentContext: grounding.documentContext,
+        // No forced answerMode: previously this hardcoded "system_design",
+        // which framed EVERY review-page question (behavioral, HR, coding,
+        // clarifications...) as a system-design discussion. The base prompt
+        // already adapts depth/style to the question type.
+      }),
       "You are answering inside the session review Ask AI workspace.",
       "Use only the session context, transcript, prior generated answers, resume/project/JD context, and the user's question.",
       "Be practical and specific. Do not invent transcript details. If something is absent, say it is not visible in the saved transcript.",

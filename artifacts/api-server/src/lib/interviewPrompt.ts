@@ -14,9 +14,11 @@ const ANSWER_MODE_GUIDANCE: Record<string, string> = {
 export function buildInterviewSystemPrompt(opts: {
   session: Session;
   resumeContext?: string;
+  projectContext?: string;
+  documentContext?: string;
   answerMode?: string;
 }): string {
-  const { session, resumeContext, answerMode } = opts;
+  const { session, resumeContext, projectContext, documentContext, answerMode } = opts;
   const parts: string[] = [
     "You are the HireShade interview answer engine.",
     "Generate ONLY the candidate's answer in first person.",
@@ -44,6 +46,14 @@ export function buildInterviewSystemPrompt(opts: {
   }
   if (resumeContext) {
     parts.push(`User resume/context to ground answers in:\n${resumeContext}`);
+  }
+  if (projectContext) {
+    parts.push(
+      `The candidate's AI project(s) selected for this session — ground project-related answers in these (never invent other projects):\n${projectContext}`,
+    );
+  }
+  if (documentContext) {
+    parts.push(`Supporting document the candidate attached to this session:\n${documentContext}`);
   }
   if (session.simpleLanguage) {
     parts.push("Plain-language mode is enabled. Include a simple explanation and avoid unnecessary jargon.");

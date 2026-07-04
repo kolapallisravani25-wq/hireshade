@@ -541,7 +541,75 @@ export default function ActiveSession() {
   // synchronous user gesture (button click). The ScreenCapture panel's
   // "Select Screen / Tab" button serves as the user gesture entry point.
 
-  const autoGenerateResponse = location.state?.connectData?.autoGenerateResponse ?? false;
+  // Auto-answer master switch. ROOT-CAUSE FIX: this used to be
+  //   location.state?.connectData?.autoGenerateResponse ?? false
+  // but no navigation path ever set connectData.autoGenerateResponse — the
+  // wizard persists the toggle to the DB and GET /api/session/:id returns it,
+  // yet the live page never read it. Net effect: the entire auto-answer
+  // pipeline (stabilizer → segmentation → generation) was permanently gated
+  // OFF on web, and any mid-session refresh (nav state lost) had the same
+  // effect. Now: seed from nav state when explicitly provided, then hydrate
+  // from the session record (see settings-hydration effect below).
+  const [autoGenerateResponse, setAutoGenerateResponse] = useState<boolean>(
+    typeof location.state?.connectData?.autoGenerateResponse === "boolean"
+      ? location.state.connectData.autoGenerateResponse
+      : false,
+  );
+  const [sessionSimpleLanguage, setSessionSimpleLanguage] = useState<boolean>(
+    !!location.state?.connectData?.simpleLanguage,
+  );
+
+  // One-shot hydration of session settings from the server record, filling
+  // anything the navigation state didn't explicitly carry. Covers rejoin from
+  // the sessions list (which passes partial hardcoded connectData) and browser
+  // refresh mid-session (which loses location.state entirely).
+  const settingsHydratedRef = useRef(false);
+  useEffect(() => {
+    if (!id || settingsHydratedRef.current) return;
+    settingsHydratedRef.current = true;
+    const nav = location.state?.connectData ?? {};
+    getAuthHeaders()
+      .then((authHeaders) =>
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/session/${id}`, { headers: authHeaders }),
+      )
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) return;
+        const sessionData = data.data ?? data;
+        if (
+          typeof nav.autoGenerateResponse !== "boolean" &&
+          typeof sessionData.autoGenerateResponse === "boolean"
+        ) {
+          setAutoGenerateResponse(sessionData.autoGenerateResponse);
+        }
+        if (
+          typeof nav.simpleLanguage !== "boolean" &&
+          typeof sessionData.simpleLanguage === "boolean"
+        ) {
+          setSessionSimpleLanguage(sessionData.simpleLanguage);
+        }
+        if (!nav.language && typeof sessionData.language === "string" && sessionData.language) {
+          setSelectedLanguage(sessionData.language);
+        }
+        // Model priority stays nav > stored preference > default; the saved
+        // session model only fills in when neither of those is present/valid.
+        const storedModel = localStorage.getItem(PREFERRED_MODEL_KEY);
+        const navModelValid = nav.aiModel && AVAILABLE_MODELS.includes(nav.aiModel);
+        const storedValid = storedModel && AVAILABLE_MODELS.includes(storedModel);
+        if (
+          !navModelValid &&
+          !storedValid &&
+          typeof sessionData.aiModel === "string" &&
+          AVAILABLE_MODELS.includes(sessionData.aiModel)
+        ) {
+          setSelectedModel(sessionData.aiModel);
+        }
+      })
+      .catch(() => {
+        // Best-effort: on failure keep nav/default seeds.
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // ── Comprehensive cleanup on unmount ──────────────────────────────────────
   // Each transcription hook (useDeepgram, useNativeTabTranscription) has its own
@@ -2496,7 +2564,7 @@ export default function ActiveSession() {
         jobTitle={connectData?.jobTitle || ""}
         extraContext={connectData?.extraContext || ""}
         language={selectedLanguage}
-        simpleLanguage={connectData?.simpleLanguage || false}
+        simpleLanguage={sessionSimpleLanguage}
         aiModel={selectedModel}
       />
 

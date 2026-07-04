@@ -23,6 +23,7 @@ import {
   FREE_SESSION_MINUTES,
   STALE_ACTIVE_MS,
 } from "../lib/sessionCredits.js";
+import { getSessionGrounding } from "../lib/sessionGrounding.js";
 import {
   generateSessionFeedback,
   getExistingFeedback,
@@ -714,9 +715,12 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
 
     const aiModel = process.env["ANSWER_MODEL"] || session.aiModel || undefined;
     const resumeContext = await getResumeContextById(session.resumeId);
+    const grounding = await getSessionGrounding(session);
     const systemPrompt = buildInterviewSystemPrompt({
       session,
       resumeContext,
+      projectContext: grounding.projectContext,
+      documentContext: grounding.documentContext,
       answerMode: contextPayload.answerMode,
     });
 
@@ -834,9 +838,12 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
     }
 
     const resumeContext = await getResumeContextById(session.resumeId);
+    const grounding = await getSessionGrounding(session);
     const systemPrompt = buildInterviewSystemPrompt({
       session,
       resumeContext,
+      projectContext: grounding.projectContext,
+      documentContext: grounding.documentContext,
       answerMode: body.answerMode,
     });
 
@@ -1238,9 +1245,12 @@ router.post("/:sessionId/answers/:messageId/ai-preview", requireAuth, async (req
     const body = req.body as { instruction?: string; mode?: string; model?: string };
 
     const resumeContext = await getResumeContextById(session.resumeId);
+    const grounding = await getSessionGrounding(session);
     const systemPrompt = buildInterviewSystemPrompt({
       session,
       resumeContext,
+      projectContext: grounding.projectContext,
+      documentContext: grounding.documentContext,
       answerMode: body.mode,
     });
 

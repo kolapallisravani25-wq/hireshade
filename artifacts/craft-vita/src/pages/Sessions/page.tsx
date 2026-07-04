@@ -402,9 +402,16 @@ export default function Sessions() {
                           row.original.companyName ||
                           (row.original as any).company?.name,
                         jobTitle: row.original.jobDescription,
-                        language: "English",
-                        simpleLanguage: false,
-                        aiModel: "Gemini 2.0 Flash",
+                        // Rejoin must carry the session's SAVED settings.
+                        // These were previously hardcoded ("English", false,
+                        // "Gemini 2.0 Flash" — not even a valid model id),
+                        // which reset the user's wizard choices on rejoin.
+                        language: (row.original as any).language || "English",
+                        simpleLanguage: !!(row.original as any).simpleLanguage,
+                        aiModel: (row.original as any).aiModel,
+                        autoGenerateResponse: (row.original as any)
+                          .autoGenerateResponse,
+                        extraContext: (row.original as any).extraContext,
                       },
                     },
                   });
