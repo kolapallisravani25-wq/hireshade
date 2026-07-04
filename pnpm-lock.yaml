@@ -748,9 +748,18 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.6.2
+      '@workspace/db':
+        specifier: workspace:*
+        version: link:../lib/db
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@types/pg@8.20.0)(pg@8.20.0)
       tsx:
         specifier: 'catalog:'
         version: 4.21.0
+      uuid:
+        specifier: ^14.0.0
+        version: 14.0.0
 
 packages:
 
