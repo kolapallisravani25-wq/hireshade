@@ -63,9 +63,29 @@ async function getBrowser(): Promise<Browser> {
     browserPromise = (async () => {
       const executablePath = await resolveChromePath();
       const { launch } = await import("puppeteer-core");
+      const os = await import("node:os");
+      const path = await import("node:path");
+      const fs = await import("node:fs/promises");
+
+      // Chrome insists on writable HOME/XDG dirs and a crashpad database even
+      // in headless mode; service accounts (User=hireshade, HOME under /opt)
+      // typically can't provide them, which kills the process at startup
+      // ("mkdir .local/share/applications: Permission denied",
+      // "chrome_crashpad_handler: --database is required"). Give it a private
+      // writable profile under tmp and disable crash reporting outright.
+      const profileDir = path.join(os.tmpdir(), "hireshade-chrome-profile");
+      await fs.mkdir(profileDir, { recursive: true });
+
       const browser = await launch({
         executablePath,
         headless: true,
+        userDataDir: profileDir,
+        env: {
+          ...process.env,
+          HOME: profileDir,
+          XDG_CONFIG_HOME: path.join(profileDir, ".config"),
+          XDG_CACHE_HOME: path.join(profileDir, ".cache"),
+        },
         args: [
           "--no-sandbox",
           "--disable-setuid-sandbox",
@@ -73,6 +93,9 @@ async function getBrowser(): Promise<Browser> {
           "--disable-dev-shm-usage",
           "--disable-extensions",
           "--no-first-run",
+          "--disable-crashpad",
+          "--disable-crash-reporter",
+          "--disable-breakpad",
         ],
       });
       browser.on("disconnected", () => {
