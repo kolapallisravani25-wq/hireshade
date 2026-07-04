@@ -122,3 +122,154 @@ with OS trust prompts.
   (`setup.exe`) bundle.
 - Keep `desktop-build.yml` as the per-push CI check (it still runs on develop);
   use `desktop-release.yml` only to cut releases.
+
+## Appendix: the `desktop-release.yml` workflow
+
+This file must live at `.github/workflows/desktop-release.yml`. It could not be
+committed by the automation token (which lacks GitHub's `workflow` scope). Add it
+yourself: either create the file in the GitHub web UI (Add file → Create new
+file), or push it with a PAT that has `workflow` scope. Contents:
+
+```yaml
+name: Desktop Release
+
+# Publishes signed desktop installers to a GitHub Release and generates the
+# updater manifest (latest.json) that BOTH the in-app auto-updater and the
+# web "Download Desktop App" button read from:
+#   https://github.com/<owner>/<repo>/releases/latest/download/latest.json
+#
+# This is the piece the old `desktop-build.yml` never had: that workflow only
+# uploaded to ephemeral GitHub Actions artifacts, so nothing ever populated a
+# public download URL or the updater endpoint. Keep desktop-build.yml as the
+# per-push CI check; use THIS workflow to actually ship a release.
+#
+# Trigger: push a version tag (e.g. `v0.0.11`) OR run manually. Tagging is
+# deliberate — you don't want every develop push cutting a public release.
+#
+# REQUIRED repository secrets (see docs/Desktop-Release-Runbook.md):
+#   TAURI_SIGNING_PRIVATE_KEY           - updater private key (from `tauri signer generate`)
+#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD  - its password (may be empty string)
+#   plus the existing VITE_* build secrets already used by desktop-build.yml.
+#
+# The updater PUBLIC key must be pasted into src-tauri/tauri.conf.json
+# ("plugins.updater.pubkey"), replacing REPLACE_WITH_TAURI_UPDATER_PUBLIC_KEY.
+# Until both the secret and the pubkey are set, this workflow will fail fast
+# (see the "Verify signing configuration" step) rather than publish an
+# unsigned release the updater can never accept.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  publish:
+    name: Publish desktop (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            args: "--target aarch64-apple-darwin"
+          - os: macos-latest
+            args: "--target x86_64-apple-darwin"
+          - os: ubuntu-latest
+            args: ""
+          - os: windows-latest
+            args: ""
+
+    env:
+      CI: true
+      NODE_ENV: production
+      VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+      VITE_DEEPGRAM_API_KEY: ${{ secrets.VITE_DEEPGRAM_API_KEY }}
+      VITE_RAZORPAY_KEY_ID: ${{ secrets.VITE_RAZORPAY_KEY_ID }}
+      VITE_FRONTEND_URL: ${{ secrets.VITE_FRONTEND_URL }}
+      VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+      VITE_CLERK_SIGN_IN_URL: ${{ secrets.VITE_CLERK_SIGN_IN_URL }}
+      VITE_CLERK_SIGN_UP_URL: ${{ secrets.VITE_CLERK_SIGN_UP_URL }}
+      VITE_CLERK_AFTER_SIGN_IN_URL: ${{ secrets.VITE_CLERK_AFTER_SIGN_IN_URL }}
+      VITE_CLERK_AFTER_SIGN_UP_URL: ${{ secrets.VITE_CLERK_AFTER_SIGN_UP_URL }}
+      VITE_INACTIVITY_TIMEOUT_MS: ${{ secrets.VITE_INACTIVITY_TIMEOUT_MS }}
+      VITE_INACTIVITY_WARNING_MS: ${{ secrets.VITE_INACTIVITY_WARNING_MS }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify signing configuration
+        run: |
+          if [ -z "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" ]; then
+            echo "::error::TAURI_SIGNING_PRIVATE_KEY secret is not set. The updater requires signed artifacts — generate a keypair with 'pnpm tauri signer generate' and add the private key as a repo secret. See docs/Desktop-Release-Runbook.md." >&2
+            exit 1
+          fi
+          if grep -q "REPLACE_WITH_TAURI_UPDATER_PUBLIC_KEY" artifacts/craft-vita/src-tauri/tauri.conf.json; then
+            echo "::error::The updater public key placeholder is still in tauri.conf.json. Paste the public key from your keypair into plugins.updater.pubkey before releasing. See docs/Desktop-Release-Runbook.md." >&2
+            exit 1
+          fi
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install Linux Tauri dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            pkg-config \
+            libssl-dev
+
+      - name: Install dependencies
+        run: |
+          pnpm store prune || true
+          pnpm install --no-frozen-lockfile --config.optional=true
+
+      - name: Apply CI Tauri compatibility patch
+        run: bash scripts/ci-patch-tauri-build.sh
+
+      - name: Typecheck desktop package
+        run: pnpm --filter @workspace/craft-vita typecheck
+
+      - name: Build & publish desktop release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: artifacts/craft-vita
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', github.run_number) }}
+          releaseName: "HireShade v__VERSION__"
+          releaseBody: "See the assets below to download and install this version. Installed apps update automatically."
+          releaseDraft: true
+          prerelease: false
+          includeUpdaterJson: true
+          updaterJsonPreferNsis: true
+          args: ${{ matrix.args }}
+```
