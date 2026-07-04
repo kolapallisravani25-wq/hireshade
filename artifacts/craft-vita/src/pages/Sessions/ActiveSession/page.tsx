@@ -1394,14 +1394,18 @@ export default function ActiveSession() {
 
   handleStableTranscriptRef.current = handleStableTranscript;
 
-  // Initialize stabilizer with 1200ms freeze window
+  // Initialize stabilizer with an 1800ms freeze window. 1200ms was too short
+  // for dictated multi-clause questions: STT delivers clauses in bursts with
+  // sub-1.2s gaps, so the window elapsed mid-question and fired on a fragment
+  // (producing duplicate/partial answers). 1800ms waits for a real pause while
+  // staying responsive.
   useEffect(() => {
     if (!stabilizerRef.current) {
       stabilizerRef.current = createTranscriptStabilizer(
         (stableSnapshot) => {
           handleStableTranscriptRef.current?.(stableSnapshot);
         },
-        { freezeWindowMs: 1200 },
+        { freezeWindowMs: 1800 },
       );
     }
     return () => {

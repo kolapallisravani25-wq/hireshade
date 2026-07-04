@@ -217,16 +217,35 @@ export function shouldTriggerGeneration(input: {
     return { trigger: false, reason: 'Classified as noise' };
   }
 
-  // 4. No exact duplicate in recentQuestions within 4000ms window
+  // 4. Suppress if this is the same evolving question we JUST fired on. The old
+  //    check was EXACT text match only, so a question arriving as growing STT
+  //    fragments ("Write a Dockerfile" → "...with multi-stage" → "...expose
+  //    3000") produced a DIFFERENT string each time and fired 2-3 duplicate
+  //    answers. Treat one string as a duplicate of another when either contains
+  //    the other (superset/subset) or they share most of their words, within
+  //    the recent window.
   const now = Date.now();
+  const normForDup = (s: string) =>
+    s.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  const cur = normForDup(input.transcript);
+  const curTokens = new Set(cur.split(' ').filter(Boolean));
   const hasDuplicate = input.recentQuestions.some((rq) => {
-    const timeDelta = Math.abs(now - rq.t);
-    if (timeDelta > 4000) return false;
-    // Exact text match within 4s window
-    return rq.q.trim().toLowerCase() === input.transcript.trim().toLowerCase();
+    if (Math.abs(now - rq.t) > 6000) return false;
+    const prev = normForDup(rq.q);
+    if (!prev || !cur) return false;
+    if (prev === cur) return true;
+    // Superset/subset: the growing-fragment case.
+    if (prev.includes(cur) || cur.includes(prev)) return true;
+    // High token overlap (reworded/re-segmented same question).
+    const prevTokens = new Set(prev.split(' ').filter(Boolean));
+    const smaller = curTokens.size <= prevTokens.size ? curTokens : prevTokens;
+    if (smaller.size === 0) return false;
+    let shared = 0;
+    for (const t of smaller) if (curTokens.has(t) && prevTokens.has(t)) shared++;
+    return shared / smaller.size >= 0.8;
   });
   if (hasDuplicate) {
-    return { trigger: false, reason: 'Duplicate within 4s window' };
+    return { trigger: false, reason: 'Duplicate/evolving question within 6s window' };
   }
 
   // 5. Min 2s between generations

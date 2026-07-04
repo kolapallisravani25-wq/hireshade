@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 import { streamChatComplete, chatComplete } from "../lib/openrouter.js";
 import { buildInterviewSystemPrompt } from "../lib/interviewPrompt.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
+import { assessQuestionReadiness } from "../lib/questionReadiness.js";
 import type { ChatMessage } from "../lib/openrouter.js";
 import {
   settleSession,
@@ -913,6 +914,7 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       regenerateInstruction?: string;
       answerMode?: string;
       aiModel?: string;
+      triggerSource?: string;
     };
 
     const question =
@@ -923,6 +925,24 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
 
     if (!question) {
       res.status(400).json({ error: "No question or transcript provided" });
+      return;
+    }
+
+    // Readiness guard (protects BOTH web-auto and desktop paths). An explicit
+    // user action — a manual/overlay click, or a regenerate — forces through;
+    // the automatic stabilizer path must present a COMPLETE question. This is
+    // what stops in-flight STT fragments ("...walk me through your") from
+    // reaching the model and producing "I don't see the actual question"
+    // non-answers. A regenerate always carries a real prior question.
+    const isForced =
+      body.triggerSource === "overlay_click" ||
+      body.triggerSource === "manual_click" ||
+      !!body.regenerateInstruction ||
+      !!body.patchedTranscript;
+    const readiness = assessQuestionReadiness(question, { force: isForced });
+    if (!readiness.ready) {
+      console.log("[sessions] ai-answer skipped — not ready:", readiness.reason, JSON.stringify(question.slice(0, 60)));
+      res.status(422).json({ error: "Question not ready", reason: readiness.reason });
       return;
     }
 
