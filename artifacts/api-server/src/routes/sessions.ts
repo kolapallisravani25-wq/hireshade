@@ -7,7 +7,7 @@ import {
   sessionMessagesTable,
   answerRevisionsTable,
 } from "@workspace/db/schema";
-import { eq, and, desc, ilike, gte, lte, inArray, ne } from "drizzle-orm";
+import { eq, and, desc, ilike, gte, lte, inArray, ne, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { streamChatComplete, chatComplete } from "../lib/openrouter.js";
 import { buildInterviewSystemPrompt } from "../lib/interviewPrompt.js";
@@ -382,10 +382,52 @@ router.post("/:id/activate", requireAuth, async (req, res) => {
     // the timer resumes from real elapsed time instead of restarting.
     const startedAt = session.startedAt ?? new Date();
 
-    await db
-      .update(sessionsTable)
-      .set({ status: "ACTIVE", startedAt, updatedAt: new Date() })
-      .where(and(eq(sessionsTable.id, sessionId), eq(sessionsTable.userId, userId)));
+    // ATOMIC single-active-session enforcement — two layers:
+    //  1. This conditional UPDATE re-verifies "no OTHER live session" inside
+    //     the statement, catching sequential races cheaply (0 rows → 409).
+    //  2. The sessions_one_live_per_user_idx partial unique index is the
+    //     real guarantee: under READ COMMITTED, two truly concurrent
+    //     activations of two DIFFERENT sessions can't see each other's
+    //     uncommitted rows, so BOTH conditional updates can pass — but the
+    //     second commit then violates the index (23505), which we convert
+    //     into the same 409 conflict contract.
+    let activated: { id: string }[];
+    try {
+      activated = await db
+        .update(sessionsTable)
+        .set({ status: "ACTIVE", startedAt, updatedAt: new Date() })
+        .where(
+          sql`${sessionsTable.id} = ${sessionId}
+            AND ${sessionsTable.userId} = ${userId}
+            AND NOT EXISTS (
+              SELECT 1 FROM ${sessionsTable} AS blocking
+              WHERE blocking.user_id = ${userId}
+                AND blocking.status IN ('ACTIVE', 'COMPLETING')
+                AND blocking.id <> ${sessionId}
+            )`,
+        )
+        .returning({ id: sessionsTable.id });
+    } catch (err) {
+      // drizzle wraps the pg error (DrizzleQueryError) — the 23505 code
+      // lives on `cause`, not on the thrown error itself.
+      const code =
+        (err as { code?: string })?.code ??
+        ((err as { cause?: { code?: string } })?.cause?.code);
+      if (code === "23505") {
+        const racedBlocking = await findBlockingSession(userId, sessionId);
+        res.status(409).json(activeSessionConflict(racedBlocking?.id ?? ""));
+        return;
+      }
+      throw err;
+    }
+
+    if (activated.length === 0) {
+      // Lost the race to a concurrent activate — surface the same conflict
+      // contract the pre-check path uses so the rejoin UX still fires.
+      const racedBlocking = await findBlockingSession(userId, sessionId);
+      res.status(409).json(activeSessionConflict(racedBlocking?.id ?? ""));
+      return;
+    }
 
     res.json({
       success: true,
@@ -775,6 +817,17 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
       return;
     }
 
+    // In-session AI is billed by the per-minute session meter, which only
+    // accrues while the session is ACTIVE. Without this gate a session that
+    // was never activated (meter never started) or already settled could call
+    // screen analysis indefinitely — unmetered OpenRouter usage. The review
+    // page's post-session Q&A lives on /ask-ai (per-action metered), so this
+    // gate cannot affect it.
+    if (session.status !== "ACTIVE") {
+      res.status(409).json({ error: "SESSION_NOT_ACTIVE", status: session.status });
+      return;
+    }
+
     let contextPayload: {
       currentQuestion?: string;
       answerMode?: string;
@@ -903,6 +956,15 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
 
     if (!session) {
       res.status(404).json({ error: "Session not found" });
+      return;
+    }
+
+    // Same metering gate as analyze-screen: live-session answers are paid for
+    // by the per-minute meter, so they must only be reachable while the meter
+    // is running (status ACTIVE). Never-activated or settled sessions were
+    // previously able to generate answers for free, indefinitely.
+    if (session.status !== "ACTIVE") {
+      res.status(409).json({ error: "SESSION_NOT_ACTIVE", status: session.status });
       return;
     }
 

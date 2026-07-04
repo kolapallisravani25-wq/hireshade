@@ -10,6 +10,7 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -100,7 +101,25 @@ export const sessionsTable = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (t) => [index("sessions_user_id_idx").on(t.userId)],
+  (t) => [
+    index("sessions_user_id_idx").on(t.userId),
+    // DB-level single-live-session invariant. Application-level checks
+    // (findBlockingSession + conditional UPDATE) are check-then-act: under
+    // READ COMMITTED two concurrent activations of two DIFFERENT sessions
+    // cannot see each other's uncommitted ACTIVE row, so both could win.
+    // This partial unique index makes the second COMMIT fail (23505), which
+    // the activate route converts into the standard 409 conflict.
+    // DEPLOY NOTE: before `drizzle-kit push`, reap any legacy duplicates or
+    // index creation fails:
+    //   UPDATE sessions SET status='ABANDONED', ended_at=now()
+    //   WHERE status IN ('ACTIVE','COMPLETING')
+    //     AND id NOT IN (SELECT DISTINCT ON (user_id) id FROM sessions
+    //                    WHERE status IN ('ACTIVE','COMPLETING')
+    //                    ORDER BY user_id, updated_at DESC);
+    uniqueIndex("sessions_one_live_per_user_idx")
+      .on(t.userId)
+      .where(sql`status IN ('ACTIVE', 'COMPLETING')`),
+  ],
 );
 
 export const insertSessionSchema = createInsertSchema(sessionsTable);
