@@ -17,9 +17,30 @@ type Step = "email" | "password";
 // Port is passed as ?port=PORT in the sign-in URL and stored in sessionStorage
 // so it survives internal React Router navigations.
 export async function returnToTauri(getToken: () => Promise<string | null>) {
-  const port = sessionStorage.getItem("tauri_auth_port");
-  if (!port) {
+  const rawPort = sessionStorage.getItem("tauri_auth_port");
+  if (!rawPort) {
     console.error("[tauri-auth] No tauri_auth_port in sessionStorage — widget may have timed out");
+    return;
+  }
+  // SECURITY: the port is used to build the ticket-delivery URL. It is
+  // attacker-influenceable (it arrives as ?port= in the sign-in URL, which a
+  // phishing link controls). Without strict validation, a value like
+  // "@evil.com" turns `http://127.0.0.1:${port}/` into
+  // `http://127.0.0.1:@evil.com/` — where 127.0.0.1 is parsed as userinfo and
+  // the real host becomes evil.com, exfiltrating the freshly-minted Clerk
+  // sign-in ticket (a full-session credential) to the attacker.
+  // Only accept a bare integer in the ephemeral/registered port range.
+  if (!/^\d{1,5}$/.test(rawPort)) {
+    console.error("[tauri-auth] Rejected non-numeric callback port:", rawPort);
+    sessionStorage.removeItem("from_tauri");
+    sessionStorage.removeItem("tauri_auth_port");
+    return;
+  }
+  const portNum = Number(rawPort);
+  if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
+    console.error("[tauri-auth] Rejected out-of-range callback port:", rawPort);
+    sessionStorage.removeItem("from_tauri");
+    sessionStorage.removeItem("tauri_auth_port");
     return;
   }
   try {
@@ -35,8 +56,9 @@ export async function returnToTauri(getToken: () => Promise<string | null>) {
         const { ticket } = await res.json();
         sessionStorage.removeItem("from_tauri");
         sessionStorage.removeItem("tauri_auth_port");
-        // Navigate to the widget's local HTTP server — always works, no custom scheme needed
-        window.location.href = `http://127.0.0.1:${port}/?ticket=${encodeURIComponent(ticket)}`;
+        // Host is hard-pinned to the loopback literal; only the validated
+        // numeric port is interpolated. The ticket value is encoded.
+        window.location.href = `http://127.0.0.1:${portNum}/?ticket=${encodeURIComponent(ticket)}`;
         return;
       }
     }
