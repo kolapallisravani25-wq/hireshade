@@ -1,7 +1,15 @@
 name: Desktop Build
-
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish a GitHub Release with the installers"
+        type: boolean
+        default: false
+      release_tag:
+        description: "Release tag to create/update (e.g. v0.1.0)"
+        type: string
+        default: "v0.1.0"
   push:
     branches:
       - develop
@@ -14,14 +22,13 @@ on:
       - "pnpm-workspace.yaml"
       - "scripts/ci-patch-tauri-build.sh"
       - ".github/workflows/desktop-build.yml"
-
+    tags:
+      - "v*"
 permissions:
-  contents: read
-
+  contents: write
 defaults:
   run:
     shell: bash
-
 jobs:
   desktop-build:
     name: Build desktop (${{ matrix.os }})
@@ -33,7 +40,6 @@ jobs:
           - ubuntu-latest
           - windows-latest
           - macos-latest
-
     env:
       CI: true
       NODE_ENV: production
@@ -48,24 +54,19 @@ jobs:
       VITE_CLERK_AFTER_SIGN_UP_URL: ${{ secrets.VITE_CLERK_AFTER_SIGN_UP_URL }}
       VITE_INACTIVITY_TIMEOUT_MS: ${{ secrets.VITE_INACTIVITY_TIMEOUT_MS }}
       VITE_INACTIVITY_WARNING_MS: ${{ secrets.VITE_INACTIVITY_WARNING_MS }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-
       - name: Install Linux Tauri dependencies
         if: runner.os == 'Linux'
         run: |
@@ -78,39 +79,22 @@ jobs:
             patchelf \
             pkg-config \
             libssl-dev
-
       - name: Install dependencies
         run: |
           pnpm store prune || true
           pnpm install --no-frozen-lockfile --config.optional=true
-
-      - name: Verify Rollup native package
-        run: |
-          node - <<'NODE'
-          const os = process.platform;
-          const arch = process.arch;
-          const pkg = os === 'win32'
-            ? '@rollup/rollup-win32-x64-msvc'
-            : os === 'darwin'
-              ? (arch === 'arm64' ? '@rollup/rollup-darwin-arm64' : '@rollup/rollup-darwin-x64')
-              : '@rollup/rollup-linux-x64-gnu';
-          require.resolve(pkg);
-          console.log(`Verified ${pkg}`);
-          NODE
-
       - name: Apply CI Tauri compatibility patch
         run: bash scripts/ci-patch-tauri-build.sh
-
       - name: Typecheck desktop package
         run: pnpm --filter @workspace/craft-vita typecheck
-
       - name: Build desktop frontend
         run: pnpm --filter @workspace/craft-vita build
-
       - name: Build Tauri desktop app
         working-directory: artifacts/craft-vita
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: pnpm tauri build
-
       - name: Upload desktop bundles
         if: always()
         uses: actions/upload-artifact@v4
@@ -119,3 +103,25 @@ jobs:
           if-no-files-found: ignore
           path: |
             artifacts/craft-vita/src-tauri/target/release/bundle/**/*
+      - name: Collect installers
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish == 'true')
+        run: |
+          mkdir -p dist-installers
+          find artifacts/craft-vita/src-tauri/target/release/bundle -type f \
+            \( -name '*.dmg' -o -name '*.app.tar.gz' -o -name '*.app.tar.gz.sig' \
+               -o -name '*.msi' -o -name '*.exe' -o -name '*.msi.sig' -o -name '*.exe.sig' \
+               -o -name '*.AppImage' -o -name '*.AppImage.sig' -o -name '*.deb' -o -name '*.rpm' \) \
+            -exec cp {} dist-installers/ \; || true
+          ls -la dist-installers/ || true
+      - name: Publish / update GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish == 'true')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || inputs.release_tag }}
+          name: HireShade ${{ github.ref_type == 'tag' && github.ref_name || inputs.release_tag }}
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: false
+          files: dist-installers/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
