@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import { chatCompleteJSON } from "../lib/openrouter.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
 import { chargeOr402 } from "../lib/featureCredits.js";
+import { renderHtmlToPdf, PdfError } from "../lib/htmlPdf.js";
 
 const router: IRouter = Router();
 
@@ -545,8 +546,76 @@ router.post("/:id/edit-component", requireAuth, async (req, res) => {
   }
 });
 
-router.post("/:id/export-pdf", requireAuth, async (req, res) => {
-  res.status(501).json({ error: "PDF export requires configuration" });
+/**
+ * Project → PDF export. NOTE: the client (AIProjectsTable, Project
+ * Recommendations) calls this as a plain GET with an Authorization header —
+ * the previous stub was registered as POST, so the button 404'd before even
+ * reaching the old 501. Registered as GET to match the real callers.
+ */
+router.get("/:id/export-pdf", requireAuth, async (req, res) => {
+  try {
+    const userId = req.userId!;
+    const projectId = String(req.params["id"] ?? "");
+    const [project] = await db
+      .select()
+      .from(projectsTable)
+      .where(and(eq(projectsTable.id, projectId), eq(projectsTable.userId, userId)))
+      .limit(1);
+    if (!project) {
+      res.status(404).json({ error: "Project not found" });
+      return;
+    }
+
+    const esc = (v: unknown) =>
+      String(v ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    const sections: string[] = [];
+    if (project.description) {
+      sections.push(`<h2>Overview</h2><p>${esc(project.description)}</p>`);
+    }
+    const content = project.content as Record<string, unknown> | null;
+    if (content && typeof content === "object") {
+      for (const [key, value] of Object.entries(content)) {
+        if (key.startsWith("_") || value == null) continue;
+        const heading = esc(key.replace(/([a-z])([A-Z])/g, "$1 $2")).replace(/^./, (c) =>
+          c.toUpperCase(),
+        );
+        const bodyText = Array.isArray(value)
+          ? `<ul>${value.map((v) => `<li>${esc(typeof v === "object" ? JSON.stringify(v) : v)}</li>`).join("")}</ul>`
+          : `<p>${esc(typeof value === "object" ? JSON.stringify(value, null, 2) : value)}</p>`;
+        sections.push(`<h2>${heading}</h2>${bodyText}`);
+      }
+    }
+
+    const html = `<!doctype html><html><head><meta charset="utf-8"><style>
+      body{font-family:Georgia,'Times New Roman',serif;color:#1a1a1a;margin:48px;line-height:1.5}
+      h1{font-size:22px;margin:0 0 2px} .sub{color:#555;font-size:13px;margin:0 0 20px}
+      h2{font-size:15px;border-bottom:1px solid #ccc;padding-bottom:3px;margin:18px 0 8px}
+      p,li{font-size:12.5px} ul{margin:4px 0;padding-left:18px}
+    </style></head><body>
+      <h1>${esc(project.title)}</h1>
+      <p class="sub">${esc(project.roleType ?? "")}</p>
+      ${sections.join("\n")}
+    </body></html>`;
+
+    const pdf = await renderHtmlToPdf(html);
+    const safeName = project.title.replace(/[^A-Za-z0-9 _.-]/g, "").slice(0, 120).trim() || "project";
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${safeName}.pdf"`);
+    res.setHeader("Content-Length", String(pdf.length));
+    res.end(pdf);
+  } catch (err) {
+    if (err instanceof PdfError) {
+      const status = err.code === "PDF_NOT_CONFIGURED" ? 501 : 500;
+      res.status(status).json({ error: err.message, code: err.code });
+      return;
+    }
+    console.error("[projects] export-pdf error", err);
+    res.status(500).json({ error: "PDF export failed", code: "TEMPLATE_RENDER_ERROR" });
+  }
 });
 
 export default router;

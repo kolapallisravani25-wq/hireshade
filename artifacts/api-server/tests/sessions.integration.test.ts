@@ -22,6 +22,19 @@ vi.mock("../src/middlewares/requireAuth.js", () => ({
   },
 }));
 
+// ── PDF renderer mock: Chrome is not available in this sandbox; the real
+// render path is smoke-tested on the deployment host. PdfError is re-exported
+// unmocked so route error-mapping tests exercise the real class.
+vi.mock("../src/lib/htmlPdf.js", async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    renderHtmlToPdf: vi.fn(async (html: string) =>
+      Buffer.from(`%PDF-1.4 mock-render-of:${html.length}-bytes`),
+    ),
+  };
+});
+
 // ── AI mock: deterministic responses, zero network egress to OpenRouter ───────
 vi.mock("../src/lib/openrouter.js", () => ({
   chatComplete: vi.fn(async () => "mock AI text response"),
@@ -1116,5 +1129,77 @@ describe("resume ownership isolation (IDOR fix)", () => {
       .set("x-test-user", USER_A)
       .send({ resumeId: foreignResumeId });
     expect(res.status).toBe(404);
+  });
+});
+
+// ── PDF export (Resume Studio §4D: Download must work, be free, save nothing) ─
+import projectsRouter from "../src/routes/projects.js";
+import { renderHtmlToPdf as mockedRender } from "../src/lib/htmlPdf.js";
+app.use("/api/projects", projectsRouter);
+
+describe("PDF export routes", () => {
+  it("resume export renders posted HTML into a PDF attachment (no version, no charge)", async () => {
+    const res = await request(app)
+      .post("/api/resume/builder/export-pdf")
+      .set("x-test-user", USER_A)
+      .send({ populatedHtml: "<html><body><h1>My Resume</h1></body></html>", suggestedFilename: "Sravani_Resume" });
+    expect(res.status).toBe(200);
+    expect(res.headers["content-type"]).toContain("application/pdf");
+    expect(res.headers["content-disposition"]).toContain('Sravani_Resume.pdf');
+    expect(res.body.toString()).toContain("%PDF");
+    // Free per spec: no credits row may be written by a download.
+    const usage = await db.select().from(creditsUsageTable);
+    expect(usage.filter((u) => u.userId === USER_A)).toHaveLength(0);
+  });
+
+  it("resume export 400s without populatedHtml", async () => {
+    const res = await request(app)
+      .post("/api/resume/builder/export-pdf")
+      .set("x-test-user", USER_A)
+      .send({});
+    expect(res.status).toBe(400);
+  });
+
+  it("maps renderer failures to the client's error-code contract", async () => {
+    const { PdfError } = await import("../src/lib/htmlPdf.js");
+    vi.mocked(mockedRender).mockRejectedValueOnce(new PdfError("PDF_TIMEOUT", "PDF render timed out"));
+    const res = await request(app)
+      .post("/api/resume/builder/export-pdf")
+      .set("x-test-user", USER_A)
+      .send({ populatedHtml: "<html></html>" });
+    expect(res.status).toBe(500);
+    expect(res.body.code).toBe("PDF_TIMEOUT");
+
+    vi.mocked(mockedRender).mockRejectedValueOnce(
+      new PdfError("PDF_NOT_CONFIGURED", "PDF export requires configuration"),
+    );
+    const res2 = await request(app)
+      .post("/api/resume/builder/export-pdf")
+      .set("x-test-user", USER_A)
+      .send({ populatedHtml: "<html></html>" });
+    expect(res2.status).toBe(501);
+    expect(res2.body.code).toBe("PDF_NOT_CONFIGURED");
+  });
+
+  it("project export is a GET (matching the real client), ownership-checked, renders content", async () => {
+    const pid = uuidv4();
+    await db.insert(projectsTable).values({
+      id: pid,
+      userId: USER_A,
+      title: "Fraud Detection Pipeline",
+      roleType: "Data Engineer",
+      description: "Realtime pipeline.",
+      content: { stack: ["Kafka", "Flink"], impact: "Cut losses 40%" },
+    });
+    const ok = await request(app)
+      .get(`/api/projects/${pid}/export-pdf`)
+      .set("x-test-user", USER_A);
+    expect(ok.status).toBe(200);
+    expect(ok.headers["content-type"]).toContain("application/pdf");
+
+    const foreign = await request(app)
+      .get(`/api/projects/${pid}/export-pdf`)
+      .set("x-test-user", USER_B);
+    expect(foreign.status).toBe(404);
   });
 });

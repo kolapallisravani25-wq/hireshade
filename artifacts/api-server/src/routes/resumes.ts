@@ -13,6 +13,7 @@ import {
 } from "../lib/resumeStorage.js";
 import { chatComplete, chatCompleteJSON } from "../lib/openrouter.js";
 import { chargeOr402 } from "../lib/featureCredits.js";
+import { renderHtmlToPdf, PdfError } from "../lib/htmlPdf.js";
 import {
   getResumeContextById,
   getResumeContextText,
@@ -638,7 +639,34 @@ router.post("/builder/tailor", requireAuth, async (req, res) => {
 });
 
 router.post("/builder/export-pdf", requireAuth, async (req, res) => {
-  res.status(501).json({ error: "PDF export requires configuration" });
+  try {
+    const body = req.body as { populatedHtml?: string; suggestedFilename?: string };
+    const html = body.populatedHtml;
+    if (!html || typeof html !== "string" || !html.trim()) {
+      res.status(400).json({ error: "populatedHtml is required" });
+      return;
+    }
+
+    const pdf = await renderHtmlToPdf(html);
+
+    const safeName = (body.suggestedFilename || "resume")
+      .replace(/[^A-Za-z0-9 _.-]/g, "")
+      .slice(0, 120)
+      .trim() || "resume";
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${safeName}.pdf"`);
+    res.setHeader("Content-Length", String(pdf.length));
+    res.end(pdf);
+  } catch (err) {
+    if (err instanceof PdfError) {
+      // Codes are a client contract — TopBar.tsx maps them to friendly copy.
+      const status = err.code === "PDF_NOT_CONFIGURED" ? 501 : 500;
+      res.status(status).json({ error: err.message, code: err.code });
+      return;
+    }
+    console.error("[resumes] export-pdf error", err);
+    res.status(500).json({ error: "PDF export failed", code: "TEMPLATE_RENDER_ERROR" });
+  }
 });
 
 router.post("/builder/rewrite", requireAuth, async (req, res) => {
