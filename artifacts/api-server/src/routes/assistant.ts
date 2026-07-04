@@ -253,7 +253,11 @@ async function findCitations(query: string, userId: string, companyName?: string
       .select({
         id: questionsTable.id,
         question: questionsTable.question,
-        sessionId: questionsTable.sessionId,
+        // Only surface the linked session when it belongs to the requesting
+        // user. Public questions contributed by OTHER users must stay
+        // anonymous — leaking their sessionId into this user's chat
+        // citations breaks the question-bank anonymity guarantee.
+        sessionId: sql<string | null>`case when ${questionsTable.contributorUserId} = ${userId} then ${questionsTable.sessionId} else null end`,
         company: questionsTable.company,
       })
       .from(questionsTable)
