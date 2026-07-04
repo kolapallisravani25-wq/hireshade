@@ -12,7 +12,7 @@ import {
   deleteResumeObject,
 } from "../lib/resumeStorage.js";
 import { chatComplete, chatCompleteJSON } from "../lib/openrouter.js";
-import { chargeOr402 } from "../lib/featureCredits.js";
+import { chargeOr402, withCharge } from "../lib/featureCredits.js";
 import { renderHtmlToPdf, PdfError } from "../lib/htmlPdf.js";
 import {
   getResumeContextById,
@@ -284,15 +284,18 @@ router.post("/generate-cover-letter", requireAuth, async (req, res) => {
       .filter(Boolean)
       .join("\n\n");
 
-    const coverLetter = await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 1200 });
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_cover_letter",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: body.resumeId ?? null,
-    });
-    if (!_meter) return;
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_cover_letter",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: body.resumeId ?? null,
+      },
+      async () => await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 1200 }),
+    );
+    if (!charged) return;
+    const { result: coverLetter, meter: _meter } = charged;
 
     res.json({ coverLetter, ..._meter });
   } catch (err) {
@@ -465,18 +468,21 @@ router.post("/builder/generate", requireAuth, async (req, res) => {
       .filter(Boolean)
       .join("\n\n");
 
-    const fields = await chatCompleteJSON<Record<string, unknown>>({
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_generate",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: null,
+      },
+      async () => await chatCompleteJSON<Record<string, unknown>>({
       messages: [{ role: "user", content: prompt }],
       maxTokens: 2500,
-    });
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_generate",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: null,
-    });
-    if (!_meter) return;
+    }),
+    );
+    if (!charged) return;
+    const { result: fields, meter: _meter } = charged;
     res.json({ success: true, data: { fields, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/generate error", err);
@@ -500,18 +506,21 @@ router.post("/builder/extract-fields", requireAuth, async (req, res) => {
       `Respond with ONLY a JSON object matching this shape: ${RESUME_FIELDS_SCHEMA}. No other text.`,
     ].join("\n\n");
 
-    const fields = await chatCompleteJSON<Record<string, unknown>>({
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_extract_fields",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: body.resumeId ?? null,
+      },
+      async () => await chatCompleteJSON<Record<string, unknown>>({
       messages: [{ role: "user", content: prompt }],
       maxTokens: 2500,
-    });
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_extract_fields",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: body.resumeId ?? null,
-    });
-    if (!_meter) return;
+    }),
+    );
+    if (!charged) return;
+    const { result: fields, meter: _meter } = charged;
     res.json({ success: true, data: { fields, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/extract-fields error", err);
@@ -532,15 +541,18 @@ router.post("/builder/enhance-section", requireAuth, async (req, res) => {
       .filter(Boolean)
       .join("\n\n");
 
-    const text = await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 });
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_enhance_section",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: null,
-    });
-    if (!_meter) return;
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_enhance_section",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: null,
+      },
+      async () => await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 }),
+    );
+    if (!charged) return;
+    const { result: text, meter: _meter } = charged;
     res.json({ success: true, data: { text, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/enhance-section error", err);
@@ -617,20 +629,23 @@ router.post("/builder/tailor", requireAuth, async (req, res) => {
       .filter(Boolean)
       .join("\n\n");
 
-    const result = await chatCompleteJSON<{
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_tailor",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: body.resumeId ?? null,
+      },
+      async () => await chatCompleteJSON<{
       tailoredFields: Record<string, unknown>;
       keywordsMatched: string[];
       keywordsMissing: string[];
       matchScore: number;
-    }>({ messages: [{ role: "user", content: prompt }], maxTokens: 2500 });
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_tailor",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: body.resumeId ?? null,
-    });
-    if (!_meter) return;
+    }>({ messages: [{ role: "user", content: prompt }], maxTokens: 2500 }),
+    );
+    if (!charged) return;
+    const { result: result, meter: _meter } = charged;
     res.json({ success: true, data: { ...result, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/tailor error", err);
@@ -680,15 +695,18 @@ router.post("/builder/rewrite", requireAuth, async (req, res) => {
       "Respond with ONLY the rewritten text, no other commentary.",
     ].join("\n\n");
 
-    const text = await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 });
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_rewrite",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: null,
-    });
-    if (!_meter) return;
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_rewrite",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: null,
+      },
+      async () => await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 }),
+    );
+    if (!charged) return;
+    const { result: text, meter: _meter } = charged;
     res.json({ success: true, data: { text, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/rewrite error", err);
@@ -715,18 +733,21 @@ router.post("/builder/inject-skills", requireAuth, async (req, res) => {
       .filter(Boolean)
       .join("\n\n");
 
-    const fields = await chatCompleteJSON<Record<string, unknown>>({
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_inject_skills",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: body.resumeId ?? null,
+      },
+      async () => await chatCompleteJSON<Record<string, unknown>>({
       messages: [{ role: "user", content: prompt }],
       maxTokens: 800,
-    });
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_inject_skills",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: body.resumeId ?? null,
-    });
-    if (!_meter) return;
+    }),
+    );
+    if (!charged) return;
+    const { result: fields, meter: _meter } = charged;
     res.json({ success: true, data: { fields, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/inject-skills error", err);
@@ -756,15 +777,18 @@ router.post("/builder/inject-keywords", requireAuth, async (req, res) => {
       .filter(Boolean)
       .join("\n\n");
 
-    const text = await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 });
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_inject_keywords",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: null,
-    });
-    if (!_meter) return;
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_inject_keywords",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: null,
+      },
+      async () => await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 }),
+    );
+    if (!charged) return;
+    const { result: text, meter: _meter } = charged;
     res.json({ success: true, data: { text, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/inject-keywords error", err);

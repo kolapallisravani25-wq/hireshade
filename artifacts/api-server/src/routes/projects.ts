@@ -6,7 +6,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { chatCompleteJSON } from "../lib/openrouter.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
-import { chargeOr402 } from "../lib/featureCredits.js";
+import { chargeOr402, withCharge } from "../lib/featureCredits.js";
 import { renderHtmlToPdf, PdfError } from "../lib/htmlPdf.js";
 
 const router: IRouter = Router();
@@ -512,17 +512,21 @@ router.post("/:id/edit-component", requireAuth, async (req, res) => {
       "Respond with ONLY the revised JSON value for this field (same shape as the input), no other text.",
     ].join("\n\n");
 
-    const revisedValue = await chatCompleteJSON<unknown>({
-      messages: [{ role: "user", content: prompt }],
-      maxTokens: 2000,
-    });
-
-    const _meter = await chargeOr402(res, {
-      userId,
-      operation: "project_edit_component",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-    });
-    if (!_meter) return;
+    const charged = await withCharge(
+      res,
+      {
+        userId,
+        operation: "project_edit_component",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+      },
+      async () =>
+        chatCompleteJSON<unknown>({
+          messages: [{ role: "user", content: prompt }],
+          maxTokens: 2000,
+        }),
+    );
+    if (!charged) return;
+    const { result: revisedValue, meter: _meter } = charged;
 
     const updatedContent = { ...content, [body.component]: revisedValue };
     const newVersion = project.version + 1;

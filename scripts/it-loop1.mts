@@ -177,6 +177,70 @@ console.log("T5: free-session 24h count query");
   check("counts only sessions within 24h", Number(row!.count) === 2, row);
 }
 
+
+// ─── Test 6: charge-first + refund semantics ───
+console.log("T6: withCharge refund + zero-balance work suppression");
+{
+  const { withCharge, refundCharge, chargeFeature } = await import(
+    "../artifacts/api-server/src/lib/featureCredits.ts"
+  );
+  process.env["FEATURE_COST_RESUME_TAILOR"] = "4";
+
+  const fakeRes = () => {
+    const calls: number[] = [];
+    return {
+      calls,
+      status(code: number) {
+        calls.push(code);
+        return { json(_b: unknown) {} };
+      },
+    };
+  };
+
+  // (a) zero-balance user: 402 written, work NEVER runs
+  const broke = await mkUser();
+  await db.update(creditsBalanceTable).set({ earnedCredits: "0" })
+    .where(eq(creditsBalanceTable.userId, broke));
+  let workRan = false;
+  const r1 = fakeRes();
+  const out1 = await withCharge(r1, { userId: broke, operation: "resume_tailor" },
+    async () => { workRan = true; return "x"; });
+  check("zero-balance -> null + 402", out1 === null && r1.calls[0] === 402, r1.calls);
+  check("work suppressed on 402", !workRan);
+
+  // (b) work failure refunds the charge
+  const payer = await mkUser(); // 100 earned from mkUser
+  const r2 = fakeRes();
+  let threw = false;
+  try {
+    await withCharge(r2, { userId: payer, operation: "resume_tailor" },
+      async () => { throw new Error("model down"); });
+  } catch { threw = true; }
+  const balAfterFail = await balanceOf(payer);
+  check("work failure rethrows", threw);
+  check("charge refunded on failure", balAfterFail.earned === 100, balAfterFail);
+  const rows = await db.select().from(creditsUsageTable)
+    .where(eq(creditsUsageTable.userId, payer));
+  check("ledger row removed on refund", rows.length === 0, rows.length);
+
+  // (c) success charges exactly once
+  const r3 = fakeRes();
+  const out3 = await withCharge(r3, { userId: payer, operation: "resume_tailor" },
+    async () => "answer");
+  const balAfterOk = await balanceOf(payer);
+  check("success returns result", out3?.result === "answer");
+  check("charged 4 on success", balAfterOk.earned === 96, balAfterOk);
+
+  // (d) cached idempotency replay is never refunded
+  const key = uuidv4();
+  const first = await chargeFeature({ userId: payer, operation: "resume_tailor", idempotencyKey: key });
+  const replay = await chargeFeature({ userId: payer, operation: "resume_tailor", idempotencyKey: key });
+  check("replay is cached", replay.cached === true && first.cached === false);
+  await refundCharge(payer, replay); // must be a no-op
+  const balAfterReplayRefund = await balanceOf(payer);
+  check("cached replay refund is a no-op", balAfterReplayRefund.earned === 92, balAfterReplayRefund);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 await pool.end();
 process.exit(fail === 0 ? 0 : 1);

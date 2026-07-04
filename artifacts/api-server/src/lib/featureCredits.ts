@@ -3,6 +3,7 @@ import { creditsBalanceTable, creditsUsageTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "./logger.js";
+import { SIGNUP_CREDITS } from "./signupGrant.js";
 
 /**
  * Per-feature (per-action) credit costs. These are DISTINCT from session
@@ -21,8 +22,11 @@ const DEFAULT_FEATURE_COSTS: Record<string, number> = {
   // Resume Builder
   resume_extract_fields: 2, // "Parse uploaded resume"
   resume_enhance_section: 1, // "Section edit (AI enhance)" / bullet enhancement
-  resume_rewrite: 5, // "Full resume rewrite"
-  resume_generate: 5, // full-resume generation (builder/generate) — priced as a full rewrite
+  // /builder/rewrite rewrites ONE section/snippet (maxTokens 800, takes a
+  // sectionId) — that's the doc's "Bullet enhancement: 1", NOT the "Full
+  // resume rewrite: 5". The actual full-resume operation is /builder/generate.
+  resume_rewrite: 1,
+  resume_generate: 5, // full-resume generation (builder/generate) = "Full resume rewrite"
   resume_tailor: 4, // "JD tailoring (first time)" (regenerate-free needs a client flag; flat for now)
   resume_inject_skills: 1, // "Skill injection"
   resume_inject_keywords: 2, // "Bulk keyword inject"
@@ -71,6 +75,8 @@ export class InsufficientCreditsError extends Error {
 export interface ChargeResult {
   creditsUsed: number;
   creditsRemaining: number;
+  /** Ledger row id for this charge — undefined for free ops and cached replays. */
+  usageId?: string;
   cached: boolean;
 }
 
@@ -178,9 +184,9 @@ export async function chargeFeature(opts: {
     let purchased = parseFloat(balance?.purchasedCredits ?? "0") || 0;
     const held = parseFloat(balance?.heldCredits ?? "0") || 0;
 
-    // Legacy users with no balance row get the default 100-credit grant.
+    // Legacy users with no balance row get the default signup grant.
     if (!balance) {
-      earned = 100;
+      earned = SIGNUP_CREDITS;
     }
 
     const available = Math.max(0, earned + purchased - held);
@@ -221,6 +227,7 @@ export async function chargeFeature(opts: {
       creditsUsed: cost,
       creditsRemaining: round2(Math.max(0, earned + purchased - held)),
       cached: false,
+      usageId,
     };
   }).catch(async (err) => {
     if (err instanceof IdempotencyRace) {
@@ -301,4 +308,74 @@ function isUniqueViolation(err: unknown): boolean {
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
+}
+
+/**
+ * Reverse a charge made this request because the metered work itself failed
+ * (model error, timeout). Deletes the ledger row and returns the credits to
+ * the earned bucket in one transaction. Only fresh charges are refundable —
+ * free ops and idempotency replays carry no usageId and are skipped.
+ */
+export async function refundCharge(
+  userId: string,
+  meter: ChargeResult,
+): Promise<void> {
+  if (!meter.usageId || meter.creditsUsed <= 0 || meter.cached) return;
+  try {
+    await db.transaction(async (tx) => {
+      const deleted = await tx
+        .delete(creditsUsageTable)
+        .where(eq(creditsUsageTable.id, meter.usageId!))
+        .returning({ id: creditsUsageTable.id });
+      if (deleted.length === 0) return; // already refunded / never landed
+
+      const [balance] = await tx
+        .select()
+        .from(creditsBalanceTable)
+        .where(eq(creditsBalanceTable.userId, userId))
+        .for("update")
+        .limit(1);
+      if (!balance) return;
+      const earned = (parseFloat(balance.earnedCredits) || 0) + meter.creditsUsed;
+      await tx
+        .update(creditsBalanceTable)
+        .set({ earnedCredits: String(round2(earned)), updatedAt: new Date() })
+        .where(eq(creditsBalanceTable.userId, userId));
+    });
+    logger.info(
+      { userId, usageId: meter.usageId, credits: meter.creditsUsed },
+      "[credits] charge refunded (work failed)",
+    );
+  } catch (err) {
+    // A failed refund must never mask the original failure — log loudly.
+    logger.error({ err, userId, usageId: meter.usageId }, "[credits] REFUND FAILED");
+  }
+}
+
+/**
+ * Charge-first wrapper for metered endpoints.
+ *
+ * The previous pattern in the resume/projects routes ran the model call FIRST
+ * and charged after — so a zero-balance caller still consumed a full
+ * OpenRouter call on every request and only then received the 402: an
+ * infinitely repeatable free-compute leak. This wrapper enforces
+ * charge → work, and refunds the charge if the work throws (the caller's
+ * catch then returns its usual 500), so users are never billed for failures.
+ *
+ * Returns null when a 402 was already written (caller must return).
+ */
+export async function withCharge<T>(
+  res: Parameters<typeof chargeOr402>[0],
+  opts: Parameters<typeof chargeFeature>[0],
+  work: () => Promise<T>,
+): Promise<{ result: T; meter: ChargeResult } | null> {
+  const meter = await chargeOr402(res, opts);
+  if (!meter) return null;
+  try {
+    const result = await work();
+    return { result, meter };
+  } catch (err) {
+    await refundCharge(opts.userId, meter);
+    throw err;
+  }
 }
