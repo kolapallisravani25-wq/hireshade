@@ -27,6 +27,11 @@ app.use(
   }),
 );
 app.use(cors());
+// The Razorpay webhook signature is an HMAC over the RAW request bytes —
+// express.json() would consume and re-serialize the body, breaking byte-exact
+// verification. Mounting express.raw() for this one path first makes the
+// downstream json parser skip it (body already parsed).
+app.use("/api/credits/webhook/razorpay", express.raw({ type: () => true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

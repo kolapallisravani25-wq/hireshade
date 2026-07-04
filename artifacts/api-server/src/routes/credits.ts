@@ -15,6 +15,7 @@ import {
   GRACE_ZONE_MINUTES,
 } from "../lib/sessionCredits.js";
 import { allFeatureCosts } from "../lib/featureCredits.js";
+import { applyPurchaseCreditByOrderId } from "../lib/purchaseCredit.js";
 
 const router: IRouter = Router();
 
@@ -342,85 +343,121 @@ router.post("/purchase/verify", requireAuth, async (req, res) => {
       return;
     }
 
-    const [purchase] = await db
-      .select()
-      .from(creditsPurchasesTable)
-      .where(
-        and(
-          eq(creditsPurchasesTable.userId, userId),
-          eq(creditsPurchasesTable.orderId, orderId),
-        ),
-      )
-      .limit(1);
+    // IDEMPOTENCY: a valid signature can be replayed. The shared settlement
+    // helper claims the purchase row pending→completed transactionally; only
+    // the claimer credits the balance. The Razorpay webhook uses the SAME
+    // helper, so whichever settlement path lands first wins and the other is
+    // a harmless no-op.
+    const result = await applyPurchaseCreditByOrderId({
+      orderId,
+      paymentId,
+      expectedUserId: userId,
+    });
 
-    if (!purchase) {
+    if (result.outcome === "not_found") {
       res.status(404).json({ error: "Order not found" });
       return;
     }
 
-    // IDEMPOTENCY: a valid signature can be replayed. Without this guard,
-    // re-posting the same verification credited the balance AGAIN on every
-    // call — an unlimited free-credits exploit. Claim the purchase row
-    // transactionally; only the claimer credits the balance.
-    const credited = await db.transaction(async (tx) => {
-      const claimed = await tx
-        .update(creditsPurchasesTable)
-        .set({
-          status: "completed",
-          paymentId: paymentId ?? null,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(creditsPurchasesTable.id, purchase.id),
-            eq(creditsPurchasesTable.status, "pending"),
-          ),
-        )
-        .returning({ id: creditsPurchasesTable.id });
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[credits] purchase verify error", err);
+    res.status(500).json({ error: "Failed to verify purchase" });
+  }
+});
 
-      if (claimed.length === 0) return false; // already completed — no re-credit
+/**
+ * Razorpay server-to-server webhook — closes the paid-but-uncredited dead
+ * zone: if the buyer's browser dies between Razorpay checkout success and the
+ * client's /purchase/verify call (tab closed, crash, network drop), the
+ * payment was captured but no credits were ever granted and the purchase row
+ * stayed "pending" forever. Razorpay retries this webhook until it gets a 2xx,
+ * so settlement now has a client-independent path.
+ *
+ * Security:
+ *  - NOT behind requireAuth (Razorpay is the caller).
+ *  - Authenticated by the `x-razorpay-signature` header: HMAC-SHA256 of the
+ *    RAW request body with RAZORPAY_WEBHOOK_SECRET (a dedicated secret,
+ *    configured on the Razorpay dashboard — NOT the key secret).
+ *  - Fail-closed: unset secret → 503; bad signature → 400. Credits are only
+ *    ever granted after signature verification, and grant amounts come from
+ *    our own purchase row (server-priced), never from the webhook payload.
+ *
+ * The raw body is preserved by the express.raw() mount for this exact path in
+ * app.ts (JSON parsing would destroy byte-exact signature verification).
+ */
+router.post("/webhook/razorpay", async (req, res) => {
+  try {
+    const webhookSecret = process.env["RAZORPAY_WEBHOOK_SECRET"];
+    if (!webhookSecret) {
+      console.error("[credits] webhook received but RAZORPAY_WEBHOOK_SECRET is unset");
+      res.status(503).json({ error: "Webhook not configured" });
+      return;
+    }
 
-      const creditsToAdd = parseFloat(purchase.creditsPurchased ?? "0") || 0;
+    const signature = req.headers["x-razorpay-signature"];
+    const rawBody: Buffer | undefined = Buffer.isBuffer(req.body)
+      ? req.body
+      : undefined;
 
-      const [balance] = await tx
-        .select()
-        .from(creditsBalanceTable)
-        .where(eq(creditsBalanceTable.userId, userId))
-        .for("update")
-        .limit(1);
+    if (typeof signature !== "string" || !rawBody) {
+      res.status(400).json({ error: "Missing signature or body" });
+      return;
+    }
 
-      if (balance) {
-        const newPurchased =
-          (parseFloat(balance.purchasedCredits) || 0) + creditsToAdd;
-        await tx
-          .update(creditsBalanceTable)
-          .set({
-            purchasedCredits: String(newPurchased),
-            updatedAt: new Date(),
-          })
-          .where(eq(creditsBalanceTable.userId, userId));
-      } else {
-        // Previously a missing balance row meant the purchase was marked
-        // completed but the credits were silently dropped. Seed the row.
-        await tx.insert(creditsBalanceTable).values({
-          id: uuidv4(),
-          userId,
-          purchasedCredits: String(creditsToAdd),
-          earnedCredits: "100",
-          heldCredits: "0",
-          updatedAt: new Date(),
+    const expected = crypto
+      .createHmac("sha256", webhookSecret)
+      .update(rawBody)
+      .digest("hex");
+    const sigBuf = Buffer.from(signature);
+    const expBuf = Buffer.from(expected);
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(expBuf, sigBuf)) {
+      console.warn("[credits] webhook signature mismatch");
+      res.status(400).json({ error: "Invalid signature" });
+      return;
+    }
+
+    let event: {
+      event?: string;
+      payload?: {
+        payment?: { entity?: { id?: string; order_id?: string } };
+        order?: { entity?: { id?: string } };
+      };
+    };
+    try {
+      event = JSON.parse(rawBody.toString("utf8"));
+    } catch {
+      res.status(400).json({ error: "Invalid JSON" });
+      return;
+    }
+
+    // Only capture events grant credits. Everything else (authorized, failed,
+    // refunds…) is acknowledged so Razorpay stops retrying.
+    if (event.event === "payment.captured" || event.event === "order.paid") {
+      const orderId =
+        event.payload?.payment?.entity?.order_id ??
+        event.payload?.order?.entity?.id;
+      const paymentId = event.payload?.payment?.entity?.id ?? null;
+
+      if (orderId) {
+        const result = await applyPurchaseCreditByOrderId({
+          orderId,
+          paymentId,
+          claimableFrom: ["pending", "failed"],
         });
+        if (result.outcome === "not_found") {
+          // Unknown order (e.g. another environment sharing the Razorpay
+          // account). Ack with 200 — retrying will never make it known.
+          console.warn("[credits] webhook for unknown order", orderId);
+        }
       }
-      return true;
-    });
-
-    if (!credited) {
-      console.warn("[credits] purchase verify replay ignored", purchase.id);
     }
 
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: "Failed to verify purchase" });
+    console.error("[credits] webhook error", err);
+    // 500 → Razorpay retries, which is what we want for transient DB failures.
+    res.status(500).json({ error: "Webhook processing failed" });
   }
 });
 
