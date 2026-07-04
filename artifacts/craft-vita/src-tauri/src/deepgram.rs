@@ -344,7 +344,7 @@ pub async fn run_session(
         tokio::sync::oneshot::channel::<ExitReason>();
     let app_r = app.clone();
     let reader_gen = my_gen;
-    tokio::spawn(async move {
+    let reader_handle = tokio::spawn(async move {
         let mut sender = Some(reader_done_tx);
         let send_once = |s: &mut Option<tokio::sync::oneshot::Sender<ExitReason>>,
                          reason: ExitReason| {
@@ -450,17 +450,25 @@ pub async fn run_session(
     // Best-effort graceful close — ignore failures, the socket may already be dead.
     let _ = write.send(WsMsg::Close(None)).await;
 
+    // Deterministically tear down the reader task. Normally the Close above
+    // triggers a remote Close that ends read.next(), but on a socket that's
+    // already dead (SendError / BroadcastClosed paths) the Close send fails and
+    // a silent remote would leave the reader blocked on read.next() forever —
+    // leaking the task AND the read half of the socket (fd) on every session.
+    // Since the frontend health-monitor reacquires audio on each staleness
+    // event, those would accumulate over a long/flaky interview. abort() is
+    // safe here: the reader has already delivered its ExitReason via the
+    // oneshot (or never will), and we own the final status emission below.
+    reader_handle.abort();
+
     running.store(false, Ordering::SeqCst);
 
-    // If the user stopped, prefer "idle" even if the reader reported a remote
-    // close that arrived in the same instant.
-    let final_reason = if !running.load(Ordering::SeqCst)
-        && matches!(exit_reason, ExitReason::UserStop)
-    {
-        ExitReason::UserStop
-    } else {
-        exit_reason
-    };
-    let payload = final_reason.into_status();
+    // The exit_reason already reflects the true cause: the send loop breaks with
+    // UserStop the moment `running` goes false or the generation is bumped, and
+    // biased select! prioritises that over a same-instant remote close. So
+    // exit_reason is authoritative — no post-hoc override needed. (The previous
+    // `!running.load()` guard here was dead: running was just stored false above,
+    // so it was always true and the branch reduced to matches!(UserStop).)
+    let payload = exit_reason.into_status();
     let _ = app.emit(status_evt, payload);
 }
