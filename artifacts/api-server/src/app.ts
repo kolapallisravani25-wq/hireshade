@@ -27,14 +27,26 @@ app.use(
     },
   }),
 );
-app.use(cors());
+// CORS: allowlist via CORS_ORIGINS (comma-separated). Unset = allow all —
+// required until every desktop origin (tauri://localhost etc.) is confirmed,
+// and safe-ish because auth is Bearer-token (no ambient cookies). Set e.g.
+// CORS_ORIGINS=https://app.scribeshade.org,tauri://localhost,http://tauri.localhost
+const corsOrigins = (process.env["CORS_ORIGINS"] ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+app.use(cors(corsOrigins.length > 0 ? { origin: corsOrigins } : {}));
 // The Razorpay webhook signature is an HMAC over the RAW request bytes —
 // express.json() would consume and re-serialize the body, breaking byte-exact
 // verification. Mounting express.raw() for this one path first makes the
 // downstream json parser skip it (body already parsed).
 app.use("/api/credits/webhook/razorpay", express.raw({ type: () => true }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// 1mb (default 100kb): /ai-answer and /save-message carry full live-session
+// transcripts — a long interview comfortably exceeds 100kb, which turned
+// into opaque 413s exactly at the point users need answers most (deep into a
+// long session).
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
 // /uploads serves user PII (resumes, documents) off local disk. It MUST NOT
 // be publicly readable: every request needs a valid, unexpired HMAC signature

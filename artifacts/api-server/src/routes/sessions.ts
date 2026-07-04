@@ -112,6 +112,32 @@ function maxAllowedMinutesFor(s: typeof sessionsTable.$inferSelect) {
   return s.free ? FREE_SESSION_MINUTES : null;
 }
 
+/** Env-tunable rolling-24h free-session cap (0 disables free sessions). */
+const FREE_SESSIONS_PER_DAY = (() => {
+  const v = Number(process.env["FREE_SESSIONS_PER_DAY"]);
+  return Number.isFinite(v) && v >= 0 ? v : 2;
+})();
+
+async function checkFreeSessionQuota(
+  userId: string,
+): Promise<{ allowed: boolean; limit: number }> {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(sessionsTable)
+    .where(
+      and(
+        eq(sessionsTable.userId, userId),
+        eq(sessionsTable.free, true),
+        gte(sessionsTable.createdAt, since),
+      ),
+    );
+  return {
+    allowed: (row?.count ?? 0) < FREE_SESSIONS_PER_DAY,
+    limit: FREE_SESSIONS_PER_DAY,
+  };
+}
+
 /**
  * 409 payload for the single live-session conflict. The token is emitted under
  * BOTH `error` and `message`: the web CreateSessionDialog reads `message`, the
@@ -191,6 +217,25 @@ router.post("/create-session", requireAuth, formParser, async (req, res) => {
     if (blocking) {
       res.status(409).json(activeSessionConflict(blocking.id));
       return;
+    }
+
+    // FREE-SESSION QUOTA. `free` is a client-supplied flag and free sessions
+    // skip both the activation credit check and settlement — without a
+    // server-side cap, anyone (zero balance included) could loop free
+    // sessions for unlimited AI answers, screen analysis, and Deepgram
+    // transcription. Capped per rolling 24h; FREE_SESSIONS_PER_DAY to tune
+    // (0 disables free sessions entirely).
+    if (free) {
+      const quota = await checkFreeSessionQuota(userId);
+      if (!quota.allowed) {
+        res.status(403).json({
+          error:
+            "Daily free session limit reached — start a full session or try again tomorrow.",
+          code: "FREE_SESSION_LIMIT",
+          limit: quota.limit,
+        });
+        return;
+      }
     }
 
     const sessionId = uuidv4();

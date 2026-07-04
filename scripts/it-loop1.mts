@@ -156,6 +156,27 @@ console.log("T4: concurrent activation of two sessions -> only one goes ACTIVE")
   check("other session blocked while s1 ACTIVE", blockedOther === 0);
 }
 
+
+// ─── Test 5: free-session quota query shape ───
+console.log("T5: free-session 24h count query");
+{
+  const userId = await mkUser();
+  const mkFree = async (hoursAgo: number) => {
+    await db.insert(sessionsTable).values({
+      id: uuidv4(), userId, companyName: "F", status: "COMPLETED", free: true,
+      createdAt: new Date(Date.now() - hoursAgo * 3600_000),
+    });
+  };
+  await mkFree(1); await mkFree(5); await mkFree(30); // 2 within 24h, 1 outside
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const { gte } = await import("drizzle-orm");
+  const [row] = await db
+    .select({ count: sql`count(*)::int` })
+    .from(sessionsTable)
+    .where(and(eq(sessionsTable.userId, userId), eq(sessionsTable.free, true), gte(sessionsTable.createdAt, since)));
+  check("counts only sessions within 24h", Number(row!.count) === 2, row);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 await pool.end();
 process.exit(fail === 0 ? 0 : 1);
