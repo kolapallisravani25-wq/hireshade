@@ -7,9 +7,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
-const DEFAULT_UPDATES_MANIFEST_URL =
-  "https://pub-992f115513ba42f681595c2ca5fac628.r2.dev/tauri-updates/latest.json";
-const UPDATES_MANIFEST_URL = DEFAULT_UPDATES_MANIFEST_URL;
+// The updater manifest is published to the GitHub Release by the
+// desktop-release workflow (tauri-action, includeUpdaterJson). This is the
+// same latest.json the in-app auto-updater reads, so the download button and
+// the updater never diverge. The previous Cloudflare R2 URL was never
+// populated by any workflow — downloads silently failed against it.
+const UPDATES_MANIFEST_URL =
+  "https://github.com/kolapallisravani25-wq/hireshade/releases/latest/download/latest.json";
 
 type DownloadArtifact = {
   url: string;
@@ -50,7 +54,7 @@ async function openLatestDesktopDownload(
     res = await fetch(UPDATES_MANIFEST_URL, { cache: "no-store" });
   } catch (err) {
     alert(
-      "Could not load the Cloudflare update manifest. Please try again. If this continues, Cloudflare R2 CORS may be blocking browser access.",
+      "Could not load the release manifest from GitHub. Please try again in a moment.",
     );
     console.error("[download] fetch failed:", err);
     return;
