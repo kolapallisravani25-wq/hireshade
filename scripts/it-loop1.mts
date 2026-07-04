@@ -241,6 +241,56 @@ console.log("T6: withCharge refund + zero-balance work suppression");
   check("cached replay refund is a no-op", balAfterReplayRefund.earned === 92, balAfterReplayRefund);
 }
 
+
+// ─── Test 7: save-message upsert cannot mutate a foreign session's message ───
+console.log("T7: cross-tenant message upsert guard");
+{
+  const { sessionMessagesTable } = await import("@workspace/db/schema");
+  const victim = await mkUser();
+  const attacker = await mkUser();
+  const mkSession = async (userId: string) => {
+    const sid = uuidv4();
+    await db.insert(sessionsTable).values({ id: sid, userId, companyName: "S", status: "ACTIVE" });
+    return sid;
+  };
+  const victimSession = await mkSession(victim);
+  const attackerSession = await mkSession(attacker);
+  const stolenId = uuidv4();
+  await db.insert(sessionMessagesTable).values({
+    id: stolenId, sessionId: victimSession, role: "assistant",
+    content: "VICTIM ORIGINAL", createdAt: new Date(), updatedAt: new Date(),
+  });
+
+  // Replicate the route's hardened upsert as the attacker (owns attackerSession,
+  // supplies the victim's message id).
+  await db.insert(sessionMessagesTable).values({
+    id: stolenId, sessionId: attackerSession, role: "assistant",
+    content: "ATTACKER OVERWRITE", createdAt: new Date(), updatedAt: new Date(),
+  }).onConflictDoUpdate({
+    target: sessionMessagesTable.id,
+    set: { content: "ATTACKER OVERWRITE", updatedAt: new Date() },
+    setWhere: sql`${sessionMessagesTable.sessionId} = ${attackerSession}`,
+  });
+
+  const [row] = await db.select().from(sessionMessagesTable)
+    .where(eq(sessionMessagesTable.id, stolenId));
+  check("victim message untouched", row!.content === "VICTIM ORIGINAL", row!.content);
+  check("victim message still in victim session", row!.sessionId === victimSession);
+
+  // Legit retry in the OWNING session still updates in place.
+  await db.insert(sessionMessagesTable).values({
+    id: stolenId, sessionId: victimSession, role: "assistant",
+    content: "VICTIM RETRY", createdAt: new Date(), updatedAt: new Date(),
+  }).onConflictDoUpdate({
+    target: sessionMessagesTable.id,
+    set: { content: "VICTIM RETRY", updatedAt: new Date() },
+    setWhere: sql`${sessionMessagesTable.sessionId} = ${victimSession}`,
+  });
+  const [row2] = await db.select().from(sessionMessagesTable)
+    .where(eq(sessionMessagesTable.id, stolenId));
+  check("owner retry updates in place", row2!.content === "VICTIM RETRY", row2!.content);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 await pool.end();
 process.exit(fail === 0 ? 0 : 1);

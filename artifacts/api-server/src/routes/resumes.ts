@@ -325,10 +325,14 @@ router.post("/builder/save", requireAuth, async (req, res) => {
     const resumeId = body.id ?? uuidv4();
     const filename = body.filename ?? body.title ?? "My Resume";
 
+    // OWNERSHIP: lookup and update MUST be scoped to the caller. Previously
+    // both ran on resumeId alone, so any authenticated user could overwrite
+    // any other user's resume (title, template, and the full `fields`
+    // content) just by posting its id — a cross-tenant write IDOR.
     const existing = await db
       .select()
       .from(resumesTable)
-      .where(eq(resumesTable.id, resumeId))
+      .where(and(eq(resumesTable.id, resumeId), eq(resumesTable.userId, userId)))
       .limit(1);
 
     if (existing.length > 0) {
@@ -342,20 +346,33 @@ router.post("/builder/save", requireAuth, async (req, res) => {
           ...(body.content ? { fields: body.content } : {}),
           updatedAt: new Date(),
         })
-        .where(eq(resumesTable.id, resumeId));
+        .where(and(eq(resumesTable.id, resumeId), eq(resumesTable.userId, userId)));
     } else {
-      await db.insert(resumesTable).values({
-        id: resumeId,
-        userId,
-        filename,
-        title: body.title ?? filename,
-        templateId: body.templateId ?? null,
-        status: body.status ?? "draft",
-        fields: body.content ?? null,
-        path: "",
-        source: "builder",
-        ats: false,
-      });
+      try {
+        await db.insert(resumesTable).values({
+          id: resumeId,
+          userId,
+          filename,
+          title: body.title ?? filename,
+          templateId: body.templateId ?? null,
+          status: body.status ?? "draft",
+          fields: body.content ?? null,
+          path: "",
+          source: "builder",
+          ats: false,
+        });
+      } catch (err) {
+        // PK collision = the id exists but belongs to someone else. 404 (not
+        // 403) so the endpoint isn't an oracle for other users' resume ids.
+        const code =
+          (err as { code?: string })?.code ??
+          (err as { cause?: { code?: string } })?.cause?.code;
+        if (code === "23505") {
+          res.status(404).json({ error: "Resume not found" });
+          return;
+        }
+        throw err;
+      }
     }
 
     const [resume] = await db
@@ -393,10 +410,12 @@ router.get("/builder/list", requireAuth, async (req, res) => {
 router.get("/builder/:id", requireAuth, async (req, res) => {
   try {
     const resumeId = String(req.params["id"] ?? "");
+    // OWNERSHIP: previously fetched by id alone — any authenticated user
+    // could read any other user's complete resume (full fields = PII).
     const [resume] = await db
       .select()
       .from(resumesTable)
-      .where(eq(resumesTable.id, resumeId))
+      .where(and(eq(resumesTable.id, resumeId), eq(resumesTable.userId, req.userId!)))
       .limit(1);
 
     if (!resume) {

@@ -768,6 +768,12 @@ router.post("/:id/save-message", requireAuth, async (req, res) => {
       // Idempotent: a retry of the same message id updates in place rather
       // than inserting a duplicate. Content is refreshed because a retry may
       // carry a richer/cleaner version of the same utterance.
+      //
+      // setWhere: the conflict target is the client-supplied PK — without
+      // this condition, DO UPDATE fired on WHATEVER row held that id,
+      // including a message inside another user's session (the session
+      // ownership check above can't help; the PK collision bypasses it).
+      // Now a foreign-session collision updates nothing.
       .onConflictDoUpdate({
         target: sessionMessagesTable.id,
         set: {
@@ -777,13 +783,27 @@ router.post("/:id/save-message", requireAuth, async (req, res) => {
           aiModel: body.aiModel ?? null,
           updatedAt: now,
         },
+        setWhere: sql`${sessionMessagesTable.sessionId} = ${sessionId}`,
       });
 
+    // Re-read scoped to THIS session: on a foreign-id collision the row that
+    // holds the id belongs to someone else and must be neither returned nor
+    // acknowledged.
     const [message] = await db
       .select()
       .from(sessionMessagesTable)
-      .where(eq(sessionMessagesTable.id, messageId))
+      .where(
+        and(
+          eq(sessionMessagesTable.id, messageId),
+          eq(sessionMessagesTable.sessionId, sessionId),
+        ),
+      )
       .limit(1);
+
+    if (!message) {
+      res.status(409).json({ error: "MESSAGE_ID_CONFLICT" });
+      return;
+    }
 
     res.json({ success: true, data: message });
   } catch (err) {

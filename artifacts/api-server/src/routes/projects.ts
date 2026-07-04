@@ -375,11 +375,18 @@ router.patch("/:id", requireAuth, async (req, res) => {
       .set({ ...body, updatedAt: new Date() })
       .where(and(eq(projectsTable.id, projectId), eq(projectsTable.userId, userId)));
 
+    // Scoped re-read: if the ownership-scoped UPDATE above matched nothing,
+    // an unscoped read here would return (and leak) another user's project.
     const [project] = await db
       .select()
       .from(projectsTable)
-      .where(eq(projectsTable.id, projectId))
+      .where(and(eq(projectsTable.id, projectId), eq(projectsTable.userId, userId)))
       .limit(1);
+
+    if (!project) {
+      res.status(404).json({ error: "Project not found" });
+      return;
+    }
 
     res.json({ success: true, data: project });
   } catch (err) {
