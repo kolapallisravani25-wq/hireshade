@@ -75,6 +75,50 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 // fastest PERMITTED model (Gemini Flash-Lite) for low-latency question reads.
 const ANALYZE_SCREEN_FAST_MODEL = "google/gemini-3.1-flash-lite-preview";
 
+/**
+ * POST a session-persistence payload with bounded retry + backoff.
+ *
+ * Transcript writes (save-message, transcript patch) were previously
+ * fire-and-forget (`.catch(console.error)`), so ANY transient failure — a
+ * dropped Wi-Fi frame, a VPS restart, a 502 during deploy — silently lost that
+ * line: it stayed in local Redux but never reached the backend, and the review
+ * page (which reads from the backend) would be missing it. That violates the
+ * "no data loss" guarantee.
+ *
+ * Because the backend save-message / transcript-patch writes are now idempotent
+ * on the client message id, retrying the same payload is safe (a duplicate
+ * delivery updates in place instead of creating a second row). We retry a few
+ * times with exponential backoff; only a sustained outage across all attempts
+ * gives up, and that is logged loudly.
+ */
+async function persistWithRetry(
+  url: string,
+  init: RequestInit,
+  label: string,
+  attempts = 4,
+): Promise<boolean> {
+  let delay = 500;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await fetch(url, init);
+      if (res.ok) return true;
+      // 4xx (except 408/429) won't be fixed by retrying — stop early.
+      if (res.status >= 400 && res.status < 500 && res.status !== 408 && res.status !== 429) {
+        console.error(`[persist] ${label} rejected ${res.status} — not retrying`);
+        return false;
+      }
+    } catch {
+      // network error — fall through to backoff/retry
+    }
+    if (i < attempts - 1) {
+      await new Promise((r) => setTimeout(r, delay));
+      delay = Math.min(delay * 2, 4000);
+    }
+  }
+  console.error(`[persist] ${label} FAILED after ${attempts} attempts — data may be lost on review`);
+  return false;
+}
+
 function deepgramKeyFingerprint(key: string): string {
   const trimmed = (key || "").trim();
   if (!trimmed) return "empty";
@@ -991,18 +1035,22 @@ export function useFloatingSession() {
       const sid = sessionInfoRef.current?.sessionId;
       if (!sid || sessionInfoRef.current?.saveTranscript === false) return;
       getAuthHeaders().then((authHeaders) =>
-        fetch(`${BACKEND_URL}/api/session/${sid}/transcript/${messageId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json", ...authHeaders },
-          body: JSON.stringify({
-            patchedText,
-            originalText,
-            patchedAt: new Date().toISOString(),
-            patchedByUser: false,
-            sender,
-            timestamp,
-          }),
-        }),
+        persistWithRetry(
+          `${BACKEND_URL}/api/session/${sid}/transcript/${messageId}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json", ...authHeaders },
+            body: JSON.stringify({
+              patchedText,
+              originalText,
+              patchedAt: new Date().toISOString(),
+              patchedByUser: false,
+              sender,
+              timestamp,
+            }),
+          },
+          "transcript-auto-upgrade",
+        ),
       ).catch((err) => console.error("[useFloatingSession] auto transcript upgrade PATCH failed:", err));
     },
     [],
@@ -1051,19 +1099,27 @@ export function useFloatingSession() {
       recentInsertionsRef.current.push({ sender, normalized: normalizeLoose(cleanText), timestamp: now });
       if (recentInsertionsRef.current.length > 40) recentInsertionsRef.current.splice(0, recentInsertionsRef.current.length - 40);
 
-      if (sid) {
+      // Skip persistence for ephemeral sessions (saveTranscript === false),
+      // matching the transcript PATCH which already guards on this. Previously
+      // the POST ignored the flag and persisted anyway — an ephemeral session
+      // still wrote its transcript to the backend.
+      if (sid && sessionInfoRef.current?.saveTranscript !== false) {
         getAuthHeaders().then((authHeaders) =>
-          fetch(`${BACKEND_URL}/api/session/${sid}/save-message`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...authHeaders },
-            body: JSON.stringify({
-              messageId: generatedId,
-              role: sender === "User" ? "USER" : "INTERVIEWER",
-              question: cleanText,
-              answer: "",
-              time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-            }),
-          }),
+          persistWithRetry(
+            `${BACKEND_URL}/api/session/${sid}/save-message`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json", ...authHeaders },
+              body: JSON.stringify({
+                messageId: generatedId,
+                role: sender === "User" ? "USER" : "INTERVIEWER",
+                question: cleanText,
+                answer: "",
+                time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              }),
+            },
+            "save-message",
+          ),
         ).catch(console.error);
       }
 
@@ -2617,18 +2673,22 @@ export function useFloatingSession() {
       const sid = sessionInfoRef.current?.sessionId;
       if (!sid || sessionInfoRef.current?.saveTranscript === false) return;
       getAuthHeaders().then((authHeaders) =>
-        fetch(`${BACKEND_URL}/api/session/${sid}/transcript/${messageId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json", ...authHeaders },
-          body: JSON.stringify({
-            patchedText,
-            originalText,
-            patchedAt: new Date().toISOString(),
-            patchedByUser: true,
-            sender,
-            timestamp,
-          }),
-        }),
+        persistWithRetry(
+          `${BACKEND_URL}/api/session/${sid}/transcript/${messageId}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json", ...authHeaders },
+            body: JSON.stringify({
+              patchedText,
+              originalText,
+              patchedAt: new Date().toISOString(),
+              patchedByUser: true,
+              sender,
+              timestamp,
+            }),
+          },
+          "transcript-user-edit",
+        ),
       ).catch((err) => console.error("[useFloatingSession] Failed to patch transcript:", err));
     },
     [],

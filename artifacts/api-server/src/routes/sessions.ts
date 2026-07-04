@@ -644,6 +644,7 @@ router.post("/:id/save-message", requireAuth, async (req, res) => {
     }
 
     const body = req.body as {
+      messageId?: string;
       role?: string;
       content?: string;
       question?: string;
@@ -651,20 +652,44 @@ router.post("/:id/save-message", requireAuth, async (req, res) => {
       aiModel?: string;
     };
 
-    const messageId = uuidv4();
+    // Use the client-supplied id when present. This is what makes the write
+    // IDEMPOTENT: the desktop retries a failed save-message with the same id,
+    // and it must not create a duplicate row. It also keeps the client's local
+    // message id in sync with the persisted row so the later transcript PATCH
+    // (which addresses messages by that id) resolves. Fall back to a generated
+    // id only for legacy callers that don't send one.
+    const messageId =
+      typeof body.messageId === "string" && body.messageId.trim()
+        ? body.messageId.trim()
+        : uuidv4();
     const now = new Date();
 
-    await db.insert(sessionMessagesTable).values({
-      id: messageId,
-      sessionId,
-      role: body.role ?? "assistant",
-      content: body.content ?? body.answer ?? "",
-      question: body.question ?? null,
-      answer: body.answer ?? null,
-      aiModel: body.aiModel ?? null,
-      createdAt: now,
-      updatedAt: now,
-    });
+    await db
+      .insert(sessionMessagesTable)
+      .values({
+        id: messageId,
+        sessionId,
+        role: body.role ?? "assistant",
+        content: body.content ?? body.answer ?? "",
+        question: body.question ?? null,
+        answer: body.answer ?? null,
+        aiModel: body.aiModel ?? null,
+        createdAt: now,
+        updatedAt: now,
+      })
+      // Idempotent: a retry of the same message id updates in place rather
+      // than inserting a duplicate. Content is refreshed because a retry may
+      // carry a richer/cleaner version of the same utterance.
+      .onConflictDoUpdate({
+        target: sessionMessagesTable.id,
+        set: {
+          content: body.content ?? body.answer ?? "",
+          question: body.question ?? null,
+          answer: body.answer ?? null,
+          aiModel: body.aiModel ?? null,
+          updatedAt: now,
+        },
+      });
 
     const [message] = await db
       .select()
@@ -676,6 +701,54 @@ router.post("/:id/save-message", requireAuth, async (req, res) => {
   } catch (err) {
     console.error("[sessions] save-message error", err);
     res.status(500).json({ error: "Failed to save message" });
+  }
+});
+
+// Persist a live STT transcript correction (auto-upgrade of an interim line, or
+// a user edit of a transcript row). This is distinct from /answers/:messageId,
+// which versions AI ANSWER text — this updates the transcript utterance itself.
+//
+// The desktop client was already PATCHing this URL, but the route did not
+// exist, so every correction 404'd silently (the caller only .catch(console
+// .error)'d) and transcript fixes were never persisted — visible as stale text
+// on the review page. Idempotent: patching the same id twice is fine.
+router.patch("/:sessionId/transcript/:messageId", requireAuth, async (req, res) => {
+  try {
+    const sessionId = String(req.params["sessionId"] ?? "");
+    const messageId = String(req.params["messageId"] ?? "");
+
+    const owned = await loadOwnedMessage(req.userId!, sessionId, messageId);
+    if (!owned) {
+      res.status(404).json({ error: "Message not found" });
+      return;
+    }
+
+    const body = req.body as {
+      patchedText?: string;
+      originalText?: string;
+      patchedByUser?: boolean;
+      sender?: string;
+    };
+
+    const patchedText = typeof body.patchedText === "string" ? body.patchedText.trim() : "";
+    if (!patchedText) {
+      res.status(400).json({ error: "patchedText is required" });
+      return;
+    }
+
+    await db
+      .update(sessionMessagesTable)
+      .set({
+        content: patchedText,
+        question: patchedText,
+        updatedAt: new Date(),
+      })
+      .where(eq(sessionMessagesTable.id, messageId));
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[sessions] transcript patch error", err);
+    res.status(500).json({ error: "Failed to patch transcript" });
   }
 });
 
