@@ -855,10 +855,26 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
     // No hardcoded "**QUESTION:** ..." prefix here on purpose — see comment
     // above. The model streams its own structured output directly.
 
-    await streamChatComplete({ model: aiModel, messages, maxTokens: OPENROUTER_MAX_TOKENS }, (chunk) => {
-      res.write(chunk);
-    });
+    const fullAnswer = await streamChatComplete(
+      { model: aiModel, messages, maxTokens: OPENROUTER_MAX_TOKENS },
+      (chunk) => {
+        res.write(chunk);
+      },
+    );
     res.end();
+
+    // Persist the completed answer so it appears on the review page. Runs
+    // AFTER res.end() so it can't delay the stream the user already received,
+    // and only when the session opted into transcript saving. Best-effort:
+    // a DB hiccup must not turn a successful answer into a failure.
+    if (session.saveTranscription) {
+      persistAiAnswer({
+        sessionId,
+        question: "",
+        fullText: fullAnswer,
+        aiModel: aiModel ?? null,
+      }).catch((e) => console.error("[sessions] analyze-screen persist failed", e));
+    }
   } catch (err) {
     console.error("[sessions] analyze-screen error", err);
     if (res.headersSent) {
@@ -953,10 +969,26 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
     res.flushHeaders();
     res.write(`**QUESTION:** ${question}\n**ANSWER:** `);
 
-    await streamChatComplete({ model: aiModel, messages, maxTokens: OPENROUTER_MAX_TOKENS }, (chunk) => {
-      res.write(chunk);
-    });
+    const fullAnswer = await streamChatComplete(
+      { model: aiModel, messages, maxTokens: OPENROUTER_MAX_TOKENS },
+      (chunk) => {
+        res.write(chunk);
+      },
+    );
     res.end();
+
+    // Persist after res.end() (can't delay the stream) and only for sessions
+    // that opted into saving. Here the QUESTION line was written to the socket
+    // separately, so fullAnswer is the answer body only — pass `question` so
+    // the stored row is a complete "**QUESTION:** ... **ANSWER:** ..." block.
+    if (session.saveTranscription) {
+      persistAiAnswer({
+        sessionId,
+        question,
+        fullText: fullAnswer,
+        aiModel: aiModel ?? null,
+      }).catch((e) => console.error("[sessions] ai-answer persist failed", e));
+    }
   } catch (err) {
     console.error("[sessions] ai-answer error", err);
     if (res.headersSent) {
@@ -1037,6 +1069,72 @@ router.get("/:id/analytics", requireAuth, async (req, res) => {
 // connection per session with no corresponding benefit.
 
 // ── Answer endpoints (require auth — called from AskAIWorkspace) ──────────────
+
+/**
+ * Persist a completed AI answer as an AI_ASSISTANT transcript row.
+ *
+ * Previously the answer endpoints STREAMED "**QUESTION:** ... **ANSWER:** ..."
+ * to the client and then res.end()'d with no DB write. So the spoken transcript
+ * (USER / INTERVIEWER lines from save-message) was saved, but the AI's answers
+ * were shown live and then lost — the review page had nothing to render as Q&A.
+ *
+ * This writes the full streamed text as `content` in the exact format the
+ * review page's parseAiQuestionAnswer() already expects, so answers appear on
+ * review. Fire-after-end and best-effort: a failure here must never affect the
+ * already-completed stream the user received, so callers ignore rejections.
+ *
+ * `messageId` is the client-supplied id for this answer (so the client's local
+ * message and the persisted row share an id, and a retry is idempotent). If the
+ * client didn't send one, a uuid is generated.
+ */
+async function persistAiAnswer(args: {
+  sessionId: string;
+  messageId?: string | null;
+  question: string;
+  fullText: string;
+  aiModel?: string | null;
+}): Promise<void> {
+  const answerText = (args.fullText ?? "").trim();
+  // Nothing meaningful to store (e.g. the stream errored before any content).
+  if (!answerText) return;
+
+  // The stream body may already be a full "**QUESTION:** ... **ANSWER:** ..."
+  // block (analyze-screen, where the model emits the QUESTION line), or just
+  // the answer body (ai-answer, where the QUESTION prefix was written to the
+  // socket separately and is NOT part of fullText). Normalise to the stored
+  // format the review page parses.
+  const hasStructuredMarkers = /\*\*ANSWER:\*\*/i.test(answerText);
+  const content = hasStructuredMarkers
+    ? answerText
+    : `**QUESTION:** ${(args.question ?? "").trim()}\n**ANSWER:** ${answerText}`;
+
+  const id =
+    typeof args.messageId === "string" && args.messageId.trim()
+      ? args.messageId.trim()
+      : uuidv4();
+  const now = new Date();
+
+  await db
+    .insert(sessionMessagesTable)
+    .values({
+      id,
+      sessionId: args.sessionId,
+      role: "AI_ASSISTANT",
+      content,
+      question: (args.question ?? "").trim() || null,
+      answer: answerText,
+      aiModel: args.aiModel ?? null,
+      source: "ai",
+      createdAt: now,
+      updatedAt: now,
+    })
+    // Idempotent on the client message id — a retried answer for the same id
+    // refreshes in place rather than duplicating.
+    .onConflictDoUpdate({
+      target: sessionMessagesTable.id,
+      set: { content, answer: answerText, aiModel: args.aiModel ?? null, updatedAt: now },
+    });
+}
 
 /**
  * Ownership-checked loader for the answer endpoints. Every route below MUST
