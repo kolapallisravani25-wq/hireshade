@@ -714,7 +714,7 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
     }
 
     const aiModel = process.env["ANSWER_MODEL"] || session.aiModel || undefined;
-    const resumeContext = await getResumeContextById(session.resumeId);
+    const resumeContext = await getResumeContextById(session.resumeId, userId);
     const grounding = await getSessionGrounding(session);
     const systemPrompt = buildInterviewSystemPrompt({
       session,
@@ -837,7 +837,7 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       return;
     }
 
-    const resumeContext = await getResumeContextById(session.resumeId);
+    const resumeContext = await getResumeContextById(session.resumeId, userId);
     const grounding = await getSessionGrounding(session);
     const systemPrompt = buildInterviewSystemPrompt({
       session,
@@ -1244,7 +1244,7 @@ router.post("/:sessionId/answers/:messageId/ai-preview", requireAuth, async (req
 
     const body = req.body as { instruction?: string; mode?: string; model?: string };
 
-    const resumeContext = await getResumeContextById(session.resumeId);
+    const resumeContext = await getResumeContextById(session.resumeId, req.userId!);
     const grounding = await getSessionGrounding(session);
     const systemPrompt = buildInterviewSystemPrompt({
       session,

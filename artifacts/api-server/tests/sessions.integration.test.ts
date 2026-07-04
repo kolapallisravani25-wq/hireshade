@@ -1075,3 +1075,46 @@ describe("session GET contract for live-page settings hydration", () => {
     expect(body.aiModel).toBe("anthropic/claude-haiku-4-5");
   });
 });
+
+// ── IDOR regression: resume ownership enforced at every AI grounding path ─────
+describe("resume ownership isolation (IDOR fix)", () => {
+  it("a session pointing at ANOTHER user's resumeId gets no resume context in the prompt", async () => {
+    // User B owns a resume with a distinctive marker.
+    const foreignResumeId = uuidv4();
+    await db.insert(resumesTable).values({
+      id: foreignResumeId,
+      userId: USER_B,
+      filename: "b.pdf",
+      resumeContext: "IDOR-MARKER-RESUME-OF-USER-B",
+    });
+    // User A crafts a session referencing B's resume id.
+    const s = await makeSession(USER_A, { resumeId: foreignResumeId });
+
+    vi.mocked(mockedStream).mockClear();
+    const res = await request(app)
+      .post(`/api/session/${s.id}/ai-answer`)
+      .set("x-test-user", USER_A)
+      .send({ currentQuestion: "Walk me through your resume." });
+    expect(res.status).toBe(200);
+    const callArgs = vi.mocked(mockedStream).mock.calls[0]![0] as {
+      messages: { role: string; content: string }[];
+    };
+    const system = callArgs.messages.find((m) => m.role === "system")!.content;
+    expect(system).not.toContain("IDOR-MARKER-RESUME-OF-USER-B");
+  });
+
+  it("ats-score on another user's resumeId returns 404, not their analysis", async () => {
+    const foreignResumeId = uuidv4();
+    await db.insert(resumesTable).values({
+      id: foreignResumeId,
+      userId: USER_B,
+      filename: "b.pdf",
+      resumeContext: "private resume of user B",
+    });
+    const res = await request(app)
+      .post("/api/resume/ats-score")
+      .set("x-test-user", USER_A)
+      .send({ resumeId: foreignResumeId });
+    expect(res.status).toBe(404);
+  });
+});

@@ -197,7 +197,7 @@ router.post("/generate", requireAuth, async (req, res) => {
       return;
     }
 
-    const resumeContext = await getResumeContextById(body.resumeId);
+    const resumeContext = await getResumeContextById(body.resumeId, req.userId!);
     if (!resumeContext) {
       res.status(400).json({ error: "Selected resume not found or unavailable" });
       return;

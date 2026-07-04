@@ -1,6 +1,6 @@
 import { db } from "@workspace/db";
 import { resumesTable } from "@workspace/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { readResumeObject } from "./resumeStorage.js";
 import { logger } from "./logger.js";
 
@@ -59,18 +59,30 @@ export async function getResumeContextText(resume: Resume): Promise<string> {
   }
 }
 
-export async function getResumeContextById(resumeId: string | null | undefined): Promise<string> {
+/**
+ * SECURITY: ownership is mandatory. Resume ids arrive from the client (or from
+ * session rows that stored a client-supplied id at creation), so every lookup
+ * must be scoped to the requesting user — otherwise any user who obtains
+ * another user's resume id could ground AI answers, ATS scores, and cover
+ * letters in someone else's resume (cross-user PII exposure). The userId
+ * parameter is deliberately required, not optional, so the compiler forces
+ * every current and future caller to make the ownership decision explicitly.
+ */
+export async function getResumeContextById(
+  resumeId: string | null | undefined,
+  userId: string,
+): Promise<string> {
   if (!resumeId) return "";
-  const resume = await getResumeById(resumeId);
+  const resume = await getResumeById(resumeId, userId);
   if (!resume) return "";
   return getResumeContextText(resume);
 }
 
-export async function getResumeById(resumeId: string): Promise<Resume | undefined> {
+export async function getResumeById(resumeId: string, userId: string): Promise<Resume | undefined> {
   const [resume] = await db
     .select()
     .from(resumesTable)
-    .where(eq(resumesTable.id, resumeId))
+    .where(and(eq(resumesTable.id, resumeId), eq(resumesTable.userId, userId)))
     .limit(1);
   return resume;
 }

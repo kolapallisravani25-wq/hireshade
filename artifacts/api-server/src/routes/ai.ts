@@ -9,7 +9,7 @@ const router: IRouter = Router();
 router.post("/project-generation", requireAuth, async (req, res) => {
   try {
     const body = req.body as { resumeId?: string; sector?: string; roleType?: string };
-    const resumeContext = await getResumeContextById(body.resumeId);
+    const resumeContext = await getResumeContextById(body.resumeId, req.userId!);
 
     const prompt = [
       "Suggest 3 resume-worthy project ideas for this candidate.",

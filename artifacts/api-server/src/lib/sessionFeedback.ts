@@ -172,7 +172,7 @@ export async function generateSessionFeedback(
     .slice(0, 12_000);
 
   const resumeContext = session.resumeId
-    ? await getResumeContextById(session.resumeId).catch(() => "")
+    ? await getResumeContextById(session.resumeId, session.userId).catch(() => "")
     : "";
 
   const prompt = [

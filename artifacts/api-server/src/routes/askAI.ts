@@ -132,7 +132,7 @@ router.post("/:sessionId/query", requireAuth, async (req, res) => {
       return;
     }
 
-    const resumeContext = await getResumeContextById(session.resumeId);
+    const resumeContext = await getResumeContextById(session.resumeId, userId);
     const grounding = await getSessionGrounding(session);
     const transcript = await getSessionTranscript(sessionId);
     const askHistory = await db

@@ -226,7 +226,7 @@ router.post("/ats-score", requireAuth, async (req, res) => {
       return;
     }
 
-    const resume = await getResumeById(body.resumeId);
+    const resume = await getResumeById(body.resumeId, req.userId!);
     if (!resume) {
       res.status(404).json({ error: "Resume not found" });
       return;
@@ -269,7 +269,7 @@ router.post("/generate-cover-letter", requireAuth, async (req, res) => {
       tone?: string;
     };
 
-    const resumeText = await getResumeContextById(body.resumeId);
+    const resumeText = await getResumeContextById(body.resumeId, req.userId!);
 
     const prompt = [
       "Write a professional cover letter for this candidate.",
@@ -433,8 +433,11 @@ const RESUME_FIELDS_SCHEMA = `{
 }`;
 
 /** Resolves resume text from either an inline `fields` object or a `resumeId` lookup. */
-async function resolveFieldsText(body: { resumeId?: string; fields?: Record<string, unknown> }): Promise<string> {
-  if (body.resumeId) return getResumeContextById(body.resumeId);
+async function resolveFieldsText(
+  body: { resumeId?: string; fields?: Record<string, unknown> },
+  userId: string,
+): Promise<string> {
+  if (body.resumeId) return getResumeContextById(body.resumeId, userId);
   if (body.fields) return fieldsToText(body.fields);
   return "";
 }
@@ -483,7 +486,7 @@ router.post("/builder/generate", requireAuth, async (req, res) => {
 router.post("/builder/extract-fields", requireAuth, async (req, res) => {
   try {
     const body = req.body as { resumeId?: string; text?: string };
-    const resumeText = body.text || (await getResumeContextById(body.resumeId));
+    const resumeText = body.text || (await getResumeContextById(body.resumeId, req.userId!));
 
     if (!resumeText) {
       res.status(400).json({ error: "No resume text available to extract from" });
@@ -556,7 +559,7 @@ router.post("/builder/ats-score", requireAuth, async (req, res) => {
       return;
     }
 
-    const resume = await getResumeById(body.resumeId);
+    const resume = await getResumeById(body.resumeId, req.userId!);
     if (!resume) {
       res.status(404).json({ error: "Resume not found" });
       return;
@@ -600,7 +603,7 @@ router.post("/builder/tailor", requireAuth, async (req, res) => {
       return;
     }
 
-    const resumeText = await resolveFieldsText(body);
+    const resumeText = await resolveFieldsText(body, req.userId!);
 
     const prompt = [
       "Tailor this candidate's resume fields to better match the target job description.",
@@ -673,7 +676,7 @@ router.post("/builder/inject-skills", requireAuth, async (req, res) => {
       jobDescription?: string;
     };
 
-    const resumeText = await resolveFieldsText(body);
+    const resumeText = await resolveFieldsText(body, req.userId!);
 
     const prompt = [
       "Suggest skills to add to this candidate's resume, grouped by category.",
@@ -754,7 +757,7 @@ router.post("/builder/analyze-keywords", requireAuth, async (req, res) => {
       return;
     }
 
-    const resumeText = await resolveFieldsText(body);
+    const resumeText = await resolveFieldsText(body, req.userId!);
 
     const prompt = [
       "Compare this resume against the job description and identify keyword overlap and gaps.",
@@ -795,7 +798,7 @@ router.post("/builder/keyword-match", requireAuth, async (req, res) => {
       return;
     }
 
-    const resumeText = await resolveFieldsText(body);
+    const resumeText = await resolveFieldsText(body, req.userId!);
 
     const prompt = [
       "Score how well this resume matches the job description's keywords.",
