@@ -13,12 +13,56 @@ const router: IRouter = Router();
 const UPLOADS_DIR = path.join(process.cwd(), "uploads", "documents");
 fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
+// Matches the frontend's stated contract (UploadDocumentDialog: PDF only, 10MB).
+// The client-side check is trivially bypassed (Postman/curl), so it must be
+// enforced here too — this is the actual security boundary.
+const ALLOWED_MIME_TYPES = new Set(["application/pdf"]);
+
+/**
+ * Build a safe on-disk filename from a client-supplied original name.
+ * `path.basename` strips any directory components (defeats `../../` traversal
+ * in the multer filename callback, which does NOT sanitize its input before
+ * joining it to the destination dir), and the regex strips anything but a
+ * conservative character set so the result can never resolve outside
+ * UPLOADS_DIR regardless of what the client sends.
+ */
+function safeStoredFilename(originalname: string): string {
+  const base = path.basename(originalname).replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 200);
+  return `${uuidv4()}-${base || "document"}`;
+}
+
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
-  filename: (_req, file, cb) => cb(null, `${uuidv4()}-${file.originalname}`),
+  filename: (_req, file, cb) => cb(null, safeStoredFilename(file.originalname)),
 });
 
-const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only PDF files are allowed"));
+    }
+  },
+});
+
+const uploadSingleDocument: import("express").RequestHandler = (req, res, next) => {
+  upload.single("document")(req, res, (err: unknown) => {
+    if (err) {
+      const message =
+        err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE"
+          ? "File too large (max 10MB)"
+          : err instanceof Error
+            ? err.message
+            : "Upload failed";
+      res.status(400).json({ error: message });
+      return;
+    }
+    next();
+  });
+};
 
 function toFrontendDocument(d: typeof documentsTable.$inferSelect) {
   return {
@@ -32,7 +76,7 @@ function toFrontendDocument(d: typeof documentsTable.$inferSelect) {
   };
 }
 
-router.post("/upload", requireAuth, upload.single("document"), async (req, res) => {
+router.post("/upload", requireAuth, uploadSingleDocument, async (req, res) => {
   try {
     const userId = req.userId!;
     const file = req.file;
