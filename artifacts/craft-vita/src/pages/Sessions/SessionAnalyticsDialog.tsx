@@ -64,11 +64,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function SessionAnalyticsDialog({
-  isOpen,
-  onClose,
-  session,
-}: SessionAnalyticsDialogProps) {
+/**
+ * Analytics body extracted from the dialog so it can be embedded directly in
+ * the full-page Session Review workspace (Issue 1) as well as the standalone
+ * dialog — one data path, no duplicated fetch/compute logic.
+ */
+export function SessionAnalyticsContent({ session }: { session: any }) {
   const [loadedForSessionId, setLoadedForSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [feedback, setFeedback] = useState<any>(null);
@@ -94,7 +95,7 @@ export function SessionAnalyticsDialog({
     let cancelled = false;
     let timeoutId = 0;
 
-    if (isOpen && session?.id) {
+    if (session?.id) {
       const load = async () => {
         setIsLoading(true);
         try {
@@ -160,7 +161,7 @@ export function SessionAnalyticsDialog({
       cancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [isOpen, session?.id]);
+  }, [session?.id]);
 
   const handleGenerateAnalytics = async () => {
     if (!session?.id) return;
@@ -385,9 +386,7 @@ export function SessionAnalyticsDialog({
   if (!session) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-5xl max-h-[90vh] overflow-y-auto no-scrollbar p-0 gap-0 border border-border bg-background/95 backdrop-blur-xl shadow-2xl rounded-[1rem]">
-        <div className="p-8 md:p-10 space-y-8">
+    <div className="p-8 md:p-10 space-y-8">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
@@ -395,9 +394,9 @@ export function SessionAnalyticsDialog({
                 <div className="p-2.5 bg-primary/10 rounded-2xl">
                   <Activity className="size-6 text-primary" />
                 </div>
-                <DialogTitle className="text-3xl font-bold text-foreground tracking-tight">
+                <h2 className="text-3xl font-bold text-foreground tracking-tight">
                   Session Analytics
-                </DialogTitle>
+                </h2>
               </div>
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground font-medium">
                 <div className="flex items-center gap-1.5">
@@ -795,7 +794,20 @@ export function SessionAnalyticsDialog({
               </Button>
             </div>
           )}
-        </div>
+    </div>
+  );
+}
+
+export function SessionAnalyticsDialog({
+  isOpen,
+  onClose,
+  session,
+}: SessionAnalyticsDialogProps) {
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-5xl max-h-[90vh] overflow-y-auto no-scrollbar p-0 gap-0 border border-border bg-background/95 backdrop-blur-xl shadow-2xl rounded-[1rem]">
+        <DialogTitle className="sr-only">Session Analytics</DialogTitle>
+        <SessionAnalyticsContent session={session} />
       </DialogContent>
     </Dialog>
   );

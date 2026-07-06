@@ -10,6 +10,7 @@ import type { VirtuosoHandle } from "react-virtuoso";
 import { Virtuoso } from "react-virtuoso";
 import {
   AlertCircle,
+  Activity,
   Brain,
   Check,
   Copy,
@@ -30,6 +31,7 @@ import { getAuthHeaders } from "@/lib/globalAuth";
 import { AskAIWorkspace } from "./components/AskAI/AskAIWorkspace";
 import { PostSessionAnswerEditor } from "./components/PostSessionAnswerEditor";
 import { TranscriptAnswerMarkdown } from "./components/TranscriptAnswerMarkdown";
+import { SessionAnalyticsContent } from "./SessionAnalyticsDialog";
 
 export interface Message {
   id?: string;
@@ -88,6 +90,12 @@ interface TranscriptDialogProps {
   onClose: () => void;
   sessionId: string;
   onDelete: (id: string) => void;
+  /**
+   * When true the workspace renders as a full-page Session Review (Issue 1):
+   * no modal chrome, and an extra "Analytics" tab surfaced alongside
+   * Transcript / Insights / Ask AI so one page contains every sub-view.
+   */
+  asPage?: boolean;
 }
 
 function messageKey(message: Message, index: number): string {
@@ -332,10 +340,12 @@ export function TranscriptDialog({
   onClose,
   sessionId,
   onDelete,
+  asPage = false,
 }: TranscriptDialogProps) {
   const [activeTab, setActiveTab] = useState("transcript");
   const [messages, setMessages] = useState<Message[]>([]);
   const [userId, setUserId] = useState("");
+  const [sessionObj, setSessionObj] = useState<any>(null);
   const [notes, setNotes] = useState<SessionNotes | null>(null);
   const [loadedForSessionId, setLoadedForSessionId] = useState<string | null>(null);
   const isLoading = isOpen && !!sessionId && loadedForSessionId !== sessionId;
@@ -373,6 +383,7 @@ export function TranscriptDialog({
                 : storedTranscript,
             );
             setUserId(sessionData.userId || "");
+            setSessionObj(sessionData);
             setIsEphemeral(sessionData.saveTranscription === false);
           }
         }
@@ -534,14 +545,17 @@ export function TranscriptDialog({
     URL.revokeObjectURL(url);
   }, [parsedTranscript, sessionId]);
 
-  return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="flex h-[85vh] w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden rounded-xl border bg-background p-0 shadow-xl sm:max-w-5xl">
+  const body = (
+    <>
         <header className="flex shrink-0 items-center justify-between border-b px-6 py-4">
           <div>
-            <DialogTitle className="text-base font-semibold">
-              Interview Intelligence
-            </DialogTitle>
+            {asPage ? (
+              <h1 className="text-base font-semibold">Interview Intelligence</h1>
+            ) : (
+              <DialogTitle className="text-base font-semibold">
+                Interview Intelligence
+              </DialogTitle>
+            )}
             <p className="text-xs text-muted-foreground">
               {"AI-powered Session Workspace"}
               {isEphemeral ? " · Ephemeral" : ""}
@@ -584,7 +598,12 @@ export function TranscriptDialog({
           className="min-h-0 flex-1"
         >
           <div className="shrink-0 border-b px-6 py-3">
-            <TabsList className="grid w-full max-w-[440px] grid-cols-3">
+            <TabsList
+              className={cn(
+                "grid w-full",
+                asPage ? "max-w-[600px] grid-cols-4" : "max-w-[440px] grid-cols-3",
+              )}
+            >
               <TabsTrigger value="transcript" className="gap-2">
                 <FileText className="size-4" />
                 Transcript
@@ -597,6 +616,12 @@ export function TranscriptDialog({
                 <MessageSquare className="size-4" />
                 Ask AI
               </TabsTrigger>
+              {asPage ? (
+                <TabsTrigger value="analytics" className="gap-2">
+                  <Activity className="size-4" />
+                  Analytics
+                </TabsTrigger>
+              ) : null}
             </TabsList>
           </div>
 
@@ -710,7 +735,43 @@ export function TranscriptDialog({
               onNavigateToTimeline={handleNavigateToTimeline}
             />
           </TabsContent>
+
+          {asPage ? (
+            <TabsContent
+              value="analytics"
+              className="min-h-0 flex-1 overflow-y-auto bg-slate-50/30"
+            >
+              {isLoading ? (
+                <div className="flex h-full items-center justify-center gap-3 text-sm text-muted-foreground">
+                  <Brain className="size-5 animate-pulse" />
+                  Loading analytics...
+                </div>
+              ) : sessionObj ? (
+                <SessionAnalyticsContent session={sessionObj} />
+              ) : (
+                <EmptyState
+                  title="No analytics available"
+                  description="Analytics appear here once this session has been evaluated."
+                />
+              )}
+            </TabsContent>
+          ) : null}
         </Tabs>
+    </>
+  );
+
+  if (asPage) {
+    return (
+      <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background">
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="flex h-[85vh] w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden rounded-xl border bg-background p-0 shadow-xl sm:max-w-5xl">
+        {body}
       </DialogContent>
     </Dialog>
   );

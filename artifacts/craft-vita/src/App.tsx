@@ -43,6 +43,7 @@ const QuestionDetails = lazy(
   () => import("./pages/QuestionBank/QuestionDetails/page"),
 );
 const ActiveSession = lazy(() => import("./pages/Sessions/ActiveSession/page"));
+const SessionReview = lazy(() => import("./pages/Sessions/SessionReview"));
 const BuildResume = lazy(() => import("./pages/Resume/BuildResume/page"));
 const ResumeEditor = lazy(() => import("./pages/Resume/ResumeEditor/page"));
 const SignInPage = lazy(() => import("./pages/Auth/SignIn/page"));
@@ -175,6 +176,31 @@ function App() {
           <Route path="*" element={<Navigate to="/sign-in" replace />} />
         </Routes>
       </Suspense>
+    );
+  }
+
+  // Full-page Session Review (Issue 1) — rendered inside the main app layout
+  // (sidebar + navbar) as a full-height workspace, NOT the ActiveSession overlay.
+  if (location.pathname.endsWith("/review")) {
+    return (
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset className="flex flex-col h-screen overflow-hidden">
+          <TauriReturnBanner />
+          <Navbar />
+          <div className="flex-1 overflow-hidden min-h-0">
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route
+                  path="/sessions/:id/review"
+                  element={<SessionReview />}
+                />
+                <Route path="*" element={<Navigate to="/sessions" replace />} />
+              </Routes>
+            </Suspense>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
     );
   }
 

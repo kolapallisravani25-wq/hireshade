@@ -79,14 +79,15 @@ export default function Sessions() {
   const [currentSearch, setCurrentSearch] = useState("");
   const [currentDateRange, setCurrentDateRange] = useState({ from_date: "", to_date: "" });
 
-  // Auto-open the transcript dialog when arriving with ?view=<sessionId>.
+  // A ?view=<sessionId> deep-link (e.g. from the launcher widget's past-session
+  // list) now routes to the unified full-page review (Issue 1) instead of the
+  // legacy modal, so every entry point converges on one review surface.
   useEffect(() => {
     const viewId = searchParams.get("view");
     if (viewId) {
-      setSelectedSessionId(viewId);
-      setIsTranscriptDialogOpen(true);
+      navigate(`/sessions/${viewId}/review`, { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   // ── Initial + filter-driven fetch ─────────────────────────────────────────
   // Fetch sessions when the component mounts or when filters change.
@@ -250,13 +251,35 @@ export default function Sessions() {
       {
         accessorKey: "companyName",
         header: "Company Name",
-        cell: ({ row }) => (
-          <span className="font-bold text-foreground truncate max-w-48 block">
-            {row.getValue("companyName") ||
-              (row.original as any).company?.name ||
-              ""}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const name =
+            (row.getValue("companyName") as string) ||
+            (row.original as any).company?.name ||
+            "";
+          // Only ended sessions have a reviewable transcript/analytics — mirror
+          // the transcript/analytics action buttons which disable until ended.
+          const canReview = !!row.original.endedAt;
+          if (!canReview) {
+            return (
+              <span className="font-bold text-foreground truncate max-w-48 block">
+                {name}
+              </span>
+            );
+          }
+          return (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/sessions/${row.original.id}/review`);
+              }}
+              title="Open full session review"
+              className="block max-w-48 truncate rounded text-left font-bold text-primary underline-offset-4 hover:text-primary/80 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+            >
+              {name || "Untitled session"}
+            </button>
+          );
+        },
       },
       {
         accessorKey: "jobDescription",
