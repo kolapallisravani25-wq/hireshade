@@ -440,6 +440,39 @@ fn set_mini_size_instant(app: AppHandle, width: u32, height: u32) -> Result<(), 
         .map_err(|e| e.to_string())
 }
 
+/// Privacy Mode — exclude (or re-include) the overlay windows from screen
+/// capture and screen sharing while keeping them fully visible to the user.
+///
+/// This is the native half of the user-facing "Private" toggle. The frontend
+/// (HeaderMenu / SessionMenu / Cmd+Shift+P / WidgetApp default-on / the native
+/// screen-analysis path that hides the overlay before self-capture) all invoke
+/// this command. Before this existed the invoke rejected with
+/// "command toggle_content_protection not found", so Privacy Mode did nothing:
+/// the overlay was never actually hidden from capture and it also leaked into
+/// its own screen-analysis screenshots.
+///
+/// Applied to EVERY overlay window (mini / launcher / main) so the setting is
+/// consistent regardless of which one is on screen. Platform effect:
+///   - Windows: SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)
+///   - macOS:   NSWindow.sharingType = NSWindowSharingNone
+/// A window that does not currently exist is skipped (no error) — it will pick
+/// up the correct value the next time it is created from stored settings.
+#[tauri::command]
+fn toggle_content_protection(app: AppHandle, protected: bool) -> Result<(), String> {
+    let mut applied = 0u8;
+    for label in ["mini", "launcher", "main"] {
+        if let Some(win) = app.get_webview_window(label) {
+            win.set_content_protected(protected)
+                .map_err(|e| format!("set_content_protected({label}): {e}"))?;
+            applied += 1;
+        }
+    }
+    if applied == 0 {
+        return Err("no overlay window is currently open".into());
+    }
+    Ok(())
+}
+
 // ── macOS native audio capture commands ──────────────────────────────────────
 // Start a cpal input stream on the chosen device, encode raw samples as 16-bit
 // little-endian PCM, and broadcast them to all connected WebSocket clients on
@@ -2015,6 +2048,29 @@ fn open_microphone_settings(app: tauri::AppHandle) -> Result<(), String> {
     }
 }
 
+/// Open the correct OS privacy pane for a given permission type.
+///
+/// The active-session overlay's audio-error "Open Settings" button invokes
+/// `open_macos_privacy_settings` with `permissionType: "microphone" |
+/// "screen-recording"`. That command did not exist (only the two dedicated
+/// openers above were registered), so the button rejected with
+/// "command open_macos_privacy_settings not found". This dispatches to the
+/// right pane per platform. Despite the macOS-flavoured name (it comes from the
+/// frontend), it is implemented for Windows too so the button works there.
+#[tauri::command]
+fn open_macos_privacy_settings(
+    app: tauri::AppHandle,
+    permission_type: String,
+) -> Result<(), String> {
+    match permission_type.as_str() {
+        "microphone" => open_microphone_settings(app),
+        "screen-recording" | "screen_recording" | "screencapture" => {
+            open_screen_recording_settings(app)
+        }
+        other => Err(format!("unknown permission type: {other}")),
+    }
+}
+
 
 // ── Desktop auth persistence and cross-window sync ───────────────────────────
 // Clerk session IDs are persisted natively for Tauri desktop windows so the
@@ -2674,12 +2730,13 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             toggle_floating, capture_screen, show_mini_top_center, set_mini_state,
-            set_mini_size_instant,
+            set_mini_size_instant, toggle_content_protection,
             start_audio_stream, stop_audio_stream, list_audio_devices,
             start_display_audio_stream, stop_display_audio_stream,
             start_system_audio_transcription, stop_system_audio_transcription,
             start_mic_transcription, stop_mic_transcription,
             open_screen_recording_settings, open_microphone_settings,
+            open_macos_privacy_settings,
             ensure_microphone_permission,
             auth_get_persisted_session, auth_set_persisted_session,
             auth_clear_persisted_session, auth_emit_state_changed,
