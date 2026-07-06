@@ -23,13 +23,11 @@ import {
   summarizeAnswerForMemory,
 } from "@/lib/conversation-continuity";
 import {
-  prepareGeneration, 
-  shouldTriggerGeneration, 
-  createGenerationGuard, 
+  prepareGeneration,
+  createGenerationGuard,
   generateSegmentId,
-  createTranscriptStabilizer,
   type GenerationMode,
-  type GenerationDecision 
+  type GenerationDecision
 } from '@/lib/generation-pipeline';
 import { normalizeSttTranscript } from "@/features/session/transcript/stt-normalizer";
 
