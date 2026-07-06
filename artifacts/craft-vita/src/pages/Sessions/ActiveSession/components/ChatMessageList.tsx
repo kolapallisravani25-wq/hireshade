@@ -21,10 +21,15 @@ export const ChatMessageList = ({
   onMessageInteract,
   disableRegenerate = false,
 }: ChatMessageListProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const lastMessageCountRef = useRef(0);
+  // Whether the user is parked near the bottom. Starts true so the first
+  // answer scrolls into view; flips to false the moment the user scrolls up
+  // to read history, which suppresses streaming auto-scroll (issue: answer
+  // card jumping while the user is reading an earlier answer).
+  const isNearBottomRef = useRef(true);
 
-  // Scroll to bottom using bottom anchor element
   const scrollToBottom = useCallback((smooth = true) => {
     bottomRef.current?.scrollIntoView({
       behavior: smooth ? "smooth" : "auto",
@@ -32,36 +37,45 @@ export const ChatMessageList = ({
     });
   }, []);
 
-  // Auto-scroll when messages change (new message added)
+  // Track the user's scroll position so we only auto-scroll when they are
+  // already following the latest content. ~120px tolerance treats "close to
+  // the bottom" as "wants to stay pinned".
+  const handleScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    isNearBottomRef.current = distanceFromBottom < 120;
+  }, []);
+
+  // A brand-new answer card was added → always jump to it (a new answer
+  // starting is an explicit "show me this" event regardless of scroll pos).
   useEffect(() => {
     const messageCount = messages.length;
-    
-    // Always scroll when messages are added
     if (messageCount > lastMessageCountRef.current) {
-      requestAnimationFrame(() => {
-        scrollToBottom(true);
-      });
+      isNearBottomRef.current = true;
+      requestAnimationFrame(() => scrollToBottom(true));
     }
-    
     lastMessageCountRef.current = messageCount;
   }, [messages.length, scrollToBottom]);
 
-  // Auto-scroll during streaming updates
+  // Streaming content grows → follow it ONLY if the user is still near the
+  // bottom. Depend on the last message's text so this re-runs on every chunk
+  // (message.length alone never changes mid-stream). Instant (non-smooth)
+  // scroll avoids the flicker/fighting of smooth-scroll during rapid updates.
+  const lastMessageText = messages[messages.length - 1]?.text ?? "";
   useEffect(() => {
     if (!isStreaming) return;
-    // Use requestAnimationFrame to prevent rapid scroll updates during streaming
-    // Use instant scroll (auto behavior) to prevent flickering
-    const rafId = requestAnimationFrame(() => {
-      scrollToBottom(false);
-    });
-
-    return () => {
-      cancelAnimationFrame(rafId);
-    };
-  }, [isStreaming, scrollToBottom]);
+    if (!isNearBottomRef.current) return;
+    const rafId = requestAnimationFrame(() => scrollToBottom(false));
+    return () => cancelAnimationFrame(rafId);
+  }, [isStreaming, lastMessageText, scrollToBottom]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-8 relative no-scrollbar">
+    <div
+      ref={containerRef}
+      onScroll={handleScroll}
+      className="flex-1 overflow-y-auto p-8 relative no-scrollbar"
+    >
       {messages.length === 0 ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-12">
           <div className="h-12 w-12 rounded-2xl bg-brand/10 flex items-center justify-center mb-4">

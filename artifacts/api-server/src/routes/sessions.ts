@@ -25,6 +25,7 @@ import {
   STALE_ACTIVE_MS,
 } from "../lib/sessionCredits.js";
 import { getSessionGrounding } from "../lib/sessionGrounding.js";
+import { auditAnswerGrounding } from "../lib/groundingGuard.js";
 import {
   generateSessionFeedback,
   getExistingFeedback,
@@ -1043,11 +1044,17 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       currentQuestion?: string;
       patchedTranscript?: string;
       previousAiAnswer?: string;
+      previousAiAnswers?: { question?: string; answer: string }[];
+      selectedAnswerQuestion?: string;
+      selectedAnswerText?: string;
+      recentTranscriptWindow?: string[];
       regenerateInstruction?: string;
       answerMode?: string;
       aiModel?: string;
       triggerSource?: string;
       sourcePlatform?: string;
+      isCustomQuery?: boolean;
+      activeQuestionDetection?: { isFollowUp?: boolean };
     };
 
     const question =
@@ -1076,6 +1083,12 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       body.sourcePlatform === "tauri" ||
       body.triggerSource === "overlay_click" ||
       body.triggerSource === "manual_click" ||
+      // A manually typed Ask AI query is a deliberate user action — never gate
+      // it behind the auto-stabilizer readiness heuristic (short queries like
+      // "Why Spark?" were being rejected with a 422, surfacing to the user as
+      // "Sorry, I couldn't process your question").
+      body.triggerSource === "custom_query" ||
+      body.isCustomQuery === true ||
       !!body.regenerateInstruction ||
       !!body.patchedTranscript;
     const readiness = assessQuestionReadiness(question, { force: isForced });
@@ -1096,13 +1109,42 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
     });
 
     const messages: ChatMessage[] = [{ role: "system", content: systemPrompt }];
-    if (body.previousAiAnswer) {
+
+    // Follow-up grounding: when the detector flagged this as a follow-up (e.g.
+    // "why?", "explain that", "how did you resolve it"), the answer must
+    // inherit the previous question + answer so it continues the same thread
+    // instead of restarting a new topic. Pass the most recent prior answer(s)
+    // as assistant turns so the model has that context.
+    const isFollowUp = !!body.activeQuestionDetection?.isFollowUp;
+    const priorAnswers = (body.previousAiAnswers ?? [])
+      .filter((a) => a?.answer?.trim())
+      .slice(-3);
+    if (priorAnswers.length > 0) {
+      for (const prior of priorAnswers) {
+        messages.push({
+          role: "assistant",
+          content: prior.question?.trim()
+            ? `Earlier I answered "${prior.question.trim()}":\n${prior.answer.trim()}`
+            : prior.answer.trim(),
+        });
+      }
+    } else if (body.previousAiAnswer) {
       messages.push({ role: "assistant", content: body.previousAiAnswer });
     }
+
     if (body.regenerateInstruction) {
       messages.push({
         role: "user",
         content: `Revise the previous answer per this instruction: ${body.regenerateInstruction}\n\nOriginal question: ${question}`,
+      });
+    } else if (isFollowUp && (body.selectedAnswerText?.trim() || priorAnswers.length > 0)) {
+      const priorQ = body.selectedAnswerQuestion?.trim();
+      messages.push({
+        role: "user",
+        content:
+          `This is a FOLLOW-UP to the previous answer. Continue the same thread; do not restart a new topic or re-introduce yourself.` +
+          (priorQ ? `\nPrevious question: ${priorQ}` : "") +
+          `\nFollow-up question: ${question}`,
       });
     } else {
       messages.push({ role: "user", content: question });
@@ -1135,6 +1177,26 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       },
     );
     res.end();
+
+    // Post-generation fabrication sanity check (non-destructive, logs only).
+    // The grounding context here is everything the model could legitimately
+    // cite; anything outside it (employer names, invented metrics) is flagged.
+    auditAnswerGrounding({
+      sessionId,
+      answer: fullAnswer,
+      context: [
+        resumeContext,
+        grounding.projectContext,
+        grounding.documentContext,
+        session.jobDescription ?? "",
+        session.instructions ?? "",
+        session.extraContext ?? "",
+        (body.recentTranscriptWindow ?? []).join("\n"),
+        question,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    });
 
     // Persist after res.end() (can't delay the stream) and only for sessions
     // that opted into saving. Here the QUESTION line was written to the socket
