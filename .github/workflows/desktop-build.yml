@@ -80,8 +80,13 @@ jobs:
             pkg-config \
             libssl-dev
       - name: Install dependencies
+        # NODE_ENV=development for THIS step only: the job-level NODE_ENV=production
+        # must not cause devDependencies (vite/rollup/esbuild) or their per-platform
+        # optional native binaries to be skipped during install. The build steps
+        # below still produce a production bundle (Vite sets its own build mode).
+        env:
+          NODE_ENV: development
         run: |
-          pnpm store prune || true
           pnpm install --no-frozen-lockfile --config.optional=true
       - name: Apply CI Tauri compatibility patch
         run: bash scripts/ci-patch-tauri-build.sh
