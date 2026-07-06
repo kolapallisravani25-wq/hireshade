@@ -164,10 +164,15 @@ function parseAiQuestionAnswer(message: Message): {
     return { question: directQuestion || "Generated response", answer: "" };
   }
 
+  // Match QUESTION:/ANSWER: whether or not the model wrapped them in markdown
+  // bold (**). The model frequently emits plain "QUESTION: ... ANSWER: ..."
+  // (rendered bold via CSS, not markdown), which the old **-required regexes
+  // missed — causing the whole blob to render as one run-together paragraph
+  // with the answer glued onto the question. \*{0,2} tolerates both forms.
   const questionMatch = rawBody.match(
-    /\*\*QUESTION:\*\*\s*([\s\S]*?)(?=\*\*ANSWER:\*\*|ANSWER:)/i,
+    /\*{0,2}\s*QUESTION\s*:\s*\*{0,2}\s*([\s\S]*?)(?=\*{0,2}\s*ANSWER\s*:)/i,
   );
-  const answerMatch = rawBody.match(/\*\*ANSWER:\*\*\s*([\s\S]*)/i);
+  const answerMatch = rawBody.match(/\*{0,2}\s*ANSWER\s*:\s*\*{0,2}\s*([\s\S]*)/i);
   if (answerMatch?.[1]?.trim()) {
     return {
       question:
