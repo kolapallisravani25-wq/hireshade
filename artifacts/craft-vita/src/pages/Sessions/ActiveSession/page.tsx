@@ -22,6 +22,7 @@ import {
   classifyTranscript,
   isContinuationOfPreviousQuestion,
 } from "@/lib/generation-pipeline";
+import { isUtteranceComplete } from "@/lib/utterance-completeness";
 
 import {
   ResizableHandle,
@@ -1429,13 +1430,24 @@ export default function ActiveSession() {
   // sub-1.2s gaps, so the window elapsed mid-question and fired on a fragment
   // (producing duplicate/partial answers). 1800ms waits for a real pause while
   // staying responsive.
+  //
+  // Completeness gate (Defect A): even after a real pause, the accumulated
+  // window may end MID-SENTENCE (interviewer paused between clauses). Firing
+  // there made the model punt ("I don't see a question") or complain the
+  // question was "cut off". `isUtteranceComplete` holds the trigger until the
+  // window ends on sentence punctuation; `maxWaitMs` guarantees a
+  // finished-but-unpunctuated utterance still fires within a bounded wait.
   useEffect(() => {
     if (!stabilizerRef.current) {
       stabilizerRef.current = createTranscriptStabilizer(
         (stableSnapshot) => {
           handleStableTranscriptRef.current?.(stableSnapshot);
         },
-        { freezeWindowMs: 1800 },
+        {
+          freezeWindowMs: 1800,
+          isComplete: isUtteranceComplete,
+          maxWaitMs: 6000,
+        },
       );
     }
     return () => {
