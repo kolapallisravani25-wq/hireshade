@@ -41,22 +41,73 @@ const TRAILING_INCOMPLETE_RE =
   /\b(?:and|or|but|so|because|with|to|of|for|in|on|at|by|from|as|the|a|an|your|my|our|their|his|her|its|into|about|over|under|using|via|per|that|which)$/i;
 
 /**
- * True when `text` reads as a complete, finished utterance suitable for
- * triggering auto-answer generation.
+ * Minimum word count before a punctuation-terminated window can be treated as a
+ * real, answerable interviewer question. Guards against firing on short
+ * acknowledgements/back-channels that smart_format terminates with a period —
+ * "Okay.", "Right.", "Got it.", "Mm hmm." — which are NOT questions and used to
+ * trip the completeness gate the instant they settled.
  */
-export function isUtteranceComplete(text: string): boolean {
-  const trimmed = (text || "").trim();
-  if (!trimmed) return false;
+const MIN_UTTERANCE_WORDS = 3;
 
-  // Strip trailing wrapping punctuation / quotes / whitespace so a genuine
-  // terminator that sits just inside a closing quote or bracket still counts,
-  // e.g. `handle that?"` or `(expose port 3000).`.
-  const tail = trimmed.replace(/[\s"'’”)\]]+$/, "");
-  if (!tail) return false;
+/** Strip trailing wrapping punctuation / quotes / whitespace so a genuine
+ * terminator that sits just inside a closing quote or bracket still counts,
+ * e.g. `handle that?"` or `(expose port 3000).`. */
+function stripWrappingTail(trimmed: string): string {
+  return trimmed.replace(/[\s"'’”)\]]+$/, "");
+}
+
+function wordCount(text: string): number {
+  const m = text.trim().match(/\S+/g);
+  return m ? m.length : 0;
+}
+
+/**
+ * Classification of an accumulated STT window:
+ *  - "incomplete": still mid-utterance (no terminator, dangling connector, or
+ *    too short to be a real question) → NEVER trigger generation.
+ *  - "statement":  ends on a weak terminator (`.`/`!`). In interviews this is
+ *    frequently a LEAD-IN ("You mentioned you used Azure Data Factory.")
+ *    spoken just before the actual question, so it must be CONFIRMED with an
+ *    extra quiet window before it can trigger generation.
+ *  - "question":   ends on `?` — a strong end-of-question signal, safe to
+ *    trigger as soon as the freeze window settles.
+ */
+export type UtteranceKind = "incomplete" | "statement" | "question";
+
+export function classifyUtterance(text: string): UtteranceKind {
+  const trimmed = (text || "").trim();
+  if (!trimmed) return "incomplete";
+
+  const tail = stripWrappingTail(trimmed);
+  if (!tail) return "incomplete";
 
   // Ends on a dangling connector/preposition/article → still mid-clause.
-  if (TRAILING_INCOMPLETE_RE.test(tail)) return false;
+  if (TRAILING_INCOMPLETE_RE.test(tail)) return "incomplete";
 
-  // A clear sentence/question terminator at the very end = complete.
-  return /[.?!]$/.test(tail);
+  // No sentence/question terminator at the very end → still mid-utterance.
+  if (!/[.?!]$/.test(tail)) return "incomplete";
+
+  // Terminated, but too short to be a real answerable question (back-channel).
+  if (wordCount(tail) < MIN_UTTERANCE_WORDS) return "incomplete";
+
+  return /\?$/.test(tail) ? "question" : "statement";
+}
+
+/**
+ * True when `text` reads as a complete, finished utterance suitable for
+ * triggering auto-answer generation. Both "question" and "statement" kinds are
+ * "complete"; callers that need to defer weak (statement) terminators for
+ * confirmation should use {@link classifyUtterance} / {@link isWeakTerminator}.
+ */
+export function isUtteranceComplete(text: string): boolean {
+  return classifyUtterance(text) !== "incomplete";
+}
+
+/**
+ * True when the window is complete but ends on a WEAK terminator (`.`/`!`) — a
+ * likely mid-question lead-in that should be confirmed with an extra quiet
+ * window before generation fires, rather than fired on immediately.
+ */
+export function isWeakTerminator(text: string): boolean {
+  return classifyUtterance(text) === "statement";
 }

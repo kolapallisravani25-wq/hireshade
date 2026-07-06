@@ -50,8 +50,24 @@ export interface TranscriptStabilizerOptions {
    * stabilizer fires even if `isComplete` is still false — prevents an
    * unpunctuated-but-finished utterance from stalling forever. Defaults to 6000.
    * Only meaningful when `isComplete` is provided.
+   *
+   * NOTE: this must be GENEROUS for long multi-clause questions. It is measured
+   * from the first feed of the utterance, so if it is set too low a long
+   * question that is still being spoken will be force-fired mid-sentence — the
+   * exact "fires too early on a mid-question pause" defect. Keep it well above
+   * the time a real long question takes to speak.
    */
   maxWaitMs?: number;
+  /**
+   * Optional weak-terminator predicate. When a frozen snapshot is `isComplete`
+   * but `needsConfirmation` returns true (e.g. it ends on a `.`/`!` that is
+   * often a mid-question LEAD-IN rather than the real question), the stabilizer
+   * requires the snapshot to survive UNCHANGED across one additional freeze
+   * window before firing. If the interviewer keeps talking, the snapshot
+   * changes and the trigger is correctly deferred. Only meaningful when
+   * `isComplete` is provided.
+   */
+  needsConfirmation?: (snapshot: string) => boolean;
 }
 
 /**
@@ -67,11 +83,16 @@ export function createTranscriptStabilizer(
   const freezeWindowMs = options?.freezeWindowMs ?? 1200;
   const isComplete = options?.isComplete;
   const maxWaitMs = options?.maxWaitMs ?? 6000;
+  const needsConfirmation = options?.needsConfirmation;
 
   let timerId: ReturnType<typeof setTimeout> | null = null;
   let lastRaw: string = "";
   let lastSnapshot: string | null = null;
   let lastMutationTimestamp: number = 0;
+  // The exact complete-but-weak snapshot awaiting a confirmation window. Fires
+  // only if the next freeze sees this identical snapshot (interviewer stayed
+  // quiet); cleared whenever new speech mutates the transcript.
+  let pendingConfirmSnapshot: string | null = null;
   // Timestamp of the first feed() that started the CURRENT (not-yet-fired)
   // utterance. Reset to 0 after each fire so the next utterance gets a fresh
   // maxWait budget.
@@ -90,6 +111,7 @@ export function createTranscriptStabilizer(
     const snapshot = Object.freeze(lastRaw) as string;
     lastSnapshot = snapshot;
     utteranceStartTs = 0;
+    pendingConfirmSnapshot = null;
     onStable(snapshot);
   }
 
@@ -106,12 +128,34 @@ export function createTranscriptStabilizer(
     const snapshot = lastRaw;
     const waited = utteranceStartTs > 0 ? Date.now() - utteranceStartTs : 0;
 
-    // Fire when the utterance looks complete, or when we've waited long enough
-    // that further deferral would just drop a finished-but-unpunctuated line.
-    if (isComplete(snapshot) || waited >= maxWaitMs) {
+    // maxWait ceiling always wins — never defer a genuinely finished (but
+    // unpunctuated) utterance forever.
+    if (waited >= maxWaitMs) {
       fire();
       return;
     }
+
+    if (isComplete(snapshot)) {
+      // Weak (statement-terminated) windows are frequently a mid-question
+      // lead-in ("You mentioned X." <pause> "Why did you pick it?"). Require the
+      // snapshot to survive one extra quiet freeze window before firing so the
+      // interviewer has a chance to continue into the real question.
+      if (needsConfirmation && needsConfirmation(snapshot)) {
+        if (pendingConfirmSnapshot === snapshot) {
+          fire();
+          return;
+        }
+        pendingConfirmSnapshot = snapshot;
+        timerId = setTimeout(freeze, freezeWindowMs);
+        return;
+      }
+      fire();
+      return;
+    }
+
+    // Snapshot no longer complete (interviewer resumed) — drop any pending
+    // confirmation and keep waiting.
+    pendingConfirmSnapshot = null;
 
     // Still mid-utterance and within budget — re-arm and keep waiting for the
     // interviewer to finish the sentence (or for the maxWait ceiling).
@@ -122,6 +166,8 @@ export function createTranscriptStabilizer(
     feed(rawTranscript: string): void {
       if (destroyed) return;
 
+      // New speech invalidates any pending statement-confirmation.
+      if (rawTranscript !== lastRaw) pendingConfirmSnapshot = null;
       lastRaw = rawTranscript;
       lastMutationTimestamp = Date.now();
       if (utteranceStartTs === 0) utteranceStartTs = lastMutationTimestamp;
@@ -133,6 +179,7 @@ export function createTranscriptStabilizer(
     cancel(): void {
       clearTimer();
       utteranceStartTs = 0;
+      pendingConfirmSnapshot = null;
     },
 
     isStabilizing(): boolean {
@@ -154,6 +201,7 @@ export function createTranscriptStabilizer(
       lastSnapshot = null;
       lastMutationTimestamp = 0;
       utteranceStartTs = 0;
+      pendingConfirmSnapshot = null;
     },
   };
 }

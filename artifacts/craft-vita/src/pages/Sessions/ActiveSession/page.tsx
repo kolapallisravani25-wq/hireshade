@@ -22,7 +22,7 @@ import {
   classifyTranscript,
   isContinuationOfPreviousQuestion,
 } from "@/lib/generation-pipeline";
-import { isUtteranceComplete } from "@/lib/utterance-completeness";
+import { isUtteranceComplete, isWeakTerminator } from "@/lib/utterance-completeness";
 
 import {
   ResizableHandle,
@@ -1444,9 +1444,17 @@ export default function ActiveSession() {
           handleStableTranscriptRef.current?.(stableSnapshot);
         },
         {
-          freezeWindowMs: 1800,
+          // A mid-sentence breath commonly runs ~1.5-2s; keep the freeze window
+          // above that so a natural pause is not mistaken for end-of-question.
+          freezeWindowMs: 2000,
           isComplete: isUtteranceComplete,
-          maxWaitMs: 6000,
+          // Generous ceiling: measured from the first feed of the utterance, so
+          // a low value force-fires long multi-clause questions mid-sentence
+          // (the exact defect). Long interview questions can take 15s+ to speak.
+          maxWaitMs: 22000,
+          // Defer weak (statement-terminated) windows one extra quiet window —
+          // "You mentioned X." is usually a lead-in to the real question.
+          needsConfirmation: isWeakTerminator,
         },
       );
     }
