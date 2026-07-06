@@ -14,6 +14,12 @@ const fs = require('fs');
 const path = 'artifacts/craft-vita/src-tauri/src/lib.rs';
 let text = fs.readFileSync(path, 'utf8');
 
+// Normalize line endings: on Windows runners actions/checkout may convert LF to
+// CRLF, which breaks the literal-string matches below (they use \n). Rust does
+// not care about line endings, so collapsing to LF is safe and makes the patch
+// apply consistently across all platforms.
+text = text.replace(/\r\n/g, '\n');
+
 const oldPermission = `    #[cfg(not(target_os = "macos"))]
     {
         // Windows/Linux: permission is either always granted (Windows) or

@@ -983,7 +983,7 @@ async fn start_audio_stream(device_name: Option<String>) -> Result<u16, String> 
     let host = cpal::default_host();
     let device = if let Some(ref name) = device_name {
         match host.input_devices() {
-            Ok(devs) => devs
+            Ok(mut devs) => devs
                 .find(|d| d.name().map(|n| n.contains(name.as_str())).unwrap_or(false))
                 .ok_or_else(|| { AUDIO_STATE.store(AUDIO_STOPPED, Ordering::SeqCst); format!("Audio device '{}' not found", name) })?,
             Err(e) => fail!(e.to_string()),
