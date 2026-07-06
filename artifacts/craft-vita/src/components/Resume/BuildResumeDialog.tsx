@@ -339,7 +339,12 @@ export function BuildResumeDialog() {
         ENDPOINTS.resumeBuilderExtractFields(),
         {
           userId,
-          resumeContext,
+          // Backend route reads `body.text` (or falls back to `body.resumeId`);
+          // sending the raw resumeContext under a "resumeContext" key matched
+          // neither, so resumeText was always "" and the route 400'd with
+          // "No resume text available to extract from" for every existing-resume
+          // extraction attempt. Key must be `text`.
+          text: resumeContext,
           // Pass JD context so the extractor can orient the summary, but this
           // is a weak hint only — the full rewrite happens in step 2 below.
           jobDescription: jdData.jobDescription || undefined,
