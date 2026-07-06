@@ -75,3 +75,5 @@ fs.writeFileSync(path, text);
 JS
 
 echo "CI Tauri build patch applied."
+
+# ci: trigger build to validate updater signing secret (1783308062)
