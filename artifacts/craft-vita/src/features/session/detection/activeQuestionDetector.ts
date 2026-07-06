@@ -44,6 +44,17 @@ function norm(text: string): string {
   return (text || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 }
 
+// Deterministic identity for a detected question, mirroring the backend
+// answeredQuestionMemory.normalizeQuestionKey contract: strip leading fillers,
+// casing, and punctuation so "So, okay can you introduce yourself?" and
+// "can you introduce yourself" collapse to the same key. Used to suppress
+// re-answering a question already answered this session (spec "Still broken
+// #1 — Wrong-question": a new question re-ran the OLD self-introduction).
+export function normalizeQuestionKey(text: string): string {
+  let cleaned = stripLeadingConjunctionsAndFillers((text || "").toLowerCase().trim());
+  return cleaned.replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+}
+
 function isQuestionLike(text: string): boolean {
   const t = (text || "").trim();
   if (!t) return false;
@@ -129,9 +140,20 @@ export function detectActiveQuestion(input: {
   cutoffTimestamp: number;
   selectedAnswerQuestion?: string;
   selectedAnswerId?: string;
+  /**
+   * Normalized keys of questions already answered this session. A detected
+   * candidate whose key matches one of these (and is NOT a follow-up) is
+   * treated as stale noise so the auto path does not re-answer it.
+   */
+  answeredQuestionKeys?: string[];
 }): ActiveQuestionDetectionResult {
   const live = normalizeSttTranscript(input.liveInterimText || "");
   const selectedQuestion = input.selectedAnswerQuestion?.trim() || "";
+  const answeredKeySet = new Set(
+    (input.answeredQuestionKeys ?? [])
+      .map((k) => normalizeQuestionKey(k))
+      .filter(Boolean),
+  );
   const normalizedMessages = input.allMessages.map((entry) => ({
     ...entry,
     text: normalizeSttTranscript(entry.text || ""),
@@ -148,9 +170,16 @@ export function detectActiveQuestion(input: {
     const baseNoise = !cleanedQuestion || isFillerPhrase(cleanedQuestion);
     const isAdminNoise = ADMIN_NOISE_RE.test(cleanedQuestion);
     const incomplete = isLikelyIncomplete(cleanedQuestion);
-    const isNoise = baseNoise || isAdminNoise;
     const semanticDependency = hasSemanticDependency(cleanedQuestion);
     const isFollowUp = semanticDependency;
+    // Stale/answered suppression: if this candidate is an already-answered
+    // question and it isn't a follow-up, treat it as noise so the auto path
+    // skips it instead of re-running an old answer.
+    const alreadyAnswered =
+      !isFollowUp &&
+      !!cleanedQuestion &&
+      answeredKeySet.has(normalizeQuestionKey(cleanedQuestion));
+    const isNoise = baseNoise || isAdminNoise || alreadyAnswered;
     const currentTopic = deriveTopic(cleanedQuestion);
     const previousTopic = deriveTopic(selectedQuestion);
     const topicChanged =
@@ -168,7 +197,8 @@ export function detectActiveQuestion(input: {
       confidenceScore: clampConfidence(
         confidence
           - (incomplete ? 0.28 : 0)
-          - (isAdminNoise ? 0.3 : 0),
+          - (isAdminNoise ? 0.3 : 0)
+          - (alreadyAnswered ? 0.5 : 0),
       ),
       ignoredNoise: isNoise,
       referencedHistoryTurnId:

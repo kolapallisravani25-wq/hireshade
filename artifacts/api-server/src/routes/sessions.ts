@@ -26,6 +26,7 @@ import {
 } from "../lib/sessionCredits.js";
 import { getSessionGrounding } from "../lib/sessionGrounding.js";
 import { auditAnswerGrounding } from "../lib/groundingGuard.js";
+import { isAlreadyAnswered, normalizeQuestionKey } from "../lib/answeredQuestionMemory.js";
 import {
   generateSessionFeedback,
   getExistingFeedback,
@@ -1114,6 +1115,50 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       console.log("[sessions] ai-answer skipped — not ready:", readiness.reason, JSON.stringify(question.slice(0, 60)));
       res.status(422).json({ error: "Question not ready", reason: readiness.reason });
       return;
+    }
+
+    // Answered-question guard (spec "Still broken #1 — Wrong-question").
+    // On the AUTO path only, refuse to re-answer a question that was already
+    // answered in this session. This is the defense-in-depth net for the
+    // reported symptom where a new scenario question re-ran the OLD
+    // self-introduction: even if detection hands us a stale/duplicate question,
+    // we don't burn a credit re-generating it. Deliberate user actions
+    // (manual click, custom query, regenerate, patched transcript) and
+    // follow-ups are always allowed through.
+    const detectedFollowUp = !!body.activeQuestionDetection?.isFollowUp;
+    const isAutoTrigger =
+      body.triggerSource === "auto" &&
+      !body.regenerateInstruction &&
+      !body.patchedTranscript &&
+      !body.isCustomQuery;
+    if (isAutoTrigger) {
+      const priorQuestions = (body.previousAiAnswers ?? [])
+        .map((a) => a?.question)
+        .filter((q): q is string => !!q && q.trim().length > 0);
+      const answeredCheck = isAlreadyAnswered(question, priorQuestions, {
+        isFollowUp: detectedFollowUp,
+      });
+      console.log("[sessions] ai-answer answered-memory", {
+        sessionId,
+        triggerSource: body.triggerSource,
+        detectedQuestion: question.slice(0, 80),
+        previousQuestion: answeredCheck.matchedQuestion?.slice(0, 80) ?? null,
+        answeredQuestionHash: normalizeQuestionKey(question).slice(0, 80),
+        isFollowUp: detectedFollowUp,
+        similarity: Number(answeredCheck.similarity.toFixed(2)),
+        answered: answeredCheck.answered,
+        reason: answeredCheck.reason,
+      });
+      if (answeredCheck.answered) {
+        // 409 is the client's "duplicate in flight/answered" contract — it
+        // silently drops the placeholder card instead of surfacing an error.
+        res.status(409).json({
+          error: "DUPLICATE_ANSWERED",
+          matchedQuestion: answeredCheck.matchedQuestion,
+          similarity: answeredCheck.similarity,
+        });
+        return;
+      }
     }
 
     const resumeContext = await getResumeContextById(session.resumeId, userId);

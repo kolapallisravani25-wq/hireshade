@@ -1974,6 +1974,12 @@ export default function ActiveSession() {
         })),
       cutoffTimestamp: snapshotTimestamp - CONTEXT_WINDOW_MS,
       selectedAnswerQuestion,
+      // Answered-question memory: keys of every question already answered this
+      // session so the detector suppresses a stale re-detection of an old
+      // question (spec "Still broken #1 — Wrong-question").
+      answeredQuestionKeys: aiChat
+        .filter((m) => m.sender === "AI" && !!m.question?.trim())
+        .map((m) => m.question as string),
     });
     const effectiveDetection = {
       ...activeDetection,

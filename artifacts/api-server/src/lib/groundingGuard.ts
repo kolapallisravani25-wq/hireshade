@@ -46,6 +46,25 @@ const COMMON_FABRICATED_EMPLOYERS = [
   "paytm",
   "swiggy",
   "zomato",
+  "hcl",
+  "tech mahindra",
+  "mindtree",
+  "ibm",
+  "oracle",
+  "sap",
+  "adobe",
+  "salesforce",
+  "cisco",
+  "intel",
+  "nvidia",
+  "samsung",
+  "apple",
+  "phonepe",
+  "razorpay",
+  "byju",
+  "byjus",
+  "myntra",
+  "ola",
 ];
 
 // Numeric/metric patterns that read as fabricated interview "achievements".
@@ -57,6 +76,7 @@ const METRIC_PATTERNS: RegExp[] = [
   /\b\d+(?:,\d{3})+\b/g, // large comma-grouped numbers e.g. 1,200,000
   /\b\d+\s?(?:x|times)\b/gi, // "10x", "3 times faster"
   /\$\s?\d[\d,]*/g, // dollar figures
+  /\b\d+(?:\.\d+)?\s?(?:million|billion|thousand|lakh|crore|k|m|b)\b\+?/gi, // "5 million users", "10k requests"
 ];
 
 function normalize(text: string): string {
