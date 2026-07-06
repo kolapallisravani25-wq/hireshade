@@ -10,7 +10,7 @@ import {
 import { eq, and, desc, ilike, gte, lte, inArray, ne, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { streamChatComplete, chatComplete } from "../lib/openrouter.js";
-import { buildInterviewSystemPrompt } from "../lib/interviewPrompt.js";
+import { buildInterviewSystemPrompt, computeContextPresence } from "../lib/interviewPrompt.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
 import { assessQuestionReadiness } from "../lib/questionReadiness.js";
 import type { ChatMessage } from "../lib/openrouter.js";
@@ -913,12 +913,25 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
     const aiModel = process.env["ANSWER_MODEL"] || session.aiModel || undefined;
     const resumeContext = await getResumeContextById(session.resumeId, userId);
     const grounding = await getSessionGrounding(session);
-    const systemPrompt = buildInterviewSystemPrompt({
+    const promptOpts = {
       session,
       resumeContext,
       projectContext: grounding.projectContext,
       documentContext: grounding.documentContext,
       answerMode: contextPayload.answerMode,
+    };
+    const contextPresence = computeContextPresence(promptOpts);
+    const systemPrompt = buildInterviewSystemPrompt(promptOpts);
+
+    console.log("[sessions] analyze-screen context-presence", {
+      sessionId,
+      resumeLoaded: contextPresence.resumeLoaded,
+      projectLoaded: contextPresence.projectLoaded,
+      documentsLoaded: contextPresence.documentsLoaded,
+      jdLoaded: contextPresence.jdLoaded,
+      sessionPromptLoaded: contextPresence.sessionPromptLoaded,
+      thinContext: contextPresence.thinContext,
+      groundingSourceCount: contextPresence.groundingSourceCount,
     });
 
     const base64 = file.buffer.toString("base64");
@@ -1163,12 +1176,29 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
 
     const resumeContext = await getResumeContextById(session.resumeId, userId);
     const grounding = await getSessionGrounding(session);
-    const systemPrompt = buildInterviewSystemPrompt({
+    const promptOpts = {
       session,
       resumeContext,
       projectContext: grounding.projectContext,
       documentContext: grounding.documentContext,
       answerMode: body.answerMode,
+    };
+    const contextPresence = computeContextPresence(promptOpts);
+    const systemPrompt = buildInterviewSystemPrompt(promptOpts);
+
+    // Canvas §"Context presence checks": emit per-generation booleans so an
+    // operator can see, for a session that fabricated, that it had no grounding
+    // to work from (thinContext=true => generic-mode prompt was used).
+    console.log("[sessions] ai-answer context-presence", {
+      sessionId,
+      triggerSource: body.triggerSource,
+      resumeLoaded: contextPresence.resumeLoaded,
+      projectLoaded: contextPresence.projectLoaded,
+      documentsLoaded: contextPresence.documentsLoaded,
+      jdLoaded: contextPresence.jdLoaded,
+      sessionPromptLoaded: contextPresence.sessionPromptLoaded,
+      thinContext: contextPresence.thinContext,
+      groundingSourceCount: contextPresence.groundingSourceCount,
     });
 
     const messages: ChatMessage[] = [{ role: "system", content: systemPrompt }];
@@ -1701,12 +1731,25 @@ router.post("/:sessionId/answers/:messageId/ai-preview", requireAuth, async (req
 
     const resumeContext = await getResumeContextById(session.resumeId, req.userId!);
     const grounding = await getSessionGrounding(session);
-    const systemPrompt = buildInterviewSystemPrompt({
+    const promptOpts = {
       session,
       resumeContext,
       projectContext: grounding.projectContext,
       documentContext: grounding.documentContext,
       answerMode: body.mode,
+    };
+    const contextPresence = computeContextPresence(promptOpts);
+    const systemPrompt = buildInterviewSystemPrompt(promptOpts);
+
+    console.log("[sessions] ai-preview context-presence", {
+      sessionId,
+      resumeLoaded: contextPresence.resumeLoaded,
+      projectLoaded: contextPresence.projectLoaded,
+      documentsLoaded: contextPresence.documentsLoaded,
+      jdLoaded: contextPresence.jdLoaded,
+      sessionPromptLoaded: contextPresence.sessionPromptLoaded,
+      thinContext: contextPresence.thinContext,
+      groundingSourceCount: contextPresence.groundingSourceCount,
     });
 
     const instruction = body.instruction?.trim() || "Improve and polish this answer.";
