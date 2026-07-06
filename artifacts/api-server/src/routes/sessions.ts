@@ -986,6 +986,24 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
     );
     res.end();
 
+    // Fabrication audit for screen answers (logs only). The screenshot itself
+    // is the primary source and isn't in text form here, so a flagged employer
+    // name may occasionally be legitimately on-screen — this stays advisory.
+    auditAnswerGrounding({
+      sessionId,
+      answer: fullAnswer,
+      context: [
+        resumeContext,
+        grounding.projectContext,
+        grounding.documentContext,
+        session.jobDescription ?? "",
+        session.instructions ?? "",
+        session.extraContext ?? "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    });
+
     // Persist the completed answer so it appears on the review page. Runs
     // AFTER res.end() so it can't delay the stream the user already received,
     // and only when the session opted into transcript saving. Best-effort:
