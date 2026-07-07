@@ -240,21 +240,12 @@ export function DownloadApp() {
               className="w-64 bg-zinc-950 border-white/10 text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-1.5 backdrop-blur-xl"
             >
               <DropdownMenuItem
-                onClick={() => void openLatestDesktopDownload("windows", "exe")}
-                className="group cursor-pointer rounded-xl py-3 px-4 flex flex-col items-start gap-1 transition-all outline-none border-none hover:bg-white/10 focus:bg-white/10 data-[highlighted]:bg-white/10 [&_*]:!text-white"
-              >
-                <span className="font-bold text-sm">Windows (EXE / NSIS)</span>
-                <span className="text-xs text-zinc-400">
-                  Standard installer for most users
-                </span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
                 onClick={() => void openLatestDesktopDownload("windows", "msi")}
                 className="group cursor-pointer rounded-xl py-3 px-4 flex flex-col items-start gap-1 transition-all outline-none border-none hover:bg-white/10 focus:bg-white/10 data-[highlighted]:bg-white/10 [&_*]:!text-white"
               >
                 <span className="font-bold text-sm">Windows (MSI)</span>
                 <span className="text-xs text-zinc-400">
-                  Ideal for enterprise / corporate installs
+                  Standard installer — works on all Windows 10/11 PCs
                 </span>
               </DropdownMenuItem>
             </DropdownMenuContent>
