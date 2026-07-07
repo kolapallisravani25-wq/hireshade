@@ -43,12 +43,6 @@ jobs:
     env:
       CI: true
       NODE_ENV: production
-      # Defense-in-depth: stop MSYS2/Git-Bash on windows-latest from silently
-      # rewriting POSIX-looking args (e.g. a leading-slash BASE_PATH) into
-      # absolute Windows paths, which previously baked broken asset paths into
-      # the desktop bundle and produced a blank app. No-op on Linux/macOS.
-      MSYS_NO_PATHCONV: 1
-      MSYS2_ARG_CONV_EXCL: "*"
       VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
       VITE_DEEPGRAM_API_KEY: ${{ secrets.VITE_DEEPGRAM_API_KEY }}
       VITE_RAZORPAY_KEY_ID: ${{ secrets.VITE_RAZORPAY_KEY_ID }}
