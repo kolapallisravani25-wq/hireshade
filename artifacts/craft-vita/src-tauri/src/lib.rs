@@ -2533,6 +2533,26 @@ pub fn run() {
                 eprintln!("[setup] show_launcher_widget failed: {e}");
             }
 
+            // ── Register the hireshade:// scheme at RUNTIME (not via the MSI) ──
+            // Deliberately NOT registered through the Windows installer. Tauri's
+            // WiX template writes the protocol keys into a per-machine MSI
+            // component whose KeyPath is an HKCU value (see tauri-apps/tauri
+            // #10453 / #12396). Under a per-machine MSI that mismatch makes
+            // Windows Installer treat the component as broken the moment the OS
+            // resolves hireshade:// (which happens during the OAuth login
+            // callback), kicking off self-repair — the "close the running
+            // program → repair/uninstall" prompts the user hit on login click.
+            // Registering at runtime writes plain HKCU\Software\Classes keys
+            // owned by the app, never an MSI component, so protocol invocation
+            // can no longer trigger installer self-repair. macOS registration
+            // stays in Info.plist (CFBundleURLTypes).
+            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            {
+                if let Err(e) = app.handle().deep_link().register("hireshade") {
+                    eprintln!("[setup] deep-link register(hireshade) failed: {e}");
+                }
+            }
+
             // ── Deep-link: handle auth ticket + bring widget to front ────
             // hireshade://auth-callback?ticket=TOKEN  ← browser login flow
             //   Extract the ticket and emit it to the launcher webview so the

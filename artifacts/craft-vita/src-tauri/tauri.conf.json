@@ -58,7 +58,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["deb", "rpm", "appimage", "app", "dmg", "msi"],
     "createUpdaterArtifacts": true,
     "icon": [
       "icons/icon.ico",
@@ -73,13 +73,6 @@
     }
   },
   "plugins": {
-    "deep-link": {
-      "desktop": {
-        "schemes": [
-          "hireshade"
-        ]
-      }
-    },
     "fs": {
       "requireLiteralLeadingDot": true
     },
