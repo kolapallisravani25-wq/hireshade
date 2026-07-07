@@ -473,6 +473,24 @@ fn toggle_content_protection(app: AppHandle, protected: bool) -> Result<(), Stri
     Ok(())
 }
 
+/// Toggle click-through for the calling overlay window. When `passthrough` is
+/// true the window ignores cursor events so clicks fall through to whatever is
+/// behind it (the meeting app); when false it captures clicks so the user can
+/// use the overlay's own controls. The frontend's InteractiveIslandsManager
+/// calls this as the cursor moves in and out of the interactive regions. It was
+/// never registered, so every invoke rejected — leaving the overlay permanently
+/// capturing ALL clicks across its whole (transparent) window and blocking the
+/// app behind it, since the toggle never took effect.
+#[tauri::command]
+fn set_cursor_passthrough(
+    window: tauri::WebviewWindow,
+    passthrough: bool,
+) -> Result<(), String> {
+    window
+        .set_ignore_cursor_events(passthrough)
+        .map_err(|e| e.to_string())
+}
+
 // ── macOS native audio capture commands ──────────────────────────────────────
 // Start a cpal input stream on the chosen device, encode raw samples as 16-bit
 // little-endian PCM, and broadcast them to all connected WebSocket clients on
@@ -2813,7 +2831,13 @@ pub fn run() {
                     if let Some(win) = app.get_webview_window(label) {
                         let w = win.clone();
                         win.on_window_event(move |event| {
-                            if let tauri::WindowEvent::Focused(_) = event {
+                            // Re-assert topmost ONLY when the window LOSES focus
+                            // (another app grabbed the foreground and demoted our
+                            // WS_EX_TOPMOST band) — NOT on focus gain. Re-applying
+                            // set_always_on_top while the window is being clicked/
+                            // activated can swallow that first click and force a
+                            // second one, so we must not touch it on Focused(true).
+                            if let tauri::WindowEvent::Focused(false) = event {
                                 let _ = w.set_always_on_top(true);
                             }
                         });
@@ -2825,7 +2849,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             toggle_floating, capture_screen, show_mini_top_center, set_mini_state,
-            set_mini_size_instant, toggle_content_protection,
+            set_mini_size_instant, toggle_content_protection, set_cursor_passthrough,
             start_audio_stream, stop_audio_stream, list_audio_devices,
             start_display_audio_stream, stop_display_audio_stream,
             start_system_audio_transcription, stop_system_audio_transcription,
