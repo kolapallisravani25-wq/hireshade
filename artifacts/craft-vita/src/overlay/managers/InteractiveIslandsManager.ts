@@ -84,10 +84,29 @@ document.addEventListener("pointermove", onPointerMove, { passive: true });
 
 // ─── rAF loop ─────────────────────────────────────────────────────────────────
 
+// Last cursor position that was actually processed. The passthrough decision
+// depends only on where the cursor is, so when it hasn't moved there is nothing
+// to recompute — skipping measureRegions() (which forces a synchronous layout
+// read via getBoundingClientRect on every registered region) removes ~60fps of
+// layout thrash that otherwise pinned a CPU core the entire time the overlay
+// was open. Reset to a sentinel by invalidate() when the region set changes.
+let _processedX = Number.NaN;
+let _processedY = Number.NaN;
+
+/** Force the next tick to re-measure even if the cursor has not moved. */
+function invalidate(): void {
+  _processedX = Number.NaN;
+  _processedY = Number.NaN;
+}
+
 function tick(): void {
-  const regions = measureRegions();
-  const inside = isInsideAnyRegion(_lastX, _lastY, regions);
-  syncPassthrough(inside);
+  if (_lastX !== _processedX || _lastY !== _processedY) {
+    _processedX = _lastX;
+    _processedY = _lastY;
+    const regions = measureRegions();
+    const inside = isInsideAnyRegion(_lastX, _lastY, regions);
+    syncPassthrough(inside);
+  }
   _rafId = requestAnimationFrame(tick);
 }
 
@@ -112,6 +131,7 @@ export const InteractiveIslandsManager = {
    */
   register(id: string, ref: ElementRef): void {
     _refs.set(id, ref);
+    invalidate(); // region set changed → force a re-measure next tick
     if (_refs.size === 1) startLoop();
   },
 
@@ -121,6 +141,7 @@ export const InteractiveIslandsManager = {
    */
   unregister(id: string): void {
     _refs.delete(id);
+    invalidate(); // region set changed → force a re-measure next tick
     if (_refs.size === 0) stopLoop();
   },
 

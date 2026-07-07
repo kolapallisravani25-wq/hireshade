@@ -2746,6 +2746,31 @@ pub fn run() {
                 }
             }
 
+            // ── Windows: re-assert topmost on every focus event ────────────
+            //
+            // Windows silently demotes a window's WS_EX_TOPMOST band whenever
+            // another topmost or fullscreen window grabs the foreground — the
+            // Teams/Zoom/Meet floating toolbars, other always-on-top helpers,
+            // or a maximized app. The result is the login widget / session
+            // overlay "falling behind everything" the moment the user clicks
+            // another window. This is the Windows counterpart to the macOS
+            // window-level re-apply above: on every Focused(_) event we
+            // re-assert always-on-top, which re-inserts the window into the
+            // topmost band. Cheap and invisible.
+            #[cfg(target_os = "windows")]
+            {
+                for label in ["launcher", "mini"] {
+                    if let Some(win) = app.get_webview_window(label) {
+                        let w = win.clone();
+                        win.on_window_event(move |event| {
+                            if let tauri::WindowEvent::Focused(_) = event {
+                                let _ = w.set_always_on_top(true);
+                            }
+                        });
+                    }
+                }
+            }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
