@@ -137,6 +137,36 @@ export const endSessionThunk = createAsyncThunk<void, EndSessionArgs | void>(
     };
 
     if (!sessionInfo) {
+      // Redux sessionInfo can be empty even while a session is live — the
+      // overlay may be running off the persisted "session-init" handoff after a
+      // remount, or getState() can race the slice hydration. Returning here
+      // WITHOUT deactivating is what leaves the session ACTIVE on the server
+      // (no toast, and the next "create" prompts to end the previous one).
+      // Recover the id from the persisted handoff and deactivate anyway.
+      try {
+        const raw = sessionStorage.getItem("hireshade.session-init");
+        const recovered = raw
+          ? (JSON.parse(raw) as { sessionId?: string })
+          : null;
+        if (recovered?.sessionId) {
+          const authHeaders = await getAuthHeaders();
+          await Promise.all([
+            invoke("stop_all_audio_transcription").catch(() => {}),
+            fetch(
+              `${BACKEND_URL}/api/session/${recovered.sessionId}/deactivate`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...authHeaders },
+                body: JSON.stringify({}),
+              },
+            ).catch(() => null),
+            invoke("set_session_active", { active: false }).catch(() => {}),
+          ]);
+          sessionStorage.removeItem("hireshade.session-init");
+        }
+      } catch {
+        // best-effort recovery — never block the return-to-launcher
+      }
       await returnToLauncher();
       return;
     }
