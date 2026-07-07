@@ -705,14 +705,38 @@ router.post("/builder/export-pdf", requireAuth, async (req, res) => {
 
 router.post("/builder/rewrite", requireAuth, async (req, res) => {
   try {
-    const body = req.body as { sectionId?: string; currentText?: string; instruction?: string };
+    // Full Rewrite (FullRewritePanel): rewrite EVERY section of the resume for a
+    // new target role and return the rewritten editable fields. The panel sends
+    // { jobTitle, company, targetLevel, fields|resumeId } and applies
+    // data.tailoredFields. (It previously read a single section's `currentText`
+    // and returned a raw `text` string, so Full Rewrite always reported "no
+    // rewrites found.") Mirrors the tailor endpoint's structured-fields shape.
+    const body = req.body as {
+      resumeId?: string;
+      fields?: Record<string, unknown>;
+      jobTitle?: string;
+      company?: string;
+      targetLevel?: string;
+    };
+
+    const resumeText = await resolveFieldsText(body, req.userId!);
+
+    const target = [
+      body.jobTitle?.trim() ? `Target role: ${body.jobTitle.trim()}` : "",
+      body.company?.trim() ? `Target company: ${body.company.trim()}` : "",
+      body.targetLevel?.trim() ? `Seniority level: ${body.targetLevel.trim()}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     const prompt = [
-      `Rewrite this resume ${body.sectionId ? `"${body.sectionId}" section` : "text"}.`,
-      body.instruction ? `Instruction: ${body.instruction}` : "Make it clearer, more professional, and more impactful.",
-      `Current text:\n${body.currentText || ""}`,
-      "Respond with ONLY the rewritten text, no other commentary.",
-    ].join("\n\n");
+      "Rewrite this candidate's resume for the target role below. Strengthen every section — summary, experience, projects, skills — with strong action verbs, quantified impact where the original implies it, and language aligned to the target role. Do NOT fabricate experience, employers, dates, or metrics that are not present or implied in the original resume.",
+      target,
+      `Current resume:\n${resumeText || "(none provided)"}`,
+      'Respond with ONLY a JSON object: { "tailoredFields": { <only the resume field keys you rewrote, as strings, from: role, summary, experience, projects, skillsLanguages, skillsFrameworks, skillsDatabases, skillsTools> } }. Omit fields you did not change. No other text.',
+    ]
+      .filter(Boolean)
+      .join("\n\n");
 
     const charged = await withCharge(
       res,
@@ -720,16 +744,20 @@ router.post("/builder/rewrite", requireAuth, async (req, res) => {
         userId: req.userId!,
         operation: "resume_rewrite",
         idempotencyKey: req.header("Idempotency-Key") ?? null,
-        resumeId: null,
+        resumeId: body.resumeId ?? null,
       },
-      async () => await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 }),
+      async () =>
+        await chatCompleteJSON<{ tailoredFields: Record<string, unknown> }>({
+          messages: [{ role: "user", content: prompt }],
+          maxTokens: 1600,
+        }),
     );
     if (!charged) return;
-    const { result: text, meter: _meter } = charged;
-    res.json({ success: true, data: { text, ..._meter } });
+    const { result, meter: _meter } = charged;
+    res.json({ success: true, data: { ...result, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/rewrite error", err);
-    res.status(500).json({ error: "Failed to rewrite text" });
+    res.status(500).json({ error: "Failed to rewrite resume" });
   }
 });
 
@@ -776,22 +804,34 @@ router.post("/builder/inject-skills", requireAuth, async (req, res) => {
 
 router.post("/builder/inject-keywords", requireAuth, async (req, res) => {
   try {
+    // Contract matches InjectKeywordsPanel: the panel first calls
+    // /analyze-keywords, the user checks the keywords they want, then this route
+    // weaves the SELECTED keywords across the whole resume and returns the
+    // rewritten editable fields. (It previously expected a single section's
+    // `currentText` + `keywords` and returned a raw string, so the panel — which
+    // sends `fields` + `selectedKeywords` and applies `injectedFields` — silently
+    // did nothing.) Mirrors the inject-skills shape: resolveFieldsText +
+    // chatCompleteJSON + structured field response.
     const body = req.body as {
-      sectionId?: string;
-      currentText?: string;
+      resumeId?: string;
+      fields?: Record<string, unknown>;
       jobDescription?: string;
-      keywords?: string[];
+      selectedKeywords?: string[];
     };
 
+    const resumeText = await resolveFieldsText(body, req.userId!);
+
+    const keywordInstruction = body.selectedKeywords?.length
+      ? `Weave in ONLY these keywords: ${body.selectedKeywords.join(", ")}`
+      : body.jobDescription
+        ? `Extract and weave in the most important keywords from this job description:\n${body.jobDescription}`
+        : "";
+
     const prompt = [
-      "Naturally weave the following keywords into this resume section, without making it sound stuffed or unnatural.",
-      body.keywords?.length
-        ? `Keywords: ${body.keywords.join(", ")}`
-        : body.jobDescription
-          ? `Extract and weave in the most important keywords from this job description:\n${body.jobDescription}`
-          : "",
-      `Current text:\n${body.currentText || ""}`,
-      "Respond with ONLY the revised text, no other commentary.",
+      "Naturally weave the given keywords into this candidate's resume. Edit the summary, experience, projects, and skills where each keyword genuinely fits. Do NOT fabricate experience — only weave a keyword into existing content where it is relevant, or add it to the appropriate skills list. Do not keyword-stuff.",
+      keywordInstruction,
+      `Current resume:\n${resumeText || "(none provided)"}`,
+      'Respond with ONLY a JSON object containing the fields you actually changed — any subset of: { "summary": string, "experience": string, "projects": string, "skillsLanguages": string, "skillsFrameworks": string, "skillsDatabases": string, "skillsTools": string } — plus "injectedKeywords": string[] listing the keywords you wove in. Omit fields you did not change. No other text.',
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -802,13 +842,27 @@ router.post("/builder/inject-keywords", requireAuth, async (req, res) => {
         userId: req.userId!,
         operation: "resume_inject_keywords",
         idempotencyKey: req.header("Idempotency-Key") ?? null,
-        resumeId: null,
+        resumeId: body.resumeId ?? null,
       },
-      async () => await chatComplete({ messages: [{ role: "user", content: prompt }], maxTokens: 800 }),
+      async () => await chatCompleteJSON<Record<string, unknown>>({
+        messages: [{ role: "user", content: prompt }],
+        maxTokens: 1200,
+      }),
     );
     if (!charged) return;
-    const { result: text, meter: _meter } = charged;
-    res.json({ success: true, data: { text, ..._meter } });
+    const { result, meter: _meter } = charged;
+    const { injectedKeywords, ...injectedFields } = (result ?? {}) as Record<
+      string,
+      unknown
+    >;
+    res.json({
+      success: true,
+      data: {
+        injectedFields,
+        injectedKeywords: Array.isArray(injectedKeywords) ? injectedKeywords : [],
+        ..._meter,
+      },
+    });
   } catch (err) {
     console.error("[resumes] builder/inject-keywords error", err);
     res.status(500).json({ error: "Failed to inject keywords" });
