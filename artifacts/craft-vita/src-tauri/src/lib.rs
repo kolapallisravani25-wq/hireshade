@@ -1960,6 +1960,49 @@ fn stop_mic_transcription() {}
 
 // ── Microphone permission preflight ──────────────────────────────────────────
 // Call this ONCE before start_audio_stream.  Returns Ok(()) if the mic is
+// ── Screen-recording / microphone permission checks ──────────────────────────
+//
+// The frontend's system-audio preflight invokes four permission commands and
+// reads back `{ status }`. They were missing entirely, so every invoke rejected
+// with "command not found" and the preflight threw BEFORE system audio could
+// start — which surfaced to the user as "System audio unavailable" on Windows,
+// where screen-recording permission is not even a concept. Windows and Linux do
+// not gate system-audio loopback or mic capture behind a TCC-style permission,
+// so these report "granted".
+//
+// TODO(macos): implement real permission checks (CGPreflightScreenCaptureAccess
+// for screen recording, AVCaptureDevice authorizationStatus for the mic) so the
+// macOS grant/prompt/restart flow is accurate. Until then macOS also reports
+// "granted" and relies on the OS prompt fired when capture first starts.
+#[derive(serde::Serialize)]
+struct MacPermissionPayload {
+    status: String,
+}
+
+fn granted_permission() -> MacPermissionPayload {
+    MacPermissionPayload { status: "granted".to_string() }
+}
+
+#[tauri::command]
+fn check_screen_recording_permission() -> MacPermissionPayload {
+    granted_permission()
+}
+
+#[tauri::command]
+fn request_screen_recording_permission() -> MacPermissionPayload {
+    granted_permission()
+}
+
+#[tauri::command]
+fn check_microphone_permission() -> MacPermissionPayload {
+    granted_permission()
+}
+
+#[tauri::command]
+fn request_microphone_permission() -> MacPermissionPayload {
+    granted_permission()
+}
+
 // accessible, Err with a human-readable message if not.
 // Separating permission-check from stream-start means the app never calls
 // start_audio_stream until permission is confirmed, eliminating the pattern
@@ -2789,6 +2832,8 @@ pub fn run() {
             start_mic_transcription, stop_mic_transcription,
             open_screen_recording_settings, open_microphone_settings,
             open_macos_privacy_settings,
+            check_screen_recording_permission, request_screen_recording_permission,
+            check_microphone_permission, request_microphone_permission,
             ensure_microphone_permission,
             auth_get_persisted_session, auth_set_persisted_session,
             auth_clear_persisted_session, auth_emit_state_changed,
