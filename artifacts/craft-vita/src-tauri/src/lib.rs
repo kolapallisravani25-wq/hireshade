@@ -2331,7 +2331,14 @@ fn show_launcher_widget(app: AppHandle) -> Result<(), String> {
         .ok_or("launcher window not found")?;
 
     window
-        .set_size(LogicalSize::new(460u32, 260u32))
+        // The launcher hosts the expanded "create session" card (company, job
+        // description, resume, model, Create button) plus the settings menu,
+        // which together are ~600px tall — far more than the old 260px. The
+        // window is transparent and click-through outside the card, and it is
+        // pinned to the top of the screen, so a taller window simply grows
+        // downward into empty (pass-through) space. 460×260 was clipping the
+        // form's bottom half; 480×680 fits it with margin for the card shadow.
+        .set_size(LogicalSize::new(480u32, 680u32))
         .map_err(|e| e.to_string())?;
 
     let monitor = window
