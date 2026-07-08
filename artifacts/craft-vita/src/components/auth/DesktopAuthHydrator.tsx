@@ -49,8 +49,18 @@ export function DesktopAuthHydrator({ children, source, loadingFallback }: Deskt
         });
 
         if (!isSignedIn && persistedSessionId) {
-          await setActive({ session: persistedSessionId });
-          console.info("[auth/hydrator] setActive completed", { source });
+          try {
+            await setActive({ session: persistedSessionId });
+            console.info("[auth/hydrator] setActive completed", { source });
+          } catch (activateErr) {
+            // The persisted session id can belong to a DIFFERENT Clerk instance
+            // than the one this build runs against (e.g. after a dev -> prod
+            // migration). setActive then rejects (or never resolves to a
+            // signed-in state). Drop the stale session so we fall through to the
+            // login screen instead of hanging on the loading bar forever.
+            console.warn("[auth/hydrator] setActive rejected — clearing stale session", { source, activateErr });
+            await clearPersistedDesktopSession().catch(() => {});
+          }
 
           // Wait for Clerk's React state to reflect the sign-in status (max 3 seconds)
           let checks = 0;
@@ -61,6 +71,15 @@ export function DesktopAuthHydrator({ children, source, loadingFallback }: Deskt
             }
             await new Promise<void>((r) => setTimeout(r, 100));
             checks++;
+          }
+
+          // If, after waiting, Clerk still doesn't consider us signed in, the
+          // persisted session was not accepted (stale / wrong instance). Clear it
+          // so the next launch — and this render — go straight to login rather
+          // than replaying a session the backend will keep rejecting with 401.
+          if (!cancelled && !isSignedInRef.current) {
+            console.warn("[auth/hydrator] persisted session did not activate — clearing", { source });
+            await clearPersistedDesktopSession().catch(() => {});
           }
         }
       } catch (error) {
