@@ -200,6 +200,7 @@ fn toggle_floating(app: AppHandle) -> Result<(), String> {
         win.close().map_err(|e| e.to_string())?;
     } else {
         WebviewWindowBuilder::new(&app, "floating", WebviewUrl::App("floating.html".into()))
+            .use_https_scheme(true)
             .title("Mini Overlay")
             // .inner_size(300f64, 200f64)
             .position(20f64, 20f64)
@@ -249,6 +250,7 @@ async fn show_mini_top_center(app: AppHandle) -> Result<(), String> {
             "mini",
             WebviewUrl::App("floating.html".into()),
         )
+        .use_https_scheme(true)
         .title("HireShade Floating Screen")
         .inner_size(700f64, 360f64)
         .transparent(true)
@@ -2298,6 +2300,7 @@ async fn open_main_dashboard(
         let url = WebviewUrl::App(path.into());
 
         WebviewWindowBuilder::new(&app, "main", url)
+            .use_https_scheme(true)
             .title("HireShade")
             .decorations(false)
             .inner_size(1200.0, 800.0)
