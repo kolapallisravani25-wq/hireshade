@@ -5,8 +5,8 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
 import { useEffect, lazy, Suspense } from "react";
+import { useConfirmedSignOut } from "@/hooks/useConfirmedSignOut";
 import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { emit, listen } from "@tauri-apps/api/event";
@@ -68,7 +68,7 @@ function PageLoader() {
 }
 
 function App() {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded, signedOutConfirmed } = useConfirmedSignOut();
   const location = useLocation();
   const navigate = useNavigate();
   useSyncUser();
@@ -80,10 +80,12 @@ function App() {
   // React app loads directly at the right route with conditions in the URL.)
   useEffect(() => {
     if (!isTauri()) return;
-    if (isLoaded && !isSignedIn) {
+    // Only broadcast once the sign-out is confirmed (not a token-refresh blip),
+    // otherwise every transient false cascades to the launcher/floating windows.
+    if (isLoaded && !isSignedIn && signedOutConfirmed) {
       emit("auth:signed-out").catch(() => undefined);
     }
-  }, [isSignedIn, isLoaded]);
+  }, [isSignedIn, isLoaded, signedOutConfirmed]);
 
   // Listen for hireshade:// deep-links from the OS (e.g. "Return to HireShade"
   // button after OAuth, or a hireshade://oauth-callback from Clerk).
@@ -145,7 +147,22 @@ function App() {
     location.pathname.startsWith(path),
   );
 
-  if (!isSignedIn && !isAuthPage) {
+  // In the Tauri webview isSignedIn can blip false during a token refresh.
+  // While the sign-out is still unconfirmed, hold on a loader instead of
+  // bouncing to /sign-in — this is what previously kicked users out of the
+  // session-creation form the moment they interacted with it.
+  if (!isSignedIn && !signedOutConfirmed && !isAuthPage) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
+          <p className="text-slate-600 font-medium">Loading HireShade...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn && signedOutConfirmed && !isAuthPage) {
     return <Navigate to="/sign-in" replace state={{ from: location }} />;
   }
 

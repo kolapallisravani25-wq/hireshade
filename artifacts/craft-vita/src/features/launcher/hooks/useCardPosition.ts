@@ -11,7 +11,7 @@ interface CardPos {
 interface UseCardPositionReturn {
   cardPos: CardPos;
   isDraggingRef: React.MutableRefObject<boolean>;
-  handleDragStart: (e: React.MouseEvent) => void;
+  handleDragStart: (e?: React.MouseEvent) => void;
 }
 
 const STORAGE_KEY = "launcher-card-pos";
@@ -56,8 +56,8 @@ export function useCardPosition(): UseCardPositionReturn {
   // felt vertical-only); moving the card also clipped its drop-shadow against
   // the tight window bounds while dragging. Native startDragging() moves the
   // whole window in both axes and avoids the per-frame CSS repaint artifact.
-  const handleDragStart = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleDragStart = useCallback((e?: React.MouseEvent) => {
+    e?.preventDefault();
     isDraggingRef.current = true;
     const reset = () => {
       isDraggingRef.current = false;

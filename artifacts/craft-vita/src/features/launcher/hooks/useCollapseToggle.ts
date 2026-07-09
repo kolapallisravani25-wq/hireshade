@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 
 interface UseCollapseToggleOptions {
-  handleDragStart: (e: React.MouseEvent) => void;
+  handleDragStart: (e?: React.MouseEvent) => void;
 }
 
 interface UseCollapseToggleReturn {
@@ -33,21 +33,32 @@ export function useCollapseToggle({
       collapsedHasDraggedRef.current = false;
       const startX = e.clientX;
       const startY = e.clientY;
+      let dragStarted = false;
+      const cleanup = () => {
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("mouseup", onUp);
+      };
       const onMove = (ev: MouseEvent) => {
+        if (dragStarted) return;
         if (
           Math.abs(ev.clientX - startX) > 3 ||
           Math.abs(ev.clientY - startY) > 3
         ) {
+          // Only NOW hand off to the native window drag. Starting the drag on
+          // mousedown swallowed the subsequent click in the webview, so a plain
+          // click on the collapsed icon never fired handleCollapsedClick and the
+          // launcher could never be expanded again (the collapse dead-end).
+          dragStarted = true;
           collapsedHasDraggedRef.current = true;
+          cleanup();
+          handleDragStart();
         }
       };
       const onUp = () => {
-        window.removeEventListener("mousemove", onMove);
-        window.removeEventListener("mouseup", onUp);
+        cleanup();
       };
       window.addEventListener("mousemove", onMove);
       window.addEventListener("mouseup", onUp);
-      handleDragStart(e);
     },
     [handleDragStart],
   );

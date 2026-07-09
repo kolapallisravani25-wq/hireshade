@@ -85,6 +85,7 @@ import { WidgetSelect } from "@/shared/components/WidgetSelect";
 import { tauriEvents } from "@/services/tauriEvents";
 import { tauriOverlay } from "@/services/tauriOverlay";
 import { DesktopAuthHydrator } from "@/components/auth/DesktopAuthHydrator";
+import { useConfirmedSignOut } from "@/hooks/useConfirmedSignOut";
 
 // ─── Redux store ──────────────────────────────────────────────────────────────
 import { store } from "@/store/store";
@@ -115,6 +116,9 @@ const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 function WidgetContent() {
   const { isLoaded, isSignedIn, user } = useUser();
   const { getToken } = useAuth();
+  // Debounced sign-out: a transient token-refresh blip must not swap in the
+  // AuthScreen mid session-creation (the "clicking company name logs me out" bug).
+  const { signedOutConfirmed } = useConfirmedSignOut();
   const dispatch = useAppDispatch();
 
   // ── Redux state ────────────────────────────────────────────────────────────
@@ -614,7 +618,13 @@ function WidgetContent() {
                 </div>
               )}
 
-              {isLoaded && !isSignedIn && <AuthScreen />}
+              {isLoaded && !isSignedIn && !signedOutConfirmed && (
+                <div className="flex items-center justify-center py-10">
+                  <Loader2 className="w-5 h-5 animate-spin text-zinc-300" />
+                </div>
+              )}
+
+              {isLoaded && !isSignedIn && signedOutConfirmed && <AuthScreen />}
 
               {isLoaded && isSignedIn && (
                 <>
