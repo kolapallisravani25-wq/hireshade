@@ -26,6 +26,8 @@ export interface SessionInitData {
   startedAt: string | null;
   maxAllowedMinutes: number | null;
   saveTranscript?: boolean;
+  /** Wizard Step-6 "AI Generation" preference — seeds the live auto-generate toggle. */
+  autoGenerateAI?: boolean;
 }
 
 export interface TranscriptMessage {
@@ -62,6 +64,10 @@ export interface FloatingSessionState {
   isResponsesExpanded: boolean;
   isTranscriptExpanded: boolean;
   currentResponseIndex: number;
+  /** When true, an AI answer is auto-generated as new interviewer questions arrive. */
+  autoGenerate: boolean;
+  /** When true, transcript / responses panels auto-scroll to the latest content. */
+  autoScroll: boolean;
 }
 
 const DEFAULT_MODEL = "anthropic/claude-haiku-4-5";
@@ -100,6 +106,8 @@ const initialState: FloatingSessionState = {
   isResponsesExpanded: false,
   isTranscriptExpanded: false,
   currentResponseIndex: 0,
+  autoGenerate: true,
+  autoScroll: true,
 };
 
 // ─── Async thunk: end session ─────────────────────────────────────────────────
@@ -265,6 +273,9 @@ const floatingSessionSlice = createSlice({
       state.isResponsesExpanded = false;
       state.isTranscriptExpanded = false;
       state.currentResponseIndex = 0;
+      // Seed the auto-generate toggle from the wizard preference (default on).
+      state.autoGenerate = action.payload.autoGenerateAI ?? true;
+      state.autoScroll = true;
     },
 
     setSelectedModel(state, action: PayloadAction<string>) {
@@ -323,6 +334,14 @@ const floatingSessionSlice = createSlice({
       state.currentResponseIndex = action.payload;
     },
 
+    setAutoGenerate(state, action: PayloadAction<boolean>) {
+      state.autoGenerate = action.payload;
+    },
+
+    setAutoScroll(state, action: PayloadAction<boolean>) {
+      state.autoScroll = action.payload;
+    },
+
     /**
      * Called by the heartbeat / SSE hooks when credits are exhausted or warnings fire.
      */
@@ -363,6 +382,8 @@ export const {
   setIsResponsesExpanded,
   setIsTranscriptExpanded,
   setCurrentResponseIndex,
+  setAutoGenerate,
+  setAutoScroll,
   triggerCreditWarning,
   resetFloatingSession,
 } = floatingSessionSlice.actions;

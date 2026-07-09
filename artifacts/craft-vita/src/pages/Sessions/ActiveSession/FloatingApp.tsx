@@ -12,6 +12,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { clampToScreen } from "@/lib/clampToScreen";
 import { getDesktopClerkOptions } from "@/lib/clerkOptions";
+import { DesktopAuthHydrator } from "@/components/auth/DesktopAuthHydrator";
 import { useOverlayShortcuts } from "@/hooks/useOverlayShortcuts";
 import { useSafeZoom } from "@/hooks/useSafeZoom";
 import { useCursorPassthrough } from "@/features/launcher/hooks/useCursorPassthrough";
@@ -43,6 +44,8 @@ import {
   AlignJustify,
   HelpCircle,
   RotateCcw,
+  Sparkles,
+  ArrowDownToLine,
 } from "lucide-react";
 import { ChatActionButtons } from "./components/ChatActionButtons";
 import { ModelSelector } from "./components/ModelSelector";
@@ -588,14 +591,19 @@ function normalizeProjectAnswerMarkdown(
 interface AnswerAreaProps {
   responses: AIDisplayResponse[];
   isStreaming: boolean;
+  autoScroll?: boolean;
 }
 
-const AnswerArea = memo(function AnswerArea({ responses }: AnswerAreaProps) {
+const AnswerArea = memo(function AnswerArea({
+  responses,
+  autoScroll = true,
+}: AnswerAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeResponse = responses[0];
   const activeResponseId = activeResponse?.messageId ?? "";
 
   useEffect(() => {
+    if (!autoScroll) return;
     const scrollElement = scrollRef.current;
     if (!scrollElement) return;
 
@@ -604,7 +612,7 @@ const AnswerArea = memo(function AnswerArea({ responses }: AnswerAreaProps) {
     });
     return () => window.cancelAnimationFrame(frameId);
   // Only scroll when a new answer card starts — not on every streaming token.
-  }, [activeResponseId]);
+  }, [activeResponseId, autoScroll]);
 
   return (
     <div
@@ -1211,6 +1219,60 @@ const FloatingApp: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 h-9">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={session.toggleAutoGenerate}
+                            className={cn(
+                              "p-2 rounded-lg transition-all active:scale-95 flex items-center justify-center",
+                              session.autoGenerate
+                                ? "bg-blue-500/20 text-blue-400"
+                                : "text-zinc-400 hover:text-white hover:bg-white/10",
+                            )}
+                            aria-label="Toggle AI generation"
+                            aria-pressed={session.autoGenerate}
+                          >
+                            <Sparkles size={15} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="bottom"
+                          className="bg-slate-900 border-white/10 text-white font-medium text-[11px]"
+                        >
+                          {session.autoGenerate
+                            ? "AI Generation: On"
+                            : "AI Generation: Off"}
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={session.toggleAutoScroll}
+                            className={cn(
+                              "p-2 rounded-lg transition-all active:scale-95 flex items-center justify-center",
+                              session.autoScroll
+                                ? "bg-blue-500/20 text-blue-400"
+                                : "text-zinc-400 hover:text-white hover:bg-white/10",
+                            )}
+                            aria-label="Toggle auto-scroll"
+                            aria-pressed={session.autoScroll}
+                          >
+                            <ArrowDownToLine size={15} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="bottom"
+                          className="bg-slate-900 border-white/10 text-white font-medium text-[11px]"
+                        >
+                          {session.autoScroll
+                            ? "Auto-scroll: On"
+                            : "Auto-scroll: Off"}
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <div className="w-px h-4 bg-white/10 mx-0.5" />
+
                       <SessionMenu
                         opacity={overlayOpacity}
                         setOpacity={setOverlayOpacity}
@@ -1790,6 +1852,7 @@ const FloatingApp: React.FC = () => {
                                     isStreaming={
                                       session.isAnswering || session.isAnalyzing
                                     }
+                                    autoScroll={session.autoScroll}
                                   />
                                 </AnswerAreaErrorBoundary>
                               </div>
@@ -1852,9 +1915,14 @@ if (rootElement) {
             publishableKey={PUBLISHABLE_KEY}
             allowedRedirectProtocols={["tauri:", "http:", "https:"]}
           >
-            <TooltipProvider delayDuration={0}>
-              <FloatingApp />
-            </TooltipProvider>
+            <DesktopAuthHydrator
+              source="floating"
+              loadingFallback={<div className="w-full h-screen bg-transparent" />}
+            >
+              <TooltipProvider delayDuration={0}>
+                <FloatingApp />
+              </TooltipProvider>
+            </DesktopAuthHydrator>
           </ClerkProvider>
         ) : (
           <TooltipProvider delayDuration={0}>

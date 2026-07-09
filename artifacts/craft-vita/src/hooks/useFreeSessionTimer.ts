@@ -8,6 +8,13 @@ interface UseFreeSessionTimerOptions {
   onTimeUp: () => void;
   /** For paid sessions: total minutes allowed (from activate response). Enables remaining-time countdown. */
   maxAllowedMinutes?: number | null;
+  /**
+   * ISO start time already known to the caller (from the session-init handshake
+   * / Redux). When provided, the count-up timer seeds immediately from this
+   * value instead of waiting on the `GET /api/session/:id` fetch — so the
+   * display never sits frozen at "00:00" if that request is slow or fails.
+   */
+  startedAt?: string | null;
 }
 
 interface UseFreeSessionTimerReturn {
@@ -27,6 +34,7 @@ export function useFreeSessionTimer({
   sessionId,
   onTimeUp,
   maxAllowedMinutes,
+  startedAt,
 }: UseFreeSessionTimerOptions): UseFreeSessionTimerReturn {
   const [isFreeSession, setIsFreeSession] = useState(false);
   const [isLoading, setIsLoading] = useState(() => !!sessionId);
@@ -39,6 +47,20 @@ export function useFreeSessionTimer({
   useEffect(() => {
     onTimeUpRef.current = onTimeUp;
   }, [onTimeUp]);
+
+  // Seed the count-up locally from the known start time so the display starts
+  // ticking immediately, independent of the network fetch below. Without this
+  // the timer stayed frozen at "00:00" whenever GET /api/session/:id was slow
+  // or failed (e.g. before auth was wired into this window). The fetch effect
+  // stays authoritative for free-vs-paid and will correct `seconds` for free
+  // sessions once it resolves.
+  useEffect(() => {
+    if (!startedAt) return;
+    const start = new Date(startedAt).getTime();
+    if (Number.isNaN(start)) return;
+    const elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
+    setSeconds((prev) => (prev === null ? elapsed : prev));
+  }, [startedAt]);
 
   // Fetch session details
   useEffect(() => {

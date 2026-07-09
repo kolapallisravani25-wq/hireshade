@@ -41,6 +41,12 @@ export const selectIsTranscriptExpanded = (state: RootState) =>
 export const selectCurrentResponseIndex = (state: RootState) =>
   state.floatingSession.currentResponseIndex;
 
+export const selectAutoGenerate = (state: RootState) =>
+  state.floatingSession.autoGenerate;
+
+export const selectAutoScroll = (state: RootState) =>
+  state.floatingSession.autoScroll;
+
 // ─── Derived / memoized selectors ────────────────────────────────────────────
 
 /** The most recent transcript message, null when no messages exist */

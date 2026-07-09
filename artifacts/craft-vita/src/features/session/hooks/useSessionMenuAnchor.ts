@@ -1,11 +1,18 @@
 import { useState, useLayoutEffect, useRef } from "react";
+import { MORE_ACTIONS_POPOVER_W } from "@/features/launcher/constants";
 
-const MENU_W = 260;
-const MENU_FLIP_SAFE_BOTTOM = 80;
+// Match the actual rendered panel width so right-edge clamping is accurate.
+const MENU_W = MORE_ACTIONS_POPOVER_W;
+// Gap between the trigger and the panel, and the min margin kept from any edge.
+const GAP = 6;
+const EDGE_MARGIN = 8;
 
 type MenuAnchor = {
   top: number;
   left: number;
+  /** Max panel height so a tall menu scrolls internally instead of overflowing
+   *  the bottom of the (short) overlay window. */
+  maxHeight: number;
 } | null;
 
 /**
@@ -43,17 +50,32 @@ export function useSessionMenuAnchor({
 
       const rect = t.getBoundingClientRect();
       const vw = window.innerWidth;
+      const vh = window.innerHeight;
 
       // Right-align menu with trigger right edge, clamped inside viewport
       const left = Math.max(
-        8,
-        Math.min(vw - MENU_W - 8, Math.round(rect.right - MENU_W)),
+        EDGE_MARGIN,
+        Math.min(vw - MENU_W - EDGE_MARGIN, Math.round(rect.right - MENU_W)),
       );
 
-      setAnchor({
-        top: Math.round(rect.bottom + 6),
-        left,
-      });
+      // Vertical placement: prefer dropping below the trigger, but if there is
+      // more room above (short overlay window), flip up. Either way cap the
+      // panel height to the available space so the bottom is never clipped and
+      // the panel scrolls internally instead.
+      const spaceBelow = vh - rect.bottom - GAP - EDGE_MARGIN;
+      const spaceAbove = rect.top - GAP - EDGE_MARGIN;
+      const dropBelow = spaceBelow >= spaceAbove;
+
+      const maxHeight = Math.max(
+        120,
+        Math.round(dropBelow ? spaceBelow : spaceAbove),
+      );
+
+      const top = dropBelow
+        ? Math.round(rect.bottom + GAP)
+        : Math.round(Math.max(EDGE_MARGIN, rect.top - GAP - maxHeight));
+
+      setAnchor({ top, left, maxHeight });
     }
 
     const recompute = () => {

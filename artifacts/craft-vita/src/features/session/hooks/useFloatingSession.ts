@@ -36,6 +36,8 @@ import {
   setIsResponsesExpanded,
   setIsTranscriptExpanded,
   setCurrentResponseIndex,
+  setAutoGenerate,
+  setAutoScroll,
   endSessionThunk,
   isValidModel,
   getValidModel,
@@ -52,6 +54,8 @@ import {
   selectIsResponsesExpanded,
   selectIsTranscriptExpanded,
   selectCurrentResponseIndex,
+  selectAutoGenerate,
+  selectAutoScroll,
   selectLastMessage,
   selectHeartbeatParams,
   selectTimerParams,
@@ -648,6 +652,8 @@ export function useFloatingSession() {
   const isResponsesExpanded = useAppSelector(selectIsResponsesExpanded);
   const isTranscriptExpanded = useAppSelector(selectIsTranscriptExpanded);
   const currentResponseIndex = useAppSelector(selectCurrentResponseIndex);
+  const autoGenerate = useAppSelector(selectAutoGenerate);
+  const autoScroll = useAppSelector(selectAutoScroll);
   const lastMessage = useAppSelector(selectLastMessage);
   const heartbeatParams = useAppSelector(selectHeartbeatParams);
   const timerParams = useAppSelector(selectTimerParams);
@@ -1310,6 +1316,7 @@ export function useFloatingSession() {
     sessionId: timerParams.sessionId,
     onTimeUp,
     maxAllowedMinutes: timerParams.maxAllowedMinutes,
+    startedAt: timerParams.startedAt,
   });
 
   // ── Heartbeat + SSE (paid sessions) ────────────────────────────────────────
@@ -2420,6 +2427,46 @@ export function useFloatingSession() {
     isAiAnswerUiLocked,
   ]);
 
+  // ── Auto-generate ────────────────────────────────────────────────────────
+  // When the "AI Generation" toggle is on, fire the same AI-answer path a
+  // deliberate click would, once a NEW interviewer line has finalized. A short
+  // debounce lets the question stabilize; the existing in-flight lock
+  // (isAiAnswerRunningRef) + backend 409 guard prevent duplicate answers.
+  const autoGenLastMsgIdRef = useRef<string | null>(null);
+  const autoGenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!autoGenerate) return;
+    const latestInterviewer = [...messages]
+      .reverse()
+      .find((m) => m.sender === "Interviewer" && !!m.text?.trim());
+    if (!latestInterviewer) return;
+    // Seed silently on first observation so we don't answer pre-existing lines.
+    if (autoGenLastMsgIdRef.current === null) {
+      autoGenLastMsgIdRef.current = latestInterviewer.id;
+      return;
+    }
+    if (latestInterviewer.id === autoGenLastMsgIdRef.current) return;
+    autoGenLastMsgIdRef.current = latestInterviewer.id;
+
+    if (autoGenTimerRef.current) clearTimeout(autoGenTimerRef.current);
+    autoGenTimerRef.current = setTimeout(() => {
+      if (isAiAnswerRunningRef.current || isEmittingRef.current) return;
+      void handleAiAnswerClick();
+    }, 1500);
+
+    return () => {
+      if (autoGenTimerRef.current) clearTimeout(autoGenTimerRef.current);
+    };
+  }, [autoGenerate, messages, handleAiAnswerClick]);
+
+  const toggleAutoGenerate = useCallback(() => {
+    dispatch(setAutoGenerate(!autoGenerate));
+  }, [dispatch, autoGenerate]);
+
+  const toggleAutoScroll = useCallback(() => {
+    dispatch(setAutoScroll(!autoScroll));
+  }, [dispatch, autoScroll]);
+
   const handleAnalyzeScreenClick = useCallback(
     async (screenshotBlob?: Blob) => {
       console.log("[useFloatingSession] handleAnalyzeScreenClick triggered.");
@@ -2802,6 +2849,8 @@ export function useFloatingSession() {
     isResponsesExpanded,
     isTranscriptExpanded,
     currentResponseIndex,
+    autoGenerate,
+    autoScroll,
 
     // ── AI chat (from useAIChat) ─────────────────────────────────────────────
     aiChat,
@@ -2853,5 +2902,7 @@ export function useFloatingSession() {
     goToPrevResponse,
     goToNextResponse,
     onModelChange,
+    toggleAutoGenerate,
+    toggleAutoScroll,
   };
 }
