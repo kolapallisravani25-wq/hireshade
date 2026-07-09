@@ -23,6 +23,9 @@ import { invoke } from "@tauri-apps/api/core";
 // Lazy-load all route-level pages so each page's JS is only downloaded when
 // the user first navigates to that route (bundle-dynamic-imports rule).
 const Dashboard = lazy(() => import("./pages/Dashboard/page"));
+const DesktopAuthHandoff = lazy(
+  () => import("./pages/DesktopAuth/DesktopAuthHandoff"),
+);
 const Sessions = lazy(() => import("./pages/Sessions/page"));
 const AllResumes = lazy(() => import("./pages/Resume/AllResume/page"));
 const ATSAnalysis = lazy(() => import("./pages/Resume/ATSAnalysis/page"));
@@ -146,6 +149,18 @@ function App() {
   const isAuthPage = authPaths.some((path) =>
     location.pathname.startsWith(path),
   );
+
+  // Desktop external-browser auth handoff. This page renders its own signed-in
+  // and signed-out states (it shows Clerk sign-in inline when needed, then mints
+  // a desktop token and hands it back to the app), so it must bypass the normal
+  // auth-gate redirects below.
+  if (location.pathname.startsWith("/desktop-auth")) {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <DesktopAuthHandoff />
+      </Suspense>
+    );
+  }
 
   // In the Tauri webview isSignedIn can blip false during a token refresh.
   // While the sign-out is still unconfirmed, hold on a loader instead of
