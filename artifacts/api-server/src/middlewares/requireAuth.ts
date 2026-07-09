@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { verifyClerkToken, type ClerkTokenPayload } from "../lib/clerkAuth.js";
+import { verifyDesktopAccessToken } from "../lib/desktopAuth.js";
 import { db } from "@workspace/db";
 import {
   usersTable,
@@ -32,10 +33,19 @@ export async function requireAuth(
   const token = authHeader.slice(7);
 
   try {
-    const payload = await verifyClerkToken(token);
-    req.auth = payload;
-
-    const clerkUserId = payload.sub;
+    // Accept EITHER a desktop access token (HS256, issued by /api/desktop/token)
+    // or a Clerk session token (RS256). Both resolve to a Clerk user id, which
+    // the rest of this middleware maps to the internal user exactly the same way.
+    let clerkUserId: string;
+    const desktop = await verifyDesktopAccessToken(token);
+    if (desktop) {
+      clerkUserId = desktop.sub;
+      req.auth = { sub: clerkUserId } as ClerkTokenPayload;
+    } else {
+      const payload = await verifyClerkToken(token);
+      req.auth = payload;
+      clerkUserId = payload.sub;
+    }
 
     const existing = await db
       .select()
@@ -47,6 +57,7 @@ export async function requireAuth(
       req.userId = existing[0]!.id;
     } else {
       const newUserId = uuidv4();
+      const payload = req.auth ?? ({ sub: clerkUserId } as ClerkTokenPayload);
       const email =
         (payload["email"] as string | undefined) ||
         (payload["email_address"] as string | undefined) ||

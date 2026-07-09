@@ -1,5 +1,18 @@
 import { Router, type IRouter } from "express";
 import { logger } from "../lib/logger.js";
+import { requireAuth } from "../middlewares/requireAuth.js";
+import { db } from "@workspace/db";
+import { desktopSessionsTable } from "@workspace/db/schema";
+import { eq } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
+import {
+  isDesktopAuthConfigured,
+  generateRefreshToken,
+  hashRefreshToken,
+  refreshTokenExpiry,
+  signDesktopAccessToken,
+  DESKTOP_ACCESS_TTL_SECONDS,
+} from "../lib/desktopAuth.js";
 
 /**
  * Desktop release distribution — proxies the PRIVATE GitHub repo's releases.
@@ -230,6 +243,116 @@ router.get("/download/:asset", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "[desktop] download error");
     res.status(502).json({ error: "Failed to prepare download" });
+  }
+});
+
+// ── Desktop auth (external-browser session) ─────────────────────────────────
+//
+// Flow: the desktop opens the system browser to the web /desktop-auth page; the
+// user signs in there with production Clerk (works — it's the website); that page
+// (authenticated by the Clerk web session) calls POST /link to mint a refresh
+// token, and hands it back to the app via a loopback/deep-link. The app stores it
+// in the OS keychain and calls POST /token to get short-lived access tokens for
+// API calls. No Clerk runs inside the webview, so the session survives launches.
+
+/**
+ * POST /api/desktop/link  (Clerk web session required)
+ * Mints a desktop refresh token for the signed-in user and returns it ONCE,
+ * plus a first access token.
+ */
+router.post("/link", requireAuth, async (req, res) => {
+  try {
+    if (!isDesktopAuthConfigured()) {
+      res.status(500).json({ error: "Desktop auth is not configured on the server" });
+      return;
+    }
+    const clerkUserId = req.auth!.sub;
+
+    const refreshToken = generateRefreshToken();
+    const label =
+      typeof req.body?.label === "string" && req.body.label.trim()
+        ? req.body.label.trim().slice(0, 120)
+        : "desktop";
+
+    await db.insert(desktopSessionsTable).values({
+      id: uuidv4(),
+      clerkUserId,
+      tokenHash: hashRefreshToken(refreshToken),
+      label,
+      expiresAt: refreshTokenExpiry(),
+    });
+
+    const accessToken = await signDesktopAccessToken(clerkUserId);
+    res.json({
+      refreshToken,
+      accessToken,
+      expiresInSeconds: DESKTOP_ACCESS_TTL_SECONDS,
+    });
+  } catch (err) {
+    logger.error({ err }, "[desktop] link failed");
+    res.status(500).json({ error: "Failed to link desktop session" });
+  }
+});
+
+/**
+ * POST /api/desktop/token  (no Clerk session — uses the refresh token)
+ * Exchanges a stored refresh token for a fresh short-lived access token.
+ */
+router.post("/token", async (req, res) => {
+  try {
+    if (!isDesktopAuthConfigured()) {
+      res.status(500).json({ error: "Desktop auth is not configured on the server" });
+      return;
+    }
+    const refreshToken =
+      typeof req.body?.refreshToken === "string" ? req.body.refreshToken.trim() : "";
+    if (!refreshToken) {
+      res.status(400).json({ error: "Missing refreshToken" });
+      return;
+    }
+
+    const rows = await db
+      .select()
+      .from(desktopSessionsTable)
+      .where(eq(desktopSessionsTable.tokenHash, hashRefreshToken(refreshToken)))
+      .limit(1);
+    const row = rows[0];
+
+    if (!row || row.revoked || row.expiresAt.getTime() < Date.now()) {
+      res.status(401).json({ error: "Desktop session is invalid, revoked, or expired" });
+      return;
+    }
+
+    await db
+      .update(desktopSessionsTable)
+      .set({ lastUsedAt: new Date() })
+      .where(eq(desktopSessionsTable.id, row.id));
+
+    const accessToken = await signDesktopAccessToken(row.clerkUserId);
+    res.json({ accessToken, expiresInSeconds: DESKTOP_ACCESS_TTL_SECONDS });
+  } catch (err) {
+    logger.error({ err }, "[desktop] token exchange failed");
+    res.status(500).json({ error: "Failed to refresh desktop token" });
+  }
+});
+
+/**
+ * POST /api/desktop/logout  (revoke a refresh token; safe to call unauthenticated)
+ */
+router.post("/logout", async (req, res) => {
+  try {
+    const refreshToken =
+      typeof req.body?.refreshToken === "string" ? req.body.refreshToken.trim() : "";
+    if (refreshToken) {
+      await db
+        .update(desktopSessionsTable)
+        .set({ revoked: true })
+        .where(eq(desktopSessionsTable.tokenHash, hashRefreshToken(refreshToken)));
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "[desktop] logout failed");
+    res.status(500).json({ error: "Failed to revoke desktop session" });
   }
 });
 

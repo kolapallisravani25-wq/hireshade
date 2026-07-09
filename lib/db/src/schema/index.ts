@@ -64,6 +64,30 @@ export const insertUserSchema = createInsertSchema(usersTable);
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof usersTable.$inferSelect;
 
+// ── Desktop sessions ────────────────────────────────────────────────────────
+// Refresh tokens for the Tauri app's external-browser auth. The user signs in in
+// their real browser (production Clerk), the web handoff page mints a row here,
+// and the desktop stores the opaque refresh token (OS keychain) and exchanges it
+// for short-lived access tokens. Only the SHA-256 hash is stored, so a DB leak
+// can't be replayed. Scoped by clerkUserId (the subject requireAuth resolves by).
+
+export const desktopSessionsTable = pgTable(
+  "desktop_sessions",
+  {
+    id: text("id").primaryKey(),
+    clerkUserId: text("clerk_user_id").notNull(),
+    tokenHash: text("token_hash").notNull().unique(),
+    label: text("label"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    lastUsedAt: timestamp("last_used_at").notNull().defaultNow(),
+    expiresAt: timestamp("expires_at").notNull(),
+    revoked: boolean("revoked").notNull().default(false),
+  },
+  (t) => [index("desktop_sessions_clerk_user_id_idx").on(t.clerkUserId)],
+);
+
+export type DesktopSession = typeof desktopSessionsTable.$inferSelect;
+
 // ── Sessions ──────────────────────────────────────────────────────────────────
 
 export const sessionsTable = pgTable(
