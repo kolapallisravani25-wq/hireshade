@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useStoredUserId } from "@/hooks/useStoredUserId";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table/data-table";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ interface AnalyzedResume extends ExportableData {
 }
 
 export default function ListOfATSAnalysis() {
-  const userId = localStorage.getItem("userId");
+  const userId = useStoredUserId();
   const navigate = useNavigate();
 
   const fetchAnalyzedResumes = async () => {

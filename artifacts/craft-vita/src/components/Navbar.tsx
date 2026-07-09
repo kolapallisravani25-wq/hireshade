@@ -1,5 +1,6 @@
 import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useStoredUserId } from "@/hooks/useStoredUserId";
 import { ATSAnalysisDialog } from "./Resume/ATSAnalysisDialog";
 import { BuildResumeDialog } from "./Resume/BuildResumeDialog";
 import CreateSessionDialog from "@/components/Sessions/CreateSessionDialog";
@@ -49,7 +50,7 @@ const Navbar = () => {
   }, []);
 
   const isDocumentPage = location.pathname.startsWith("/document");
-  const userId = localStorage.getItem("userId") || "";
+  const userId = useStoredUserId() ?? "";
 
   return (
     <nav className="flex items-center justify-between px-5 bg-white border-b border-[#E8E6E0] sticky top-0 z-50 w-full h-14">

@@ -1,6 +1,7 @@
  ;
 
 import * as React from "react";
+import { useStoredUserId } from "@/hooks/useStoredUserId";
 import { FileText } from "lucide-react";
 import {
   Select,
@@ -30,7 +31,7 @@ export function DocumentSelector({ onSelect, value, filter }: DocumentSelectorPr
   const [documents, setDocuments] = React.useState<Document[]>([]);
   const [selectedDocumentId, setSelectedDocumentId] = React.useState<string>(value || "");
   const [loading, setLoading] = React.useState(true);
-  const id = localStorage.getItem("userId");
+  const id = useStoredUserId();
 
   // Use a ref for onSelect to avoid infinite re-fetch when parent passes inline arrow functions
   const onSelectRef = React.useRef(onSelect);

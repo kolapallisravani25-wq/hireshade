@@ -1,6 +1,7 @@
  ;
 
 import * as React from "react";
+import { useStoredUserId } from "@/hooks/useStoredUserId";
 import { FileText, PencilLine, X } from "lucide-react";
 import {
   Select,
@@ -48,7 +49,7 @@ export function ResumeSelector({ onSelect, onDeselect, value, filter, includeBui
   const { getToken } = useAuth();
   const [resumes, setResumes] = React.useState<Resume[]>([]);
   const [selectedResumeId, setSelectedResumeId] = React.useState<string>(value || "");
-  const id = localStorage.getItem("userId");
+  const id = useStoredUserId();
   const [loadedForId, setLoadedForId] = React.useState<string | null>(null);
   const loading = loadedForId !== id;
 
