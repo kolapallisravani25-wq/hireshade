@@ -8,6 +8,7 @@ import {
   readPersistedDesktopSession,
 } from "@/lib/desktopAuthSession";
 import { isTauri } from "@/lib/utils";
+import { registerGetToken } from "@/lib/globalAuth";
 
 interface DesktopAuthHydratorProps {
   children: React.ReactNode;
@@ -17,8 +18,21 @@ interface DesktopAuthHydratorProps {
 
 export function DesktopAuthHydrator({ children, source, loadingFallback }: DesktopAuthHydratorProps) {
   const { isLoaded, isSignedIn } = useUser();
-  const { sessionId } = useAuth();
+  const { sessionId, getToken } = useAuth();
   const { setActive, signOut } = useClerk();
+
+  // Every window mounts this component but only the main window runs
+  // useSyncUser(). Register the Clerk token provider here so that ALL windows
+  // (launcher, floating, mini) attach a Bearer token to their API calls via
+  // getAuthHeaders(). Without this, calls from secondary windows go out
+  // unauthenticated, 401, and a route guard can misread that as "signed out".
+  const getTokenRef = React.useRef(getToken);
+  React.useEffect(() => {
+    getTokenRef.current = getToken;
+  }, [getToken]);
+  React.useEffect(() => {
+    registerGetToken(() => getTokenRef.current());
+  }, []);
 
   const [hydrationState, setHydrationState] = React.useState<'idle' | 'restoring' | 'completed'>('idle');
   const [hydrated, setHydrated] = React.useState<boolean>(() => !isTauri());
@@ -115,24 +129,46 @@ export function DesktopAuthHydrator({ children, source, loadingFallback }: Deskt
   React.useEffect(() => {
     if (!isTauri() || !isLoaded || hydrationState !== 'completed') return;
 
-    (async () => {
-      try {
-        if (sessionId) {
+    if (sessionId) {
+      (async () => {
+        try {
           await persistDesktopSession(sessionId);
           await emitDesktopAuthStateChanged({ source, sessionId, signedIn: true });
           console.info("[auth/persist] saved", { source });
-          return;
+        } catch (error) {
+          console.warn("[auth/persist] update failed", { source, error });
         }
+      })();
+      return;
+    }
 
-        if (hydrated && !isSignedIn) {
+    if (!hydrated || isSignedIn) return;
+
+    // isSignedIn is false with no sessionId. In a Tauri webview this can be a
+    // transient token-refresh blip rather than a real sign-out. Broadcasting a
+    // sign-out immediately would cascade to every other window and bounce the
+    // user back to the login screen (the reported "company name field kicks me
+    // to login" bug). Wait a short grace period; if Clerk reports signed-in
+    // again within that window, this effect re-runs and the cleanup cancels the
+    // pending broadcast.
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      (async () => {
+        if (cancelled) return;
+        try {
           await clearPersistedDesktopSession();
           await emitDesktopAuthStateChanged({ source, sessionId: null, signedIn: false });
           console.info("[auth/persist] cleared", { source });
+        } catch (error) {
+          console.warn("[auth/persist] update failed", { source, error });
         }
-      } catch (error) {
-        console.warn("[auth/persist] update failed", { source, error });
-      }
-    })();
+      })();
+    }, 1500);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [hydrationState, hydrated, isLoaded, isSignedIn, sessionId, source]);
 
   if (!isLoaded || !hydrated) {

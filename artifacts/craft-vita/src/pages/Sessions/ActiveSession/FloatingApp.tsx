@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { tauriEvents } from "@/services/tauriEvents";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -954,39 +955,23 @@ const FloatingApp: React.FC = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // Drag the native OS window rather than repositioning the widget in CSS space.
+  // The mini window is sized to the widget (700px), so CSS-space dragging left
+  // almost no horizontal room and the edge-snap logic pinned X to a screen edge
+  // (drag felt vertical-only); moving the widget also clipped its drop-shadow
+  // against the tight window bounds while dragging. Native startDragging() moves
+  // the whole window in both axes and avoids the per-frame CSS repaint artifact.
   const handleGripMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     isDraggingRef.current = true;
-    const rect = layer2Ref.current?.getBoundingClientRect();
-    if (!rect) {
+    const reset = () => {
       isDraggingRef.current = false;
-      return;
-    }
-    dragRef.current = {
-      startMouseX: e.clientX,
-      startMouseY: e.clientY,
-      startLeft: rect.left,
-      startTop: rect.top,
-      widgetW: rect.width,
-      widgetH: rect.height,
+      document.removeEventListener("mouseup", reset);
     };
-    const onMouseMove = (ev: MouseEvent) => {
-      const d = dragRef.current;
-      if (!d) return;
-      const rawLeft = d.startLeft + (ev.clientX - d.startMouseX);
-      const rawTop = d.startTop + (ev.clientY - d.startMouseY);
-      // Clamp on every frame — widget stays reachable even near screen edges.
-      const { x, y } = clampToScreen(rawLeft, rawTop, d.widgetW, d.widgetH);
-      setWidgetPos({ left: x, top: y });
-    };
-    const onMouseUp = () => {
-      isDraggingRef.current = false;
-      dragRef.current = null;
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("mouseup", reset);
+    getCurrentWindow()
+      .startDragging()
+      .catch(() => reset());
   }, []);
 
   // ── Keyboard shortcuts (must live here so they fire with no element focused)

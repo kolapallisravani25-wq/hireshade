@@ -38,7 +38,6 @@ import {
   Folder,
   Globe,
   Settings,
-  SlidersHorizontal,
   Star,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -86,7 +85,6 @@ import { WidgetSelect } from "@/shared/components/WidgetSelect";
 import { tauriEvents } from "@/services/tauriEvents";
 import { tauriOverlay } from "@/services/tauriOverlay";
 import { DesktopAuthHydrator } from "@/components/auth/DesktopAuthHydrator";
-import { InspectDialog } from "@/features/launcher/components/InspectDialog";
 
 // ─── Redux store ──────────────────────────────────────────────────────────────
 import { store } from "@/store/store";
@@ -175,9 +173,6 @@ function WidgetContent() {
 
   // ── Card position + drag ───────────────────────────────────────────────────
   const { cardPos, isDraggingRef, handleDragStart } = useCardPosition();
-
-  // ── Inspect dialog state (rendered as a child dialog, not a separate window) ─
-  const [inspectOpen, setInspectOpen] = useState(false);
 
   // ── Cursor passthrough ────────────────────────────────────────────────────
   useCursorPassthrough({ isDraggingRef });
@@ -295,14 +290,6 @@ function WidgetContent() {
     () => win.close().catch(console.error),
     [win],
   );
-
-  const handleOpenInspect = useCallback(() => {
-    setInspectOpen(true);
-  }, []);
-
-  const handleCloseInspect = useCallback(() => {
-    setInspectOpen(false);
-  }, []);
 
   // ── On-mount: apply stored private mode ───────────────────────────────────
   useEffect(() => {
@@ -591,14 +578,6 @@ function WidgetContent() {
                   className="p-1.5 rounded-xl border border-zinc-200 hover:bg-zinc-100 text-zinc-500 hover:text-zinc-700 transition-colors cursor-default"
                 >
                   <Move className="w-3.5 h-3.5" />
-                </button>
-              </HoverTooltip>
-              <HoverTooltip text="Inspect" side="bottom">
-                <button
-                  onClick={handleOpenInspect}
-                  className="p-1.5 rounded-xl border border-zinc-200 hover:bg-zinc-100 text-zinc-500 hover:text-zinc-700 transition-colors"
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
                 </button>
               </HoverTooltip>
               <HoverTooltip
@@ -1136,8 +1115,6 @@ function WidgetContent() {
               )}
           </>
         </div>
-        {/* Inspect dialog — attached to the widget card so drag moves both */}
-        <InspectDialog open={inspectOpen} onClose={handleCloseInspect} />
       </div>
             </motion.div>
           )}
