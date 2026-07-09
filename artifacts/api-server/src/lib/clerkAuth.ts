@@ -1,4 +1,4 @@
-import { createRemoteJWKSet, jwtVerify, decodeJwt, type JWTPayload } from "jose";
+import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
 import type { JWTVerifyGetKey } from "jose";
 
 /**
@@ -26,8 +26,8 @@ import type { JWTVerifyGetKey } from "jose";
 
 const CLOCK_TOLERANCE_SECONDS = 10;
 
-/** Resolve the PRIMARY Clerk issuer domain (production website), or null. */
-function resolvePrimaryClerkDomain(): string | null {
+/** Resolve the Clerk issuer domain, or throw with an actionable message. */
+function resolveClerkDomain(): string {
   const explicit =
     process.env["CLERK_ISSUER_DOMAIN"] ?? process.env["CLERK_DOMAIN"];
   if (explicit && explicit.trim()) {
@@ -56,44 +56,21 @@ function resolvePrimaryClerkDomain(): string | null {
     }
   }
 
-  return null;
+  throw new Error(
+    "Cannot determine Clerk issuer domain. Set VITE_CLERK_PUBLISHABLE_KEY (pk_live_/pk_test_) or CLERK_ISSUER_DOMAIN.",
+  );
 }
 
-/**
- * Resolve ALL trusted Clerk issuer domains. The primary is the production
- * website instance (clerk.hireshade.com). ADDITIONAL domains come from
- * CLERK_ADDITIONAL_ISSUER_DOMAINS (comma-separated) — this is how the DESKTOP
- * app, which runs on the Clerk *development* instance (production Clerk cannot
- * maintain a session inside the Tauri webview), is trusted alongside the
- * production website against this one backend.
- */
-function resolveTrustedDomains(): string[] {
-  const domains = new Set<string>();
-  const primary = resolvePrimaryClerkDomain(); // may throw on a corrupt key
-  if (primary) domains.add(primary);
-  for (const d of (process.env["CLERK_ADDITIONAL_ISSUER_DOMAINS"] ?? "")
-    .split(",")
-    .map((s) => s.trim().replace(/^https?:\/\//, "").replace(/\/+$/, ""))
-    .filter(Boolean)) {
-    if (/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(d)) domains.add(d);
-  }
-  if (domains.size === 0) {
-    throw new Error(
-      "No trusted Clerk issuer domains. Set VITE_CLERK_PUBLISHABLE_KEY (pk_live_/pk_test_) or CLERK_ISSUER_DOMAIN, and/or CLERK_ADDITIONAL_ISSUER_DOMAINS.",
-    );
-  }
-  return [...domains];
-}
+/** Lazily-initialised verification context, built once on first use. */
+let context: { issuer: string; jwks: JWTVerifyGetKey } | null = null;
 
-/** One cached remote JWKS set per issuer (lazily created on first use). */
-const jwksByIssuer = new Map<string, JWTVerifyGetKey>();
-function jwksFor(issuer: string): JWTVerifyGetKey {
-  let jwks = jwksByIssuer.get(issuer);
-  if (!jwks) {
-    jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
-    jwksByIssuer.set(issuer, jwks);
-  }
-  return jwks;
+function getContext(): { issuer: string; jwks: JWTVerifyGetKey } {
+  if (context) return context;
+  const domain = resolveClerkDomain(); // throws with an actionable message
+  const issuer = `https://${domain}`;
+  const jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
+  context = { issuer, jwks };
+  return context;
 }
 
 const AUTHORIZED_PARTIES: string[] = (
@@ -114,27 +91,9 @@ export interface ClerkTokenPayload extends JWTPayload {
 }
 
 export async function verifyClerkToken(token: string): Promise<ClerkTokenPayload> {
-  const trustedIssuers = resolveTrustedDomains().map((d) => `https://${d}`);
+  const { issuer, jwks } = getContext();
 
-  // Read the token's own (still-unverified) issuer, then cryptographically
-  // verify against THAT trusted issuer's JWKS. This lets the production website
-  // (clerk.hireshade.com) and the desktop app's dev instance both authenticate
-  // against the same backend, while rejecting any issuer we don't trust.
-  let claimedIss: string | undefined;
-  try {
-    claimedIss = decodeJwt(token).iss;
-  } catch {
-    throw new Error("Malformed token: cannot read issuer");
-  }
-
-  const issuer = trustedIssuers.find((i) => i === claimedIss);
-  if (!issuer) {
-    throw new Error(
-      `Token issuer ${claimedIss ?? "(none)"} is not a trusted Clerk instance`,
-    );
-  }
-
-  const { payload } = await jwtVerify(token, jwksFor(issuer), {
+  const { payload } = await jwtVerify(token, jwks, {
     issuer,
     algorithms: ["RS256"],
     clockTolerance: CLOCK_TOLERANCE_SECONDS,
