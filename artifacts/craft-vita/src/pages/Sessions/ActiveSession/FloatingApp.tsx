@@ -11,6 +11,7 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { clampToScreen } from "@/lib/clampToScreen";
+import { getDesktopClerkOptions } from "@/lib/clerkOptions";
 import { useOverlayShortcuts } from "@/hooks/useOverlayShortcuts";
 import { useSafeZoom } from "@/hooks/useSafeZoom";
 import { useCursorPassthrough } from "@/features/launcher/hooks/useCursorPassthrough";
@@ -1847,6 +1848,7 @@ if (rootElement) {
       <Provider store={store}>
         {PUBLISHABLE_KEY ? (
           <ClerkProvider
+            {...getDesktopClerkOptions()}
             publishableKey={PUBLISHABLE_KEY}
             allowedRedirectProtocols={["tauri:", "http:", "https:"]}
           >

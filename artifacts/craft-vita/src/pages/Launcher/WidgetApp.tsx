@@ -86,6 +86,7 @@ import { tauriEvents } from "@/services/tauriEvents";
 import { tauriOverlay } from "@/services/tauriOverlay";
 import { DesktopAuthHydrator } from "@/components/auth/DesktopAuthHydrator";
 import { useConfirmedSignOut } from "@/hooks/useConfirmedSignOut";
+import { getDesktopClerkOptions } from "@/lib/clerkOptions";
 
 // ─── Redux store ──────────────────────────────────────────────────────────────
 import { store } from "@/store/store";
@@ -120,6 +121,19 @@ function WidgetContent() {
   // AuthScreen mid session-creation (the "clicking company name logs me out" bug).
   const { signedOutConfirmed } = useConfirmedSignOut();
   const dispatch = useAppDispatch();
+
+  // Once Clerk has reported a signed-in state, remember it. A later transient
+  // `isSignedIn === false` (background token refresh blip) must keep the authed
+  // UI mounted through the grace window instead of tearing the session-creation
+  // form down to a spinner/AuthScreen. On a genuine cold start (never signed
+  // in) this stays false, so logged-out users still fall through to AuthScreen
+  // with no form flash.
+  const hasEverSignedInRef = useRef(false);
+  if (isSignedIn) hasEverSignedInRef.current = true;
+  // Keep the authed content while signed in, or during an unconfirmed blip that
+  // followed a real sign-in.
+  const showAuthedContent =
+    isLoaded && (isSignedIn || (!signedOutConfirmed && hasEverSignedInRef.current));
 
   // ── Redux state ────────────────────────────────────────────────────────────
   const zoom = useAppSelector((s) => s.settings.zoom);
@@ -618,15 +632,25 @@ function WidgetContent() {
                 </div>
               )}
 
-              {isLoaded && !isSignedIn && !signedOutConfirmed && (
+              {isLoaded && !showAuthedContent && !signedOutConfirmed && (
                 <div className="flex items-center justify-center py-10">
                   <Loader2 className="w-5 h-5 animate-spin text-zinc-300" />
                 </div>
               )}
 
-              {isLoaded && !isSignedIn && signedOutConfirmed && <AuthScreen />}
+              {isLoaded && !showAuthedContent && signedOutConfirmed && <AuthScreen />}
 
-              {isLoaded && isSignedIn && (
+              {/*
+                Render the authed content whenever Clerk reports signed-in OR
+                while a transient signed-out blip (that followed a real sign-in)
+                is still within the grace window. Gating on the raw `isSignedIn`
+                here unmounted the whole session-creation form the instant a
+                background token refresh flipped it false — exactly the "form
+                shows for a second then bounces to login" report. Keeping it
+                mounted until sign-out is *confirmed* is the per-window
+                equivalent of the App.tsx route-guard fix.
+              */}
+              {showAuthedContent && (
                 <>
                   <TabPills tab={tab} onChange={(t) => dispatch(setTab(t))} />
 
@@ -1240,6 +1264,7 @@ function WidgetApp() {
   const content = (
     <Provider store={store}>
       <ClerkProvider
+        {...getDesktopClerkOptions()}
         publishableKey={PUBLISHABLE_KEY}
         allowedRedirectProtocols={["tauri:", "http:", "https:"]}
       >
