@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { WIDGET_W } from "@/features/launcher/constants";
-import { clampToScreen, clampStoredPos } from "@/lib/clampToScreen";
+import { clampStoredPos } from "@/lib/clampToScreen";
 
 interface CardPos {
   x: number;
@@ -49,44 +50,24 @@ export function useCardPosition(): UseCardPositionReturn {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const handleDragStart = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      const startMX = e.clientX;
-      const startMY = e.clientY;
-      const startX = cardPos.x;
-      const startY = cardPos.y;
-      isDraggingRef.current = true;
-
-      const onMove = (ev: MouseEvent) => {
-        const rawX = startX + ev.clientX - startMX;
-        const rawY = startY + ev.clientY - startMY;
-        // Clamp on every frame — keeps the widget always reachable.
-        const { x, y } = clampToScreen(rawX, rawY, WIDGET_W);
-        setCardPos({ x, y });
-      };
-
-      const onUp = (ev: MouseEvent) => {
-        const rawX = startX + ev.clientX - startMX;
-        const rawY = startY + ev.clientY - startMY;
-        const { x, y } = clampToScreen(rawX, rawY, WIDGET_W);
-        const finalPos = { x, y };
-        setCardPos(finalPos);
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(finalPos));
-        } catch {
-          /* storage unavailable */
-        }
-        window.removeEventListener("mousemove", onMove);
-        window.removeEventListener("mouseup", onUp);
-        isDraggingRef.current = false;
-      };
-
-      window.addEventListener("mousemove", onMove);
-      window.addEventListener("mouseup", onUp);
-    },
-    [cardPos.x, cardPos.y],
-  );
+  // Drag the native OS window rather than repositioning the card in CSS space.
+  // The launcher window is sized to the card, so CSS-space dragging left almost
+  // no horizontal room and the edge-snap logic pinned X to a screen edge (drag
+  // felt vertical-only); moving the card also clipped its drop-shadow against
+  // the tight window bounds while dragging. Native startDragging() moves the
+  // whole window in both axes and avoids the per-frame CSS repaint artifact.
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+    const reset = () => {
+      isDraggingRef.current = false;
+      window.removeEventListener("mouseup", reset);
+    };
+    window.addEventListener("mouseup", reset);
+    getCurrentWindow()
+      .startDragging()
+      .catch(() => reset());
+  }, []);
 
   return { cardPos, isDraggingRef, handleDragStart };
 }

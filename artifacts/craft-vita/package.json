@@ -1,6 +1,6 @@
 {
   "name": "@workspace/craft-vita",
-  "version": "0.0.10",
+  "version": "0.1.11",
   "private": true,
   "type": "module",
   "scripts": {
