@@ -3,7 +3,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { safeJson } from "@/shared/utils/safeJson";
 import { BACKEND_URL } from "@/features/launcher/constants";
 import type { SessionInfo } from "@/features/launcher/types";
@@ -74,6 +74,7 @@ interface UseSessionCreationReturn {
  */
 export function useSessionCreation(): UseSessionCreationReturn {
   const { getToken } = useAuth();
+  const { user } = useUser();
   const [isCreating, setIsCreating] = useState(false);
   const [conflict, setConflict] = useState<ConflictSession | null>(null);
   /** The session info the user was trying to create when the conflict occurred */
@@ -81,7 +82,10 @@ export function useSessionCreation(): UseSessionCreationReturn {
 
   // ── Core create+activate flow (reusable for first attempt and retry) ──────
   const runCreateFlow = async (sessionInfo: SessionInfo): Promise<boolean> => {
-    const userId = localStorage.getItem("userId");
+    // The backend authorizes by the Clerk token; this guard just needs a non-empty
+    // identity. Fall back to the Clerk user id so a cleared localStorage (e.g. after a
+    // data wipe, before useSyncUser re-runs) doesn't block session creation.
+    const userId = localStorage.getItem("userId") ?? user?.id ?? null;
     if (!userId) {
       toast.error("User session not initialized. Please try logging in again.");
       return false;
@@ -98,7 +102,6 @@ export function useSessionCreation(): UseSessionCreationReturn {
 
     // 1. Create session
     const formData = new FormData();
-    formData.append("userId", userId);
     formData.append("free", sessionInfo.isFree.toString());
     formData.append("companyName", sessionInfo.companyName);
     formData.append("jobDescription", sessionInfo.jobDescription);
