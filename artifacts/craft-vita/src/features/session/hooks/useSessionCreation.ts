@@ -177,6 +177,15 @@ export function useSessionCreation(): UseSessionCreationReturn {
           return false;
         }
       }
+      // The session row was created but couldn't be activated (and this isn't a
+      // handled 402/409 case). Best-effort roll it back so it doesn't linger as an
+      // un-startable row that later triggers false ACTIVE_SESSION_EXISTS conflicts.
+      if (sessionId) {
+        void fetch(`${BACKEND_URL}/api/session/${sessionId}/deactivate`, {
+          method: "POST",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }).catch(() => {});
+      }
       throw new Error("Failed to activate session");
     }
 
@@ -210,7 +219,10 @@ export function useSessionCreation(): UseSessionCreationReturn {
   // ── Fetch details of the conflicting session ──────────────────────────────
   const fetchConflictDetails = async (sessionId: string): Promise<ConflictSession> => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/session/${sessionId}`);
+      const token = await getToken();
+      const res = await fetch(`${BACKEND_URL}/api/session/${sessionId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (res.ok) {
         const data = await safeJson<{
           id?: string;

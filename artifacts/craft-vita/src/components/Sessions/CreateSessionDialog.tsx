@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import {
   Dialog,
   DialogContent,
@@ -62,6 +63,7 @@ export default function CreateSessionDialog({
   defaultOpen = false,
 }: CreateSessionDialogProps) {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [open, setOpen] = React.useState(defaultOpen);
   const [step, setStep] = React.useState<Step>(1);
   const [loading, setLoading] = React.useState(false);
@@ -116,10 +118,14 @@ export default function CreateSessionDialog({
 
   const createSession = async () => {
     setLoading(true);
-    const userId = localStorage.getItem("userId");
+    // Prefer the synced backend id, but fall back to the Clerk user id so a
+    // cleared localStorage (e.g. after a data wipe) doesn't block creation.
+    // (The backend authorizes via the token regardless; this is just a guard.)
+    const userId = localStorage.getItem("userId") ?? user?.id ?? null;
 
     if (!userId) {
-      toast.error("Don't ableto create");
+      toast.error("Couldn't start the session — please sign in again.");
+      setLoading(false);
       return;
     }
 
@@ -198,7 +204,7 @@ export default function CreateSessionDialog({
       }
     } catch (error) {
       console.error("Error creating session:", error);
-      alert("Network error. Please try again.");
+      toast.error("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
