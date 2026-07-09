@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { getAuthHeaders } from "@/lib/globalAuth";
 import { UploadIcon, FileIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,12 +43,12 @@ export default function UploadDocumentDialog({ userId }: { userId: string }) {
     const allowed = ["application/pdf"];
 
     if (!allowed.includes(file.type)) {
-      alert("Only PDF allowed");
+      toast.error("Only PDF allowed");
       return false;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      alert("File too large (Max 10MB)");
+      toast.error("File too large (Max 10MB)");
       return false;
     }
 
@@ -147,7 +148,7 @@ export default function UploadDocumentDialog({ userId }: { userId: string }) {
       resetState();
     } catch (error: any) {
       console.error("Upload error:", error);
-      alert(`Upload failed: ${error.message}`);
+      toast.error(`Upload failed: ${error.message}`);
     } finally {
       setLoading(false);
     }

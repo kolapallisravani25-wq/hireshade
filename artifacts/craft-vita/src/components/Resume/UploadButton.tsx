@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { UploadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -19,12 +20,12 @@ export default function UploadButton({ userId }: { userId: string }) {
     ];
 
     if (!allowed.includes(file.type)) {
-      alert("Only PDF, DOC, DOCX allowed");
+      toast.error("Only PDF, DOC, DOCX allowed");
       return false;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      alert("File too large (Max 10MB)");
+      toast.error("File too large (Max 10MB)");
       return false;
     }
 
@@ -64,7 +65,7 @@ export default function UploadButton({ userId }: { userId: string }) {
       }
     } catch (error: any) {
       console.error("Upload error:", error);
-      alert(`Upload failed: ${error.message}`);
+      toast.error(`Upload failed: ${error.message}`);
     } finally {
       setLoading(false);
     }

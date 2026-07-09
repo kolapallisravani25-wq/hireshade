@@ -376,7 +376,7 @@ export default function ListOfResumes({
       setRefreshKey((prev) => prev + 1);
     } catch (error) {
       console.error("Delete error:", error);
-      alert("Failed to delete resume. Please try again.");
+      toast.error("Failed to delete resume. Please try again.");
     } finally {
       setIsDeleting(false);
     }

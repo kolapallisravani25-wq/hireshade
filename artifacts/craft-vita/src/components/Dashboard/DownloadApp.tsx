@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -54,7 +55,7 @@ async function openLatestDesktopDownload(
   try {
     res = await fetch(UPDATES_MANIFEST_URL, { cache: "no-store" });
   } catch (err) {
-    alert(
+    toast.error(
       "Could not load the release manifest from GitHub. Please try again in a moment.",
     );
     console.error("[download] fetch failed:", err);
@@ -62,7 +63,7 @@ async function openLatestDesktopDownload(
   }
 
   if (!res.ok) {
-    alert(`Update manifest returned an error (${res.status}). Please try again later.`);
+    toast.error(`Update manifest returned an error (${res.status}). Please try again later.`);
     return;
   }
 
@@ -112,7 +113,7 @@ async function openLatestDesktopDownload(
   }
 
   if (!url) {
-    alert(
+    toast.error(
       `No ${platform}${format ? ` (${format.toUpperCase()})` : ""} download is available for this release yet.`,
     );
     console.error(

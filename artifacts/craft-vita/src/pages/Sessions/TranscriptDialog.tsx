@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { Virtuoso } from "react-virtuoso";
 import {
@@ -516,14 +517,14 @@ export function TranscriptDialog({
       } else if (response.status === 422) {
         // Not enough conversation to evaluate — surface it instead of
         // spinning forever then silently doing nothing.
-        window.alert(
+        toast.error(
           "There isn't enough conversation in this session to generate insights yet.",
         );
       } else {
-        window.alert("Couldn't generate insights right now. Please try again.");
+        toast.error("Couldn't generate insights right now. Please try again.");
       }
     } catch {
-      window.alert("Couldn't generate insights right now. Please try again.");
+      toast.error("Couldn't generate insights right now. Please try again.");
     } finally {
       setIsGenerating(false);
     }

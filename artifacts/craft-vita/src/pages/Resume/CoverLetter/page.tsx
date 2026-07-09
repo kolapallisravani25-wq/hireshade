@@ -1,4 +1,5 @@
 import * as React from "react";
+import { toast } from "sonner";
 import { ResumeSelector } from "@/components/Resume/ResumeSelector";
 import { JobDetails } from "@/components/Resume/JobDetails";
 import { ToneSelection } from "@/components/Resume/ToneSelection";
@@ -26,12 +27,12 @@ export default function CoverLetter() {
 
   const handleGenerate = async () => {
     if (!selectedResumeId) {
-      alert("Please select a resume");
+      toast.error("Please select a resume");
       return;
     }
 
     if (!jobDetails.role || !jobDetails.company) {
-      alert("Please fill job role and company");
+      toast.error("Please fill job role and company");
       return;
     }
 
