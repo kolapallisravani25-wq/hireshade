@@ -48,7 +48,9 @@ export function AuthScreen() {
       }
 
       port = await start({
-        ports: [TAURI_AUTH_PORT],
+        // Candidate ports (all must be whitelisted in Clerk's redirect allowlist)
+        // so login still works if the primary port is held by a stale instance.
+        ports: [TAURI_AUTH_PORT, 10003, 10004, 10001],
         response: AUTH_CALLBACK_HTML,
       });
       activePortRef.current = port;

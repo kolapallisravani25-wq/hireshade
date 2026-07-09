@@ -81,13 +81,16 @@ export function GoogleOAuthButton({ label = "Continue with Google" }: GoogleOAut
 </body>
 </html>`;
 
-      // Fixed port so Clerk's Allowed Redirect URLs can be whitelisted.
-      // In Clerk Dashboard → Redirects → Allowed redirect URLs, add:
-      //   http://localhost:10001
-      // A random port can never be pre-approved by Clerk, which causes the
-      // "cannot redirect to your application" fallback page.
-      const OAUTH_PORT = 10001;
-      port = await start({ ports: [OAUTH_PORT], response: successHtml });
+      // Fixed candidate ports so Clerk's Allowed Redirect URLs can be whitelisted.
+      // In Clerk Dashboard → Native Applications → "Allowlist for mobile SSO redirect"
+      // (and/or Redirects → Allowed redirect URLs), add ALL of these:
+      //   http://localhost:10001  http://localhost:10002
+      //   http://localhost:10003  http://localhost:10004
+      // A random port can never be pre-approved by Clerk, so we use a small fixed
+      // set and let tauri-plugin-oauth pick the first one that's free — this keeps
+      // login working even if a stale instance is still holding 10001.
+      const OAUTH_PORTS = [10001, 10002, 10003, 10004];
+      port = await start({ ports: OAUTH_PORTS, response: successHtml });
       const callbackUrl = `http://localhost:${port}`;
 
       // 2. Register the event listener synchronously inside the Promise constructor
