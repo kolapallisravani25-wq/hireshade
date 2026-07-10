@@ -1248,39 +1248,28 @@ function WidgetApp() {
 
   const content = (
     <Provider store={store}>
-      <ClerkProvider
-        {...getDesktopClerkOptions()}
-        publishableKey={PUBLISHABLE_KEY}
-        allowedRedirectProtocols={["tauri:", "http:", "https:"]}
-      >
-        <DesktopAuthHydrator
-          source="launcher"
-          loadingFallback={
-            <div className="flex items-center justify-center py-10">
-              <Loader2 className="w-5 h-5 animate-spin text-zinc-300" />
-            </div>
-          }
+      <DesktopAuthProvider>
+        <ClerkProvider
+          {...getDesktopClerkOptions()}
+          publishableKey={PUBLISHABLE_KEY}
+          allowedRedirectProtocols={["tauri:", "http:", "https:"]}
         >
-          <DesktopAuthProvider>
+          <DesktopAuthHydrator
+            source="launcher"
+            loadingFallback={
+              <div className="flex items-center justify-center py-10">
+                <Loader2 className="w-5 h-5 animate-spin text-zinc-300" />
+              </div>
+            }
+          >
             {OverlayFlags.USE_UNIFIED_OVERLAY ? (
-              /*
-               * Phase 4+: Unified fullscreen overlay runtime.
-               * OverlayRoot coordinates LauncherLayer / SessionLayer transitions
-               * and provides the OverlayPortalProvider for all menus/popovers.
-               * WidgetContent is passed as launcherContent — its JSX is unchanged;
-               * only the outer coordination layer changes.
-               */
               <OverlayRoot launcherContent={<WidgetContent />} />
             ) : (
-              /*
-               * Phase 1–3 (current): existing WidgetContent renders directly.
-               * Zero behavioral change until USE_UNIFIED_OVERLAY is enabled.
-               */
               <WidgetContent />
             )}
-          </DesktopAuthProvider>
-        </DesktopAuthHydrator>
-      </ClerkProvider>
+          </DesktopAuthHydrator>
+        </ClerkProvider>
+      </DesktopAuthProvider>
     </Provider>
   );
 
