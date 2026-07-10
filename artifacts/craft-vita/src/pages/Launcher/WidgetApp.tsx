@@ -4,7 +4,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
 import { Provider } from "react-redux";
-import { ClerkProvider, useUser, useAuth } from "@clerk/clerk-react";
+import { ClerkProvider } from "@clerk/clerk-react";
+import {
+  DesktopAuthProvider,
+  useDesktopAuth,
+} from "@/contexts/DesktopAuthProvider";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useCreditsBalance } from "@/hooks/useCreditsBalance";
@@ -85,7 +89,6 @@ import { WidgetSelect } from "@/shared/components/WidgetSelect";
 import { tauriEvents } from "@/services/tauriEvents";
 import { tauriOverlay } from "@/services/tauriOverlay";
 import { DesktopAuthHydrator } from "@/components/auth/DesktopAuthHydrator";
-import { useConfirmedSignOut } from "@/hooks/useConfirmedSignOut";
 import { getDesktopClerkOptions } from "@/lib/clerkOptions";
 
 // ─── Redux store ──────────────────────────────────────────────────────────────
@@ -115,25 +118,13 @@ const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 // ─── WidgetContent ────────────────────────────────────────────────────────────
 
 function WidgetContent() {
-  const { isLoaded, isSignedIn, user } = useUser();
-  const { getToken } = useAuth();
-  // Debounced sign-out: a transient token-refresh blip must not swap in the
-  // AuthScreen mid session-creation (the "clicking company name logs me out" bug).
-  const { signedOutConfirmed } = useConfirmedSignOut();
+  // Desktop auth (external-browser session) drives the gate — not Clerk. The
+  // token lives in the app (localStorage/keychain) instead of a webview cookie,
+  // so there's no transient "signed-out" blip and no grace window is needed.
+  const { isLoaded, isSignedIn, user } = useDesktopAuth();
   const dispatch = useAppDispatch();
 
-  // Once Clerk has reported a signed-in state, remember it. A later transient
-  // `isSignedIn === false` (background token refresh blip) must keep the authed
-  // UI mounted through the grace window instead of tearing the session-creation
-  // form down to a spinner/AuthScreen. On a genuine cold start (never signed
-  // in) this stays false, so logged-out users still fall through to AuthScreen
-  // with no form flash.
-  const hasEverSignedInRef = useRef(false);
-  if (isSignedIn) hasEverSignedInRef.current = true;
-  // Keep the authed content while signed in, or during an unconfirmed blip that
-  // followed a real sign-in.
-  const showAuthedContent =
-    isLoaded && (isSignedIn || (!signedOutConfirmed && hasEverSignedInRef.current));
+  const showAuthedContent = isLoaded && isSignedIn;
 
   // ── Redux state ────────────────────────────────────────────────────────────
   const zoom = useAppSelector((s) => s.settings.zoom);
@@ -632,13 +623,7 @@ function WidgetContent() {
                 </div>
               )}
 
-              {isLoaded && !showAuthedContent && !signedOutConfirmed && (
-                <div className="flex items-center justify-center py-10">
-                  <Loader2 className="w-5 h-5 animate-spin text-zinc-300" />
-                </div>
-              )}
-
-              {isLoaded && !showAuthedContent && signedOutConfirmed && <AuthScreen />}
+              {isLoaded && !showAuthedContent && <AuthScreen />}
 
               {/*
                 Render the authed content whenever Clerk reports signed-in OR
@@ -1276,22 +1261,24 @@ function WidgetApp() {
             </div>
           }
         >
-          {OverlayFlags.USE_UNIFIED_OVERLAY ? (
-            /*
-             * Phase 4+: Unified fullscreen overlay runtime.
-             * OverlayRoot coordinates LauncherLayer / SessionLayer transitions
-             * and provides the OverlayPortalProvider for all menus/popovers.
-             * WidgetContent is passed as launcherContent — its JSX is unchanged;
-             * only the outer coordination layer changes.
-             */
-            <OverlayRoot launcherContent={<WidgetContent />} />
-          ) : (
-            /*
-             * Phase 1–3 (current): existing WidgetContent renders directly.
-             * Zero behavioral change until USE_UNIFIED_OVERLAY is enabled.
-             */
-            <WidgetContent />
-          )}
+          <DesktopAuthProvider>
+            {OverlayFlags.USE_UNIFIED_OVERLAY ? (
+              /*
+               * Phase 4+: Unified fullscreen overlay runtime.
+               * OverlayRoot coordinates LauncherLayer / SessionLayer transitions
+               * and provides the OverlayPortalProvider for all menus/popovers.
+               * WidgetContent is passed as launcherContent — its JSX is unchanged;
+               * only the outer coordination layer changes.
+               */
+              <OverlayRoot launcherContent={<WidgetContent />} />
+            ) : (
+              /*
+               * Phase 1–3 (current): existing WidgetContent renders directly.
+               * Zero behavioral change until USE_UNIFIED_OVERLAY is enabled.
+               */
+              <WidgetContent />
+            )}
+          </DesktopAuthProvider>
         </DesktopAuthHydrator>
       </ClerkProvider>
     </Provider>

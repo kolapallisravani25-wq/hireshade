@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@clerk/clerk-react";
+import { getAuthToken } from "@/lib/globalAuth";
 import { safeJson } from "@/shared/utils/safeJson";
 import { BACKEND_URL } from "@/features/launcher/constants";
 import type { Resume, Document, AIProject } from "@/features/launcher/types";
@@ -49,7 +49,6 @@ export function useSessionResources(
   isSignedIn: boolean | undefined,
   clerkUserId: string | undefined,
 ): UseSessionResourcesReturn {
-  const { getToken } = useAuth();
 
   const [resumes, setResumes] = useState<Resume[]>(
     () => _cachedResources?.resumes ?? [],
@@ -80,7 +79,7 @@ export function useSessionResources(
       let userId = localStorage.getItem("userId");
       let userIdError: string | null = null;
       if (!userId) {
-        const token = await getToken();
+        const token = await getAuthToken();
         if (!token) {
           userIdError = "No auth token available — not signed in?";
         } else {
@@ -146,7 +145,7 @@ export function useSessionResources(
 
       const doFetch = async (): Promise<CachedResources | null> => {
         try {
-          const token = await getToken();
+          const token = await getAuthToken();
           if (!token) {
             throw new Error("No auth token available — not signed in?");
           }
@@ -232,7 +231,7 @@ export function useSessionResources(
     return () => {
       cancelled = true;
     };
-  }, [isSignedIn, clerkUserId, getToken]);
+  }, [isSignedIn, clerkUserId]);
 
   return {
     resumes,

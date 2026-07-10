@@ -3,7 +3,8 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
+import { getAuthToken } from "@/lib/globalAuth";
 import { safeJson } from "@/shared/utils/safeJson";
 import { BACKEND_URL } from "@/features/launcher/constants";
 import type { SessionInfo } from "@/features/launcher/types";
@@ -73,7 +74,6 @@ interface UseSessionCreationReturn {
  * 5. hide the launcher window
  */
 export function useSessionCreation(): UseSessionCreationReturn {
-  const { getToken } = useAuth();
   const { user } = useUser();
   const [isCreating, setIsCreating] = useState(false);
   const [conflict, setConflict] = useState<ConflictSession | null>(null);
@@ -120,7 +120,7 @@ export function useSessionCreation(): UseSessionCreationReturn {
       formData.append("primaryProjectId", sessionInfo.primaryProjectId);
     }
 
-    const token = await getToken();
+    const token = await getAuthToken();
     const createRes = await fetch(`${BACKEND_URL}/api/session/create-session`, {
       method: "POST",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -222,7 +222,7 @@ export function useSessionCreation(): UseSessionCreationReturn {
   // ── Fetch details of the conflicting session ──────────────────────────────
   const fetchConflictDetails = async (sessionId: string): Promise<ConflictSession> => {
     try {
-      const token = await getToken();
+      const token = await getAuthToken();
       const res = await fetch(`${BACKEND_URL}/api/session/${sessionId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -290,7 +290,7 @@ export function useSessionCreation(): UseSessionCreationReturn {
       // End the conflicting session first. This call MUST be authenticated —
       // without the token it 401s, the conflicting session stays ACTIVE, and
       // the retried create loops back into the same 409 forever.
-      const token = await getToken();
+      const token = await getAuthToken();
       const endRes = await fetch(`${BACKEND_URL}/api/session/${conflictId}/deactivate`, {
         method: "POST",
         headers: {
@@ -328,7 +328,7 @@ export function useSessionCreation(): UseSessionCreationReturn {
       // Re-activate the existing session (DISCONNECTED → ACTIVE is idempotent).
       // Must be authenticated — an unauthenticated call 401s silently and the
       // rejoin proceeds against a session the server never re-activated.
-      const joinToken = await getToken();
+      const joinToken = await getAuthToken();
       const activateRes = await fetch(`${BACKEND_URL}/api/session/${sessionId}/activate`, {
         method: "POST",
         headers: joinToken ? { Authorization: `Bearer ${joinToken}` } : {},
