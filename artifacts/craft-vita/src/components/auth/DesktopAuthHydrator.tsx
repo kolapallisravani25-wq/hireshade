@@ -9,7 +9,6 @@ import {
 } from "@/lib/desktopAuthSession";
 import { isTauri } from "@/lib/utils";
 import { registerGetToken } from "@/lib/globalAuth";
-import { hasDesktopSession } from "@/lib/desktopSession";
 
 interface DesktopAuthHydratorProps {
   children: React.ReactNode;
@@ -32,13 +31,21 @@ export function DesktopAuthHydrator({ children, source, loadingFallback }: Deskt
     getTokenRef.current = getToken;
   }, [getToken]);
   React.useEffect(() => {
-    // When the app has a desktop session (external-browser auth), the desktop
-    // access token is the source of truth and DesktopAuthProvider registers it.
-    // Registering Clerk's token here too would clobber it (Clerk is signed out
-    // in the desktop webview), 401-ing every session call — transcript, AI
-    // answer, analyze. So skip Clerk registration whenever a desktop session
-    // exists; on the web (no desktop session) this still registers Clerk's token.
-    if (hasDesktopSession()) return;
+    // In the desktop app the desktop access token is the ONLY usable API
+    // credential — Clerk is never signed in inside the Tauri webview, so its
+    // getToken() resolves to null. DesktopAuthProvider registers the desktop
+    // token synchronously on first render; registering Clerk's token here would
+    // clobber that single global slot and 401 every session call (transcript
+    // persistence, AI answer, analyze, deepgram-token mint).
+    //
+    // The previous guard checked hasDesktopSession() at mount, but the overlay
+    // and launcher webviews are created at app launch — BEFORE the user finishes
+    // external-browser login — so hasDesktopSession() was false then and Clerk
+    // won the slot permanently (this effect has empty deps and the windows are
+    // reused, never remounted). Gate on isTauri() instead: in ANY desktop
+    // window Clerk is never a valid token source, so never register it. On the
+    // web (not Tauri) Clerk remains the token source, exactly as before.
+    if (isTauri()) return;
     registerGetToken(() => getTokenRef.current());
   }, []);
 
