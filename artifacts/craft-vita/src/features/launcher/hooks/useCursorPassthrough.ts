@@ -1,4 +1,5 @@
 import { useEffect, type RefObject } from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { tauriOverlay } from "@/services/tauriOverlay";
 
 interface UseCursorPassthroughOptions {
@@ -63,7 +64,7 @@ export function useCursorPassthrough({
     const POLL_BASE_MS = isWindows ? 120 : 32;
     const POLL_IDLE_MS = isWindows ? 240 : 64;
     const IDLE_THRESHOLD = 6;
-    const CACHE_TTL_MS = isWindows ? 2000 : 500;
+    const CACHE_TTL_MS = isWindows ? 400 : 500;
     // Re-assert native passthrough state every 200 ms on macOS to bound any
     // JS/native desync after Space transitions, deactivation, etc.
     // Kept tighter than the previous 400 ms for faster first-click recovery.
@@ -214,6 +215,31 @@ export function useCursorPassthrough({
     window.addEventListener("blur", handleBlur);
     document.addEventListener("visibilitychange", handleVisibility);
 
+    // CRITICAL (Windows input-capture bug): the window-position cache must be
+    // dropped the instant the window moves or resizes. Otherwise, after a drag,
+    // the poll hit-tests the cursor against the OLD window bounds, wrongly
+    // concludes the cursor is over an interactive region, and pins the whole
+    // transparent overlay in click-CAPTURE mode — swallowing clicks meant for
+    // every other app on screen until the stale cache expires. Re-assert from
+    // scratch on move/resize so passthrough tracks reality immediately.
+    let unlistenMove: (() => void) | undefined;
+    let unlistenResize: (() => void) | undefined;
+    const appWindow = getCurrentWindow();
+    appWindow
+      .onMoved(() => invalidateForRecovery())
+      .then((u) => {
+        if (cancelled) u();
+        else unlistenMove = u;
+      })
+      .catch(() => {});
+    appWindow
+      .onResized(() => invalidateForRecovery())
+      .then((u) => {
+        if (cancelled) u();
+        else unlistenResize = u;
+      })
+      .catch(() => {});
+
     const scheduleFirstTick = () => {
       timer = window.setTimeout(() => void tick(), 0);
     };
@@ -230,6 +256,8 @@ export function useCursorPassthrough({
       document.removeEventListener("contextmenu", handleContextMenu, true);
       window.removeEventListener("blur", handleBlur);
       document.removeEventListener("visibilitychange", handleVisibility);
+      unlistenMove?.();
+      unlistenResize?.();
       tauriOverlay.setIgnoreCursorEvents(true).catch(console.error);
     };
   }, [forceInteractive, forcePassthrough, isDraggingRef]);

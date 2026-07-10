@@ -3,6 +3,7 @@ import { useAuth } from "@clerk/clerk-react";
 import { Coins, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreditsBalance } from "@/hooks/useCreditsBalance";
+import { hasDesktopSession } from "@/lib/desktopSession";
 import { formatCredits, hasCredits } from "@/shared/utils/formatters";
 import { HoverTooltip } from "./HoverTooltip";
 
@@ -10,7 +11,8 @@ export function CreditsBadge() {
   const { isSignedIn } = useAuth();
   const { balance, isLoading } = useCreditsBalance();
 
-  if (!isSignedIn) return null;
+  // Signed in via Clerk (web) OR via the desktop session (Tauri app).
+  if (!isSignedIn && !hasDesktopSession()) return null;
 
   if (isLoading) {
     return (

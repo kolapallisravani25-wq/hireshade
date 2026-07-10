@@ -1,13 +1,21 @@
 import { useEffect, useRef } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { registerGetToken } from "@/lib/globalAuth";
+import { hasDesktopSession } from "@/lib/desktopSession";
 
 export function useSyncUser() {
   const { getToken, isSignedIn } = useAuth();
 
   const getTokenRef = useRef(getToken);
   useEffect(() => { getTokenRef.current = getToken; }, [getToken]);
-  useEffect(() => { registerGetToken(() => getTokenRef.current()); }, []);
+  useEffect(() => {
+    // In the desktop app the desktop access token is the source of truth
+    // (registered by DesktopAuthProvider). Registering Clerk's signed-out token
+    // here would clobber it and 401 every call. Skip when a desktop session
+    // exists; on the web this registers Clerk's token as before.
+    if (hasDesktopSession()) return;
+    registerGetToken(() => getTokenRef.current());
+  }, []);
 
   useEffect(() => {
     async function sync() {

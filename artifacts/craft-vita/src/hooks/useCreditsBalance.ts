@@ -21,6 +21,8 @@
 
 import { useSyncExternalStore, useRef, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
+import { getAuthToken } from "@/lib/globalAuth";
+import { hasDesktopSession } from "@/lib/desktopSession";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -112,12 +114,14 @@ export function useCreditsBalance(): UseCreditsBalanceReturn {
 
   // Keep the module-level token function up to date without causing re-renders.
   // (rerender-use-ref-transient-values)
+  // Use the globally-registered token getter (desktop access token in the Tauri
+  // app, Clerk token on the web) so credits load in BOTH. Keep Clerk's isSignedIn
+  // only as a re-fetch trigger on the web.
   const getTokenRef = useRef(getToken);
   getTokenRef.current = getToken;
 
-  // Register this component's auth context as the token source.
-  _getTokenFn = () => getTokenRef.current();
-  _isSignedIn = isSignedIn ?? false;
+  _getTokenFn = getAuthToken;
+  _isSignedIn = (isSignedIn ?? false) || hasDesktopSession();
 
   const state = useSyncExternalStore(_subscribe, _getSnapshot, _getSnapshot);
 

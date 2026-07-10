@@ -1,5 +1,7 @@
 import React, { useCallback } from "react";
 import { useUser, useClerk } from "@clerk/clerk-react";
+import { useDesktopAuth } from "@/contexts/DesktopAuthProvider";
+import { hasDesktopSession } from "@/lib/desktopSession";
 import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import {
@@ -59,8 +61,10 @@ export function HeaderMenu({
   sessionLocked = false,
   onEndSession,
 }: HeaderMenuProps) {
-  const { isSignedIn, user } = useUser();
-  const { signOut } = useClerk();
+  const { isSignedIn: clerkSignedIn, user } = useUser();
+  const { signOut: clerkSignOut } = useClerk();
+  const desktop = useDesktopAuth();
+  const isSignedIn = clerkSignedIn || desktop.isSignedIn;
 
   const handlePrivate = useCallback(
     (v: boolean) => {
@@ -99,7 +103,8 @@ export function HeaderMenu({
 
   const email =
     user?.primaryEmailAddress?.emailAddress ??
-    user?.emailAddresses?.[0]?.emailAddress;
+    user?.emailAddresses?.[0]?.emailAddress ??
+    desktop.user?.email;
 
   const btn =
     "grid h-[28px] w-[28px] place-items-center rounded-lg bg-white border border-zinc-200/80 text-zinc-500 transition-colors duration-100 hover:bg-zinc-100 hover:text-zinc-700 active:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-30 flex-shrink-0";
@@ -251,9 +256,14 @@ export function HeaderMenu({
           <button
             onClick={async () => {
               localStorage.removeItem("userId");
-              await signOut({ redirectUrl: window.location.href }).catch(
-                console.error,
-              );
+              if (hasDesktopSession()) {
+                // Desktop: revoke the desktop session (Clerk isn't the auth here).
+                await desktop.signOut().catch(console.error);
+              } else {
+                await clerkSignOut({ redirectUrl: window.location.href }).catch(
+                  console.error,
+                );
+              }
             }}
             className="flex h-[38px] w-full items-center gap-2 px-3 text-red-500 transition-colors duration-100 hover:bg-red-50"
           >
