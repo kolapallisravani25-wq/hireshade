@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef, useCallback, memo } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { ClerkProvider } from "@clerk/clerk-react";
+import { DesktopAuthProvider } from "@/contexts/DesktopAuthProvider";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { tauriEvents } from "@/services/tauriEvents";
@@ -1910,20 +1911,22 @@ if (rootElement) {
     <React.StrictMode>
       <Provider store={store}>
         {PUBLISHABLE_KEY ? (
-          <ClerkProvider
-            {...getDesktopClerkOptions()}
-            publishableKey={PUBLISHABLE_KEY}
-            allowedRedirectProtocols={["tauri:", "http:", "https:"]}
-          >
-            <DesktopAuthHydrator
-              source="floating"
-              loadingFallback={<div className="w-full h-screen bg-transparent" />}
+          <DesktopAuthProvider>
+            <ClerkProvider
+              {...getDesktopClerkOptions()}
+              publishableKey={PUBLISHABLE_KEY}
+              allowedRedirectProtocols={["tauri:", "http:", "https:"]}
             >
-              <TooltipProvider delayDuration={0}>
-                <FloatingApp />
-              </TooltipProvider>
-            </DesktopAuthHydrator>
-          </ClerkProvider>
+              <DesktopAuthHydrator
+                source="floating"
+                loadingFallback={<div className="w-full h-screen bg-transparent" />}
+              >
+                <TooltipProvider delayDuration={0}>
+                  <FloatingApp />
+                </TooltipProvider>
+              </DesktopAuthHydrator>
+            </ClerkProvider>
+          </DesktopAuthProvider>
         ) : (
           <TooltipProvider delayDuration={0}>
             <FloatingApp />

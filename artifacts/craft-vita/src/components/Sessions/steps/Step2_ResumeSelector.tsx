@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useAuth } from "@clerk/clerk-react";
+import { getAuthToken } from "@/lib/globalAuth";
 import { useStoredUserId } from "@/hooks/useStoredUserId";
 import { Resume } from "@/components/Resume/ResumeSelector";
 import { ENDPOINTS } from "@/lib/endpoints";
@@ -12,7 +12,6 @@ interface Step2Props {
 }
 
 export function Step2_ResumeSelector({ onSelect, selectedResumeId }: Step2Props) {
-  const { getToken } = useAuth();
   const userId = useStoredUserId();
   const [resumes, setResumes] = React.useState<Resume[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -26,7 +25,7 @@ export function Step2_ResumeSelector({ onSelect, selectedResumeId }: Step2Props)
     let cancelled = false;
     const load = async () => {
       try {
-        const token = await getToken();
+        const token = await getAuthToken();
         const [uploadedRes, builderRes] = await Promise.all([
           fetch(ENDPOINTS.resumeList(userId), {
             headers: {
@@ -85,7 +84,7 @@ export function Step2_ResumeSelector({ onSelect, selectedResumeId }: Step2Props)
     return () => {
       cancelled = true;
     };
-  }, [getToken, userId]);
+  }, [userId]);
 
   const selectedResume = React.useMemo(
     () => resumes.find((r) => r.id === selectedResumeId) || null,

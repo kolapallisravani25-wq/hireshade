@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/clerk-react";
+import { getAuthToken } from "@/lib/globalAuth";
 import { Sparkles, Briefcase, CheckCircle2, Circle, Loader2, FolderOpen, AlertCircle, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ENDPOINTS } from "@/lib/endpoints";
@@ -26,7 +26,6 @@ export function Step4_AIProjects({
   onChange,
   onPrimaryChange,
 }: Step4AIProjectsProps) {
-  const { getToken } = useAuth();
   const [projects, setProjects] = useState<AIProjectRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +35,7 @@ export function Step4_AIProjects({
     let cancelled = false;
     const load = async () => {
       try {
-        const token = await getToken();
+        const token = await getAuthToken();
         const res = await fetch(ENDPOINTS.projectsMine(), {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -53,7 +52,7 @@ export function Step4_AIProjects({
     };
     load();
     return () => { cancelled = true; };
-  }, [getToken]);
+  }, []);
 
   const toggle = (id: string) => {
     if (selectedProjectIds.includes(id)) {
