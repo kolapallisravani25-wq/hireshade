@@ -9,6 +9,7 @@ import {
 } from "@/lib/desktopAuthSession";
 import { isTauri } from "@/lib/utils";
 import { registerGetToken } from "@/lib/globalAuth";
+import { hasDesktopSession } from "@/lib/desktopSession";
 
 interface DesktopAuthHydratorProps {
   children: React.ReactNode;
@@ -31,6 +32,13 @@ export function DesktopAuthHydrator({ children, source, loadingFallback }: Deskt
     getTokenRef.current = getToken;
   }, [getToken]);
   React.useEffect(() => {
+    // When the app has a desktop session (external-browser auth), the desktop
+    // access token is the source of truth and DesktopAuthProvider registers it.
+    // Registering Clerk's token here too would clobber it (Clerk is signed out
+    // in the desktop webview), 401-ing every session call — transcript, AI
+    // answer, analyze. So skip Clerk registration whenever a desktop session
+    // exists; on the web (no desktop session) this still registers Clerk's token.
+    if (hasDesktopSession()) return;
     registerGetToken(() => getTokenRef.current());
   }, []);
 

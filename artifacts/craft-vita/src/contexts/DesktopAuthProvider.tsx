@@ -3,6 +3,7 @@ import {
   useContext,
   useCallback,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -47,10 +48,16 @@ export function DesktopAuthProvider({ children }: { children: ReactNode }) {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [user, setUser] = useState<DesktopUser | null>(null);
 
-  // Route all token requests in this window to the desktop access token.
-  useEffect(() => {
+  // Register the desktop access token as THE token source, synchronously on the
+  // very first render — before any child effect can fire a session API call.
+  // (Doing this in an effect left a window where transcript/AI calls went out
+  // with no token and 401'd.) getDesktopAccessToken reads the refresh token from
+  // localStorage and refreshes as needed, so it's safe to register eagerly.
+  const registeredRef = useRef(false);
+  if (!registeredRef.current) {
+    registeredRef.current = true;
     registerGetToken(getDesktopAccessToken);
-  }, []);
+  }
 
   const hydrate = useCallback(async () => {
     if (!hasDesktopSession()) {
