@@ -195,6 +195,20 @@ fn remove_window_border(hwnd: windows::Win32::Foundation::HWND) {
 }
 
 #[tauri::command]
+fn quit_app(app: AppHandle) {
+    // Full quit: destroy every window, then exit the process. Destroying the
+    // webviews tears down their WebView2 (msedgewebview2.exe) child processes so
+    // none linger holding the app-data folder — the reason a plain window
+    // `close()` left the app "running" and forced a manual Task Manager kill +
+    // data wipe before reinstalling. app.exit ends the process; on Windows that
+    // also reaps any child processes still attached.
+    for (_label, window) in app.webview_windows() {
+        let _ = window.destroy();
+    }
+    app.exit(0);
+}
+
+#[tauri::command]
 fn toggle_floating(app: AppHandle) -> Result<(), String> {
     if let Some(win) = app.get_webview_window("floating") {
         win.close().map_err(|e| e.to_string())?;
@@ -2866,6 +2880,7 @@ pub fn run() {
             auth_clear_persisted_session, auth_emit_state_changed,
             set_session_active, handle_launcher_click,
             open_main_dashboard, show_launcher_widget,
+            quit_app,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

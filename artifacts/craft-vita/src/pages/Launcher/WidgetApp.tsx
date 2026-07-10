@@ -296,7 +296,11 @@ function WidgetContent() {
   }, [dispatch, sessionInfo.projectIds]);
 
   const handleClose = useCallback(
-    () => win.close().catch(console.error),
+    () =>
+      // Fully quit so no WebView2 child processes linger (no more manual Task
+      // Manager kills). Falls back to closing just this window if the command
+      // isn't available for any reason.
+      invoke("quit_app").catch(() => win.close().catch(console.error)),
     [win],
   );
 
