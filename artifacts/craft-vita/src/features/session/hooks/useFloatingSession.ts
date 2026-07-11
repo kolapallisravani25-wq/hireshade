@@ -17,6 +17,7 @@ import { listen, emit } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import { getAuthHeaders } from "@/lib/globalAuth";
+import { isTauri } from "@/lib/utils";
 import { useAIChat } from "@/hooks/useAIChat";
 import { detectIntent, isFillerPhrase } from "@/lib/intent-detector";
 import { useFreeSessionTimer } from "@/hooks/useFreeSessionTimer";
@@ -2774,11 +2775,29 @@ export function useFloatingSession() {
 
   // ── Redux action dispatchers (stable, no closure deps) ──────────────────────
 
+  // Collapse/expand must resize the NATIVE mini window, not just swap React
+  // content. The window is a fixed 700×222 transparent, borderless frame; if we
+  // only shrink the React badge to 180px the oversized frame stays behind it and
+  // shows as the leftover "second bar" (Issue 1). set_mini_state shrinks the
+  // native frame to hug the badge (collapse) and restores the bar (expand), and
+  // keeps the window horizontally centered so the badge doesn't jump sideways.
   const collapseWindow = useCallback(() => {
     dispatch(setIsWindowCollapsed(true));
+    if (isTauri()) {
+      invoke("set_mini_state", { state: "badge" }).catch((err) =>
+        console.error("[useFloatingSession] collapse resize failed", err),
+      );
+    }
   }, [dispatch]);
 
   const expandWindow = useCallback(() => {
+    // Grow the native frame back BEFORE React paints the full widget so the
+    // expanded content is never clipped by a still-collapsed window.
+    if (isTauri()) {
+      invoke("set_mini_state", { state: "bar" }).catch((err) =>
+        console.error("[useFloatingSession] expand resize failed", err),
+      );
+    }
     dispatch(setIsWindowCollapsed(false));
   }, [dispatch]);
 

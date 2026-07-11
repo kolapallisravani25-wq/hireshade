@@ -106,9 +106,25 @@ export const AI_ANSWER_LIMITS = {
 
 export function normalizeSpeakerType(input: string): AIAnswerSpeakerType {
   const key = (input || "").toLowerCase().trim();
-  if (key === "interviewer") return "interviewer";
-  if (key === "candidate" || key === "user") return "candidate";
-  if (key === "assistant" || key === "ai") return "assistant";
+  // Interviewer/remote speech. "remote" comes from TranscriptSpeaker; the
+  // uppercase "INTERVIEWER" role and the "Interviewer" UI sender both lowercase
+  // to "interviewer". A genuine interviewer turn must never fall through to the
+  // "system" fallback, or its questions get dropped from the answer context.
+  if (key === "interviewer" || key === "remote") return "interviewer";
+  if (
+    key === "candidate" ||
+    key === "user" ||
+    key === "me" ||
+    key === "self"
+  )
+    return "candidate";
+  if (
+    key === "assistant" ||
+    key === "ai" ||
+    key === "ai_assistant" ||
+    key === "ai-assistant"
+  )
+    return "assistant";
   return "system";
 }
 

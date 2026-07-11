@@ -9,6 +9,12 @@ export interface Message {
   sender: "User" | "Interviewer" | "AI";
   text: string;
   time: string;
+  /**
+   * When an AI answer fails, the specific, safe user-facing reason (Issue 3).
+   * Non-null marks the card as an error state so the UI can show an Error badge
+   * + Retry. Null/undefined = normal answer.
+   */
+  error?: string | null;
   timestamp?: number;
   question?: string;
   questionMeta?: QuestionMeta;

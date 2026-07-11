@@ -1,4 +1,4 @@
-use tauri::{Manager, Emitter, WebviewWindowBuilder, WebviewUrl, AppHandle, Window, PhysicalPosition, LogicalSize, command};
+use tauri::{Manager, Emitter, WebviewWindowBuilder, WebviewUrl, AppHandle, Window, PhysicalPosition, LogicalPosition, LogicalSize, command};
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_opener::OpenerExt;
 use screenshots::Screen;
@@ -392,6 +392,27 @@ async fn show_mini_top_center(app: AppHandle) -> Result<(), String> {
 /// and a content-derived `height` for the expanded case. Rust owns the
 /// smooth, monotonic eased animation — keeping per-frame `set_size` calls
 /// off the JS thread and out of the IPC bus.
+/// Logical (width, height) the mini window must take for each overlay state.
+///
+/// Single source of truth for the collapse/expand contract (Issue 1): the
+/// native, transparent, borderless window frame must exactly hug whatever React
+/// renders so no oversized leftover strip stays behind the collapsed badge (the
+/// "second bar"). Extracted as a pure fn so the mapping is unit-testable without
+/// a live Tauri window.
+///
+/// - `badge`: collapsed pill. Button is 36px tall at top:10 plus border/shadow
+///   room; kept just larger than the visible content, never the full bar.
+/// - `bar`: default expanded overlay.
+/// - `expanded`: content-sized expanded overlay, clamped to a sane range.
+fn mini_state_size(state: &str, height: Option<u32>) -> Result<(u32, u32), String> {
+    match state {
+        "badge"    => Ok((200, 56)),
+        "bar"      => Ok((700, 222)),
+        "expanded" => Ok((700, height.unwrap_or(185).clamp(120, 720))),
+        other      => Err(format!("unknown mini state: {other}")),
+    }
+}
+
 #[tauri::command]
 async fn set_mini_state(
     app: AppHandle,
@@ -400,12 +421,7 @@ async fn set_mini_state(
 ) -> Result<(), String> {
     let win = app.get_webview_window("mini").ok_or("mini window missing")?;
 
-    let (target_w, target_h): (u32, u32) = match state.as_str() {
-        "badge"    => (180, 36),
-        "bar"      => (700, 222),
-        "expanded" => (700, height.unwrap_or(185).clamp(120, 720)),
-        other      => return Err(format!("unknown mini state: {other}")),
-    };
+    let (target_w, target_h): (u32, u32) = mini_state_size(&state, height)?;
 
     let scale = win.scale_factor().map_err(|e| e.to_string())?;
     let cur = win.inner_size().map_err(|e| e.to_string())?;
@@ -414,6 +430,15 @@ async fn set_mini_state(
     if cur_w == target_w && cur_h == target_h {
         return Ok(());
     }
+
+    // Anchor the window by its top edge and horizontal CENTER so shrinking to the
+    // badge (or growing back to the bar) does not slide the overlay sideways.
+    // Without this, set_size keeps the top-LEFT fixed and a 700→200 collapse would
+    // jump the badge ~250px to the left of where the bar was centered.
+    let cur_pos = win.outer_position().map_err(|e| e.to_string())?;
+    let start_left = cur_pos.x as f64 / scale;
+    let top = cur_pos.y as f64 / scale;
+    let center_x = start_left + cur_w as f64 / 2.0;
 
     let version = ANIM_VERSION.fetch_add(1, Ordering::SeqCst) + 1;
     let win_clone = win.clone();
@@ -435,6 +460,9 @@ async fn set_mini_state(
             let w = (start_w + dx * eased).round() as u32;
             let h = (start_h + dy * eased).round() as u32;
             let _ = win_clone.set_size(LogicalSize::new(w, h));
+            // Re-anchor around the fixed center after each resize.
+            let left = (center_x - w as f64 / 2.0).round();
+            let _ = win_clone.set_position(LogicalPosition::new(left, top));
 
             if t >= 1.0 { return; }
             tokio::time::sleep(std::time::Duration::from_millis(8)).await;
@@ -2895,4 +2923,57 @@ pub fn run() {
                 }
             }
         });
+}
+
+#[cfg(test)]
+mod mini_state_tests {
+    use super::mini_state_size;
+
+    // Issue 1 regression: the collapse/expand contract. The native window frame
+    // must track React content so no leftover oversized strip (the "second bar")
+    // remains behind the collapsed badge.
+
+    #[test]
+    fn badge_hugs_the_collapsed_pill() {
+        let (w, h) = mini_state_size("badge", None).unwrap();
+        // Small enough that no bar-sized frame lingers, big enough for the pill.
+        assert!(w <= 220, "badge width should hug the pill, got {w}");
+        assert!(h <= 64, "badge height should hug the pill, got {h}");
+        assert!(w >= 180 && h >= 46, "badge must fit the 180x(10+36) pill, got {w}x{h}");
+    }
+
+    #[test]
+    fn expand_restores_the_full_bar() {
+        assert_eq!(mini_state_size("bar", None).unwrap(), (700, 222));
+    }
+
+    #[test]
+    fn no_second_bar_after_collapse() {
+        // The whole point of Issue 1: collapsed frame is strictly smaller than the
+        // expanded bar in BOTH axes, so the bar frame cannot show behind the badge.
+        let badge = mini_state_size("badge", None).unwrap();
+        let bar = mini_state_size("bar", None).unwrap();
+        assert!(badge.0 < bar.0 && badge.1 < bar.1, "badge {badge:?} must be smaller than bar {bar:?}");
+    }
+
+    #[test]
+    fn collapse_expand_collapse_is_stable() {
+        // Repeated toggles resolve to the same fixed sizes (no drift/accumulation).
+        for _ in 0..3 {
+            assert_eq!(mini_state_size("badge", None).unwrap(), (200, 56));
+            assert_eq!(mini_state_size("bar", None).unwrap(), (700, 222));
+        }
+    }
+
+    #[test]
+    fn expanded_height_is_clamped() {
+        assert_eq!(mini_state_size("expanded", Some(50)).unwrap().1, 120);
+        assert_eq!(mini_state_size("expanded", Some(9999)).unwrap().1, 720);
+        assert_eq!(mini_state_size("expanded", Some(300)).unwrap().1, 300);
+    }
+
+    #[test]
+    fn unknown_state_is_rejected() {
+        assert!(mini_state_size("bogus", None).is_err());
+    }
 }

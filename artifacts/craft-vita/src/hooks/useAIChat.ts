@@ -31,6 +31,65 @@ import {
 } from '@/lib/generation-pipeline';
 import { normalizeSttTranscript } from "@/features/session/transcript/stt-normalizer";
 
+/**
+ * Map an answer-generation failure to a specific, safe, user-facing message
+ * (Issue 3). Technical detail (status, raw body) stays in logs; the UI only
+ * ever sees one of these fixed strings so a raw stack/JSON error body can never
+ * leak into the answer card.
+ */
+export class AiAnswerError extends Error {
+  userMessage: string;
+  status?: number;
+  constructor(userMessage: string, status?: number) {
+    super(`AiAnswerError(${status ?? "network"}): ${userMessage}`);
+    this.name = "AiAnswerError";
+    this.userMessage = userMessage;
+    this.status = status;
+  }
+}
+
+/** HTTP status → user-facing answer error message. */
+export function aiAnswerMessageForStatus(status: number): string {
+  switch (status) {
+    case 401:
+    case 403:
+      return "Sign-in expired. Please sign in again.";
+    case 402:
+      return "Not enough credits.";
+    case 404:
+    case 410:
+      return "Session is no longer active.";
+    case 408:
+    case 504:
+      return "Answer generation timed out. Retry.";
+    case 400:
+    case 422:
+    case 429:
+    case 500:
+    case 502:
+    case 503:
+      return "AI model is unavailable.";
+    default:
+      return status >= 500
+        ? "AI model is unavailable."
+        : "Unable to connect to the server.";
+  }
+}
+
+/** Turn any thrown error into a safe user-facing message. */
+export function describeAiAnswerError(error: unknown): string {
+  if (error instanceof AiAnswerError) return error.userMessage;
+  // fetch() rejects with a TypeError when the network/host is unreachable.
+  if (
+    error instanceof TypeError ||
+    (error instanceof Error &&
+      /failed to fetch|load failed|networkerror|connect/i.test(error.message))
+  ) {
+    return "Unable to connect to the server.";
+  }
+  return "Unable to connect to the server.";
+}
+
 const SEGMENT_MARKER = /\n?={3,}NEXT_QUESTION={3,}\n?/;
 const QUESTION_MARKER = /(?:\*\*\s*)?QUESTION\s*:/i;
 // Backend sentinel: the model returns this single line when the input block
@@ -1399,8 +1458,15 @@ export const useAIChat = () => {
         }
 
         if (!response.ok) {
-          console.error(`[useAIChat] handleAiAnswer: Server returned status ${response.status}`);
-          throw new Error("AI request failed");
+          const rawBody = await response.text().catch(() => "");
+          console.error(
+            `[useAIChat] handleAiAnswer: Server returned status ${response.status}`,
+            { requestId, body: rawBody.slice(0, 500) },
+          );
+          throw new AiAnswerError(
+            aiAnswerMessageForStatus(response.status),
+            response.status,
+          );
         }
 
         const reader = response.body?.getReader();
@@ -1462,12 +1528,21 @@ export const useAIChat = () => {
 
         if (controller.signal.aborted) return;
 
+        // "sentinelOnly" (model returned no answer) is not a hard failure — keep
+        // the existing regenerate-hint fallback instead of a red error banner.
+        const isNoAnswer =
+          error instanceof Error && error.message === "AI Answer returned no answer";
+        const userMessage = isNoAnswer
+          ? "I couldn't generate an answer from the current transcript. Please try regenerate."
+          : describeAiAnswerError(error);
+
         safeSetAiChat((prev) =>
           prev.map((msg) =>
             msg.id === messageId
               ? {
                   ...msg,
-                  text: "Sorry, I couldn't generate an answer from the transcript.",
+                  text: userMessage,
+                  error: isNoAnswer ? null : userMessage,
                 }
               : msg,
           ),
@@ -2020,8 +2095,15 @@ export const useAIChat = () => {
 	        }
 
 	        if (!response.ok) {
-          console.error(`[useAIChat] handleRegenerate: Server returned status ${response.status}`);
-          throw new Error("AI request failed");
+          const rawBody = await response.text().catch(() => "");
+          console.error(
+            `[useAIChat] handleRegenerate: Server returned status ${response.status}`,
+            { requestId, body: rawBody.slice(0, 500) },
+          );
+          throw new AiAnswerError(
+            aiAnswerMessageForStatus(response.status),
+            response.status,
+          );
         }
 
         console.log("[useAIChat] handleRegenerate: Server responded OK. Obtaining stream reader.");
@@ -2060,12 +2142,14 @@ export const useAIChat = () => {
 
         if (controller.signal.aborted) return;
 
+        const userMessage = describeAiAnswerError(error);
         setAiChat((prev) =>
           prev.map((msg) =>
             msg.id === messageId
               ? {
                   ...msg,
-                  text: "Sorry, I couldn't regenerate the answer.",
+                  text: userMessage,
+                  error: userMessage,
                 }
               : msg,
           ),
