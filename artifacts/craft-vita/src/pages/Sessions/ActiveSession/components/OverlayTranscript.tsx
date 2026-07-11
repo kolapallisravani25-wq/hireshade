@@ -6,14 +6,17 @@ import { detectIntent } from "@/lib/intent-detector";
 interface OverlayTranscriptProps {
   transcript: string;
   interimTranscript?: string;
-  isMicActive?: boolean;
+  // Reflects the system/interviewer audio channel — the one this transcript is about.
+  isInterviewerActive?: boolean;
+  isInterviewerConnecting?: boolean;
   className?: string;
 }
 
 export const OverlayTranscript = ({
   transcript,
   interimTranscript,
-  isMicActive,
+  isInterviewerActive,
+  isInterviewerConnecting,
   className,
 }: OverlayTranscriptProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -56,7 +59,11 @@ export const OverlayTranscript = ({
           </p>
         ) : (
           <span className="text-white/20 italic animate-pulse">
-            {isMicActive ? "Listening for speech..." : "Waiting for audio..."}
+            {isInterviewerConnecting
+              ? "Connecting to interviewer audio..."
+              : isInterviewerActive
+                ? "Listening for interviewer..."
+                : "Waiting for audio..."}
           </span>
         )}
       </div>

@@ -1473,9 +1473,11 @@ const FloatingApp: React.FC = () => {
                         </span>
                       ) : (
                         <span className="text-white/20">
-                          {session.isMicActive
-                            ? "Listening for speech..."
-                            : "Waiting for audio..."}
+                          {session.isTabConnecting
+                            ? "Connecting to interviewer audio..."
+                            : session.isTabActive
+                              ? "Listening for interviewer..."
+                              : "Waiting for audio..."}
                         </span>
                       )}
                     </div>
