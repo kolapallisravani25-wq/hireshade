@@ -239,7 +239,7 @@ export function useSessionCreation(): UseSessionCreationReturn {
         return {
           sessionId,
           companyName: data?.companyName ?? "",
-          aiModel: data?.aiModel ?? "anthropic/claude-haiku-4-5",
+          aiModel: data?.aiModel ?? "anthropic/claude-haiku-4.5",
           language: data?.language ?? "English",
           isFree: data?.free ?? false,
           startedAt: data?.startedAt ?? null,
@@ -252,7 +252,7 @@ export function useSessionCreation(): UseSessionCreationReturn {
     return {
       sessionId,
       companyName: "",
-      aiModel: "anthropic/claude-haiku-4-5",
+      aiModel: "anthropic/claude-haiku-4.5",
       language: "English",
       isFree: false,
       startedAt: null,

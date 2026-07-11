@@ -9,7 +9,7 @@ import {
 } from "@workspace/db/schema";
 import { eq, and, desc, ilike, gte, lte, inArray, ne, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
-import { streamChatComplete, chatComplete } from "../lib/openrouter.js";
+import { streamChatComplete, chatComplete, isAiConfigured } from "../lib/openrouter.js";
 import { buildInterviewSystemPrompt, computeContextPresence } from "../lib/interviewPrompt.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
 import { assessQuestionReadiness } from "../lib/questionReadiness.js";
@@ -199,7 +199,7 @@ router.post("/create-session", requireAuth, formParser, async (req, res) => {
     const simpleLanguage = body["simpleLanguage"] === "true";
     const extraContext = body["extraContext"] ?? "";
     const instructions = body["instructions"] ?? "";
-    const aiModel = body["aiModel"] ?? "anthropic/claude-haiku-4-5";
+    const aiModel = body["aiModel"] ?? "anthropic/claude-haiku-4.5";
     const autoGenerateResponse = body["autoGenerateAI"] !== "false";
     const saveTranscription = body["saveTranscript"] !== "false";
     const free = body["free"] === "true";
@@ -1257,6 +1257,18 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       estimatedTokens: Math.ceil(promptChars / 4),
       isRegenerate: !!body.regenerateInstruction,
     });
+
+    // Fail fast BEFORE flushing the streaming 200: if the AI backend isn't
+    // configured, getApiKey() would otherwise throw mid-stream and the client
+    // could only render a broken answer card. Return a clean status with a
+    // safe, user-facing message instead. No secret value is read or logged.
+    if (!isAiConfigured()) {
+      console.error("[sessions] ai-answer unavailable: OPENROUTER_API_KEY is not configured");
+      res.status(503).json({
+        error: "AI answer generation is temporarily unavailable. Please try again later.",
+      });
+      return;
+    }
 
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");

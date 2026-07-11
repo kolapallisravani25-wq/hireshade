@@ -220,12 +220,12 @@ export default function ActiveSession() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const PREFERRED_MODEL_KEY = "hireshade_preferred_model";
-  const DEFAULT_MODEL = "anthropic/claude-haiku-4-5";
+  const DEFAULT_MODEL = "anthropic/claude-haiku-4.5";
   
   // Available models - should match ModelSelector.AI_MODELS
   const AVAILABLE_MODELS = [
-    "anthropic/claude-haiku-4-5",
-    "anthropic/claude-sonnet-4-5",
+    "anthropic/claude-haiku-4.5",
+    "anthropic/claude-sonnet-4.5",
     "google/gemini-3.1-flash-lite-preview",
     "openai/gpt-5",
   ];

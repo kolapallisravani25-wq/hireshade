@@ -56,7 +56,7 @@ export const DEFAULT_SESSION_INFO: SessionInfo = {
   language: "English",
   simpleLanguage: false,
   extraContext: "",
-  aiModel: "anthropic/claude-haiku-4-5",
+  aiModel: "anthropic/claude-haiku-4.5",
   autoGenerateAI: true,
   saveTranscript: true,
   isFree: false,

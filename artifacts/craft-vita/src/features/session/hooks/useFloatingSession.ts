@@ -23,6 +23,8 @@ import { detectIntent, isFillerPhrase } from "@/lib/intent-detector";
 import { useFreeSessionTimer } from "@/hooks/useFreeSessionTimer";
 import { useSessionHeartbeat } from "@/hooks/useSessionHeartbeat";
 import { createAudioSessionController } from "@/features/session/audio/audioSessionController";
+import { deriveCaptureStatus } from "@/features/session/audio/captureStatus";
+import { classifySystemHealth } from "@/features/session/audio/systemHealth";
 import { extractInterviewKeywordsFromParts } from "@/utils/keywordExtractor";
 import { normalizeSttTranscript } from "@/features/session/transcript/stt-normalizer";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -244,6 +246,11 @@ const SYSTEM_EMPTY_FINAL_STORM_WINDOW_MS = 10_000;
 const SYSTEM_NO_EVENTS_STALE_MS = 10_000;
 const SYSTEM_NO_MEANINGFUL_STALE_MS = 20_000;
 const SYSTEM_HEALTH_LOG_INTERVAL_MS = 5000;
+// Rust emits stt:health:system every 1 s while the send loop is alive. Allow a
+// few missed beats (event-loop jitter / brief stalls) before treating the
+// transport as dead — this is the ONLY signal that force-reacquires capture, so
+// it must not trip on ordinary silence, only on a genuinely dead heartbeat.
+const SYSTEM_HEARTBEAT_STALE_MS = 6000;
 const SYSTEM_RESTART_MAX_PER_WINDOW = 3;
 const SYSTEM_RESTART_WINDOW_MS = 60_000;
 const SYSTEM_RESTART_BUDGET_RESET_MS = 75_000;
@@ -765,6 +772,7 @@ export function useFloatingSession() {
     lastPcmAt: number;
     lastPcmFramesSent: number;
     lastDeepgramRunningAt: number;
+    lastHeartbeatAt: number;
     captureRunning: boolean;
     deepgramRunning: boolean;
     healthState: string;
@@ -783,6 +791,7 @@ export function useFloatingSession() {
     lastPcmAt: 0,
     lastPcmFramesSent: 0,
     lastDeepgramRunningAt: 0,
+    lastHeartbeatAt: 0,
     captureRunning: false,
     deepgramRunning: false,
     healthState: "idle",
@@ -1665,6 +1674,7 @@ export function useFloatingSession() {
       const now = Date.now();
       const payload = event.payload;
       const health = systemHealthRef.current;
+      health.lastHeartbeatAt = now;
       health.captureRunning = !!payload.captureRunning;
       health.deepgramRunning = !!payload.deepgramRunning;
       health.lastPcmAt = Number(payload.lastPcmAt) || 0;
@@ -1734,6 +1744,7 @@ export function useFloatingSession() {
         lastPcmAt: 0,
         lastPcmFramesSent: 0,
         lastDeepgramRunningAt: 0,
+        lastHeartbeatAt: 0,
         captureRunning: false,
         deepgramRunning: false,
         healthState: "idle",
@@ -1772,30 +1783,34 @@ export function useFloatingSession() {
         health.systemRestartWindowStartAt = now;
       }
 
-      const noSystemEvents = health.lastSystemEventAt > 0 && now - health.lastSystemEventAt > SYSTEM_NO_EVENTS_STALE_MS;
       const pcmIncreasing = health.lastPcmFramesSent > lastPcmFramesCheckedRef.current;
       const pcmRecent = health.lastPcmAt > 0 && now - health.lastPcmAt <= SYSTEM_NO_EVENTS_STALE_MS;
-      const healthyPcm = health.captureRunning && health.deepgramRunning && (pcmRecent || pcmIncreasing);
-      const noPcm = !pcmRecent && !pcmIncreasing;
       lastPcmFramesCheckedRef.current = health.lastPcmFramesSent;
-      const noMeaningful = health.lastMeaningfulSystemTranscriptAt > 0
-        ? now - health.lastMeaningfulSystemTranscriptAt > SYSTEM_NO_MEANINGFUL_STALE_MS
-        : now - health.lastDeepgramRunningAt > SYSTEM_NO_MEANINGFUL_STALE_MS;
+      const meaningfulRecent = health.lastMeaningfulSystemTranscriptAt > 0
+        && now - health.lastMeaningfulSystemTranscriptAt <= SYSTEM_NO_MEANINGFUL_STALE_MS;
       const inEmptyStormWindow =
         health.emptyFinalWindowStartAt > 0 && now - health.emptyFinalWindowStartAt <= SYSTEM_EMPTY_FINAL_STORM_WINDOW_MS;
       const emptyFinalStorm = inEmptyStormWindow && health.emptyFinalStreak >= SYSTEM_EMPTY_FINAL_STORM_COUNT;
-      const deepgramDead = !health.deepgramRunning && health.lastDeepgramRunningAt > 0 && now - health.lastDeepgramRunningAt > 5000;
-      const weakPhysicalHealth = noPcm || !health.captureRunning;
-      const healthySilentWindow = noMeaningful && healthyPcm;
-      const staleBySilenceWithWeakPcm = noMeaningful && weakPhysicalHealth;
-      const staleByEmptyStorm = emptyFinalStorm && weakPhysicalHealth;
-      const staleByNoEvents = noSystemEvents && weakPhysicalHealth;
-      const staleByExplicitHealth =
-        health.healthState === "error" || health.healthState === "starved" || health.healthState === "stopped";
-      const stale = !healthySilentWindow
-        && (staleBySilenceWithWeakPcm || staleByEmptyStorm || staleByNoEvents || deepgramDead || staleByExplicitHealth);
 
-      health.isSystemSilent = !stale && !!health.deepgramRunning && !!health.captureRunning && noMeaningful;
+      // A fresh 1 s heartbeat is positive proof capture + Deepgram are alive, so
+      // silence never tears down the socket; reconnect only on confirmed
+      // transport/capture failure (see classifySystemHealth).
+      const decision = classifySystemHealth(
+        {
+          hadHeartbeat: health.lastHeartbeatAt > 0,
+          msSinceHeartbeat: health.lastHeartbeatAt > 0 ? now - health.lastHeartbeatAt : 0,
+          captureRunning: health.captureRunning,
+          deepgramRunning: health.deepgramRunning,
+          healthState: health.healthState,
+          pcmRecent,
+          pcmIncreasing,
+          meaningfulRecent,
+          deepgramStallWithActivePcm: emptyFinalStorm && pcmIncreasing,
+        },
+        { heartbeatStaleMs: SYSTEM_HEARTBEAT_STALE_MS },
+      );
+      const stale = decision.class === "reconnect";
+      health.isSystemSilent = decision.class === "silent";
 
       logSystemHealthSummary(health.healthState, stale);
 
@@ -1815,11 +1830,23 @@ export function useFloatingSession() {
         return;
       }
       setIsSystemStale(true);
+      // Privacy-safe diagnostic: reconnect reason + PCM counters only (no audio,
+      // no transcript text, no secrets). Emitted in prod too so live WASAPI/
+      // ScreenCaptureKit failures are diagnosable from logs we cannot reproduce.
+      console.warn("[audio-lifecycle] systemReconnect", {
+        reason: decision.reason,
+        healthState: health.healthState,
+        captureRunning: health.captureRunning,
+        deepgramRunning: health.deepgramRunning,
+        pcmFramesSent: health.lastPcmFramesSent,
+        msSinceHeartbeat: health.lastHeartbeatAt > 0 ? now - health.lastHeartbeatAt : -1,
+        msSincePcm: health.lastPcmAt > 0 ? now - health.lastPcmAt : -1,
+      });
       if (import.meta.env.DEV) {
         logSystemTransition("stale", "reconnecting");
         previousSystemPhaseRef.current = "reconnecting";
       }
-      void reacquireSystemAudio("system_stale_reacquire");
+      void reacquireSystemAudio(`system_reacquire_${decision.reason}`);
     }, 2000);
 
     return () => {
@@ -2846,16 +2873,13 @@ export function useFloatingSession() {
   const isTabActive = tabStatus === "transcribing";
   const isTabConnecting = tabStatus === "connecting";
   const isSystemAuthError = tabStatus === "error" && isDeepgramAuthFailureMessage(tabError);
-  const captureStatus =
-    tabStatus === "error"
-      ? "Error"
-      : isSystemStale || isMicConnecting || isTabConnecting
-      ? "Reconnecting"
-      : isMicActive || isTabActive
-        ? "Live"
-        : sessionInfo
-          ? "Released"
-          : "Disconnected";
+  const captureStatus = deriveCaptureStatus({
+    tabStatus,
+    isSystemStale,
+    isMicConnecting,
+    isMicActive,
+    hasSession: !!sessionInfo,
+  });
 
   return {
     // ── Redux state ──────────────────────────────────────────────────────────

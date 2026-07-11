@@ -48,8 +48,8 @@ export const TAURI_AUTH_PORT = 10002;
 export const JOB_DESCRIPTION_REGEX = /^.{2,}/im;
 
 export const AI_MODELS_WIDGET = [
-  { value: "anthropic/claude-haiku-4-5",          label: "Claude Haiku 4.5",       badge: "fast"      },
-  { value: "anthropic/claude-sonnet-4-5",          label: "Claude Sonnet 4.5",      badge: "reasoning" },
+  { value: "anthropic/claude-haiku-4.5",          label: "Claude Haiku 4.5",       badge: "fast"      },
+  { value: "anthropic/claude-sonnet-4.5",          label: "Claude Sonnet 4.5",      badge: "reasoning" },
   { value: "google/gemini-3.1-flash-lite-preview", label: "Gemini 3.1 Flash Lite"                      },
   { value: "openai/gpt-5",                          label: "GPT-5"                                      },
 ];

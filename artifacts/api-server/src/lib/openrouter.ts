@@ -1,7 +1,7 @@
 import { logger } from "./logger.js";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_MODEL = "anthropic/claude-haiku-4-5";
+const DEFAULT_MODEL = "anthropic/claude-haiku-4.5";
 
 /**
  * Overall timeout for a non-streaming completion, and idle (no-bytes) timeout
@@ -40,6 +40,30 @@ function getApiKey(): string {
 }
 
 /**
+ * Whether the AI backend is configured. Lets a request handler short-circuit
+ * with a clean status BEFORE it flushes a streaming 200, instead of letting
+ * `getApiKey()` throw mid-stream (which the client can only show as a broken
+ * answer card). Never returns or logs the key value itself.
+ */
+export function isAiConfigured(): boolean {
+  return !!process.env["OPENROUTER_API_KEY"];
+}
+
+/**
+ * Classify an OpenRouter HTTP status into a stable, log-safe category so
+ * failures are diagnosable from logs without inspecting response bodies (which
+ * may echo the prompt). Pure and unit-tested.
+ */
+export function classifyOpenRouterError(status: number): string {
+  if (status === 400) return "invalid_request";
+  if (status === 401 || status === 403) return "auth";
+  if (status === 404) return "model_not_found";
+  if (status === 429) return "rate_limited";
+  if (status >= 500) return "server_error";
+  return "unknown";
+}
+
+/**
  * Models excluded platform-wide (spec §8c / desktop §8.7a: "GPT-4o / GPT-4
  * Pointer is explicitly excluded ... they do not appear as options anywhere").
  * The picker no longer offers them, but an old session row may still carry one,
@@ -50,8 +74,28 @@ function isExcludedModel(model: string): boolean {
   return /(^|\/)gpt-4o/i.test(model) || /(^|\/)gpt-4-?(pointer|turbo-pointer)/i.test(model);
 }
 
+/**
+ * Correct legacy/mis-typed version separators in an OpenRouter slug.
+ *
+ * The UI pickers, session defaults, and DB `ai_model` default historically
+ * stored `anthropic/claude-haiku-4-5` and `anthropic/claude-sonnet-4-5` — with
+ * a HYPHEN between the major/minor version. OpenRouter's real identifiers use a
+ * DOT (`anthropic/claude-haiku-4.5`, `anthropic/claude-sonnet-4.5`), so every
+ * request built from a stored session model hit a 400 "model not found" and,
+ * because `/ai-answer` had already flushed its 200 + QUESTION line, surfaced to
+ * the user as an in-card "**ERROR:** Answer generation failed" with no answer.
+ *
+ * Normalising here fixes existing session rows AND any new ones without a
+ * data migration: a trailing `-<major>-<minor>` on an anthropic slug becomes
+ * `-<major>.<minor>`. Slugs that already use a dot, or non-anthropic slugs
+ * (e.g. `openai/gpt-5`), are returned unchanged.
+ */
+export function normalizeModelSlug(model: string): string {
+  return model.replace(/^(anthropic\/[a-z]+(?:-[a-z]+)*)-(\d+)-(\d+)$/i, "$1-$2.$3");
+}
+
 function resolveModel(model?: string | null): string {
-  const m = model && model.trim() ? model.trim() : "";
+  const m = model && model.trim() ? normalizeModelSlug(model.trim()) : "";
   if (!m || isExcludedModel(m)) return DEFAULT_MODEL;
   return m;
 }
@@ -80,7 +124,10 @@ export async function chatComplete(opts: {
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    logger.error({ status: res.status, text }, "[openrouter] chatComplete failed");
+    logger.error(
+      { status: res.status, category: classifyOpenRouterError(res.status), text },
+      "[openrouter] chatComplete failed",
+    );
     throw new Error(`OpenRouter request failed (${res.status})`);
   }
 
@@ -168,7 +215,10 @@ export async function streamChatComplete(
 
     if (!res.ok || !res.body) {
       const text = await res.text().catch(() => "");
-      logger.error({ status: res.status, text }, "[openrouter] streamChatComplete failed");
+      logger.error(
+        { status: res.status, category: classifyOpenRouterError(res.status), text },
+        "[openrouter] streamChatComplete failed",
+      );
       throw new Error(`OpenRouter request failed (${res.status})`);
     }
 

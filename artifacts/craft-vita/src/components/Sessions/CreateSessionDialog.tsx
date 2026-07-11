@@ -51,7 +51,7 @@ const INITIAL_SESSION_DATA = {
   simpleLanguage: false,
   extraContext: "",
   instructions: "",
-  aiModel: "anthropic/claude-haiku-4-5",
+  aiModel: "anthropic/claude-haiku-4.5",
   autoGenerateAI: true,
   saveTranscript: true,
   questionBankContributionOptIn: false,

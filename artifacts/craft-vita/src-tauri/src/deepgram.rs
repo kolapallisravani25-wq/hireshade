@@ -56,6 +56,37 @@ pub struct SttStatusPayload {
     pub error: Option<String>,
 }
 
+/// Physical-health heartbeat emitted on `stt:health:system` / `stt:health:mic`.
+///
+/// The frontend staleness monitor (`useFloatingSession`) classifies the system
+/// channel as "stale" and force-reacquires audio whenever it lacks positive
+/// proof that capture + Deepgram are alive. That proof comes ONLY from this
+/// event: `capture_running`, `deepgram_running`, a monotonic `pcm_frames_sent`
+/// counter, and `last_pcm_at` (epoch ms). Without it every field defaulted to
+/// false/0, so `weakPhysicalHealth` was permanently true and `deepgramDead`
+/// fired ~5 s after connect — driving the endless Released → Reconnecting loop.
+#[derive(serde::Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SystemHealthPayload {
+    pub channel: &'static str,
+    pub capture_running: bool,
+    pub deepgram_running: bool,
+    pub pcm_frames_sent: u64,
+    /// Epoch milliseconds of the most recent PCM frame forwarded to Deepgram.
+    pub last_pcm_at: u64,
+    /// One of: `"connected"`, `"capturing"`, `"stopped"`.
+    pub state: &'static str,
+}
+
+/// Epoch milliseconds — matches the frontend's `Date.now()` clock so
+/// `now - last_pcm_at` staleness comparisons are meaningful.
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+}
+
 /// Which capture path this Deepgram session belongs to. Determines event
 /// channel names and log tags so callers cannot mismatch them.
 #[derive(Copy, Clone)]
@@ -79,10 +110,22 @@ impl SttChannel {
             SttChannel::Mic => "stt:status:mic",
         }
     }
+    fn health_event(self) -> &'static str {
+        match self {
+            SttChannel::System => "stt:health:system",
+            SttChannel::Mic => "stt:health:mic",
+        }
+    }
     fn log_tag(self) -> &'static str {
         match self {
             SttChannel::System => "stt:system",
             SttChannel::Mic => "stt:mic",
+        }
+    }
+    fn channel_name(self) -> &'static str {
+        match self {
+            SttChannel::System => "system",
+            SttChannel::Mic => "mic",
         }
     }
 }
@@ -164,6 +207,8 @@ pub async fn run_session(
     let tag = channel.log_tag();
     let status_evt = channel.status_event();
     let transcript_evt = channel.transcript_event();
+    let health_evt = channel.health_event();
+    let channel_name = channel.channel_name();
 
     // ── Validate inputs before touching the network ─────────────────────────
     // An empty model or language causes Deepgram to return 400 Bad Request
@@ -334,6 +379,22 @@ pub async fn run_session(
         },
     );
 
+    // Immediately assert physical health so the frontend staleness monitor sees
+    // `deepgramRunning=true` before its ~5 s `deepgramDead` window elapses. The
+    // send-loop heartbeat below then refreshes this every second with live PCM
+    // counters.
+    let _ = app.emit(
+        health_evt,
+        SystemHealthPayload {
+            channel: channel_name,
+            capture_running: true,
+            deepgram_running: true,
+            pcm_frames_sent: 0,
+            last_pcm_at: 0,
+            state: "connected",
+        },
+    );
+
     let (mut write, mut read) = ws.split();
 
     // Reader task communicates back to the send loop via a oneshot so the
@@ -404,8 +465,15 @@ pub async fn run_session(
         }
     });
 
-    // ── Send loop: KeepAlive + PCM, stops on user stop / reader exit / error.
+    // ── Send loop: KeepAlive + PCM + health heartbeat.
+    // Stops on user stop / reader exit / error.
     let mut ka = tokio::time::interval(Duration::from_secs(8));
+    // 1 s heartbeat: the frontend staleness monitor ticks every 2 s and treats
+    // PCM older than its window (or a missing capture/deepgram flag) as stale,
+    // so we must refresh the physical-health signal faster than it can decay.
+    let mut hb = tokio::time::interval(Duration::from_secs(1));
+    let mut pcm_frames_sent: u64 = 0;
+    let mut last_pcm_at: u64 = 0;
     let exit_reason = loop {
         if !running.load(Ordering::Relaxed)
             || generation.load(Ordering::Relaxed) != my_gen
@@ -428,6 +496,19 @@ pub async fn run_session(
                     break ExitReason::SendError(e.to_string());
                 }
             }
+            _ = hb.tick() => {
+                let _ = app.emit(
+                    health_evt,
+                    SystemHealthPayload {
+                        channel: channel_name,
+                        capture_running: true,
+                        deepgram_running: true,
+                        pcm_frames_sent,
+                        last_pcm_at,
+                        state: "capturing",
+                    },
+                );
+            }
             result = pcm_rx.recv() => {
                 match result {
                     Ok(pcm) => {
@@ -435,6 +516,8 @@ pub async fn run_session(
                             eprintln!("[{tag}] PCM send FAILED: {e}");
                             break ExitReason::SendError(e.to_string());
                         }
+                        pcm_frames_sent = pcm_frames_sent.saturating_add(1);
+                        last_pcm_at = now_ms();
                     }
                     Err(broadcast::error::RecvError::Lagged(_n)) => {
                         continue;
@@ -469,6 +552,21 @@ pub async fn run_session(
     // exit_reason is authoritative — no post-hoc override needed. (The previous
     // `!running.load()` guard here was dead: running was just stored false above,
     // so it was always true and the branch reduced to matches!(UserStop).)
+    // Final health beat so the frontend monitor stops treating the channel as
+    // live the instant the session ends (rather than waiting for its own window
+    // to decay). Emitted before the status event so listeners settle in order.
+    let _ = app.emit(
+        health_evt,
+        SystemHealthPayload {
+            channel: channel_name,
+            capture_running: false,
+            deepgram_running: false,
+            pcm_frames_sent,
+            last_pcm_at,
+            state: "stopped",
+        },
+    );
+
     let payload = exit_reason.into_status();
     let _ = app.emit(status_evt, payload);
 }

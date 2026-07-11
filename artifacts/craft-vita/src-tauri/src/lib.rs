@@ -1421,6 +1421,13 @@ async fn start_system_audio_transcription(
     let (pcm_tx, _) = broadcast::channel::<Arc<Vec<u8>>>(256);
     let tx_arc = Arc::new(pcm_tx);
     let tx_capture = tx_arc.clone();
+    // Subscribe BEFORE the capture thread starts pushing PCM. Otherwise every
+    // frame emitted between capture start and the Deepgram-connect spawn (which
+    // used to `.subscribe()` only after the up-to-10 s init handshake) is
+    // dropped by the broadcast channel, clipping the first words of a session.
+    // The bounded 256-frame buffer retains early audio until run_session drains
+    // it — no unbounded memory.
+    let pcm_rx = tx_arc.subscribe();
     let my_gen = SYSTEM_STT_GENERATION.fetch_add(1, Ordering::SeqCst) + 1;
     SYSTEM_STT_RUNNING.store(true, Ordering::SeqCst);
 
@@ -1531,7 +1538,10 @@ async fn start_system_audio_transcription(
     }
     let app_c = app.clone();
     tokio::spawn(async move {
-        let pcm_rx = tx_arc.subscribe();
+        // Hold the sender for the session's lifetime and use the receiver that
+        // was subscribed before capture started (see the eager `subscribe()`
+        // above) so no early PCM is dropped.
+        let _tx_keepalive = tx_arc;
         deepgram::run_session(
             app_c,
             DeepgramConfig {
@@ -1600,6 +1610,10 @@ async fn start_mic_transcription(
     let (tx, _rx) = broadcast::channel::<Arc<Vec<u8>>>(64);
     let tx_arc = Arc::new(tx);
     let tx_capture = tx_arc.clone();
+    // Subscribe before capture starts so early PCM isn't dropped by the
+    // broadcast channel before the Deepgram-connect spawn attaches (bounded by
+    // the 64-frame buffer — no unbounded memory).
+    let pcm_rx = tx_arc.subscribe();
     let my_gen = MIC_STT_GENERATION.fetch_add(1, Ordering::SeqCst) + 1;
     MIC_STT_RUNNING.store(true, Ordering::SeqCst);
 
@@ -1675,7 +1689,7 @@ async fn start_mic_transcription(
 
     let app_c = app.clone();
     tokio::spawn(async move {
-        let pcm_rx = tx_arc.subscribe();
+        let _tx_keepalive = tx_arc;
         deepgram::run_session(
             app_c,
             DeepgramConfig {
@@ -1744,6 +1758,10 @@ async fn start_system_audio_transcription(
     let (tx, _rx) = broadcast::channel::<Arc<Vec<u8>>>(128);
     let tx_arc = Arc::new(tx);
     let tx_capture = tx_arc.clone();
+    // Subscribe BEFORE the capture thread starts pushing PCM so loopback frames
+    // emitted before the Deepgram-connect spawn aren't dropped by the broadcast
+    // channel. Bounded by the existing 128-frame buffer — no unbounded memory.
+    let pcm_rx = tx_arc.subscribe();
     let my_gen = SYSTEM_STT_GENERATION.fetch_add(1, Ordering::SeqCst) + 1;
     SYSTEM_STT_RUNNING.store(true, Ordering::SeqCst);
 
@@ -1819,7 +1837,9 @@ async fn start_system_audio_transcription(
 
     let app_c = app.clone();
     tokio::spawn(async move {
-        let pcm_rx = tx_arc.subscribe();
+        // Hold the sender for the session's lifetime; use the receiver that was
+        // subscribed before capture started so no early PCM is dropped.
+        let _tx_keepalive = tx_arc;
         deepgram::run_session(
             app_c,
             DeepgramConfig {
@@ -1888,6 +1908,10 @@ async fn start_mic_transcription(
     let (tx, _rx) = broadcast::channel::<Arc<Vec<u8>>>(64);
     let tx_arc = Arc::new(tx);
     let tx_capture = tx_arc.clone();
+    // Subscribe before capture starts so early PCM isn't dropped by the
+    // broadcast channel before the Deepgram-connect spawn attaches (bounded by
+    // the 64-frame buffer — no unbounded memory).
+    let pcm_rx = tx_arc.subscribe();
     let my_gen = MIC_STT_GENERATION.fetch_add(1, Ordering::SeqCst) + 1;
     MIC_STT_RUNNING.store(true, Ordering::SeqCst);
 
@@ -1963,7 +1987,7 @@ async fn start_mic_transcription(
 
     let app_c = app.clone();
     tokio::spawn(async move {
-        let pcm_rx = tx_arc.subscribe();
+        let _tx_keepalive = tx_arc;
         deepgram::run_session(
             app_c,
             DeepgramConfig {

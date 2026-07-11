@@ -107,7 +107,7 @@ export const sessionsTable = pgTable(
     simpleLanguage: boolean("simple_language").notNull().default(false),
     extraContext: text("extra_context").default(""),
     instructions: text("instructions").default(""),
-    aiModel: text("ai_model").default("anthropic/claude-haiku-4-5"),
+    aiModel: text("ai_model").default("anthropic/claude-haiku-4.5"),
     autoGenerateResponse: boolean("auto_generate_response").notNull().default(true),
     saveTranscription: boolean("save_transcription").notNull().default(true),
     questionBankContributionOptIn: boolean("question_bank_contribution_opt_in")

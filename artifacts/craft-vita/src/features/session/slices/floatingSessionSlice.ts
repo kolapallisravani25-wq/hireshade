@@ -70,12 +70,12 @@ export interface FloatingSessionState {
   autoScroll: boolean;
 }
 
-const DEFAULT_MODEL = "anthropic/claude-haiku-4-5";
+const DEFAULT_MODEL = "anthropic/claude-haiku-4.5";
 
 // Available models - should match ModelSelector.AI_MODELS
 const AVAILABLE_MODELS = [
-  "anthropic/claude-haiku-4-5",
-  "anthropic/claude-sonnet-4-5",
+  "anthropic/claude-haiku-4.5",
+  "anthropic/claude-sonnet-4.5",
   "google/gemini-3.1-flash-lite-preview",
   "openai/gpt-5",
 ];
@@ -266,7 +266,7 @@ const floatingSessionSlice = createSlice({
      */
     initSession(state, action: PayloadAction<SessionInitData>) {
       state.sessionInfo = action.payload;
-      state.selectedModel = action.payload.aiModel || "anthropic/claude-haiku-4-5";
+      state.selectedModel = action.payload.aiModel || "anthropic/claude-haiku-4.5";
       state.messages = [];
       state.creditWarning = null;
       state.isEnding = false;

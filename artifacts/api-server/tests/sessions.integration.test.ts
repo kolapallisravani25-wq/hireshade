@@ -77,6 +77,8 @@ vi.mock("../src/lib/openrouter.js", () => ({
     missing: [],
   })),
   streamChatComplete: vi.fn(async () => "mock streamed response"),
+  isAiConfigured: vi.fn(() => true),
+  classifyOpenRouterError: vi.fn(() => "unknown"),
 }));
 
 import { db } from "@workspace/db";
