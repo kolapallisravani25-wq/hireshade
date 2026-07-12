@@ -618,7 +618,7 @@ const AnswerArea = memo(function AnswerArea({
   return (
     <div
       ref={scrollRef}
-      className="max-h-[420px] overflow-y-auto overflow-x-hidden overscroll-contain p-4 space-y-4 no-scrollbar [contain:layout_paint]"
+      className="max-h-[min(420px,55vh)] overflow-y-auto overflow-x-hidden overscroll-contain p-4 space-y-4 no-scrollbar [contain:layout_paint]"
     >
       {responses.map((resp) => {
         // Render raw markdown as-is from the stream/result. Do not mutate content.
@@ -1665,7 +1665,7 @@ const FloatingApp: React.FC = () => {
               {/* ── Bottom Panel: Transcript Drawer OR AI Answer Panel (exclusive) ── */}
               {session.isTranscriptExpanded ? (
                 /* ── Transcript Drawer ─────────────────────────────────────────── */
-                <div className="flex flex-col border-t border-white/10 min-h-[240px] max-h-[320px]">
+                <div className="flex flex-col border-t border-white/10 min-h-[240px] max-h-[320px] bg-zinc-900/95 rounded-b-xl overflow-hidden">
                   {/* Drawer header */}
                   <div className="px-3 py-2 flex items-center justify-between shrink-0 border-b border-white/5 bg-white/[0.02]">
                     <div className="flex items-center gap-2">
@@ -1706,7 +1706,7 @@ const FloatingApp: React.FC = () => {
               ) : (
                 /* ── AI Answer Panel ───────────────────────────────────────────── */
                 (isAnalysisBusy || session.aiResponses.length > 0) && (
-                  <div className="flex flex-col border-t border-white/10">
+                  <div className="flex flex-col border-t border-white/10 bg-zinc-900/95 rounded-b-xl overflow-hidden">
                     {(() => {
                       // Clamp the Redux index to the current React array length so we
                       // never access aiResponses[undefined] when Redux races ahead of
