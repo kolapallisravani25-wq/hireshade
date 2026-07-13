@@ -616,9 +616,19 @@ const AnswerArea = memo(function AnswerArea({
   }, [activeResponseId, autoScroll]);
 
   return (
+    // Answer scroll container.
+    // - `flex-1 min-h-0 h-full`: fills the bounded parent panel so scroll
+    //   grows/shrinks with the Tauri window (item 3). Replaces the old fixed
+    //   `max-h-[min(420px,55vh)]` which measured the native window and made
+    //   the answer *look missing* when it exceeded the fixed cap.
+    // - `overflow-y:auto overflow-x:hidden`: scrolls inside the card instead
+    //   of overflowing below it (item 1).
+    // - `bg-zinc-900/95`: OPAQUE background so the answer never paints on the
+    //   transparent desktop — satisfies item 1’s “opaque container INSIDE
+    //   the card” requirement even when the outer glass opacity is low.
     <div
       ref={scrollRef}
-      className="max-h-[min(420px,55vh)] overflow-y-auto overflow-x-hidden overscroll-contain p-4 space-y-4 no-scrollbar [contain:layout_paint]"
+      className="flex-1 min-h-0 h-full overflow-y-auto overflow-x-hidden overscroll-contain p-4 space-y-4 no-scrollbar [contain:layout_paint] bg-zinc-900/95"
     >
       {responses.map((resp) => {
         // Render raw markdown as-is from the stream/result. Do not mutate content.
@@ -1113,6 +1123,20 @@ const FloatingApp: React.FC = () => {
             // Width tracks badge vs full widget so useCursorPassthrough
             // hit-tests the correct region and transparent gaps stay click-through.
             width: session.isWindowCollapsed ? 180 : 700,
+            // Bound the widget shell to the native window's inner height so
+            // long AI answers stay contained INSIDE the glass card. Without
+            // this, the panel below the card grows past the transparent
+            // window bounds and gets clipped by the OS — which is why the
+            // answer "looked missing". The `- 20` leaves a 10px gutter on
+            // top+bottom (matches `top: 10`) so the card never touches the
+            // window edge and casts a proper shadow. When the user resizes
+            // the Tauri window (item 2), this bound updates automatically
+            // via 100vh and the answer area (flex-1) grows/scrolls in place.
+            maxHeight: session.isWindowCollapsed
+              ? undefined
+              : "calc(100vh - 20px)",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {/* ── Collapsed badge view ─────────────────────────────────────── */}
@@ -1706,7 +1730,13 @@ const FloatingApp: React.FC = () => {
               ) : (
                 /* ── AI Answer Panel ───────────────────────────────────────────── */
                 (isAnalysisBusy || session.aiResponses.length > 0) && (
-                  <div className="flex flex-col border-t border-white/10 bg-zinc-900/95 rounded-b-xl overflow-hidden">
+                  // flex-1 + min-h-0 makes this panel absorb all remaining
+                  // vertical space inside the bounded card, so the AnswerArea
+                  // child gets a real height to fill and scroll within.
+                  // bg-zinc-900/95 is an OPAQUE container inside the card so
+                  // the answer paints on solid dark backing (not the desktop
+                  // showing through) even though the outer card is glass.
+                  <div className="flex flex-col flex-1 min-h-0 border-t border-white/10 bg-zinc-900/95 rounded-b-xl overflow-hidden">
                     {(() => {
                       // Clamp the Redux index to the current React array length so we
                       // never access aiResponses[undefined] when Redux races ahead of
@@ -1834,10 +1864,16 @@ const FloatingApp: React.FC = () => {
                             </div>
                           )}
 
-                          {/* Answer content — primary scrollable area */}
+                          {/* Answer content — primary scrollable area.
+                              flex-1 + min-h-0 makes this wrapper grow to fill
+                              the panel and lets AnswerArea’s overflow-y:auto
+                              take effect. The AnswerArea below now uses the
+                              same flex-1/min-h-0/overflow-y-auto instead of a
+                              fixed max-h so the scroll region resizes with
+                              the Tauri window (item 2). */}
                           {session.isResponsesExpanded &&
                             session.aiResponses.length > 0 && (
-                              <div className="border-t border-white/10 min-h-0">
+                              <div className="flex-1 min-h-0 border-t border-white/10 bg-zinc-900/95">
                                 <AnswerAreaErrorBoundary>
                                   <AnswerArea
                                     responses={[

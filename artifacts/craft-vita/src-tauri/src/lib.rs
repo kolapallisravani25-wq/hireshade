@@ -267,12 +267,19 @@ async fn show_mini_top_center(app: AppHandle) -> Result<(), String> {
         .use_https_scheme(true)
         .title("HireShade Floating Screen")
         .inner_size(700f64, 360f64)
+        // Allow the user to resize the overlay so long AI answers can be
+        // read comfortably. Bounds match tauri.conf.json (min 360×200,
+        // max 1600×1200) so tiny/huge sizes never wreck the layout.
+        // transparent:true + decorations:false must stay — the overlay is a
+        // frameless glass card, not a normal window.
+        .min_inner_size(360f64, 200f64)
+        .max_inner_size(1600f64, 1200f64)
         .transparent(true)
         .decorations(false)
         .always_on_top(true)
         .minimizable(false)
         .maximizable(false)
-        .resizable(false)
+        .resizable(true)
         .skip_taskbar(true)
         .visible(false)
         .visible_on_all_workspaces(true)
