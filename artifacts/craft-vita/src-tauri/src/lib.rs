@@ -2929,8 +2929,42 @@ pub fn run() {
                             // set_always_on_top while the window is being clicked/
                             // activated can swallow that first click and force a
                             // second one, so we must not touch it on Focused(true).
+                            //
+                            // CRITICAL: DO NOT use w.set_always_on_top(true) here.
+                            // That call goes through tao's WindowFlags::apply_diff
+                            // which rewrites GWL_STYLE via to_window_styles() (undoing
+                            // remove_window_border and restoring WS_CAPTION), then
+                            // calls SetWindowPos with SWP_FRAMECHANGED — which cancels
+                            // any in-flight WM_NCLBUTTONDOWN modal resize loop that
+                            // startResizeDragging just started. Result: resize dies
+                            // the instant Windows fires Focused(false) at the start
+                            // of the resize modal loop.
+                            //
+                            // Solution: call SetWindowPos(HWND_TOPMOST) directly with
+                            // NO SWP_FRAMECHANGED and NO style rewrite. Same z-order
+                            // effect, no side-effects on styles or in-flight input.
                             if let tauri::WindowEvent::Focused(false) = event {
-                                let _ = w.set_always_on_top(true);
+                                #[cfg(target_os = "windows")]
+                                {
+                                    if let Ok(hwnd) = w.hwnd() {
+                                        unsafe {
+                                            use windows::Win32::UI::WindowsAndMessaging::{
+                                                SetWindowPos, HWND_TOPMOST,
+                                                SWP_NOMOVE, SWP_NOSIZE, SWP_NOACTIVATE, SWP_ASYNCWINDOWPOS,
+                                            };
+                                            let _ = SetWindowPos(
+                                                windows::Win32::Foundation::HWND(hwnd.0),
+                                                Some(HWND_TOPMOST),
+                                                0, 0, 0, 0,
+                                                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS,
+                                            );
+                                        }
+                                    }
+                                }
+                                #[cfg(not(target_os = "windows"))]
+                                {
+                                    let _ = w.set_always_on_top(true);
+                                }
                             }
                         });
                     }
