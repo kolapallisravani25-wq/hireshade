@@ -2954,7 +2954,7 @@ pub fn run() {
                                             };
                                             let _ = SetWindowPos(
                                                 windows::Win32::Foundation::HWND(hwnd.0),
-                                                Some(HWND_TOPMOST),
+                                                HWND_TOPMOST,
                                                 0, 0, 0, 0,
                                                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS,
                                             );
