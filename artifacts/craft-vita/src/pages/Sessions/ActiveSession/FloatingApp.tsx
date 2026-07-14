@@ -1145,7 +1145,19 @@ const FloatingApp: React.FC = () => {
             pointerEvents: "auto",
             // Width tracks badge vs full widget so useCursorPassthrough
             // hit-tests the correct region and transparent gaps stay click-through.
-            width: session.isWindowCollapsed ? 180 : 700,
+            // Collapsed: fixed pill width. Expanded: fill the entire window
+            // width minus a 10px gutter on each side so the card grows with
+            // the OS window when the user resizes it (previously locked at
+            // 700 which caused a huge dark band on either side after resize).
+            width: session.isWindowCollapsed ? 180 : "calc(100vw - 20px)",
+            // Cap the widget at a comfortable reading width even when the
+            // window is dragged wider — otherwise very wide windows would
+            // produce ultra-long line lengths that hurt readability.
+            maxWidth: session.isWindowCollapsed ? undefined : 1400,
+            // Also constrain a minimum so a too-narrow drag can't crush the
+            // toolbar controls into overlap. Slightly less than the design
+            // baseline so users can nudge it smaller if they want.
+            minWidth: session.isWindowCollapsed ? undefined : 560,
             // Bound the widget shell to the native window's inner height so
             // long AI answers stay contained INSIDE the glass card. Without
             // this, the panel below the card grows past the transparent
