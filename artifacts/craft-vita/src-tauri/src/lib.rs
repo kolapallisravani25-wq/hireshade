@@ -92,7 +92,11 @@ unsafe extern "system" fn mini_subclass_proc(
     _ref_data: usize,
 ) -> windows::Win32::Foundation::LRESULT {
     use windows::Win32::Foundation::{RECT, LRESULT};
-    use windows::Win32::UI::WindowsAndMessaging::{WM_NCHITTEST, WM_NCCALCSIZE, GetWindowRect};
+    use windows::Win32::UI::WindowsAndMessaging::{
+        WM_NCHITTEST, WM_NCCALCSIZE, GetWindowRect,
+        HTTRANSPARENT, HTLEFT, HTRIGHT, HTTOP, HTBOTTOM,
+        HTTOPLEFT, HTTOPRIGHT, HTBOTTOMLEFT, HTBOTTOMRIGHT,
+    };
     use windows::Win32::UI::Shell::DefSubclassProc;
 
     // Intercept WM_NCCALCSIZE (wParam=TRUE) and return 0 so that the entire
@@ -115,18 +119,49 @@ unsafe extern "system" fn mini_subclass_proc(
         let cy = pt_y - rect.top;
         let w  = rect.right  - rect.left;
         let h  = rect.bottom - rect.top;
-        let r  = 12i32; // matches Tailwind `rounded-xl`
+        let r  = 12i32;              // matches Tailwind `rounded-xl`
+        let border = 6i32;           // resize grab zone thickness in px
 
+        // Outside the window rect entirely — click-through.
         if cx < 0 || cy < 0 || cx > w || cy > h {
             return LRESULT(-1); // HTTRANSPARENT
         }
 
+        // ---- Resize hit-tests (NEW) --------------------------------------
+        // With WS_THICKFRAME restored on the window (see remove_window_border),
+        // returning HT*LEFT/RIGHT/TOP/BOTTOM/CORNER codes here makes Windows
+        // (a) show the correct resize cursor at the edge, and
+        // (b) initiate a native resize drag on left-mouse-down.
+        // Corners take priority over edges so the diagonal-resize cursor wins
+        // when the pointer is inside both zones.
+        // We deliberately test corners BEFORE the rounded-corner transparency
+        // check below so users can actually grab the corner to resize even
+        // though the pixel is outside the rounded shape.
+        let on_left   = cx <  border;
+        let on_right  = cx > w - border;
+        let on_top    = cy <  border;
+        let on_bottom = cy > h - border;
+
+        if on_top && on_left     { return LRESULT(HTTOPLEFT as isize); }
+        if on_top && on_right    { return LRESULT(HTTOPRIGHT as isize); }
+        if on_bottom && on_left  { return LRESULT(HTBOTTOMLEFT as isize); }
+        if on_bottom && on_right { return LRESULT(HTBOTTOMRIGHT as isize); }
+        if on_left               { return LRESULT(HTLEFT as isize); }
+        if on_right              { return LRESULT(HTRIGHT as isize); }
+        if on_top                { return LRESULT(HTTOP as isize); }
+        if on_bottom             { return LRESULT(HTBOTTOM as isize); }
+
+        // ---- Rounded-corner click-through --------------------------------
+        // Outside the rounded shape but inside the bounding rect — pass clicks
+        // through to whatever is beneath the overlay. This runs AFTER the
+        // resize hit-tests above so corner-resize grabs still work.
         let in_corner =
             (cx <   r && cy <   r && (cx-r)*(cx-r)         + (cy-r)*(cy-r)         > r*r) ||
             (cx > w-r && cy <   r && (cx-(w-r))*(cx-(w-r)) + (cy-r)*(cy-r)         > r*r) ||
             (cx <   r && cy > h-r && (cx-r)*(cx-r)         + (cy-(h-r))*(cy-(h-r)) > r*r) ||
             (cx > w-r && cy > h-r && (cx-(w-r))*(cx-(w-r)) + (cy-(h-r))*(cy-(h-r)) > r*r);
 
+        let _ = HTTRANSPARENT; // silence unused import warning on some toolchains
         if in_corner {
             return LRESULT(-1); // HTTRANSPARENT
         }
@@ -156,15 +191,26 @@ fn remove_window_border(hwnd: windows::Win32::Foundation::HWND) {
     use windows::Win32::UI::WindowsAndMessaging::{
         SetWindowPos, HWND_TOP, SetWindowLongPtrW, GetWindowLongPtrW,
         GWL_STYLE, GWL_EXSTYLE,
-        WS_BORDER, WS_DLGFRAME, WS_THICKFRAME, WS_CAPTION,
+        WS_BORDER, WS_DLGFRAME, WS_CAPTION,
         WS_EX_DLGMODALFRAME, WS_EX_CLIENTEDGE, WS_EX_STATICEDGE, WS_EX_WINDOWEDGE,
         SWP_NOSIZE, SWP_NOMOVE, SWP_NOZORDER, SWP_FRAMECHANGED,
     };
     unsafe {
         // Strip NC frame window styles so Windows allocates no NC space even
         // before WM_NCCALCSIZE fires (belt-and-suspenders with the subclass).
+        //
+        // IMPORTANT: We deliberately DO NOT strip WS_THICKFRAME here. That flag
+        // is the OS-level signal that the window is resizable — without it,
+        // Windows won't show the resize cursor at edges and won't initiate a
+        // native resize drag, no matter what Tauri's .resizable(true) says.
+        // The accent border that WS_THICKFRAME would normally paint is already
+        // suppressed via DwmSetWindowAttribute(DWMWA_BORDER_COLOR, COLOR_NONE)
+        // below, and the mini_subclass_proc's WM_NCCALCSIZE=0 return collapses
+        // the NC area to zero so no visible frame is drawn. Combined with the
+        // explicit resize hit-tests in mini_subclass_proc, this gives us a
+        // frameless resizable overlay.
         let style = GetWindowLongPtrW(hwnd, GWL_STYLE);
-        let mask  = (WS_BORDER.0 | WS_DLGFRAME.0 | WS_THICKFRAME.0 | WS_CAPTION.0) as isize;
+        let mask  = (WS_BORDER.0 | WS_DLGFRAME.0 | WS_CAPTION.0) as isize;
         SetWindowLongPtrW(hwnd, GWL_STYLE, style & !mask);
 
         let ex      = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
