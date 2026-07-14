@@ -3,10 +3,15 @@
  * ─────────────────────────────────────────────────────────────────────────────
  * A single message bubble inside the session transcript panel.
  *
- * "You" (mic / user) appears on the RIGHT with blue styling.
- * "System" (interviewer / tab audio) appears on the LEFT with purple styling.
+ * "CANDIDATE" (mic input) appears on the RIGHT with blue styling.
+ * "INTERVIEWER" (system / tab audio) appears on the LEFT with purple styling.
  * This matches WhatsApp / Slack directionality so users instantly recognize
  * who is speaking.
+ *
+ * Labels were previously "You" / "System" which misled users into thinking
+ * the tab-audio bubbles were internal system messages rather than the actual
+ * person on the other end of the interview. The role names now describe the
+ * real-world speaker and are consistent with the transcript export format.
  */
 import React from "react";
 import { cn } from "@/lib/utils";
@@ -59,18 +64,27 @@ export const TranscriptBubble: React.FC<TranscriptBubbleProps> = ({
             isYou ? "text-blue-400" : "text-purple-400",
           )}
         >
-          {isYou ? "You" : "System"}
+          {isYou ? "CANDIDATE" : "INTERVIEWER"}
         </span>
 
         {/* Bubble */}
         <span
           className={cn(
-            "px-3 py-1.5 rounded-2xl text-[12.5px] leading-snug font-medium break-words",
+            "px-3 py-1.5 rounded-2xl text-[12.5px] leading-snug font-medium",
             isInterim && "italic",
             isYou
               ? "bg-blue-500/15 text-blue-50 rounded-tr-sm"
               : "bg-purple-500/15 text-purple-50 rounded-tl-sm",
           )}
+          // Item 4: long transcript lines must wrap instead of being clipped
+          // by the fixed max-width bubble. pre-wrap preserves newlines from
+          // the STT engine; overflow-wrap:anywhere + word-break:break-word
+          // handle URL-like tokens and long unspaced strings.
+          style={{
+            whiteSpace: "pre-wrap",
+            overflowWrap: "anywhere",
+            wordBreak: "break-word",
+          }}
         >
           {isInterim || !id ? (
             text

@@ -92,11 +92,7 @@ unsafe extern "system" fn mini_subclass_proc(
     _ref_data: usize,
 ) -> windows::Win32::Foundation::LRESULT {
     use windows::Win32::Foundation::{RECT, LRESULT};
-    use windows::Win32::UI::WindowsAndMessaging::{
-        WM_NCHITTEST, WM_NCCALCSIZE, GetWindowRect,
-        HTTRANSPARENT, HTLEFT, HTRIGHT, HTTOP, HTBOTTOM,
-        HTTOPLEFT, HTTOPRIGHT, HTBOTTOMLEFT, HTBOTTOMRIGHT,
-    };
+    use windows::Win32::UI::WindowsAndMessaging::{WM_NCHITTEST, WM_NCCALCSIZE, GetWindowRect};
     use windows::Win32::UI::Shell::DefSubclassProc;
 
     // Intercept WM_NCCALCSIZE (wParam=TRUE) and return 0 so that the entire
@@ -107,8 +103,13 @@ unsafe extern "system" fn mini_subclass_proc(
         return LRESULT(0);
     }
 
+    // WM_NCHITTEST: only used to make pixels outside the rounded-corner arcs
+    // click-through to whatever is beneath the overlay. Resize is handled
+    // from JS via getCurrentWindow().startResizeDragging() (see
+    // ResizeHandles.tsx) because WebView2's child HWND intercepts mouse
+    // messages on the client area, so returning HT*RESIZE codes here would
+    // never fire for cursors on the visible card edges.
     if msg == WM_NCHITTEST {
-        // Screen-space cursor position packed into LPARAM
         let pt_x = (lparam.0 & 0xFFFF) as i16 as i32;
         let pt_y = ((lparam.0 >> 16) & 0xFFFF) as i16 as i32;
 
@@ -119,49 +120,18 @@ unsafe extern "system" fn mini_subclass_proc(
         let cy = pt_y - rect.top;
         let w  = rect.right  - rect.left;
         let h  = rect.bottom - rect.top;
-        let r  = 12i32;              // matches Tailwind `rounded-xl`
-        let border = 6i32;           // resize grab zone thickness in px
+        let r  = 12i32; // matches Tailwind `rounded-xl`
 
-        // Outside the window rect entirely — click-through.
         if cx < 0 || cy < 0 || cx > w || cy > h {
             return LRESULT(-1); // HTTRANSPARENT
         }
 
-        // ---- Resize hit-tests (NEW) --------------------------------------
-        // With WS_THICKFRAME restored on the window (see remove_window_border),
-        // returning HT*LEFT/RIGHT/TOP/BOTTOM/CORNER codes here makes Windows
-        // (a) show the correct resize cursor at the edge, and
-        // (b) initiate a native resize drag on left-mouse-down.
-        // Corners take priority over edges so the diagonal-resize cursor wins
-        // when the pointer is inside both zones.
-        // We deliberately test corners BEFORE the rounded-corner transparency
-        // check below so users can actually grab the corner to resize even
-        // though the pixel is outside the rounded shape.
-        let on_left   = cx <  border;
-        let on_right  = cx > w - border;
-        let on_top    = cy <  border;
-        let on_bottom = cy > h - border;
-
-        if on_top && on_left     { return LRESULT(HTTOPLEFT as isize); }
-        if on_top && on_right    { return LRESULT(HTTOPRIGHT as isize); }
-        if on_bottom && on_left  { return LRESULT(HTBOTTOMLEFT as isize); }
-        if on_bottom && on_right { return LRESULT(HTBOTTOMRIGHT as isize); }
-        if on_left               { return LRESULT(HTLEFT as isize); }
-        if on_right              { return LRESULT(HTRIGHT as isize); }
-        if on_top                { return LRESULT(HTTOP as isize); }
-        if on_bottom             { return LRESULT(HTBOTTOM as isize); }
-
-        // ---- Rounded-corner click-through --------------------------------
-        // Outside the rounded shape but inside the bounding rect — pass clicks
-        // through to whatever is beneath the overlay. This runs AFTER the
-        // resize hit-tests above so corner-resize grabs still work.
         let in_corner =
             (cx <   r && cy <   r && (cx-r)*(cx-r)         + (cy-r)*(cy-r)         > r*r) ||
             (cx > w-r && cy <   r && (cx-(w-r))*(cx-(w-r)) + (cy-r)*(cy-r)         > r*r) ||
             (cx <   r && cy > h-r && (cx-r)*(cx-r)         + (cy-(h-r))*(cy-(h-r)) > r*r) ||
             (cx > w-r && cy > h-r && (cx-(w-r))*(cx-(w-r)) + (cy-(h-r))*(cy-(h-r)) > r*r);
 
-        let _ = HTTRANSPARENT; // silence unused import warning on some toolchains
         if in_corner {
             return LRESULT(-1); // HTTRANSPARENT
         }

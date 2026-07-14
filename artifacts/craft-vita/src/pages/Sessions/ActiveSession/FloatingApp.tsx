@@ -52,6 +52,7 @@ import { ChatActionButtons } from "./components/ChatActionButtons";
 import { ModelSelector } from "./components/ModelSelector";
 import { SessionMenu } from "@/features/session/components/SessionMenu";
 import { FloatingSurface } from "@/features/session/components/FloatingSurface";
+import { ResizeHandles } from "@/features/session/components/ResizeHandles";
 import { SessionTranscript } from "@/features/session/components/SessionTranscript";
 import { useFloatingSession } from "@/features/session/hooks/useFloatingSession";
 import { cn } from "@/lib/utils";
@@ -673,7 +674,18 @@ const AnswerArea = memo(function AnswerArea({
                     <InlineCopyButton text={finalQuestion} />
                   </span>
                 </div>
-                <div className="text-[16px] leading-snug font-bold text-white wrap-break-word">
+                <div
+                  className="text-[16px] leading-snug font-bold text-white"
+                  // Item 4: force long detected-question text to wrap under
+                  // any circumstances. `wrap-break-word` (Tailwind v4) alone
+                  // didn't cover every edge case observed with long URLs and
+                  // camelCase identifiers; the inline style guarantees it.
+                  style={{
+                    whiteSpace: "pre-wrap",
+                    overflowWrap: "anywhere",
+                    wordBreak: "break-word",
+                  }}
+                >
                   {finalQuestion}
                 </div>
                 {/* Horizontal divider separating Question from Answer */}
@@ -693,6 +705,17 @@ const AnswerArea = memo(function AnswerArea({
 
             {/* Markdown Content */}
             <div
+              // Item 4: overflow-wrap:anywhere + word-break:break-word inline
+              // guarantee long URLs / identifiers wrap even when ReactMarkdown
+              // renders them as inline text without any breakable characters.
+              // We deliberately do NOT set white-space:pre-wrap here because
+              // ReactMarkdown emits proper block elements (<p>, <ul>, <li>)
+              // whose whitespace between blocks would collapse-inject blank
+              // lines under pre-wrap and break the markdown layout.
+              style={{
+                overflowWrap: "anywhere",
+                wordBreak: "break-word",
+              }}
               className={[
                 "text-[15px] leading-relaxed font-medium text-white break-words [overflow-wrap:anywhere]",
                 "[&_p]:mb-3 [&_p:last-child]:mb-0",
@@ -1177,6 +1200,15 @@ const FloatingApp: React.FC = () => {
             </Tooltip>
           ) : (
             /* ── Expanded widget view ──────────────────────────────────────── */
+            <>
+            {/* Invisible resize grab zones at edges/corners of the native
+                window. Rendered as siblings of FloatingSurface (not
+                children) so their z-index sits above the glass card and
+                they always catch the mousedown even if the card content
+                tree changes. See ResizeHandles.tsx for full rationale.
+                Only shown in expanded view because the collapsed badge is
+                too small to be usefully resized. */}
+            <ResizeHandles />
             <FloatingSurface
               opacity={overlayOpacity}
               zoom={overlayZoom}
@@ -1846,9 +1878,19 @@ const FloatingApp: React.FC = () => {
                                 <HelpCircle size={11} className="text-blue-400 mt-0.5 shrink-0" />
                                 <p
                                   className={cn(
-                                    "text-[11px] leading-relaxed text-white/55 flex-1 break-words",
+                                    "text-[11px] leading-relaxed text-white/55 flex-1",
                                     !isQuestionExpanded && "line-clamp-2",
                                   )}
+                                  // Item 4: force long question text to wrap.
+                                  // pre-wrap preserves any newlines from the
+                                  // question detector; anywhere/break-word
+                                  // guarantee overflow never happens even
+                                  // with URLs, code, or unspaced strings.
+                                  style={{
+                                    whiteSpace: "pre-wrap",
+                                    overflowWrap: "anywhere",
+                                    wordBreak: "break-word",
+                                  }}
                                 >
                                   {currentQuestion}
                                 </p>
@@ -1931,6 +1973,7 @@ const FloatingApp: React.FC = () => {
                 )
               )}
             </FloatingSurface>
+            </>
           )}
         </div>
       </div>
