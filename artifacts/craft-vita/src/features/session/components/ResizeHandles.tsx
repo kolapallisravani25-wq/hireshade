@@ -24,7 +24,7 @@
  */
 
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import type { CSSProperties } from "react";
+import type { CSSProperties, RefObject } from "react";
 
 // The 8 resize directions Tauri understands. String literals match
 // tauri::ResizeDirection variants exactly (case-sensitive).
@@ -72,13 +72,28 @@ const HANDLES: HandleSpec[] = [
     style: { top: CORNER, bottom: CORNER, right: 0, width: EDGE } },
 ];
 
+interface ResizeHandlesProps {
+  /**
+   * Shared ref from FloatingApp's useCursorPassthrough call. We must set
+   * this to true for the entire duration of the native resize drag,
+   * otherwise the cursor-passthrough poll (which fires every 120 ms on
+   * Windows) will detect that the cursor is "outside" any [data-interactive]
+   * rect — because the window is mid-resize and the cached window bounds
+   * are stale — and call `setIgnoreCursorEvents(true)`. That immediately
+   * terminates the OS-level resize because the window stops receiving mouse
+   * messages. This ref is the same fast-path the drag-to-move handler uses
+   * (see handleGripMouseDown in FloatingApp).
+   */
+  isDraggingRef: RefObject<boolean>;
+}
+
 /**
  * Absolutely-positioned resize grab zones for a frameless Tauri window.
  * MUST be placed inside a positioned parent (position:relative or absolute)
  * that represents the window's visible bounds — typically the widget shell
  * in FloatingApp Layer 2.
  */
-export function ResizeHandles() {
+export function ResizeHandles({ isDraggingRef }: ResizeHandlesProps) {
   const onMouseDown = (direction: ResizeDirection) =>
     (e: React.MouseEvent<HTMLDivElement>) => {
       // Only left-click initiates resize. Right/middle click reserved for
@@ -88,13 +103,33 @@ export function ResizeHandles() {
       // browser from also firing its own edge-drag behaviors.
       e.preventDefault();
       e.stopPropagation();
+
+      // CRITICAL: pin passthrough to INTERACTIVE for the whole drag. Without
+      // this, useCursorPassthrough's poll loop sees the cursor "outside" the
+      // (moving/resizing) window and toggles ignoreCursorEvents on, which
+      // yanks the window out from under the native drag. We reset on the
+      // next global mouseup no matter where the release happens.
+      isDraggingRef.current = true;
+      const release = () => {
+        isDraggingRef.current = false;
+        document.removeEventListener("mouseup", release);
+        window.removeEventListener("blur", release);
+      };
+      document.addEventListener("mouseup", release);
+      // If the OS captures focus for the drag and mouseup never fires in
+      // our window, blur is our safety net so we don't get stuck pinned
+      // interactive.
+      window.addEventListener("blur", release);
+
       // Fire and forget. `.catch` guards against the promise rejecting when
       // the mini window isn't focused (Windows sometimes rejects the first
       // resize call after a focus switch — harmless).
       getCurrentWindow()
         .startResizeDragging(direction as unknown as never)
         .catch(() => {
-          /* no-op: OS will not have initiated the drag; user can retry */
+          // OS did not initiate the drag — release the passthrough pin now
+          // so the user isn't stuck with a permanently-interactive window.
+          release();
         });
     };
 

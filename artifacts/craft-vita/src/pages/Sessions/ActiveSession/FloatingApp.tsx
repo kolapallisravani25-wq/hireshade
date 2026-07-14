@@ -1208,7 +1208,7 @@ const FloatingApp: React.FC = () => {
                 tree changes. See ResizeHandles.tsx for full rationale.
                 Only shown in expanded view because the collapsed badge is
                 too small to be usefully resized. */}
-            <ResizeHandles />
+            <ResizeHandles isDraggingRef={isDraggingRef} />
             <FloatingSurface
               opacity={overlayOpacity}
               zoom={overlayZoom}
