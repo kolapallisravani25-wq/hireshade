@@ -683,7 +683,7 @@ const AnswerArea = memo(function AnswerArea({
       const chromePx = 148;
       const viewportH = window.screen?.availHeight ?? 900;
       const maxH = Math.floor(viewportH * 0.85);
-      const desiredH = Math.min(contentHeight + chromePx, maxH);
+      let desiredH = Math.min(contentHeight + chromePx, maxH);
 
       // Only invoke if the desired height is meaningfully larger than what
       // we last applied AND meaningfully larger than the current window.
@@ -697,6 +697,33 @@ const AnswerArea = memo(function AnswerArea({
         const scale = await currentWindow.scaleFactor();
         const outer = await currentWindow.outerSize();
         const currentWidthLogical = Math.round(outer.width / scale);
+
+        // ── Off-screen bounds check (pre-mortem P1) ──────────────────────
+        // If the current window Y-position + desiredH would push the
+        // window past the bottom of the primary screen, clamp desiredH so
+        // the bottom lands 8px above the screen edge. Prevents the answer
+        // area from disappearing off-screen when a long answer streams in
+        // while the window sits low.
+        try {
+          const pos = await currentWindow.outerPosition();
+          const yLogical = Math.round(pos.y / scale);
+          // availHeight excludes the OS taskbar, which is what we want
+          // (window can't cover it anyway). Use it as the bottom bound.
+          const bottomBound = viewportH;
+          const maxByPosition = bottomBound - yLogical - 8;
+          if (maxByPosition > 200 && desiredH > maxByPosition) {
+            desiredH = maxByPosition;
+            // If clamping now leaves us at-or-below current window height,
+            // there's no growth to apply.
+            if (desiredH <= currentWindowH + 16) return;
+          }
+        } catch (posErr) {
+          // outerPosition can fail on some platforms; skip P1 clamp in that
+          // case rather than aborting the grow entirely.
+          // eslint-disable-next-line no-console
+          console.debug("[AnswerArea] outerPosition failed, skipping P1 clamp:", posErr);
+        }
+
         // set_mini_size_instant takes logical pixels.
         await invoke("set_mini_size_instant", {
           width: currentWidthLogical,
@@ -996,7 +1023,7 @@ const FloatingApp: React.FC = () => {
   const setOverlayPrivate = useCallback((v: boolean) => {
     setOverlayPrivateState(v);
     savePrivateMode(v);
-    invoke("toggle_content_protection", { protected: v }).catch(console.error);
+    tauriOverlay.toggleContentProtection(v).catch(console.error);
     // Broadcast to the launcher window (separate JS context, no shared Redux).
     tauriEvents.emitPrivateModeChanged(v).catch(console.error);
   }, []);

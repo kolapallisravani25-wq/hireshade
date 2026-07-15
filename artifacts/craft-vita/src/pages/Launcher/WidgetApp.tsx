@@ -142,7 +142,7 @@ function WidgetContent() {
   const setPrivateMode_ = useCallback(
     (v: boolean) => {
       dispatch(setPrivateMode__(v));
-      invoke("toggle_content_protection", { protected: v }).catch(console.error);
+      tauriOverlay.toggleContentProtection(v).catch(console.error);
       // Broadcast to the floating window (separate JS context, no shared Redux).
       tauriEvents.emitPrivateModeChanged(v).catch(console.error);
     },
@@ -307,7 +307,7 @@ function WidgetContent() {
   // ── On-mount: apply stored private mode ───────────────────────────────────
   useEffect(() => {
     if (getPrivateMode()) {
-      invoke("toggle_content_protection", { protected: true }).catch(
+      tauriOverlay.toggleContentProtection(true).catch(
         console.error,
       );
     }
@@ -409,7 +409,7 @@ function WidgetContent() {
         dispatch(setZoom_(ZOOM_DEFAULT));
         dispatch(setOpacity_(OPACITY_DEFAULT));
         // 4. Re-apply content protection in Rust using the actual stored value.
-        invoke("toggle_content_protection", { protected: storedPrivate }).catch(console.error);
+        tauriOverlay.toggleContentProtection(storedPrivate).catch(console.error);
         // 5. Expand the widget
         setCollapsed(false);
         // 6. Credit deduction is async (BullMQ). Refresh now and retry shortly

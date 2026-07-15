@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { useDesktopAuth } from "@/contexts/DesktopAuthProvider";
 import { hasDesktopSession } from "@/lib/desktopSession";
-import { invoke } from "@tauri-apps/api/core";
+import { tauriOverlay } from "@/services/tauriOverlay";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   LayoutDashboard,
@@ -70,7 +70,7 @@ export function HeaderMenu({
     (v: boolean) => {
       setPrivateMode(v);
       savePrivateMode(v);
-      invoke("toggle_content_protection", { protected: v }).catch(console.error);
+      tauriOverlay.toggleContentProtection(v).catch(console.error);
     },
     [setPrivateMode],
   );

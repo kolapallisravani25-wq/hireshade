@@ -13,6 +13,7 @@ import { getAuthHeaders } from "@/lib/globalAuth";
 import { emit, listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
+import { tauriOverlay } from "@/services/tauriOverlay";
 import { isTauri } from "@/lib/utils";
 import { detectIntent, isFillerPhrase } from "@/lib/intent-detector";
 import {
@@ -1567,7 +1568,7 @@ export default function ActiveSession() {
           }
           try {
             nativeCaptureOverlayHidden = true;
-            await invoke("toggle_content_protection", { protected: true });
+            await tauriOverlay.toggleContentProtection(true);
             await new Promise((resolve) => setTimeout(resolve, 150));
             const screenshotData = await invoke<string>("capture_screen");
             const base64Data = screenshotData.split(",")[1];
@@ -1593,7 +1594,7 @@ export default function ActiveSession() {
             }
           } finally {
             if (nativeCaptureOverlayHidden) {
-              await invoke("toggle_content_protection", { protected: false }).catch(() => {});
+              await tauriOverlay.toggleContentProtection(false).catch(() => {});
               nativeCaptureOverlayHidden = false;
             }
           }
@@ -1734,7 +1735,7 @@ export default function ActiveSession() {
           tempVideo.remove();
         }
         if (nativeCaptureOverlayHidden) {
-          await invoke("toggle_content_protection", { protected: false }).catch(() => {});
+          await tauriOverlay.toggleContentProtection(false).catch(() => {});
         }
         if (import.meta.env.DEV) {
           console.warn("[audio-lifecycle] analyzeScreenCaptureReleased");

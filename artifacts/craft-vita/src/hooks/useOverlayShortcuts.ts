@@ -15,7 +15,7 @@
  */
 
 import { useEffect, useRef } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { tauriOverlay } from "@/services/tauriOverlay";
 import {
   OPACITY_MIN,
   OPACITY_MAX,
@@ -147,7 +147,7 @@ export function useOverlayShortcuts({
         const next = !privateModeRef.current;
         setPrivateMode(next);
         savePrivateMode(next);
-        invoke("toggle_content_protection", { protected: next }).catch(console.error);
+        tauriOverlay.toggleContentProtection(next).catch(console.error);
         return;
       }
     }
