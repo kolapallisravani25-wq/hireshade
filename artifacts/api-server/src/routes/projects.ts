@@ -2,11 +2,16 @@ import { Router, type IRouter } from "express";
 import { requireAuth } from "../middlewares/requireAuth.js";
 import { db } from "@workspace/db";
 import { projectsTable, projectVersionsTable } from "@workspace/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, or, asc, desc, gte, lte, ilike, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { chatCompleteJSON } from "../lib/openrouter.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
-import { chargeOr402, withCharge } from "../lib/featureCredits.js";
+import {
+  chargeOr402,
+  withCharge,
+  refundCharge,
+  type ChargeResult,
+} from "../lib/featureCredits.js";
 import { renderHtmlToPdf, PdfError } from "../lib/htmlPdf.js";
 
 const router: IRouter = Router();
@@ -181,6 +186,12 @@ const PROJECT_SCHEMA_DESCRIPTION = `Each project object must have exactly this s
 }`;
 
 router.post("/generate", requireAuth, async (req, res) => {
+  // Hoisted so every failure path below (and the outer catch) can reverse the
+  // upfront charge. Users must never be billed for a generation that produced
+  // nothing — refundCharge is safe to call twice (it no-ops once the ledger row
+  // is gone), so overlapping paths can't double-refund.
+  let meter: ChargeResult | null = null;
+  const userIdForRefund = req.userId!;
   try {
     const userId = req.userId!;
     const body = req.body as {
@@ -209,13 +220,13 @@ router.post("/generate", requireAuth, async (req, res) => {
     // late 402 mid-stream would be unreadable by the client. Idempotency-Key
     // makes a retried generation a no-op charge. On insufficient credits the
     // client's !res.ok branch shows the error toast.
-    const _meter = await chargeOr402(res, {
+    meter = await chargeOr402(res, {
       userId,
       operation: "project_generate",
       idempotencyKey: req.header("Idempotency-Key") ?? null,
       resumeId: body.resumeId,
     });
-    if (!_meter) return;
+    if (!meter) return;
 
     const normalizedIndustry = (body.industry || body.sector || "").trim();
     const normalizedPosition = (body.position || "").trim();
@@ -249,8 +260,16 @@ router.post("/generate", requireAuth, async (req, res) => {
       );
     } catch (error) {
       if (!isRetryableModelFailure(error)) {
+        // Hard failure: nothing was produced, so reverse the upfront charge
+        // before the outer catch turns this into a 500.
+        if (meter) await refundCharge(userIdForRefund, meter);
         throw error;
       }
+      // Retryable failure → generic hardcoded templates. This is NOT the
+      // role-specific content the user paid for (metadata.source =
+      // "local_fallback"), so refund it: they get the degraded result for free
+      // and can retry without having burned credits.
+      if (meter) await refundCharge(userIdForRefund, meter);
       projects = buildFallbackProjects({
         position: normalizedPosition,
         industry: normalizedIndustry,
@@ -259,30 +278,51 @@ router.post("/generate", requireAuth, async (req, res) => {
       });
     }
 
+    // Pre-assign ids so the same objects can be persisted, then streamed.
+    const toStream = projects.slice(0, 3).map((project) => ({
+      project,
+      id: uuidv4(),
+    }));
+
+    // All-or-nothing. Previously each project was inserted inside the streaming
+    // loop, so a DB error on #2 left #1 saved, the response truncated, and the
+    // user charged for three. Headers are flushed only AFTER this succeeds, so
+    // a failure here can still return a proper 500 (and refund) instead of a
+    // half-written stream.
+    await db.transaction(async (tx) => {
+      for (const { project, id } of toStream) {
+        const header = project["projectHeader"] as { title?: string } | undefined;
+        const intro = project["introduction"] as { summary?: string } | undefined;
+
+        await tx.insert(projectsTable).values({
+          id,
+          userId,
+          // Persist the source resume so the library can scope projects to it,
+          // Session Step 4 can filter by it, and Regenerate can rebuild from it.
+          resumeId: body.resumeId,
+          title: header?.title || "Untitled Project",
+          description: intro?.summary || null,
+          // The sector/industry hint belongs in `domain`. `role_type` is left for
+          // the real role classification (technical/non_technical/functional) and
+          // stays null until the classifier exists — writing the industry here
+          // corrupted the column's meaning.
+          domain: normalizedIndustry || null,
+          content: project,
+        });
+        await tx.insert(projectVersionsTable).values({
+          id: uuidv4(),
+          projectId: id,
+          version: 1,
+          content: project,
+        });
+      }
+    });
+
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.flushHeaders();
 
-    for (const project of projects.slice(0, 3)) {
-      const id = uuidv4();
-      const header = project["projectHeader"] as { title?: string } | undefined;
-      const intro = project["introduction"] as { summary?: string } | undefined;
-
-      await db.insert(projectsTable).values({
-        id,
-        userId,
-        title: header?.title || "Untitled Project",
-        description: intro?.summary || null,
-        roleType: normalizedIndustry || null,
-        content: project,
-      });
-      await db.insert(projectVersionsTable).values({
-        id: uuidv4(),
-        projectId: id,
-        version: 1,
-        content: project,
-      });
-
+    for (const { project, id } of toStream) {
       res.write(JSON.stringify({ ...project, id }));
       res.write(`${PROJECT_END_DELIMITER}\n`);
     }
@@ -290,6 +330,10 @@ router.post("/generate", requireAuth, async (req, res) => {
     res.end();
   } catch (err) {
     console.error("[projects] generate error", err);
+    // Anything that reached here (DB insert failure, stream break, or the
+    // rethrown hard model failure) means the user did not get what they paid
+    // for. No-ops if a path above already refunded.
+    if (meter) await refundCharge(userIdForRefund, meter);
     if (res.headersSent) {
       res.end();
     } else {
@@ -301,32 +345,123 @@ router.post("/generate", requireAuth, async (req, res) => {
 router.get("/mine", requireAuth, async (req, res) => {
   try {
     const userId = req.userId!;
-    const projects = await db
-      .select()
-      .from(projectsTable)
-      .where(eq(projectsTable.userId, userId))
-      .orderBy(desc(projectsTable.updatedAt));
+    const q = req.query;
 
-    res.json({ success: true, data: projects });
+    const str = (k: string): string =>
+      typeof q[k] === "string" ? (q[k] as string).trim() : "";
+
+    // Optional resume scoping: /mine?resumeId=<id> returns only that resume's
+    // projects (used by Session Step 4).
+    const resumeId = str("resumeId");
+    const search = str("search");
+    const fromDate = str("from_date");
+    const toDate = str("to_date");
+
+    // Pagination is opt-in: callers that pass no page/limit (Step 4, the
+    // generation poll) still get the full list, so this stays backward
+    // compatible. The library table passes them and gets a real page.
+    const pageRaw = Number(q["page"]);
+    const limitRaw = Number(q["limit"]);
+    const wantsPage = Number.isFinite(pageRaw) || Number.isFinite(limitRaw);
+    const page = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0
+        ? Math.min(Math.floor(limitRaw), 100) // hard cap: never let a client ask for everything
+        : 10;
+
+    const conditions = [eq(projectsTable.userId, userId)];
+    if (resumeId) conditions.push(eq(projectsTable.resumeId, resumeId));
+    if (search) {
+      // `title`/`description` are the columns behind the UI's
+      // position/jobDescription. ilike = case-insensitive contains.
+      const term = `%${search}%`;
+      const match = or(
+        ilike(projectsTable.title, term),
+        ilike(projectsTable.description, term),
+      );
+      if (match) conditions.push(match);
+    }
+    if (fromDate) {
+      const from = new Date(fromDate);
+      if (!Number.isNaN(from.getTime())) {
+        from.setHours(0, 0, 0, 0);
+        conditions.push(gte(projectsTable.createdAt, from));
+      }
+    }
+    if (toDate) {
+      const to = new Date(toDate);
+      if (!Number.isNaN(to.getTime())) {
+        to.setHours(23, 59, 59, 999);
+        conditions.push(lte(projectsTable.createdAt, to));
+      }
+    }
+    const where = and(...conditions);
+
+    // Whitelist sortable columns — an arbitrary sort_by string must never reach SQL.
+    const sortBy = str("sort_by");
+    const sortColumn =
+      sortBy === "position" || sortBy === "title"
+        ? projectsTable.title
+        : sortBy === "createdAt"
+          ? projectsTable.createdAt
+          : projectsTable.updatedAt;
+    const orderBy =
+      str("sort_order") === "asc" ? asc(sortColumn) : desc(sortColumn);
+
+    if (!wantsPage) {
+      const rows = await db
+        .select()
+        .from(projectsTable)
+        .where(where)
+        .orderBy(orderBy);
+      res.json({
+        success: true,
+        data: rows,
+        pagination: {
+          page: 1,
+          limit: rows.length,
+          total_items: rows.length,
+          total_pages: 1,
+        },
+      });
+      return;
+    }
+
+    const [rows, [countRow]] = await Promise.all([
+      db
+        .select()
+        .from(projectsTable)
+        .where(where)
+        .orderBy(orderBy)
+        .limit(limit)
+        .offset((page - 1) * limit),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(projectsTable)
+        .where(where),
+    ]);
+
+    const total_items = countRow?.count ?? rows.length;
+
+    res.json({
+      success: true,
+      data: rows,
+      pagination: {
+        page,
+        limit,
+        total_items,
+        total_pages: Math.max(1, Math.ceil(total_items / limit)),
+      },
+    });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch projects" });
   }
 });
 
-router.get("/user/:userId", requireAuth, async (req, res) => {
-  try {
-    const userId = req.userId!;
-    const projects = await db
-      .select()
-      .from(projectsTable)
-      .where(eq(projectsTable.userId, userId))
-      .orderBy(desc(projectsTable.updatedAt));
-
-    res.json({ success: true, data: projects });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch projects" });
-  }
-});
+// NOTE: GET /user/:userId was removed. It ignored its own :userId path param
+// and returned the *caller's* projects, so it silently duplicated /mine while
+// reading like a route that fetches another user's data — a trap for the next
+// caller. Nothing referenced it. Use GET /mine (optionally ?resumeId=).
 
 router.get("/:id", requireAuth, async (req, res) => {
   try {
@@ -368,11 +503,39 @@ router.patch("/:id", requireAuth, async (req, res) => {
   try {
     const userId = req.userId!;
     const projectId = String(req.params["id"] ?? "");
-    const body = req.body as { title?: string; description?: string; content?: unknown };
+    const body = req.body as {
+      title?: string;
+      // The library UI calls the field "position"; the column is `title`.
+      // Accepted as an alias so rename works (it previously wrote a
+      // non-existent `position` column and silently did nothing).
+      position?: string;
+      description?: string;
+      content?: unknown;
+    };
+
+    // Explicit whitelist. The previous `.set({ ...body })` spread whatever the
+    // client sent straight into the UPDATE — the TS cast above is compile-time
+    // only, so a request body of {"userId": "<someone-else>"} would have
+    // reassigned the project to another user. Only these fields are writable.
+    const updates: Partial<{
+      title: string;
+      description: string;
+      content: unknown;
+    }> = {};
+    const nextTitle = body.title ?? body.position;
+    if (typeof nextTitle === "string" && nextTitle.trim())
+      updates.title = nextTitle.trim();
+    if (typeof body.description === "string") updates.description = body.description;
+    if (body.content !== undefined) updates.content = body.content;
+
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json({ error: "No updatable fields provided" });
+      return;
+    }
 
     await db
       .update(projectsTable)
-      .set({ ...body, updatedAt: new Date() })
+      .set({ ...updates, updatedAt: new Date() })
       .where(and(eq(projectsTable.id, projectId), eq(projectsTable.userId, userId)));
 
     // Scoped re-read: if the ownership-scoped UPDATE above matched nothing,
@@ -421,10 +584,27 @@ router.put("/:id/projects", requireAuth, async (req, res) => {
       .filter(Boolean)
       .join("\n\n");
 
-    const revised = await chatCompleteJSONWithBudgets<Record<string, unknown>>(
-      prompt,
-      PROJECT_REGEN_TOKEN_BUDGETS,
+    // This route runs a full-project LLM regeneration and was previously
+    // UNMETERED — free unlimited model calls. Priced as project_generate to
+    // match the documented "regenerate costs the same as generate"; override
+    // with FEATURE_COST_PROJECT_GENERATE if that should differ. withCharge
+    // refunds automatically if the model call throws.
+    const charged = await withCharge(
+      res,
+      {
+        userId,
+        operation: "project_generate",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: project.resumeId,
+      },
+      async () =>
+        chatCompleteJSONWithBudgets<Record<string, unknown>>(
+          prompt,
+          PROJECT_REGEN_TOKEN_BUDGETS,
+        ),
     );
+    if (!charged) return;
+    const revised = charged.result;
 
     const newVersion = project.version + 1;
     const header = revised["projectHeader"] as { title?: string } | undefined;
@@ -484,7 +664,78 @@ router.get("/:id/versions", requireAuth, async (req, res) => {
 });
 
 router.post("/:id/versions/:versionId/rollback", requireAuth, async (req, res) => {
-  res.status(501).json({ error: "Version rollback not implemented" });
+  try {
+    const userId = req.userId!;
+    const projectId = String(req.params["id"] ?? "");
+    const versionId = String(req.params["versionId"] ?? "");
+
+    // Ownership first — never reveal whether someone else's project/version exists.
+    const [project] = await db
+      .select()
+      .from(projectsTable)
+      .where(and(eq(projectsTable.id, projectId), eq(projectsTable.userId, userId)))
+      .limit(1);
+
+    if (!project) {
+      res.status(404).json({ error: "Project not found" });
+      return;
+    }
+
+    // Scope the version to THIS project so a valid version id from another
+    // project can't be restored into this one.
+    const [version] = await db
+      .select()
+      .from(projectVersionsTable)
+      .where(
+        and(
+          eq(projectVersionsTable.id, versionId),
+          eq(projectVersionsTable.projectId, projectId),
+        ),
+      )
+      .limit(1);
+
+    if (!version) {
+      res.status(404).json({ error: "Version not found" });
+      return;
+    }
+
+    // Roll FORWARD, don't rewind: restoring v2 while on v5 writes the old
+    // content as v6. History stays intact and the rollback is itself undoable.
+    const restored = version.content as Record<string, unknown> | null;
+    const newVersion = project.version + 1;
+    const header = (restored?.["projectHeader"] ?? undefined) as
+      | { title?: string }
+      | undefined;
+    const intro = (restored?.["introduction"] ?? undefined) as
+      | { summary?: string }
+      | undefined;
+
+    await db
+      .update(projectsTable)
+      .set({
+        title: header?.title || project.title,
+        description: intro?.summary || project.description,
+        content: restored,
+        version: newVersion,
+        updatedAt: new Date(),
+      })
+      .where(eq(projectsTable.id, projectId));
+
+    await db.insert(projectVersionsTable).values({
+      id: uuidv4(),
+      projectId,
+      version: newVersion,
+      content: restored,
+    });
+
+    res.json({
+      success: true,
+      data: { restoredFromVersion: version.version, version: newVersion },
+    });
+  } catch (err) {
+    console.error("[projects] rollback error", err);
+    res.status(500).json({ error: "Failed to roll back version" });
+  }
 });
 
 router.post("/:id/edit-component", requireAuth, async (req, res) => {
@@ -608,7 +859,7 @@ router.get("/:id/export-pdf", requireAuth, async (req, res) => {
       p,li{font-size:12.5px} ul{margin:4px 0;padding-left:18px}
     </style></head><body>
       <h1>${esc(project.title)}</h1>
-      <p class="sub">${esc(project.roleType ?? "")}</p>
+      <p class="sub">${esc([project.roleType, project.domain].filter(Boolean).join(" · "))}</p>
       ${sections.join("\n")}
     </body></html>`;
 
