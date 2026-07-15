@@ -73,6 +73,7 @@ export async function getProjectContext(session: DbSession): Promise<string> {
       const parts = [
         `Project: ${p.title}`,
         p.roleType ? `Role type: ${p.roleType}` : "",
+        p.domain ? `Domain: ${p.domain}` : "",
         p.description ? `Description: ${p.description}` : "",
         p.content ? jsonToText(p.content) : "",
       ].filter(Boolean);
