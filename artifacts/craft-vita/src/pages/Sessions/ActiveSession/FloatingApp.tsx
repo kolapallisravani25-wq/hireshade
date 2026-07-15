@@ -603,18 +603,123 @@ const AnswerArea = memo(function AnswerArea({
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeResponse = responses[0];
   const activeResponseId = activeResponse?.messageId ?? "";
+  // Length of the active response's text — changes on every streamed token.
+  // Used as an effect dependency so auto-scroll and auto-grow both re-run
+  // during streaming, not only when a NEW answer card starts.
+  const activeResponseLength = activeResponse?.text?.length ?? 0;
 
+  // ── Streaming auto-scroll (Slice 2 / Bug C fix) ─────────────────────────
+  // Previously the effect deps were [activeResponseId, autoScroll] — the id
+  // is stable across streaming tokens so the effect only ran ONCE per new
+  // card, and the bottom of long streaming answers scrolled off-screen.
+  //
+  // Now we depend on the response TEXT LENGTH so every token that arrives
+  // re-scrolls to the bottom. Guarded by a small rAF-coalescing throttle:
+  // if a scroll is already scheduled we skip re-scheduling, which prevents
+  // us from doing more than ~60 scrolls/sec even at very fast token rates.
+  const scrollScheduledRef = useRef(false);
   useEffect(() => {
     if (!autoScroll) return;
     const scrollElement = scrollRef.current;
     if (!scrollElement) return;
+    if (scrollScheduledRef.current) return;
+    scrollScheduledRef.current = true;
 
     const frameId = window.requestAnimationFrame(() => {
-      scrollElement.scrollTop = scrollElement.scrollHeight;
+      scrollScheduledRef.current = false;
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
     });
-    return () => window.cancelAnimationFrame(frameId);
-  // Only scroll when a new answer card starts — not on every streaming token.
-  }, [activeResponseId, autoScroll]);
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      scrollScheduledRef.current = false;
+    };
+  // Deps: id (new card) + length (streaming tokens) + toggle.
+  }, [activeResponseId, activeResponseLength, autoScroll]);
+
+  // ── Window auto-grow (Slice 1 / Bug A fix) ──────────────────────────────
+  // The Rust command `set_mini_size_instant(width, height)` resizes the
+  // native mini window on demand — previously invoked only for popup expand.
+  // Nothing was ever calling it in response to answer length, so a long AI
+  // answer stayed clipped inside the 700x360 default window and users had to
+  // drag a corner to read it.
+  //
+  // Strategy:
+  //   1. Measure the scroll container's scrollHeight (the actual content).
+  //   2. Compute a target native window height that lets it fit without
+  //      inner scrolling, capped at 85% of the primary screen height.
+  //   3. Only GROW the window, never shrink it — the user's manual resize
+  //      intent is respected.
+  //   4. Skip auto-grow entirely for 30s after the user manually resized
+  //      the window (they signalled they want a specific size).
+  //   5. Debounce to once per animation frame so a 40 tok/s stream doesn't
+  //      call invoke on every chunk.
+  const lastAppliedHeightRef = useRef<number>(0);
+  const growScheduledRef = useRef(false);
+  useEffect(() => {
+    if (activeResponseLength === 0) return;
+    if (growScheduledRef.current) return;
+    growScheduledRef.current = true;
+
+    const frameId = window.requestAnimationFrame(async () => {
+      growScheduledRef.current = false;
+      const scrollElement = scrollRef.current;
+      if (!scrollElement) return;
+
+      // Respect a recent manual resize.
+      const lastUserResizeTs = Number(
+        (window as unknown as { __hs_lastUserResizeTs?: number })
+          .__hs_lastUserResizeTs || 0,
+      );
+      if (lastUserResizeTs > 0 && Date.now() - lastUserResizeTs < 30_000) {
+        return;
+      }
+
+      const contentHeight = scrollElement.scrollHeight;
+      // Chrome above/below the answer area: header (~46px) + question label
+      // area (~48px) + status bar (~36px) + small padding. Keep conservative
+      // — a slight over-estimate is fine; under-estimate clips the answer.
+      const chromePx = 148;
+      const viewportH = window.screen?.availHeight ?? 900;
+      const maxH = Math.floor(viewportH * 0.85);
+      const desiredH = Math.min(contentHeight + chromePx, maxH);
+
+      // Only invoke if the desired height is meaningfully larger than what
+      // we last applied AND meaningfully larger than the current window.
+      // Never shrink.
+      const currentWindowH = window.innerHeight;
+      if (desiredH <= currentWindowH + 16) return;
+      if (desiredH <= lastAppliedHeightRef.current + 16) return;
+
+      try {
+        const currentWindow = getCurrentWindow();
+        const scale = await currentWindow.scaleFactor();
+        const outer = await currentWindow.outerSize();
+        const currentWidthLogical = Math.round(outer.width / scale);
+        // set_mini_size_instant takes logical pixels.
+        await invoke("set_mini_size_instant", {
+          width: currentWidthLogical,
+          height: desiredH,
+        });
+        lastAppliedHeightRef.current = desiredH;
+      } catch (err) {
+        // Non-fatal — fall back to inner scroll.
+        // eslint-disable-next-line no-console
+        console.warn("[AnswerArea] auto-grow invoke failed:", err);
+      }
+    });
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      growScheduledRef.current = false;
+    };
+  }, [activeResponseId, activeResponseLength]);
+
+  // Reset the applied-height memo when a NEW answer card starts, so the
+  // window can grow again for the next answer.
+  useEffect(() => {
+    lastAppliedHeightRef.current = 0;
+  }, [activeResponseId]);
 
   return (
     // Answer scroll container.

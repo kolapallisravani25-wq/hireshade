@@ -112,6 +112,17 @@ export function ResizeHandles({ isDraggingRef }: ResizeHandlesProps) {
       isDraggingRef.current = true;
       const release = () => {
         isDraggingRef.current = false;
+        // Stamp the manual-resize timestamp so AnswerArea's auto-grow effect
+        // knows to back off for 30s and respect the user's chosen size.
+        try {
+          (window as unknown as { __hs_lastUserResizeTs?: number })
+            .__hs_lastUserResizeTs = Date.now();
+        } catch {
+          // Non-fatal — worst case is that auto-grow runs after the user
+          // resized manually. Auto-grow only grows (never shrinks) so this
+          // is still safe; it just may enlarge past the user's preferred
+          // size on the next answer.
+        }
         document.removeEventListener("mouseup", release);
         window.removeEventListener("blur", release);
       };
