@@ -196,9 +196,19 @@ export default function AIProjectsPage() {
       try {
         const token = await getToken();
         if (!token || cancelled) return;
-        const res = await fetch(ENDPOINTS.projectsMine(), {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // This recovery poll only needs to know whether a project newer than
+        // startedAt exists — ask for the few newest rows, not the whole library.
+        const res = await fetch(
+          ENDPOINTS.projectsMine({
+            page: 1,
+            limit: 5,
+            sort_by: "createdAt",
+            sort_order: "desc",
+          }),
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         if (!res.ok || cancelled) return;
         const data = await res.json();
         const projects: Array<{ id: string; createdAt: string }> = Array.isArray(data)
