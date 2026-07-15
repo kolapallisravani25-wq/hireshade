@@ -1024,6 +1024,7 @@ describe("answer grounding — project and document context", () => {
     await db.insert(projectsTable).values({
       id: pid,
       userId: USER_A,
+      resumeId: await makeResume(USER_A),
       title: "Realtime Fraud Detection",
       roleType: "Data Engineer",
       description: "Streaming pipeline that flags fraudulent transactions.",
@@ -1032,7 +1033,7 @@ describe("answer grounding — project and document context", () => {
     // Another user's project with the same id-shape must NOT leak in.
     const foreign = uuidv4();
     await db.insert(projectsTable).values({
-      id: foreign, userId: USER_B, title: "SECRET-B-PROJECT",
+      id: foreign, userId: USER_B, resumeId: await makeResume(USER_B), title: "SECRET-B-PROJECT",
     });
 
     const s = await makeSession(USER_A, {
@@ -1050,6 +1051,7 @@ describe("answer grounding — project and document context", () => {
     await db.insert(projectsTable).values({
       id: pid,
       userId: USER_A,
+      resumeId: await makeResume(USER_A),
       title: "GROUNDING-MARKER-PROJECT-7731",
       description: "marker project",
     });
@@ -1205,6 +1207,7 @@ describe("PDF export routes", () => {
     await db.insert(projectsTable).values({
       id: pid,
       userId: USER_A,
+      resumeId: await makeResume(USER_A),
       title: "Fraud Detection Pipeline",
       roleType: "Data Engineer",
       description: "Realtime pipeline.",
