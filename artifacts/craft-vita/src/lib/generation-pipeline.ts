@@ -257,6 +257,57 @@ export function shouldTriggerGeneration(input: {
 }
 
 // ---------------------------------------------------------------------------
+// segmentQuestions
+// ---------------------------------------------------------------------------
+
+/**
+ * Split a stable transcript blob into independent questions when the utterance
+ * clearly contains a numbered list ("one: ...  two: ...") or multiple `?`
+ * boundaries. When neither pattern matches, returns [] to signal "treat as a
+ * single grouped question".
+ *
+ * Extracted from the main-window auto-answer path so the mini overlay's
+ * newly-ported pipeline uses the same segmentation logic (Slice 3 fix). Prior
+ * to extraction this lived only in page.tsx and the mini overlay never
+ * segmented multi-question turns.
+ */
+export function segmentQuestions(text: string): string[] {
+  const trimmed = text.trim();
+  if (!trimmed) return [];
+
+  // Word-number prefixes (lowercase): used to split spoken numbered lists.
+  const wordNumbers =
+    '(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen)';
+
+  // Pattern: a number marker (digit or word) followed by `:`, `.`, `,`, `)` or
+  // whitespace. Examples matched: "1.", "1)", "Two:", "Three,", "Four ".
+  // Lookahead keeps the marker on the next segment.
+  const numberedPattern = new RegExp(
+    `(?=(?:^|[\\s.])\\s*(?:\\d{1,2}|${wordNumbers})\\s*[.:),]\\s+)`,
+    'gi',
+  );
+
+  const numberedParts = trimmed
+    .split(numberedPattern)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 6);
+
+  if (numberedParts.length >= 2) {
+    return numberedParts;
+  }
+
+  // Otherwise split on '?' boundaries (preserving the '?').
+  const questionParts = trimmed
+    .split(/(?<=\?)\s+/g)
+    .map((s) => s.trim())
+    .filter((s) => s.endsWith('?') && s.length > 6);
+
+  if (questionParts.length >= 1) return questionParts;
+
+  return [];
+}
+
+// ---------------------------------------------------------------------------
 // Re-export utilities for convenience
 // ---------------------------------------------------------------------------
 

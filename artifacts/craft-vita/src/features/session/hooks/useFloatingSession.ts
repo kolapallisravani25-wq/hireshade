@@ -67,6 +67,14 @@ import { isScenarioBased, extractContextFromMessages, buildDynamicTranscriptWind
 import { detectActiveQuestion } from "@/features/session/detection/activeQuestionDetector";
 import { buildAdaptiveAiContext } from "@/features/session/context/adaptiveAiContext";
 import {
+  createTranscriptStabilizer,
+  shouldTriggerGeneration,
+  classifyTranscript,
+  isContinuationOfPreviousQuestion,
+  segmentQuestions,
+} from "@/lib/generation-pipeline";
+import { isUtteranceComplete, isWeakTerminator } from "@/lib/utterance-completeness";
+import {
   createSessionOperationRegistry,
   createSessionTransitionGuard,
   type SessionLifecycleState,
@@ -2455,37 +2463,268 @@ export function useFloatingSession() {
     isAiAnswerUiLocked,
   ]);
 
-  // ── Auto-generate ────────────────────────────────────────────────────────
-  // When the "AI Generation" toggle is on, fire the same AI-answer path a
-  // deliberate click would, once a NEW interviewer line has finalized. A short
-  // debounce lets the question stabilize; the existing in-flight lock
-  // (isAiAnswerRunningRef) + backend 409 guard prevent duplicate answers.
-  const autoGenLastMsgIdRef = useRef<string | null>(null);
-  const autoGenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // ── Auto-generate (Slice 3 rewrite) ────────────────────────────────────
+  //
+  // Prior implementation: naive "newest interviewer message id changed →
+  // wait 1500ms → fire". Every STT chunk creates a new message id, so the
+  // timer was constantly resetting and either (a) never firing during a real
+  // interviewer speaking burst, or (b) firing on a mid-sentence pause and
+  // producing partial-question answers.
+  //
+  // New implementation reuses the SAME pipeline the main-window
+  // handleStableTranscript uses (page.tsx:1271-1420):
+  //
+  //   1. Concatenate trailing consecutive Interviewer messages into a live
+  //      transcript blob (bounded by a User message which acts as a natural
+  //      turn break — candidate answered, next interviewer text is a new
+  //      question).
+  //   2. Feed that blob into a TranscriptStabilizer with the same params as
+  //      page.tsx: 2000ms freeze window, isUtteranceComplete gate, 22000ms
+  //      maxWait ceiling, weak-terminator confirmation.
+  //   3. On stable fire: check for a follow-up continuation off the last
+  //      auto-answered question, merge context if so.
+  //   4. Classify + shouldTriggerGeneration to filter noise/repeats.
+  //   5. Segment multi-question turns via segmentQuestions.
+  //   6. Fire handleAiAnswerClick() (same entry point manual clicks use —
+  //      internally resolves the current question and manages dedup).
+  //
+  // Seed guard: on first observation of an interviewer message we set
+  // autoGenBaselineIdRef but do NOT seed the stabilizer with the pre-existing
+  // transcript. The stabilizer only sees NEW text — anything already in the
+  // transcript when auto-answer is enabled is ignored.
+
+  // Baseline: the message id of the newest interviewer message at the moment
+  // auto-answer is (re-)enabled. Everything older than this baseline is
+  // considered "already existed" and never triggers a generation. This
+  // preserves the pre-existing seed-silently-on-first-observation behaviour.
+  const autoGenBaselineIdRef = useRef<string | null>(null);
+  // The id of the last message included in the stabilizer's current utterance.
+  // Used to detect when a new interviewer message extends the current one.
+  const autoGenLastFedIdRef = useRef<string | null>(null);
+  // The concatenated interviewer transcript we've fed for the CURRENT
+  // utterance (across consecutive Interviewer messages, bounded by any User
+  // message that comes in between).
+  const autoGenCurrentBlobRef = useRef<string>("");
+  // Previous auto-answered context, used for follow-up continuation merges.
+  const autoGenPrevContextRef = useRef<{
+    transcript: string;
+    timestamp: number;
+  } | null>(null);
+  // Recent auto-answered questions (last 10s window) used by
+  // shouldTriggerGeneration to suppress rapid repeat fires on the same key.
+  const autoGenRecentQuestionsRef = useRef<Array<{ q: string; t: number }>>([]);
+  // Stabilizer instance for the mini overlay pipeline.
+  const autoGenStabilizerRef = useRef<ReturnType<typeof createTranscriptStabilizer> | null>(null);
+
+  // Kept stable via ref so the stabilizer callback (which is created once)
+  // always sees the latest handleAiAnswerClick / state values.
+  const autoGenFireRef = useRef<(snapshot: string) => void>(() => {});
   useEffect(() => {
-    if (!autoGenerate) return;
-    const latestInterviewer = [...messages]
-      .reverse()
-      .find((m) => m.sender === "Interviewer" && !!m.text?.trim());
-    if (!latestInterviewer) return;
-    // Seed silently on first observation so we don't answer pre-existing lines.
-    if (autoGenLastMsgIdRef.current === null) {
-      autoGenLastMsgIdRef.current = latestInterviewer.id;
+    autoGenFireRef.current = (snapshot: string) => {
+      if (!autoGenerate) {
+        // Toggle was turned off between the stabilizer arming and the freeze
+        // window elapsing — respect the user's intent.
+        console.log("[MiniAutoAnswer] Skipped: toggle off");
+        return;
+      }
+      if (isAiAnswerRunningRef.current || isEmittingRef.current) {
+        console.log("[MiniAutoAnswer] Skipped: manual generation in progress");
+        return;
+      }
+
+      // ── Continuation merge (follow-up inheritance) ─────────────────────
+      // If this new stable snapshot arrives within 8s of the previous auto
+      // answer AND looks like a follow-up ("Why?", "Explain that"), merge
+      // the previous question's text so context flows correctly.
+      let effective = snapshot;
+      const prev = autoGenPrevContextRef.current;
+      if (prev) {
+        const delta = Date.now() - prev.timestamp;
+        if (isContinuationOfPreviousQuestion(snapshot, prev.transcript, delta)) {
+          effective = `${prev.transcript} ${snapshot}`.replace(/\s+/g, " ").trim();
+          console.log(
+            "[MiniAutoAnswer] Continuation detected, merged:",
+            effective.slice(0, 80),
+          );
+        }
+      }
+
+      // ── Classify ───────────────────────────────────────────────────────
+      const classification = classifyTranscript(effective, prev?.transcript);
+
+      // ── shouldTriggerGeneration gate ───────────────────────────────────
+      const triggerResult = shouldTriggerGeneration({
+        transcript: effective,
+        isStable: true,
+        classification,
+        lastGenerationTimestamp: prev?.timestamp ?? 0,
+        recentQuestions: autoGenRecentQuestionsRef.current,
+      });
+      if (!triggerResult.trigger) {
+        console.log("[MiniAutoAnswer] Skipped:", triggerResult.reason);
+        // Clear the current utterance blob so the next interviewer turn
+        // starts a fresh utterance. Also clear baseline so we don't re-fire
+        // this same skipped text later.
+        autoGenCurrentBlobRef.current = "";
+        return;
+      }
+
+      // ── Segment multi-question turns ───────────────────────────────────
+      const segmented = segmentQuestions(effective);
+      const segments =
+        segmented.length >= 2
+          ? segmented
+          : classification.shouldGroup
+            ? [effective]
+            : classification.segments;
+
+      console.log("[MiniAutoAnswer] Firing", {
+        segmentCount: segments.length,
+        classification: classification.type,
+        chars: effective.length,
+      });
+
+      // ── Fire ───────────────────────────────────────────────────────────
+      // handleAiAnswerClick reads live transcript + messagesRef to resolve
+      // the current question, so a single click is sufficient even when
+      // there are multiple segments — the adaptive-context builder inside
+      // handleAiAnswerClick sees the same transcript we just stabilized.
+      // For truly independent multi-segment turns, we fire once per segment
+      // with a small stagger to match main-window behaviour.
+      if (segments.length <= 1) {
+        void handleAiAnswerClick();
+      } else {
+        segments.forEach((_seg, index) => {
+          setTimeout(() => {
+            if (isAiAnswerRunningRef.current || isEmittingRef.current) return;
+            void handleAiAnswerClick();
+          }, index * 500);
+        });
+      }
+
+      // ── Book-keeping ───────────────────────────────────────────────────
+      autoGenPrevContextRef.current = {
+        transcript: effective,
+        timestamp: Date.now(),
+      };
+      autoGenRecentQuestionsRef.current = [
+        ...autoGenRecentQuestionsRef.current.filter(
+          (e) => Date.now() - e.t < 10_000,
+        ),
+        { q: effective, t: Date.now() },
+      ].slice(-20);
+      // Reset current-utterance blob so the next interviewer speaking turn
+      // starts fresh.
+      autoGenCurrentBlobRef.current = "";
+    };
+  }, [autoGenerate, handleAiAnswerClick]);
+
+  // Create the stabilizer once. Same options as the main window so behaviour
+  // is symmetric across both windows and both use the same tuning.
+  useEffect(() => {
+    if (autoGenStabilizerRef.current) return;
+    autoGenStabilizerRef.current = createTranscriptStabilizer(
+      (snapshot: string) => {
+        // Delegate to the ref-tracked callback so we always run against the
+        // freshest closure without recreating the stabilizer.
+        autoGenFireRef.current(snapshot);
+      },
+      {
+        // Mid-sentence breath commonly runs ~1.5-2s; keep freeze above that.
+        freezeWindowMs: 2000,
+        isComplete: isUtteranceComplete,
+        // Generous ceiling for long multi-clause questions (can take 15s+).
+        maxWaitMs: 22000,
+        // Defer statement-terminated windows one extra quiet window.
+        needsConfirmation: isWeakTerminator,
+      },
+    );
+    return () => {
+      autoGenStabilizerRef.current?.destroy();
+      autoGenStabilizerRef.current = null;
+    };
+  }, []);
+
+  // Feed the stabilizer whenever the trailing interviewer transcript changes.
+  useEffect(() => {
+    // Nothing to do if auto-answer is off. We still track the baseline so
+    // we don't answer pre-existing lines when it's turned on later.
+    if (!autoGenerate) {
+      autoGenStabilizerRef.current?.cancel();
+      autoGenCurrentBlobRef.current = "";
       return;
     }
-    if (latestInterviewer.id === autoGenLastMsgIdRef.current) return;
-    autoGenLastMsgIdRef.current = latestInterviewer.id;
 
-    if (autoGenTimerRef.current) clearTimeout(autoGenTimerRef.current);
-    autoGenTimerRef.current = setTimeout(() => {
-      if (isAiAnswerRunningRef.current || isEmittingRef.current) return;
-      void handleAiAnswerClick();
-    }, 1500);
+    // Build trailing interviewer transcript: walk backwards from the end
+    // collecting consecutive Interviewer messages, stopping at the first
+    // User message (candidate answered → new turn) or when we hit the
+    // baseline id (nothing new to feed).
+    const baseline = autoGenBaselineIdRef.current;
+    const trailing: TranscriptMessage[] = [];
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.sender === "User") break;
+      if (m.sender !== "Interviewer") continue;
+      if (!m.text?.trim()) continue;
+      // Below baseline → pre-existing lines that were present when
+      // auto-answer was enabled. Skip.
+      if (baseline && m.id === baseline) break;
+      trailing.unshift(m);
+    }
 
-    return () => {
-      if (autoGenTimerRef.current) clearTimeout(autoGenTimerRef.current);
-    };
-  }, [autoGenerate, messages, handleAiAnswerClick]);
+    // First observation: set the baseline to the newest interviewer message
+    // (so we don't answer anything already on screen) and do nothing else
+    // for this pass.
+    if (baseline === null) {
+      const newest = [...messages]
+        .reverse()
+        .find((m) => m.sender === "Interviewer" && !!m.text?.trim());
+      if (newest) {
+        autoGenBaselineIdRef.current = newest.id;
+        console.log(
+          "[MiniAutoAnswer] Baseline set — pre-existing lines ignored:",
+          newest.id,
+        );
+      }
+      return;
+    }
+
+    if (trailing.length === 0) {
+      // No new interviewer content past the baseline yet.
+      return;
+    }
+
+    const newestId = trailing[trailing.length - 1].id;
+    if (autoGenLastFedIdRef.current === newestId &&
+        trailing.map((m) => m.text).join(" ") === autoGenCurrentBlobRef.current) {
+      // Same content we already fed — skip to avoid re-arming the stabilizer
+      // timer needlessly (which would push out firing indefinitely).
+      return;
+    }
+
+    const blob = trailing.map((m) => m.text.trim()).join(" ").replace(/\s+/g, " ").trim();
+    autoGenCurrentBlobRef.current = blob;
+    autoGenLastFedIdRef.current = newestId;
+    autoGenStabilizerRef.current?.feed(blob);
+  }, [autoGenerate, messages]);
+
+  // When the toggle flips OFF → cancel any in-flight stabilization and clear
+  // the utterance state so re-enabling doesn't fire on stale text. When it
+  // flips ON, reset the baseline so the newest CURRENT interviewer line is
+  // the seed (not something old).
+  useEffect(() => {
+    if (!autoGenerate) {
+      autoGenStabilizerRef.current?.cancel();
+      autoGenCurrentBlobRef.current = "";
+      autoGenLastFedIdRef.current = null;
+      return;
+    }
+    // On enable: force baseline re-seed on the next messages tick. Setting
+    // it to null triggers the "first observation" branch above.
+    autoGenBaselineIdRef.current = null;
+    autoGenLastFedIdRef.current = null;
+    autoGenCurrentBlobRef.current = "";
+  }, [autoGenerate]);
 
   const toggleAutoGenerate = useCallback(() => {
     dispatch(setAutoGenerate(!autoGenerate));
