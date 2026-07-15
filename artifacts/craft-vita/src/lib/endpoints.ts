@@ -123,8 +123,34 @@ export const ENDPOINTS = {
   projectCategories:   (roleType?: string) =>
     `${api()}/api/project-categories${roleType ? `?role_type=${roleType}` : ""}`,
   projectsGenerate:       () => `${api()}/api/projects/generate`,
-  projectsMine:            () => `${api()}/api/projects/mine`,
-  projectsList:  (userId: string) => `${api()}/api/projects/user/${userId}`,
+  /**
+   * GET /api/projects/mine
+   * Pass a resumeId string for the common resume-scoped call, or a params
+   * object for the library table (server-side search/sort/pagination).
+   * Omitting page/limit returns the full list.
+   */
+  projectsMine: (
+    params?:
+      | string
+      | {
+          resumeId?: string;
+          search?: string;
+          page?: number;
+          limit?: number;
+          from_date?: string;
+          to_date?: string;
+          sort_by?: string;
+          sort_order?: string;
+        },
+  ) => {
+    const p = typeof params === "string" ? { resumeId: params } : (params ?? {});
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(p)) {
+      if (v !== undefined && v !== null && v !== "") qs.set(k, String(v));
+    }
+    const s = qs.toString();
+    return `${api()}/api/projects/mine${s ? `?${s}` : ""}`;
+  },
   projectsGet:        (id: string) => `${api()}/api/projects/${id}`,
   projectsDelete:     (id: string) => `${api()}/api/projects/${id}`,
   projectsUpdate:          (id: string) => `${api()}/api/projects/${id}`,
