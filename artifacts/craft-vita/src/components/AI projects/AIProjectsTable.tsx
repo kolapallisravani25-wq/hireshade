@@ -60,6 +60,7 @@ type MineProjectApiItem = {
   title?: string;
   description?: string | null;
   content?: unknown;
+  resumeId?: string | null;
   createdAt?: string;
 };
 
@@ -68,7 +69,7 @@ function normalizeMineProject(item: MineProjectApiItem): ProjectRecord {
     id: item.id,
     position: item.title || "Untitled Project",
     jobDescription: item.description || "",
-    resumeId: null,
+    resumeId: item.resumeId ?? null,
     projects: item.content ? [item.content] : [],
     userId: item.userId || "",
     createdAt: item.createdAt || new Date().toISOString(),
@@ -271,7 +272,9 @@ export function AIProjectsTable({ activeJob, refreshTrigger = 0 }: AIProjectsTab
           "Content-Type": "application/json",
           Authorization:  `Bearer ${token}`,
         },
-        body: JSON.stringify({ position: renameValue.trim() }),
+        // `title` is the actual column. This previously sent `position`, which
+        // isn't a field on the project — so renames silently did nothing.
+        body: JSON.stringify({ title: renameValue.trim() }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -290,91 +293,58 @@ export function AIProjectsTable({ activeJob, refreshTrigger = 0 }: AIProjectsTab
   }, [renameTarget, renameValue, getToken]);
 
   // ── Fetch ──────────────────────────────────────────────────────────────
+  // Search/date-filter/sort/pagination are all done SERVER-side now. This
+  // previously fetched the user's entire project library on every keystroke,
+  // page change and refresh, then filtered in memory — fine at 5 projects,
+  // not at 500.
   const fetchProjects = useCallback(async (params: any) => {
+    const emptyPage = {
+      success: false,
+      data: [] as ProjectRecord[],
+      pagination: { page: 1, limit: 10, total_pages: 0, total_items: 0 },
+    };
     try {
       const token = await getToken();
-      if (!token) {
-        return {
-          success: false,
-          data: [],
-          pagination: { page: 1, limit: 10, total_pages: 0, total_items: 0 },
-        };
-      }
+      if (!token) return emptyPage;
 
-      const search    = (params?.search    || "") as string;
-      const limit     = Number(params?.limit  || 10);
-      const page      = Number(params?.page   || 1);
-      const from_date = (params?.from_date || "") as string;
-      const to_date   = (params?.to_date   || "") as string;
+      const url = ENDPOINTS.projectsMine({
+        search: (params?.search || "") as string,
+        page: Number(params?.page || 1),
+        limit: Number(params?.limit || 10),
+        from_date: (params?.from_date || "") as string,
+        to_date: (params?.to_date || "") as string,
+        sort_by: (params?.sort_by || "") as string,
+        sort_order: (params?.sort_order || "") as string,
+      });
 
-      const res = await fetch(`${ENDPOINTS.projectsMine()}?t=${Date.now()}`, {
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}`, "Cache-Control": "no-cache" },
         cache: "no-store",
       });
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
-      const mineData = Array.isArray(data)
+
+      const rows = Array.isArray(data)
         ? data
         : Array.isArray((data as { data?: unknown[] }).data)
         ? ((data as { data: unknown[] }).data)
         : [];
 
-      let allProjects: ProjectRecord[] = (mineData as MineProjectApiItem[]).map(normalizeMineProject);
-
-      // ── Search filter ────────────────────────────────────────────────
-      if (search) {
-        const q = search.toLowerCase();
-        allProjects = allProjects.filter(
-          (p) =>
-            p.position.toLowerCase().includes(q) ||
-            p.jobDescription.toLowerCase().includes(q),
-        );
-      }
-
-      // ── Date range filter ────────────────────────────────────────────
-      if (from_date) {
-        const from = new Date(from_date);
-        from.setHours(0, 0, 0, 0);
-        allProjects = allProjects.filter(
-          (p) => new Date(p.createdAt) >= from,
-        );
-      }
-      if (to_date) {
-        const to = new Date(to_date);
-        to.setHours(23, 59, 59, 999);
-        allProjects = allProjects.filter(
-          (p) => new Date(p.createdAt) <= to,
-        );
-      }
-
-      // ── Sorting ──────────────────────────────────────────────────────
-      if (params?.sort_by) {
-        allProjects.sort((a: any, b: any) => {
-          const aV = a[params.sort_by];
-          const bV = b[params.sort_by];
-          if (aV < bV) return params.sort_order === "asc" ? -1 : 1;
-          if (aV > bV) return params.sort_order === "asc" ? 1 : -1;
-          return 0;
-        });
-      }
-
-      // ── Pagination ───────────────────────────────────────────────────
-      const total_items   = allProjects.length;
-      const total_pages   = Math.max(1, Math.ceil(total_items / limit));
-      const startIndex    = (page - 1) * limit;
-      const paginatedData = allProjects.slice(startIndex, startIndex + limit);
+      const pagination = (data as { pagination?: typeof emptyPage.pagination })
+        .pagination ?? {
+        page: Number(params?.page || 1),
+        limit: Number(params?.limit || 10),
+        total_pages: 1,
+        total_items: rows.length,
+      };
 
       return {
         success: true,
-        data: paginatedData,
-        pagination: { page, limit, total_pages, total_items },
+        data: (rows as MineProjectApiItem[]).map(normalizeMineProject),
+        pagination,
       };
     } catch {
-      return {
-        success: false,
-        data: [],
-        pagination: { page: 1, limit: 10, total_pages: 0, total_items: 0 },
-      };
+      return emptyPage;
     }
   }, [getToken]);
 
