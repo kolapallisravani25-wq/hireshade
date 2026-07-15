@@ -378,15 +378,33 @@ export const projectsTable = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => usersTable.id, { onDelete: "cascade" }),
+    // Folder key — the resume this project was generated from. NOT NULL: the
+    // /generate route already rejects a missing resumeId (400), so every project
+    // has a source resume. Cascade on delete: deleting a resume removes its
+    // projects (they're regenerable and meaningless without their source).
+    resumeId: text("resume_id")
+      .notNull()
+      .references(() => resumesTable.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
     description: text("description"),
+    // The candidate's role classification: technical | non_technical | functional.
+    // NOTE: this is NOT the industry — see `domain` for that.
     roleType: text("role_type"),
+    // Finer-grained role classification (e.g. data_engineer, hr_business_partner).
+    // Drives role-specific section selection.
+    roleSubtype: text("role_subtype"),
+    // Optional sector/industry hint chosen at generation time (banking,
+    // healthcare, …). Persisted so Regenerate can reproduce the same domain.
+    domain: text("domain"),
     content: jsonb("content"),
     version: integer("version").notNull().default(1),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (t) => [index("projects_user_id_idx").on(t.userId)],
+  (t) => [
+    index("projects_user_id_idx").on(t.userId),
+    index("projects_resume_id_idx").on(t.resumeId),
+  ],
 );
 
 export type Project = typeof projectsTable.$inferSelect;
