@@ -1,0 +1,32 @@
+name: Job Agent CI
+
+on:
+  pull_request:
+    paths:
+      - "artifacts/job-agent-platform/**"
+      - ".github/workflows/job-agent-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "artifacts/job-agent-platform/**"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: artifacts/job-agent-platform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile=false
+      - run: pnpm ci
