@@ -4,6 +4,8 @@ Code-first foundation for verified job discovery, truthful resume tailoring, con
 
 Power Automate is optional and not part of the core runtime.
 
+The complete candidate experience is delivered as a responsive, installable Progressive Web App for desktop, tablet and mobile. A focused Expo/React Native companion may be introduced later when native distribution or notification requirements justify it.
+
 ## Run
 
 ```bash
@@ -22,4 +24,4 @@ pnpm test
 pnpm build
 ```
 
-See `docs/development-plan.md`, `docs/architecture.md` and `docs/quality-gates.md`.
+See `docs/development-plan.md`, `docs/architecture.md`, `docs/mobile-strategy.md` and `docs/quality-gates.md`.
