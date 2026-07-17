@@ -1,10 +1,26 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  applicationName: "HireShade Job Agent",
   title: "HireShade Job Agent",
   description: "Verified, role-aware job discovery and controlled application automation.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "HireShade",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#1d4ed8",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
