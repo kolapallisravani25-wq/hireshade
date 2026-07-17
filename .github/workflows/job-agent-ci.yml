@@ -1,0 +1,35 @@
+name: Job Agent CI
+
+on:
+  pull_request:
+    paths:
+      - "artifacts/job-agent-platform/**"
+      - ".github/workflows/job-agent-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "artifacts/job-agent-platform/**"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: artifacts/job-agent-platform
+    steps:
+      - uses: actions/checkout@v4
+      - name: Runtime information
+        run: node --version && npm --version
+      - name: Install exact direct dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm run test
+      - name: Production build
+        run: npm run build
