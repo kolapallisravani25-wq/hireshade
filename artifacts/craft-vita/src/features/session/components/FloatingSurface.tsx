@@ -64,15 +64,23 @@ export const FloatingSurface: React.FC<FloatingSurfaceProps> = ({
   return (
     <div
       ref={divRef}
-      className={`relative w-full flex flex-col outline-none ${className ?? ""}`}
+      className={`relative w-full flex flex-col outline-none min-h-0 flex-1 ${className ?? ""}`}
       style={{
         // NO will-change / transform here — GPU layer promotion in WKWebView
         // causes compositor ordering bugs where portal overlays render BEHIND
         // the card regardless of z-index. isolation:isolate is sufficient to
         // scope internal z-indexes without promoting a GPU layer.
         isolation: "isolate",
+        // Keep overflow:visible so portaled tooltips/menus/dropdowns can
+        // escape the card. The parent widget shell in FloatingApp caps
+        // maxHeight and clips via its own flex layout — the AnswerArea has
+        // its own opaque scroll container inside, so nothing paints outside
+        // the visible glass rectangle even though overflow is visible here.
         overflow: "visible",
         pointerEvents: "auto",
+        // Inherit bounded height from the widget shell (maxHeight:100vh-20px)
+        // so long AI answers can’t push the card past the window bounds.
+        minHeight: 0,
       }}
     >
       {/*
@@ -108,10 +116,15 @@ export const FloatingSurface: React.FC<FloatingSurfaceProps> = ({
         createPortal(…, document.getElementById('floating-portal-root')).
       */}
       <div
-        className="relative flex flex-col w-full rounded-xl"
+        className="relative flex flex-col w-full rounded-xl min-h-0 flex-1 overflow-hidden"
         style={{
           zIndex: 1,
           zoom,
+          // min-h-0 + flex-1 lets nested flex children (AI Answer panel)
+          // actually shrink and scroll instead of overflowing the card.
+          // overflow-hidden here clips the interactive content layer to the
+          // rounded-xl shape so the answer’s opaque background never bleeds
+          // past the card corners. Portaled menus escape via Layer 1 above.
         }}
       >
         {children}

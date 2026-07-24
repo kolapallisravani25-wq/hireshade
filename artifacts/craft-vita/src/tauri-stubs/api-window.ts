@@ -12,6 +12,7 @@ const noopWindow = {
   setPosition: async () => {},
   setFocus: async () => {},
   startDragging: async () => {},
+  startResizeDragging: async (_direction?: unknown) => {},
   center: async () => {},
   minimize: async () => {},
   maximize: async () => {},

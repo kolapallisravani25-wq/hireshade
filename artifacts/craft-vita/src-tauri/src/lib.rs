@@ -103,8 +103,13 @@ unsafe extern "system" fn mini_subclass_proc(
         return LRESULT(0);
     }
 
+    // WM_NCHITTEST: only used to make pixels outside the rounded-corner arcs
+    // click-through to whatever is beneath the overlay. Resize is handled
+    // from JS via getCurrentWindow().startResizeDragging() (see
+    // ResizeHandles.tsx) because WebView2's child HWND intercepts mouse
+    // messages on the client area, so returning HT*RESIZE codes here would
+    // never fire for cursors on the visible card edges.
     if msg == WM_NCHITTEST {
-        // Screen-space cursor position packed into LPARAM
         let pt_x = (lparam.0 & 0xFFFF) as i16 as i32;
         let pt_y = ((lparam.0 >> 16) & 0xFFFF) as i16 as i32;
 
@@ -156,15 +161,26 @@ fn remove_window_border(hwnd: windows::Win32::Foundation::HWND) {
     use windows::Win32::UI::WindowsAndMessaging::{
         SetWindowPos, HWND_TOP, SetWindowLongPtrW, GetWindowLongPtrW,
         GWL_STYLE, GWL_EXSTYLE,
-        WS_BORDER, WS_DLGFRAME, WS_THICKFRAME, WS_CAPTION,
+        WS_BORDER, WS_DLGFRAME, WS_CAPTION,
         WS_EX_DLGMODALFRAME, WS_EX_CLIENTEDGE, WS_EX_STATICEDGE, WS_EX_WINDOWEDGE,
         SWP_NOSIZE, SWP_NOMOVE, SWP_NOZORDER, SWP_FRAMECHANGED,
     };
     unsafe {
         // Strip NC frame window styles so Windows allocates no NC space even
         // before WM_NCCALCSIZE fires (belt-and-suspenders with the subclass).
+        //
+        // IMPORTANT: We deliberately DO NOT strip WS_THICKFRAME here. That flag
+        // is the OS-level signal that the window is resizable — without it,
+        // Windows won't show the resize cursor at edges and won't initiate a
+        // native resize drag, no matter what Tauri's .resizable(true) says.
+        // The accent border that WS_THICKFRAME would normally paint is already
+        // suppressed via DwmSetWindowAttribute(DWMWA_BORDER_COLOR, COLOR_NONE)
+        // below, and the mini_subclass_proc's WM_NCCALCSIZE=0 return collapses
+        // the NC area to zero so no visible frame is drawn. Combined with the
+        // explicit resize hit-tests in mini_subclass_proc, this gives us a
+        // frameless resizable overlay.
         let style = GetWindowLongPtrW(hwnd, GWL_STYLE);
-        let mask  = (WS_BORDER.0 | WS_DLGFRAME.0 | WS_THICKFRAME.0 | WS_CAPTION.0) as isize;
+        let mask  = (WS_BORDER.0 | WS_DLGFRAME.0 | WS_CAPTION.0) as isize;
         SetWindowLongPtrW(hwnd, GWL_STYLE, style & !mask);
 
         let ex      = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
@@ -267,12 +283,19 @@ async fn show_mini_top_center(app: AppHandle) -> Result<(), String> {
         .use_https_scheme(true)
         .title("HireShade Floating Screen")
         .inner_size(700f64, 360f64)
+        // Allow the user to resize the overlay so long AI answers can be
+        // read comfortably. Bounds match tauri.conf.json (min 360×200,
+        // max 1600×1200) so tiny/huge sizes never wreck the layout.
+        // transparent:true + decorations:false must stay — the overlay is a
+        // frameless glass card, not a normal window.
+        .min_inner_size(360f64, 200f64)
+        .max_inner_size(1600f64, 1200f64)
         .transparent(true)
         .decorations(false)
         .always_on_top(true)
         .minimizable(false)
         .maximizable(false)
-        .resizable(false)
+        .resizable(true)
         .skip_taskbar(true)
         .visible(false)
         .visible_on_all_workspaces(true)
@@ -2906,8 +2929,42 @@ pub fn run() {
                             // set_always_on_top while the window is being clicked/
                             // activated can swallow that first click and force a
                             // second one, so we must not touch it on Focused(true).
+                            //
+                            // CRITICAL: DO NOT use w.set_always_on_top(true) here.
+                            // That call goes through tao's WindowFlags::apply_diff
+                            // which rewrites GWL_STYLE via to_window_styles() (undoing
+                            // remove_window_border and restoring WS_CAPTION), then
+                            // calls SetWindowPos with SWP_FRAMECHANGED — which cancels
+                            // any in-flight WM_NCLBUTTONDOWN modal resize loop that
+                            // startResizeDragging just started. Result: resize dies
+                            // the instant Windows fires Focused(false) at the start
+                            // of the resize modal loop.
+                            //
+                            // Solution: call SetWindowPos(HWND_TOPMOST) directly with
+                            // NO SWP_FRAMECHANGED and NO style rewrite. Same z-order
+                            // effect, no side-effects on styles or in-flight input.
                             if let tauri::WindowEvent::Focused(false) = event {
-                                let _ = w.set_always_on_top(true);
+                                #[cfg(target_os = "windows")]
+                                {
+                                    if let Ok(hwnd) = w.hwnd() {
+                                        unsafe {
+                                            use windows::Win32::UI::WindowsAndMessaging::{
+                                                SetWindowPos, HWND_TOPMOST,
+                                                SWP_NOMOVE, SWP_NOSIZE, SWP_NOACTIVATE, SWP_ASYNCWINDOWPOS,
+                                            };
+                                            let _ = SetWindowPos(
+                                                windows::Win32::Foundation::HWND(hwnd.0),
+                                                HWND_TOPMOST,
+                                                0, 0, 0, 0,
+                                                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS,
+                                            );
+                                        }
+                                    }
+                                }
+                                #[cfg(not(target_os = "windows"))]
+                                {
+                                    let _ = w.set_always_on_top(true);
+                                }
                             }
                         });
                     }

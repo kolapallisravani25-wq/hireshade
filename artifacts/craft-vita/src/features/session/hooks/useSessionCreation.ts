@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
@@ -214,8 +215,29 @@ export function useSessionCreation(): UseSessionCreationReturn {
       autoGenerateAI: sessionInfo.autoGenerateAI,
     });
 
-    // 5. Hide launcher
+    // 5. Hide launcher AND the underlying 'main' dashboard window.
+    //
+    // Why hide `main` here (not just launcher):
+    // `main` is the maximized, transparent, decoration-less dashboard
+    // window that the user was on before opening the launcher. When we
+    // transition to the floating mini overlay it must be hidden too,
+    // otherwise its full-screen semi-transparent surface stays visible
+    // behind the mini as a giant faint rectangle overlapping every
+    // other app on screen (reported after collapsing the mini badge
+    // — the badge shrank but the ghost rectangle remained).
+    //
+    // Symmetric with the un-hide already in ActiveSession/page.tsx:
+    // endSessionNow() calls mainWindow.show() + unminimize() + setFocus()
+    // when the session ends and control returns to the dashboard.
     await getCurrentWindow().hide();
+    try {
+      const mainWindow = await WebviewWindow.getByLabel("main");
+      if (mainWindow) {
+        await mainWindow.hide();
+      }
+    } catch (err) {
+      console.warn("[useSessionCreation] failed to hide main window", err);
+    }
     return true;
   };
 
@@ -351,7 +373,19 @@ export function useSessionCreation(): UseSessionCreationReturn {
         maxAllowedMinutes: activateData.maxAllowedMinutes ?? null,
       });
 
+      // Hide launcher AND main dashboard window — see comment above in
+      // createSession for full rationale. Without hiding `main`, the
+      // maximized transparent dashboard window stays visible behind the
+      // mini overlay as a huge faint rectangle across the screen.
       await getCurrentWindow().hide();
+      try {
+        const mainWindow = await WebviewWindow.getByLabel("main");
+        if (mainWindow) {
+          await mainWindow.hide();
+        }
+      } catch (err) {
+        console.warn("[useSessionCreation] failed to hide main window (rejoin)", err);
+      }
     } catch (err) {
       console.error("[useSessionCreation] joinConflictSession", err);
       toast.error("Failed to rejoin session. Please try again.");

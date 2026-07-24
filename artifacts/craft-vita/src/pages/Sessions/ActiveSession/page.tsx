@@ -13,6 +13,7 @@ import { getAuthHeaders } from "@/lib/globalAuth";
 import { emit, listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
+import { tauriOverlay } from "@/services/tauriOverlay";
 import { isTauri } from "@/lib/utils";
 import { detectIntent, isFillerPhrase } from "@/lib/intent-detector";
 import {
@@ -21,6 +22,7 @@ import {
   shouldTriggerGeneration,
   classifyTranscript,
   isContinuationOfPreviousQuestion,
+  segmentQuestions,
 } from "@/lib/generation-pipeline";
 import { isUtteranceComplete, isWeakTerminator } from "@/lib/utterance-completeness";
 
@@ -60,43 +62,6 @@ import { resolveDeepgramKey } from "@/lib/deepgramAuth";
  * Returns an empty array if no clear segmentation is detected — caller falls
  * back to treating the whole chunk as one question.
  */
-function segmentQuestions(text: string): string[] {
-  const trimmed = text.trim();
-  if (!trimmed) return [];
-
-  // Word-number prefixes (lowercase): used to split spoken numbered lists.
-  const wordNumbers =
-    "(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen)";
-
-  // Pattern: a number marker (digit or word) followed by `:`, `.`, `,`, `)` or whitespace
-  // Examples matched: "1.", "1)", "Two:", "Three,", "Four "
-  // We use lookahead to KEEP the marker on the next segment.
-  const numberedPattern = new RegExp(
-    `(?=(?:^|[\\s.])\\s*(?:\\d{1,2}|${wordNumbers})\\s*[.:),]\\s+)`,
-    "gi",
-  );
-
-  // First try numbered split.
-  const numberedParts = trimmed
-    .split(numberedPattern)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 6);
-
-  if (numberedParts.length >= 2) {
-    return numberedParts;
-  }
-
-  // Otherwise split on '?' boundaries (preserving the '?').
-  const questionParts = trimmed
-    .split(/(?<=\?)\s+/g)
-    .map((s) => s.trim())
-    .filter((s) => s.endsWith("?") && s.length > 6);
-
-  if (questionParts.length >= 1) return questionParts;
-
-  return [];
-}
-
 function normalizeLineForDedup(text: string): string {
   return text
     .toLowerCase()
@@ -1603,7 +1568,7 @@ export default function ActiveSession() {
           }
           try {
             nativeCaptureOverlayHidden = true;
-            await invoke("toggle_content_protection", { protected: true });
+            await tauriOverlay.toggleContentProtection(true);
             await new Promise((resolve) => setTimeout(resolve, 150));
             const screenshotData = await invoke<string>("capture_screen");
             const base64Data = screenshotData.split(",")[1];
@@ -1629,7 +1594,7 @@ export default function ActiveSession() {
             }
           } finally {
             if (nativeCaptureOverlayHidden) {
-              await invoke("toggle_content_protection", { protected: false }).catch(() => {});
+              await tauriOverlay.toggleContentProtection(false).catch(() => {});
               nativeCaptureOverlayHidden = false;
             }
           }
@@ -1770,7 +1735,7 @@ export default function ActiveSession() {
           tempVideo.remove();
         }
         if (nativeCaptureOverlayHidden) {
-          await invoke("toggle_content_protection", { protected: false }).catch(() => {});
+          await tauriOverlay.toggleContentProtection(false).catch(() => {});
         }
         if (import.meta.env.DEV) {
           console.warn("[audio-lifecycle] analyzeScreenCaptureReleased");

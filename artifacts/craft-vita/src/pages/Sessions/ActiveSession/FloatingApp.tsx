@@ -52,6 +52,7 @@ import { ChatActionButtons } from "./components/ChatActionButtons";
 import { ModelSelector } from "./components/ModelSelector";
 import { SessionMenu } from "@/features/session/components/SessionMenu";
 import { FloatingSurface } from "@/features/session/components/FloatingSurface";
+import { ResizeHandles } from "@/features/session/components/ResizeHandles";
 import { SessionTranscript } from "@/features/session/components/SessionTranscript";
 import { useFloatingSession } from "@/features/session/hooks/useFloatingSession";
 import { cn } from "@/lib/utils";
@@ -602,23 +603,174 @@ const AnswerArea = memo(function AnswerArea({
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeResponse = responses[0];
   const activeResponseId = activeResponse?.messageId ?? "";
+  // Length of the active response's text — changes on every streamed token.
+  // Used as an effect dependency so auto-scroll and auto-grow both re-run
+  // during streaming, not only when a NEW answer card starts.
+  const activeResponseLength = activeResponse?.text?.length ?? 0;
 
+  // ── Smooth streaming auto-scroll ─────────────────────────────────────────
+  // Follow the active answer as each streamed chunk is rendered. Scheduling
+  // one animation frame at a time coalesces rapid token updates without
+  // canceling the pending scroll on every React render.
+  const scrollFrameRef = useRef<number | null>(null);
   useEffect(() => {
-    if (!autoScroll) return;
-    const scrollElement = scrollRef.current;
-    if (!scrollElement) return;
+    if (!autoScroll) {
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+        scrollFrameRef.current = null;
+      }
+      return;
+    }
+    if (scrollFrameRef.current !== null) return;
 
-    const frameId = window.requestAnimationFrame(() => {
-      scrollElement.scrollTop = scrollElement.scrollHeight;
+    scrollFrameRef.current = window.requestAnimationFrame(() => {
+      scrollFrameRef.current = null;
+      const scrollElement = scrollRef.current;
+      if (!scrollElement) return;
+      scrollElement.scrollTo({
+        top: scrollElement.scrollHeight,
+        behavior: "smooth",
+      });
     });
-    return () => window.cancelAnimationFrame(frameId);
-  // Only scroll when a new answer card starts — not on every streaming token.
-  }, [activeResponseId, autoScroll]);
+  // Deps: id (new card) + length (streaming chunks) + setting toggle.
+  }, [activeResponseId, activeResponseLength, autoScroll]);
+
+  // Cancel a pending frame only when AnswerArea actually unmounts. Keeping
+  // this separate from the streaming effect avoids starving auto-scroll when
+  // chunks arrive faster than the browser can paint.
+  useEffect(() => {
+    return () => {
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+        scrollFrameRef.current = null;
+      }
+    };
+  }, []);
+
+  // ── Window auto-grow (Slice 1 / Bug A fix) ──────────────────────────────
+  // The Rust command `set_mini_size_instant(width, height)` resizes the
+  // native mini window on demand — previously invoked only for popup expand.
+  // Nothing was ever calling it in response to answer length, so a long AI
+  // answer stayed clipped inside the 700x360 default window and users had to
+  // drag a corner to read it.
+  //
+  // Strategy:
+  //   1. Measure the scroll container's scrollHeight (the actual content).
+  //   2. Compute a target native window height that lets it fit without
+  //      inner scrolling, capped at 85% of the primary screen height.
+  //   3. Only GROW the window, never shrink it — the user's manual resize
+  //      intent is respected.
+  //   4. Skip auto-grow entirely for 30s after the user manually resized
+  //      the window (they signalled they want a specific size).
+  //   5. Debounce to once per animation frame so a 40 tok/s stream doesn't
+  //      call invoke on every chunk.
+  const lastAppliedHeightRef = useRef<number>(0);
+  const growScheduledRef = useRef(false);
+  useEffect(() => {
+    if (activeResponseLength === 0) return;
+    if (growScheduledRef.current) return;
+    growScheduledRef.current = true;
+
+    const frameId = window.requestAnimationFrame(async () => {
+      growScheduledRef.current = false;
+      const scrollElement = scrollRef.current;
+      if (!scrollElement) return;
+
+      // Respect a recent manual resize.
+      const lastUserResizeTs = Number(
+        (window as unknown as { __hs_lastUserResizeTs?: number })
+          .__hs_lastUserResizeTs || 0,
+      );
+      if (lastUserResizeTs > 0 && Date.now() - lastUserResizeTs < 30_000) {
+        return;
+      }
+
+      const contentHeight = scrollElement.scrollHeight;
+      // Chrome above/below the answer area: header (~46px) + question label
+      // area (~48px) + status bar (~36px) + small padding. Keep conservative
+      // — a slight over-estimate is fine; under-estimate clips the answer.
+      const chromePx = 148;
+      const viewportH = window.screen?.availHeight ?? 900;
+      const maxH = Math.floor(viewportH * 0.85);
+      let desiredH = Math.min(contentHeight + chromePx, maxH);
+
+      // Only invoke if the desired height is meaningfully larger than what
+      // we last applied AND meaningfully larger than the current window.
+      // Never shrink.
+      const currentWindowH = window.innerHeight;
+      if (desiredH <= currentWindowH + 16) return;
+      if (desiredH <= lastAppliedHeightRef.current + 16) return;
+
+      try {
+        const currentWindow = getCurrentWindow();
+        const scale = await currentWindow.scaleFactor();
+        const outer = await currentWindow.outerSize();
+        const currentWidthLogical = Math.round(outer.width / scale);
+
+        // ── Off-screen bounds check (pre-mortem P1) ──────────────────────
+        // If the current window Y-position + desiredH would push the
+        // window past the bottom of the primary screen, clamp desiredH so
+        // the bottom lands 8px above the screen edge. Prevents the answer
+        // area from disappearing off-screen when a long answer streams in
+        // while the window sits low.
+        try {
+          const pos = await currentWindow.outerPosition();
+          const yLogical = Math.round(pos.y / scale);
+          // availHeight excludes the OS taskbar, which is what we want
+          // (window can't cover it anyway). Use it as the bottom bound.
+          const bottomBound = viewportH;
+          const maxByPosition = bottomBound - yLogical - 8;
+          if (maxByPosition > 200 && desiredH > maxByPosition) {
+            desiredH = maxByPosition;
+            // If clamping now leaves us at-or-below current window height,
+            // there's no growth to apply.
+            if (desiredH <= currentWindowH + 16) return;
+          }
+        } catch (posErr) {
+          // outerPosition can fail on some platforms; skip P1 clamp in that
+          // case rather than aborting the grow entirely.
+          // eslint-disable-next-line no-console
+          console.debug("[AnswerArea] outerPosition failed, skipping P1 clamp:", posErr);
+        }
+
+        // set_mini_size_instant takes logical pixels.
+        await invoke("set_mini_size_instant", {
+          width: currentWidthLogical,
+          height: desiredH,
+        });
+        lastAppliedHeightRef.current = desiredH;
+      } catch (err) {
+        // Non-fatal — fall back to inner scroll.
+        // eslint-disable-next-line no-console
+        console.warn("[AnswerArea] auto-grow invoke failed:", err);
+      }
+    });
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      growScheduledRef.current = false;
+    };
+  }, [activeResponseId, activeResponseLength]);
+
+  // Reset the applied-height memo when a NEW answer card starts, so the
+  // window can grow again for the next answer.
+  useEffect(() => {
+    lastAppliedHeightRef.current = 0;
+  }, [activeResponseId]);
 
   return (
+    // Answer scroll container.
+    // - `flex-1 min-h-0 h-full`: fills the bounded parent panel so scroll
+    //   grows/shrinks with the Tauri window (item 3). Replaces the old fixed
+    //   `max-h-[min(420px,55vh)]` which measured the native window and made
+    //   the answer *look missing* when it exceeded the fixed cap.
+    // - `overflow-y:auto overflow-x:hidden`: scrolls inside the card instead
+    //   of overflowing below it (item 1).
+    // - `bg-zinc-900/95`: OPAQUE background so the answer never paints on the
+    //   transparent desktop — satisfies item 1’s “opaque container INSIDE
+    //   the card” requirement even when the outer glass opacity is low.
     <div
       ref={scrollRef}
-      className="max-h-[min(420px,55vh)] overflow-y-auto overflow-x-hidden overscroll-contain p-4 space-y-4 no-scrollbar [contain:layout_paint]"
+      className="flex-1 min-h-0 h-full overflow-y-auto overflow-x-hidden overscroll-contain p-4 space-y-4 no-scrollbar [contain:layout_paint] bg-zinc-900/95"
     >
       {responses.map((resp) => {
         // Render raw markdown as-is from the stream/result. Do not mutate content.
@@ -663,7 +815,18 @@ const AnswerArea = memo(function AnswerArea({
                     <InlineCopyButton text={finalQuestion} />
                   </span>
                 </div>
-                <div className="text-[16px] leading-snug font-bold text-white wrap-break-word">
+                <div
+                  className="text-[16px] leading-snug font-bold text-white"
+                  // Item 4: force long detected-question text to wrap under
+                  // any circumstances. `wrap-break-word` (Tailwind v4) alone
+                  // didn't cover every edge case observed with long URLs and
+                  // camelCase identifiers; the inline style guarantees it.
+                  style={{
+                    whiteSpace: "pre-wrap",
+                    overflowWrap: "anywhere",
+                    wordBreak: "break-word",
+                  }}
+                >
                   {finalQuestion}
                 </div>
                 {/* Horizontal divider separating Question from Answer */}
@@ -683,6 +846,17 @@ const AnswerArea = memo(function AnswerArea({
 
             {/* Markdown Content */}
             <div
+              // Item 4: overflow-wrap:anywhere + word-break:break-word inline
+              // guarantee long URLs / identifiers wrap even when ReactMarkdown
+              // renders them as inline text without any breakable characters.
+              // We deliberately do NOT set white-space:pre-wrap here because
+              // ReactMarkdown emits proper block elements (<p>, <ul>, <li>)
+              // whose whitespace between blocks would collapse-inject blank
+              // lines under pre-wrap and break the markdown layout.
+              style={{
+                overflowWrap: "anywhere",
+                wordBreak: "break-word",
+              }}
               className={[
                 "text-[15px] leading-relaxed font-medium text-white break-words [overflow-wrap:anywhere]",
                 "[&_p]:mb-3 [&_p:last-child]:mb-0",
@@ -821,6 +995,7 @@ const AnswerArea = memo(function AnswerArea({
   const nextResponse = next.responses[0];
   return (
     previous.isStreaming === next.isStreaming &&
+    previous.autoScroll === next.autoScroll &&
     previousResponse?.messageId === nextResponse?.messageId &&
     previousResponse?.text === nextResponse?.text &&
     previousResponse?.question === nextResponse?.question &&
@@ -858,7 +1033,7 @@ const FloatingApp: React.FC = () => {
   const setOverlayPrivate = useCallback((v: boolean) => {
     setOverlayPrivateState(v);
     savePrivateMode(v);
-    invoke("toggle_content_protection", { protected: v }).catch(console.error);
+    tauriOverlay.toggleContentProtection(v).catch(console.error);
     // Broadcast to the launcher window (separate JS context, no shared Redux).
     tauriEvents.emitPrivateModeChanged(v).catch(console.error);
   }, []);
@@ -1112,7 +1287,33 @@ const FloatingApp: React.FC = () => {
             pointerEvents: "auto",
             // Width tracks badge vs full widget so useCursorPassthrough
             // hit-tests the correct region and transparent gaps stay click-through.
-            width: session.isWindowCollapsed ? 180 : 700,
+            // Collapsed: fixed pill width. Expanded: fill the entire window
+            // width minus a 10px gutter on each side so the card grows with
+            // the OS window when the user resizes it (previously locked at
+            // 700 which caused a huge dark band on either side after resize).
+            width: session.isWindowCollapsed ? 180 : "calc(100vw - 20px)",
+            // Cap the widget at a comfortable reading width even when the
+            // window is dragged wider — otherwise very wide windows would
+            // produce ultra-long line lengths that hurt readability.
+            maxWidth: session.isWindowCollapsed ? undefined : 1400,
+            // Also constrain a minimum so a too-narrow drag can't crush the
+            // toolbar controls into overlap. Slightly less than the design
+            // baseline so users can nudge it smaller if they want.
+            minWidth: session.isWindowCollapsed ? undefined : 560,
+            // Bound the widget shell to the native window's inner height so
+            // long AI answers stay contained INSIDE the glass card. Without
+            // this, the panel below the card grows past the transparent
+            // window bounds and gets clipped by the OS — which is why the
+            // answer "looked missing". The `- 20` leaves a 10px gutter on
+            // top+bottom (matches `top: 10`) so the card never touches the
+            // window edge and casts a proper shadow. When the user resizes
+            // the Tauri window (item 2), this bound updates automatically
+            // via 100vh and the answer area (flex-1) grows/scrolls in place.
+            maxHeight: session.isWindowCollapsed
+              ? undefined
+              : "calc(100vh - 20px)",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {/* ── Collapsed badge view ─────────────────────────────────────── */}
@@ -1153,6 +1354,15 @@ const FloatingApp: React.FC = () => {
             </Tooltip>
           ) : (
             /* ── Expanded widget view ──────────────────────────────────────── */
+            <>
+            {/* Invisible resize grab zones at edges/corners of the native
+                window. Rendered as siblings of FloatingSurface (not
+                children) so their z-index sits above the glass card and
+                they always catch the mousedown even if the card content
+                tree changes. See ResizeHandles.tsx for full rationale.
+                Only shown in expanded view because the collapsed badge is
+                too small to be usefully resized. */}
+            <ResizeHandles isDraggingRef={isDraggingRef} />
             <FloatingSurface
               opacity={overlayOpacity}
               zoom={overlayZoom}
@@ -1706,7 +1916,13 @@ const FloatingApp: React.FC = () => {
               ) : (
                 /* ── AI Answer Panel ───────────────────────────────────────────── */
                 (isAnalysisBusy || session.aiResponses.length > 0) && (
-                  <div className="flex flex-col border-t border-white/10 bg-zinc-900/95 rounded-b-xl overflow-hidden">
+                  // flex-1 + min-h-0 makes this panel absorb all remaining
+                  // vertical space inside the bounded card, so the AnswerArea
+                  // child gets a real height to fill and scroll within.
+                  // bg-zinc-900/95 is an OPAQUE container inside the card so
+                  // the answer paints on solid dark backing (not the desktop
+                  // showing through) even though the outer card is glass.
+                  <div className="flex flex-col flex-1 min-h-0 border-t border-white/10 bg-zinc-900/95 rounded-b-xl overflow-hidden">
                     {(() => {
                       // Clamp the Redux index to the current React array length so we
                       // never access aiResponses[undefined] when Redux races ahead of
@@ -1816,9 +2032,19 @@ const FloatingApp: React.FC = () => {
                                 <HelpCircle size={11} className="text-blue-400 mt-0.5 shrink-0" />
                                 <p
                                   className={cn(
-                                    "text-[11px] leading-relaxed text-white/55 flex-1 break-words",
+                                    "text-[11px] leading-relaxed text-white/55 flex-1",
                                     !isQuestionExpanded && "line-clamp-2",
                                   )}
+                                  // Item 4: force long question text to wrap.
+                                  // pre-wrap preserves any newlines from the
+                                  // question detector; anywhere/break-word
+                                  // guarantee overflow never happens even
+                                  // with URLs, code, or unspaced strings.
+                                  style={{
+                                    whiteSpace: "pre-wrap",
+                                    overflowWrap: "anywhere",
+                                    wordBreak: "break-word",
+                                  }}
                                 >
                                   {currentQuestion}
                                 </p>
@@ -1834,10 +2060,16 @@ const FloatingApp: React.FC = () => {
                             </div>
                           )}
 
-                          {/* Answer content — primary scrollable area */}
+                          {/* Answer content — primary scrollable area.
+                              flex-1 + min-h-0 makes this wrapper grow to fill
+                              the panel and lets AnswerArea’s overflow-y:auto
+                              take effect. The AnswerArea below now uses the
+                              same flex-1/min-h-0/overflow-y-auto instead of a
+                              fixed max-h so the scroll region resizes with
+                              the Tauri window (item 2). */}
                           {session.isResponsesExpanded &&
                             session.aiResponses.length > 0 && (
-                              <div className="border-t border-white/10 min-h-0">
+                              <div className="flex-1 min-h-0 border-t border-white/10 bg-zinc-900/95">
                                 <AnswerAreaErrorBoundary>
                                   <AnswerArea
                                     responses={[
@@ -1895,6 +2127,7 @@ const FloatingApp: React.FC = () => {
                 )
               )}
             </FloatingSurface>
+            </>
           )}
         </div>
       </div>
