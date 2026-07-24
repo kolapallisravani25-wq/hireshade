@@ -608,35 +608,44 @@ const AnswerArea = memo(function AnswerArea({
   // during streaming, not only when a NEW answer card starts.
   const activeResponseLength = activeResponse?.text?.length ?? 0;
 
-  // ── Streaming auto-scroll (Slice 2 / Bug C fix) ─────────────────────────
-  // Previously the effect deps were [activeResponseId, autoScroll] — the id
-  // is stable across streaming tokens so the effect only ran ONCE per new
-  // card, and the bottom of long streaming answers scrolled off-screen.
-  //
-  // Now we depend on the response TEXT LENGTH so every token that arrives
-  // re-scrolls to the bottom. Guarded by a small rAF-coalescing throttle:
-  // if a scroll is already scheduled we skip re-scheduling, which prevents
-  // us from doing more than ~60 scrolls/sec even at very fast token rates.
-  const scrollScheduledRef = useRef(false);
+  // ── Smooth streaming auto-scroll ─────────────────────────────────────────
+  // Follow the active answer as each streamed chunk is rendered. Scheduling
+  // one animation frame at a time coalesces rapid token updates without
+  // canceling the pending scroll on every React render.
+  const scrollFrameRef = useRef<number | null>(null);
   useEffect(() => {
-    if (!autoScroll) return;
-    const scrollElement = scrollRef.current;
-    if (!scrollElement) return;
-    if (scrollScheduledRef.current) return;
-    scrollScheduledRef.current = true;
-
-    const frameId = window.requestAnimationFrame(() => {
-      scrollScheduledRef.current = false;
-      if (scrollRef.current) {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (!autoScroll) {
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+        scrollFrameRef.current = null;
       }
+      return;
+    }
+    if (scrollFrameRef.current !== null) return;
+
+    scrollFrameRef.current = window.requestAnimationFrame(() => {
+      scrollFrameRef.current = null;
+      const scrollElement = scrollRef.current;
+      if (!scrollElement) return;
+      scrollElement.scrollTo({
+        top: scrollElement.scrollHeight,
+        behavior: "smooth",
+      });
     });
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      scrollScheduledRef.current = false;
-    };
-  // Deps: id (new card) + length (streaming tokens) + toggle.
+  // Deps: id (new card) + length (streaming chunks) + setting toggle.
   }, [activeResponseId, activeResponseLength, autoScroll]);
+
+  // Cancel a pending frame only when AnswerArea actually unmounts. Keeping
+  // this separate from the streaming effect avoids starving auto-scroll when
+  // chunks arrive faster than the browser can paint.
+  useEffect(() => {
+    return () => {
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+        scrollFrameRef.current = null;
+      }
+    };
+  }, []);
 
   // ── Window auto-grow (Slice 1 / Bug A fix) ──────────────────────────────
   // The Rust command `set_mini_size_instant(width, height)` resizes the
@@ -986,6 +995,7 @@ const AnswerArea = memo(function AnswerArea({
   const nextResponse = next.responses[0];
   return (
     previous.isStreaming === next.isStreaming &&
+    previous.autoScroll === next.autoScroll &&
     previousResponse?.messageId === nextResponse?.messageId &&
     previousResponse?.text === nextResponse?.text &&
     previousResponse?.question === nextResponse?.question &&
