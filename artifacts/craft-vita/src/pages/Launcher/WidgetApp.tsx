@@ -88,7 +88,6 @@ import { CreditsBadge } from "@/shared/components/CreditsBadge";
 import { WidgetSelect } from "@/shared/components/WidgetSelect";
 import { tauriEvents } from "@/services/tauriEvents";
 import { tauriOverlay } from "@/services/tauriOverlay";
-import { DesktopAuthHydrator } from "@/components/auth/DesktopAuthHydrator";
 import { getDesktopClerkOptions } from "@/lib/clerkOptions";
 
 // ─── Redux store ──────────────────────────────────────────────────────────────
@@ -1258,20 +1257,11 @@ function WidgetApp() {
           publishableKey={PUBLISHABLE_KEY}
           allowedRedirectProtocols={["tauri:", "http:", "https:"]}
         >
-          <DesktopAuthHydrator
-            source="launcher"
-            loadingFallback={
-              <div className="flex items-center justify-center py-10">
-                <Loader2 className="w-5 h-5 animate-spin text-zinc-300" />
-              </div>
-            }
-          >
-            {OverlayFlags.USE_UNIFIED_OVERLAY ? (
-              <OverlayRoot launcherContent={<WidgetContent />} />
-            ) : (
-              <WidgetContent />
-            )}
-          </DesktopAuthHydrator>
+          {OverlayFlags.USE_UNIFIED_OVERLAY ? (
+            <OverlayRoot launcherContent={<WidgetContent />} />
+          ) : (
+            <WidgetContent />
+          )}
         </ClerkProvider>
       </DesktopAuthProvider>
     </Provider>

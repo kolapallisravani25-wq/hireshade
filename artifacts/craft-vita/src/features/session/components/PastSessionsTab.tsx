@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@clerk/clerk-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Loader2, ExternalLink, Briefcase, History } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -7,9 +6,9 @@ import { safeJson } from "@/shared/utils/safeJson";
 import { formatRelativeDate, sessionStatusLabel } from "@/shared/utils/formatters";
 import { BACKEND_URL, FRONTEND_URL } from "@/features/launcher/constants";
 import type { PastSession } from "@/features/launcher/types";
+import { getAuthToken } from "@/lib/globalAuth";
 
 export function PastSessionsTab() {
-  const { getToken } = useAuth();
   const [sessions, setSessions] = useState<PastSession[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +19,7 @@ export function PastSessionsTab() {
       try {
         let userId = localStorage.getItem("userId");
         if (!userId) {
-          const token = await getToken();
+          const token = await getAuthToken();
           if (token) {
             const meRes = await fetch(`${BACKEND_URL}/api/auth/me`, {
               headers: { Authorization: `Bearer ${token}` },
@@ -36,7 +35,7 @@ export function PastSessionsTab() {
         }
         if (!userId || cancelled) return;
 
-        const token = await getToken();
+        const token = await getAuthToken();
         const res = await fetch(
           `${BACKEND_URL}/api/session/list?userId=${userId}`,
           { headers: token ? { Authorization: `Bearer ${token}` } : {} },
@@ -57,7 +56,7 @@ export function PastSessionsTab() {
     return () => {
       cancelled = true;
     };
-  }, [getToken]);
+  }, []);
 
   // Live statuses where the user should land on the live ActiveSession page.
   // Anything else (COMPLETED, ABANDONED, FORCE_ENDED, AUTO_ENDED, CREDIT_EXHAUSTED,

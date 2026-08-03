@@ -13,7 +13,6 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { clampToScreen } from "@/lib/clampToScreen";
 import { getDesktopClerkOptions } from "@/lib/clerkOptions";
-import { DesktopAuthHydrator } from "@/components/auth/DesktopAuthHydrator";
 import { useOverlayShortcuts } from "@/hooks/useOverlayShortcuts";
 import { useSafeZoom } from "@/hooks/useSafeZoom";
 import { useCursorPassthrough } from "@/features/launcher/hooks/useCursorPassthrough";
@@ -598,6 +597,7 @@ interface AnswerAreaProps {
 
 const AnswerArea = memo(function AnswerArea({
   responses,
+  isStreaming,
   autoScroll = true,
 }: AnswerAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -608,10 +608,10 @@ const AnswerArea = memo(function AnswerArea({
   // during streaming, not only when a NEW answer card starts.
   const activeResponseLength = activeResponse?.text?.length ?? 0;
 
-  // ── Smooth streaming auto-scroll ─────────────────────────────────────────
+  // ── Streaming auto-scroll ────────────────────────────────────────────────
   // Follow the active answer as each streamed chunk is rendered. Scheduling
   // one animation frame at a time coalesces rapid token updates without
-  // canceling the pending scroll on every React render.
+  // starting competing smooth-scroll animations on every React render.
   const scrollFrameRef = useRef<number | null>(null);
   useEffect(() => {
     if (!autoScroll) {
@@ -627,13 +627,10 @@ const AnswerArea = memo(function AnswerArea({
       scrollFrameRef.current = null;
       const scrollElement = scrollRef.current;
       if (!scrollElement) return;
-      scrollElement.scrollTo({
-        top: scrollElement.scrollHeight,
-        behavior: "smooth",
-      });
+      scrollElement.scrollTop = scrollElement.scrollHeight;
     });
-  // Deps: id (new card) + length (streaming chunks) + setting toggle.
-  }, [activeResponseId, activeResponseLength, autoScroll]);
+  // Deps: new card, streaming chunks, setting toggle, and stream completion.
+  }, [activeResponseId, activeResponseLength, autoScroll, isStreaming]);
 
   // Cancel a pending frame only when AnswerArea actually unmounts. Keeping
   // this separate from the streaming effect avoids starving auto-scroll when
@@ -2152,14 +2149,9 @@ if (rootElement) {
               publishableKey={PUBLISHABLE_KEY}
               allowedRedirectProtocols={["tauri:", "http:", "https:"]}
             >
-              <DesktopAuthHydrator
-                source="floating"
-                loadingFallback={<div className="w-full h-screen bg-transparent" />}
-              >
-                <TooltipProvider delayDuration={0}>
-                  <FloatingApp />
-                </TooltipProvider>
-              </DesktopAuthHydrator>
+              <TooltipProvider delayDuration={0}>
+                <FloatingApp />
+              </TooltipProvider>
             </ClerkProvider>
           </DesktopAuthProvider>
         ) : (
