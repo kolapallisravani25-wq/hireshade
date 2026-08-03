@@ -202,14 +202,14 @@ export function auditAnswerGrounding(opts: {
 }): FabricationFinding[] {
   const findings = detectUnsupportedClaims(opts.answer, opts.context);
   if (findings.length > 0) {
-    const byType = (t: FabricationFinding["type"]) =>
-      findings.filter((f) => f.type === t).map((f) => f.value);
+    const countByType = (type: FabricationFinding["type"]) =>
+      findings.filter((finding) => finding.type === type).length;
     const meta = {
       sessionId: opts.sessionId,
-      unsupportedEmployers: byType("employer"),
-      unsupportedMetrics: byType("metric"),
-      unsupportedCounts: byType("count"),
-      unsupportedIndustries: byType("industry"),
+      unsupportedEmployers: countByType("employer"),
+      unsupportedMetrics: countByType("metric"),
+      unsupportedCounts: countByType("count"),
+      unsupportedIndustries: countByType("industry"),
     };
     if (opts.log) {
       opts.log("[groundingGuard] unsupported claims detected in generated answer", meta);

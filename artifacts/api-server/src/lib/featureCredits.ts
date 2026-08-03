@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "./logger.js";
 import { SIGNUP_CREDITS } from "./signupGrant.js";
+import { AiRateLimitError, enforceAiRateLimit } from "./aiRateLimit.js";
 
 /**
  * Per-feature (per-action) credit costs. These are DISTINCT from session
@@ -112,6 +113,7 @@ export async function chargeFeature(opts: {
   aiModel?: string | null;
   metadata?: Record<string, unknown>;
 }): Promise<ChargeResult> {
+  enforceAiRateLimit(`${opts.userId}:${opts.operation}`);
   const cost = featureCost(opts.operation);
 
   // Free operation: no charge, report current balance.
@@ -265,6 +267,7 @@ class IdempotencyRace extends Error {
  */
 export async function chargeOr402(
   res: {
+    setHeader?: (name: string, value: string) => void;
     status: (code: number) => { json: (body: unknown) => void };
   },
   opts: Parameters<typeof chargeFeature>[0],
@@ -272,6 +275,15 @@ export async function chargeOr402(
   try {
     return await chargeFeature(opts);
   } catch (err) {
+    if (err instanceof AiRateLimitError) {
+      res.setHeader?.("Retry-After", String(err.retryAfterSeconds));
+      res.status(429).json({
+        error: "RATE_LIMITED",
+        message: "Too many AI requests; please retry shortly",
+        retryAfterSeconds: err.retryAfterSeconds,
+      });
+      return null;
+    }
     if (err instanceof InsufficientCreditsError) {
       res.status(402).json({
         error: "INSUFFICIENT_CREDITS",

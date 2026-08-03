@@ -10,6 +10,8 @@ import {
 import { eq, and, desc, ilike, gte, lte, inArray, ne, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { streamChatComplete, chatComplete, isAiConfigured } from "../lib/openrouter.js";
+import { hasExpectedFileSignature } from "../lib/uploadValidation.js";
+import { rateLimitAiOr429 } from "../lib/aiRateLimit.js";
 import { buildInterviewSystemPrompt, computeContextPresence } from "../lib/interviewPrompt.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
 import { assessQuestionReadiness } from "../lib/questionReadiness.js";
@@ -26,7 +28,7 @@ import {
 } from "../lib/sessionCredits.js";
 import { getSessionGrounding } from "../lib/sessionGrounding.js";
 import { auditAnswerGrounding } from "../lib/groundingGuard.js";
-import { isAlreadyAnswered, normalizeQuestionKey } from "../lib/answeredQuestionMemory.js";
+import { isAlreadyAnswered } from "../lib/answeredQuestionMemory.js";
 import {
   generateSessionFeedback,
   getExistingFeedback,
@@ -873,6 +875,12 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
       return;
     }
 
+
+    if (!hasExpectedFileSignature(file.buffer, file.mimetype)) {
+      res.status(400).json({ error: "Screenshot content does not match a supported image type" });
+      return;
+    }
+
     const [session] = await db
       .select()
       .from(sessionsTable)
@@ -897,6 +905,7 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
       res.status(410).json({ error: "SESSION_NOT_ACTIVE", status: session.status });
       return;
     }
+    if (!rateLimitAiOr429(res, userId, "session-screen")) return;
 
     let contextPayload: {
       currentQuestion?: string;
@@ -1070,6 +1079,7 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       res.status(410).json({ error: "SESSION_NOT_ACTIVE", status: session.status });
       return;
     }
+    if (!rateLimitAiOr429(res, userId, "session-answer")) return;
 
     const body = req.body as {
       transcript?: string;
@@ -1125,7 +1135,7 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       !!body.patchedTranscript;
     const readiness = assessQuestionReadiness(question, { force: isForced });
     if (!readiness.ready) {
-      console.log("[sessions] ai-answer skipped — not ready:", readiness.reason, JSON.stringify(question.slice(0, 60)));
+      console.log("[sessions] ai-answer skipped — not ready", { reason: readiness.reason });
       res.status(422).json({ error: "Question not ready", reason: readiness.reason });
       return;
     }
@@ -1154,9 +1164,6 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
       console.log("[sessions] ai-answer answered-memory", {
         sessionId,
         triggerSource: body.triggerSource,
-        detectedQuestion: question.slice(0, 80),
-        previousQuestion: answeredCheck.matchedQuestion?.slice(0, 80) ?? null,
-        answeredQuestionHash: normalizeQuestionKey(question).slice(0, 80),
         isFollowUp: detectedFollowUp,
         similarity: Number(answeredCheck.similarity.toFixed(2)),
         answered: answeredCheck.answered,
@@ -1365,6 +1372,8 @@ router.get("/:id/analytics", requireAuth, async (req, res) => {
       res.status(404).json({ error: "Session not found" });
       return;
     }
+
+    if (!rateLimitAiOr429(res, userId, "session-analytics")) return;
 
     const feedback = await generateSessionFeedback(session);
     if (!feedback) {
@@ -1737,6 +1746,7 @@ router.post("/:sessionId/answers/:messageId/ai-preview", requireAuth, async (req
       res.status(404).json({ error: "Message not found" });
       return;
     }
+    if (!rateLimitAiOr429(res, req.userId!, "answer-preview")) return;
     const { session, message } = owned;
 
     const body = req.body as { instruction?: string; mode?: string; model?: string };

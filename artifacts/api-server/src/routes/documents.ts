@@ -7,6 +7,7 @@ import { db } from "@workspace/db";
 import { documentsTable } from "@workspace/db/schema";
 import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
+import { hasExpectedFileSignature } from "../lib/uploadValidation.js";
 
 const router: IRouter = Router();
 
@@ -83,6 +84,12 @@ router.post("/upload", requireAuth, uploadSingleDocument, async (req, res) => {
 
     if (!file) {
       res.status(400).json({ error: "No file uploaded" });
+      return;
+    }
+
+    if (!hasExpectedFileSignature(fs.readFileSync(file.path), file.mimetype)) {
+      fs.unlinkSync(file.path);
+      res.status(400).json({ error: "File content does not match its declared type" });
       return;
     }
 

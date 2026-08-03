@@ -8,6 +8,7 @@ import { chatCompleteJSON } from "../lib/openrouter.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
 import { chargeOr402, withCharge } from "../lib/featureCredits.js";
 import { renderHtmlToPdf, PdfError } from "../lib/htmlPdf.js";
+import { buildProjectUpdates } from "../lib/projectUpdates.js";
 
 const router: IRouter = Router();
 
@@ -368,11 +369,16 @@ router.patch("/:id", requireAuth, async (req, res) => {
   try {
     const userId = req.userId!;
     const projectId = String(req.params["id"] ?? "");
-    const body = req.body as { title?: string; description?: string; content?: unknown };
+    const updates = buildProjectUpdates(req.body);
+
+    if (!updates) {
+      res.status(400).json({ error: "No updatable fields provided" });
+      return;
+    }
 
     await db
       .update(projectsTable)
-      .set({ ...body, updatedAt: new Date() })
+      .set({ ...updates, updatedAt: new Date() })
       .where(and(eq(projectsTable.id, projectId), eq(projectsTable.userId, userId)));
 
     // Scoped re-read: if the ownership-scoped UPDATE above matched nothing,
@@ -421,10 +427,21 @@ router.put("/:id/projects", requireAuth, async (req, res) => {
       .filter(Boolean)
       .join("\n\n");
 
-    const revised = await chatCompleteJSONWithBudgets<Record<string, unknown>>(
-      prompt,
-      PROJECT_REGEN_TOKEN_BUDGETS,
+    const charged = await withCharge(
+      res,
+      {
+        userId,
+        operation: "project_generate",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+      },
+      () =>
+        chatCompleteJSONWithBudgets<Record<string, unknown>>(
+          prompt,
+          PROJECT_REGEN_TOKEN_BUDGETS,
+        ),
     );
+    if (!charged) return;
+    const { result: revised, meter: _meter } = charged;
 
     const newVersion = project.version + 1;
     const header = revised["projectHeader"] as { title?: string } | undefined;
@@ -448,7 +465,7 @@ router.put("/:id/projects", requireAuth, async (req, res) => {
       content: revised,
     });
 
-    res.json({ success: true, data: revised });
+    res.json({ success: true, data: { ...revised, ..._meter } });
   } catch (err) {
     console.error("[projects] replace error", err);
     res.status(500).json({ error: "Failed to replace project" });

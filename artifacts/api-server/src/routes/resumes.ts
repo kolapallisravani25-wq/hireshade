@@ -12,7 +12,7 @@ import {
   deleteResumeObject,
 } from "../lib/resumeStorage.js";
 import { chatComplete, chatCompleteJSON } from "../lib/openrouter.js";
-import { chargeOr402, withCharge } from "../lib/featureCredits.js";
+import { withCharge } from "../lib/featureCredits.js";
 import { renderHtmlToPdf, PdfError } from "../lib/htmlPdf.js";
 import {
   getResumeContextById,
@@ -20,6 +20,7 @@ import {
   getResumeById,
   fieldsToText,
 } from "../lib/resumeContext.js";
+import { hasExpectedFileSignature } from "../lib/uploadValidation.js";
 
 const router: IRouter = Router();
 
@@ -101,6 +102,7 @@ const uploadSingleResume: import("express").RequestHandler = (req, res, next) =>
 };
 
 router.post("/upload", requireAuth, uploadSingleResume, async (req, res) => {
+  let uploadedObjectPath: string | undefined;
   try {
     const userId = req.userId!;
     const file = req.file;
@@ -110,9 +112,15 @@ router.post("/upload", requireAuth, uploadSingleResume, async (req, res) => {
       return;
     }
 
+    if (!hasExpectedFileSignature(file.buffer, file.mimetype)) {
+      res.status(400).json({ error: "File content does not match its declared type" });
+      return;
+    }
+
     const resumeId = uuidv4();
     const objectPath = buildResumeObjectPath(userId, file.originalname);
     await uploadResumeObject(objectPath, file.buffer, file.mimetype);
+    uploadedObjectPath = objectPath;
 
     await db.insert(resumesTable).values({
       id: resumeId,
@@ -123,6 +131,7 @@ router.post("/upload", requireAuth, uploadSingleResume, async (req, res) => {
       source: "uploaded",
       ats: false,
     });
+    uploadedObjectPath = undefined;
 
     const [resume] = await db
       .select()
@@ -132,6 +141,9 @@ router.post("/upload", requireAuth, uploadSingleResume, async (req, res) => {
 
     res.status(201).json({ success: true, data: toFrontendResume(resume!) });
   } catch (err) {
+    if (uploadedObjectPath) {
+      await deleteResumeObject(uploadedObjectPath).catch(() => undefined);
+    }
     console.error("[resumes] upload error", err);
     res.status(500).json({ error: "Failed to upload resume" });
   }
@@ -234,15 +246,18 @@ router.post("/ats-score", requireAuth, async (req, res) => {
     }
 
     const resumeText = await getResumeContextText(resume);
-    const result = await scoreResumeText(resumeText, body.jobDescription);
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_ats",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: resume.id,
-    });
-    if (!_meter) return;
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_ats",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: resume.id,
+      },
+      () => scoreResumeText(resumeText, body.jobDescription),
+    );
+    if (!charged) return;
+    const { result, meter: _meter } = charged;
 
     await db
       .update(resumesTable)
@@ -598,15 +613,18 @@ router.post("/builder/ats-score", requireAuth, async (req, res) => {
     }
 
     const resumeText = await getResumeContextText(resume);
-    const result = await scoreResumeText(resumeText, body.jobDescription);
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_ats",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: resume.id,
-    });
-    if (!_meter) return;
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_ats",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: resume.id,
+      },
+      () => scoreResumeText(resumeText, body.jobDescription),
+    );
+    if (!charged) return;
+    const { result, meter: _meter } = charged;
 
     await db
       .update(resumesTable)
@@ -891,18 +909,21 @@ router.post("/builder/analyze-keywords", requireAuth, async (req, res) => {
       'Respond with ONLY a JSON object: { "matched": string[], "missing": string[], "matchScore": number (0-100) }. No other text.',
     ].join("\n\n");
 
-    const result = await chatCompleteJSON<{ matched: string[]; missing: string[]; matchScore: number }>({
-      messages: [{ role: "user", content: prompt }],
-      maxTokens: 1000,
-    });
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_analyze_keywords",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: body.resumeId ?? null,
-    });
-    if (!_meter) return;
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_analyze_keywords",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: body.resumeId ?? null,
+      },
+      () => chatCompleteJSON<{ matched: string[]; missing: string[]; matchScore: number }>({
+        messages: [{ role: "user", content: prompt }],
+        maxTokens: 1000,
+      }),
+    );
+    if (!charged) return;
+    const { result, meter: _meter } = charged;
     res.json({ success: true, data: { ...result, ..._meter } });
   } catch (err) {
     console.error("[resumes] builder/analyze-keywords error", err);
@@ -932,18 +953,21 @@ router.post("/builder/keyword-match", requireAuth, async (req, res) => {
       'Respond with ONLY a JSON object: { "matchScore": number (0-100), "matched": string[], "missing": string[] }. No other text.',
     ].join("\n\n");
 
-    const result = await chatCompleteJSON<{ matchScore: number; matched: string[]; missing: string[] }>({
-      messages: [{ role: "user", content: prompt }],
-      maxTokens: 1000,
-    });
-
-    const _meter = await chargeOr402(res, {
-      userId: req.userId!,
-      operation: "resume_keyword_match",
-      idempotencyKey: req.header("Idempotency-Key") ?? null,
-      resumeId: body.resumeId ?? null,
-    });
-    if (!_meter) return;
+    const charged = await withCharge(
+      res,
+      {
+        userId: req.userId!,
+        operation: "resume_keyword_match",
+        idempotencyKey: req.header("Idempotency-Key") ?? null,
+        resumeId: body.resumeId ?? null,
+      },
+      () => chatCompleteJSON<{ matchScore: number; matched: string[]; missing: string[] }>({
+        messages: [{ role: "user", content: prompt }],
+        maxTokens: 1000,
+      }),
+    );
+    if (!charged) return;
+    const { result, meter: _meter } = charged;
 
     res.json({ success: true, data: { ...result, ..._meter } });
   } catch (err) {

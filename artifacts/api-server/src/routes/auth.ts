@@ -3,6 +3,7 @@ import { requireAuth } from "../middlewares/requireAuth.js";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
+import { rateLimitAiOr429 } from "../lib/aiRateLimit.js";
 
 const router: IRouter = Router();
 
@@ -84,12 +85,13 @@ async function resolveDeepgramProjectId(masterKey: string): Promise<string> {
 router.post("/deepgram-token", requireAuth, async (req, res) => {
   try {
     const userId = req.userId!;
+    if (!rateLimitAiOr429(res, userId, "deepgram-token")) return;
     const masterKey = process.env["DEEPGRAM_API_KEY"]?.trim();
     if (!masterKey) {
       // Web has no build-time key fallback anymore (removing it kept the
       // master key out of the shipped bundle), so a 503 here means web
       // transcription is unavailable until DEEPGRAM_API_KEY is set on the
-      // server. The desktop app has its own compiled-in key path.
+      // server. Desktop and browser clients both use this minted-key path.
       res.status(503).json({ error: "Deepgram is not configured on the server" });
       return;
     }
@@ -123,8 +125,7 @@ router.post("/deepgram-token", requireAuth, async (req, res) => {
     );
 
     if (!mintRes.ok) {
-      const text = await mintRes.text().catch(() => "");
-      console.error("[auth] deepgram key mint failed", mintRes.status, text);
+      console.error("[auth] deepgram key mint failed", { status: mintRes.status });
       res.status(502).json({ error: "Failed to mint transcription credentials" });
       return;
     }
@@ -177,8 +178,7 @@ router.post("/tauri-ticket", requireAuth, async (req, res) => {
     });
 
     if (!clerkRes.ok) {
-      const body = await clerkRes.text().catch(() => "");
-      console.error("[auth] sign_in_tokens error", clerkRes.status, body);
+      console.error("[auth] sign_in_tokens error", { status: clerkRes.status });
       res.status(502).json({ error: "Failed to create sign-in ticket" });
       return;
     }

@@ -456,7 +456,7 @@ router.post("/webhook/razorpay", async (req, res) => {
         if (result.outcome === "not_found") {
           // Unknown order (e.g. another environment sharing the Razorpay
           // account). Ack with 200 — retrying will never make it known.
-          console.warn("[credits] webhook for unknown order", orderId);
+          console.warn("[credits] webhook for unknown order");
         }
       }
     }

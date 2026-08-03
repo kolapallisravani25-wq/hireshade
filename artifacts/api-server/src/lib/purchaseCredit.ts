@@ -109,7 +109,7 @@ export async function applyPurchaseCreditByOrderId(opts: {
 
   if (!credited) {
     logger.info(
-      { purchaseId: purchase.id, orderId: opts.orderId },
+      { purchaseId: purchase.id },
       "[credits] purchase settlement replay ignored (already completed)",
     );
     return { outcome: "already_completed", purchaseId: purchase.id };
@@ -118,8 +118,6 @@ export async function applyPurchaseCreditByOrderId(opts: {
   logger.info(
     {
       purchaseId: purchase.id,
-      orderId: opts.orderId,
-      userId: purchase.userId,
       credits: purchase.creditsPurchased,
     },
     "[credits] purchase credited",

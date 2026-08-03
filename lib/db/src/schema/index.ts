@@ -321,7 +321,11 @@ export const creditsPurchasesTable = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (t) => [index("credits_purchases_user_id_idx").on(t.userId)],
+  (t) => [
+    index("credits_purchases_user_id_idx").on(t.userId),
+    uniqueIndex("credits_purchases_order_id_idx").on(t.orderId),
+    uniqueIndex("credits_purchases_payment_id_idx").on(t.paymentId),
+  ],
 );
 
 export type CreditsPurchase = typeof creditsPurchasesTable.$inferSelect;

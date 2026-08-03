@@ -554,6 +554,37 @@ describe("answer revisions — integrity", () => {
 });
 
 describe("purchase verification — idempotency", () => {
+  it("enforces unique provider order and payment identifiers", async () => {
+    await db.insert(creditsPurchasesTable).values({
+      id: uuidv4(),
+      userId: USER_A,
+      orderId: "order_unique",
+      paymentId: "pay_unique",
+      creditsPurchased: "5",
+      status: "completed",
+    });
+
+    await expect(
+      db.insert(creditsPurchasesTable).values({
+        id: uuidv4(),
+        userId: USER_A,
+        orderId: "order_unique",
+        creditsPurchased: "5",
+        status: "pending",
+      }),
+    ).rejects.toBeTruthy();
+    await expect(
+      db.insert(creditsPurchasesTable).values({
+        id: uuidv4(),
+        userId: USER_A,
+        orderId: "order_other",
+        paymentId: "pay_unique",
+        creditsPurchased: "5",
+        status: "completed",
+      }),
+    ).rejects.toBeTruthy();
+  });
+
   it("replayed verification does not credit twice and seeds a missing balance row", async () => {
     process.env["RAZORPAY_KEY_SECRET"] = "test-secret";
     const crypto = await import("crypto");
@@ -583,7 +614,7 @@ describe("purchase verification — idempotency", () => {
     const r1 = await call();
     expect(r1.status).toBe(200);
     const afterFirst = await balanceOf(USER_A);
-    expect(afterFirst).toBeCloseTo(150, 2); // 100 seed grant + 50 purchased
+    expect(afterFirst).toBeCloseTo(53, 2); // 3-credit signup grant + 50 purchased
 
     const r2 = await call();
     expect(r2.status).toBe(200);
@@ -663,13 +694,13 @@ describe("chargeFeature — per-action metering", () => {
     const key = uuidv4();
     const r = await chargeFeature({
       userId: USER_A,
-      operation: "resume_generate", // cost 10
+      operation: "resume_generate", // cost 5
       idempotencyKey: key,
     });
-    expect(r.creditsUsed).toBe(10);
+    expect(r.creditsUsed).toBe(5);
     expect(r.cached).toBe(false);
-    expect(r.creditsRemaining).toBeCloseTo(10, 2);
-    expect(await balanceOf(USER_A)).toBeCloseTo(10, 2);
+    expect(r.creditsRemaining).toBeCloseTo(15, 2);
+    expect(await balanceOf(USER_A)).toBeCloseTo(15, 2);
 
     const usage = await db.select().from(creditsUsageTable);
     expect(usage).toHaveLength(1);
@@ -684,8 +715,8 @@ describe("chargeFeature — per-action metering", () => {
     const r2 = await chargeFeature(opts);
     expect(r1.cached).toBe(false);
     expect(r2.cached).toBe(true);
-    expect(r2.creditsUsed).toBe(10);
-    expect(await balanceOf(USER_A)).toBeCloseTo(10, 2);
+    expect(r2.creditsUsed).toBe(5);
+    expect(await balanceOf(USER_A)).toBeCloseTo(15, 2);
     expect(await db.select().from(creditsUsageTable)).toHaveLength(1);
   });
 
@@ -699,12 +730,12 @@ describe("chargeFeature — per-action metering", () => {
       chargeFeature(opts),
     ]);
     expect(await db.select().from(creditsUsageTable)).toHaveLength(1);
-    expect(await balanceOf(USER_A)).toBeCloseTo(10, 2);
+    expect(await balanceOf(USER_A)).toBeCloseTo(15, 2);
     expect(results.filter((r) => !r.cached)).toHaveLength(1);
   });
 
   it("throws InsufficientCreditsError and charges nothing when balance can't cover", async () => {
-    await seedUser(USER_A, "3"); // < 10
+    await seedUser(USER_A, "3"); // < 5
     await expect(
       chargeFeature({ userId: USER_A, operation: "resume_generate", idempotencyKey: uuidv4() }),
     ).rejects.toBeInstanceOf(InsufficientCreditsError);
@@ -716,7 +747,7 @@ describe("chargeFeature — per-action metering", () => {
     await seedUser(USER_A, "0");
     const r = await chargeFeature({
       userId: USER_A,
-      operation: "resume_rewrite", // cost 0 (unpriced)
+      operation: "ai_project_generation", // registered at cost 0
       idempotencyKey: uuidv4(),
     });
     expect(r.creditsUsed).toBe(0);
@@ -732,13 +763,13 @@ describe("chargeFeature — per-action metering", () => {
       purchasedCredits: "10",
       heldCredits: "0",
     });
-    await chargeFeature({ userId: USER_A, operation: "resume_generate", idempotencyKey: uuidv4() }); // 10
+    await chargeFeature({ userId: USER_A, operation: "resume_generate", idempotencyKey: uuidv4() }); // 5
     const [b] = await db
       .select()
       .from(creditsBalanceTable)
       .where(eq(creditsBalanceTable.userId, USER_A));
-    expect(parseFloat(b!.earnedCredits)).toBeCloseTo(0, 2); // 6 earned drained first
-    expect(parseFloat(b!.purchasedCredits)).toBeCloseTo(6, 2); // 4 taken from purchased
+    expect(parseFloat(b!.earnedCredits)).toBeCloseTo(1, 2); // 5 taken from earned
+    expect(parseFloat(b!.purchasedCredits)).toBeCloseTo(10, 2);
   });
 });
 
@@ -1234,9 +1265,9 @@ describe("credit purchase pipeline", () => {
     const res = await request(app).get("/api/credits/plans?currency=USD").set("x-test-user", USER_A);
     expect(res.status).toBe(200);
     const p = res.body.data[0];
-    expect(p.code).toBe("plan_100");
-    expect(p.amountMinor).toBe(499);
-    expect(p.amountMajor).toBe("4.99");
+    expect(p.code).toBe("quick_5");
+    expect(p.amountMinor).toBe(299);
+    expect(p.amountMajor).toBe("2.99");
     expect(typeof p.isPopular).toBe("boolean");
     expect(typeof p.valuePct).toBe("number");
     // larger packs must be strictly better value
@@ -1248,19 +1279,19 @@ describe("credit purchase pipeline", () => {
     const res = await request(app)
       .post("/api/credits/purchase/order")
       .set("x-test-user", USER_A)
-      .send({ packCode: "plan_500", currency: "INR" });
+      .send({ packCode: "standard_60", currency: "INR" });
     expect(res.status).toBe(200);
     expect(res.body.data.orderId).toMatch(/^order_RZPMOCK/);
     expect(res.body.data.keyId).toBe("rzp_test_mockkey");
-    expect(res.body.data.amountMinor).toBe(159900); // server-side, never client-supplied
-    expect(res.body.data.credits).toBe(500);
+    expect(res.body.data.amountMinor).toBe(69900); // server-side, never client-supplied
+    expect(res.body.data.credits).toBe(60);
     const [row] = await db
       .select()
       .from(creditsPurchasesTable)
       .where(eq(creditsPurchasesTable.orderId, res.body.data.orderId));
     expect(row).toBeTruthy();
     expect(row!.status).toBe("pending");
-    expect(row!.creditsPurchased).toBe("500");
+    expect(row!.creditsPurchased).toBe("60");
   });
 
   it("order: rejects unknown packCode with the exact client-contract string", async () => {
@@ -1277,7 +1308,7 @@ describe("credit purchase pipeline", () => {
     const res = await request(app)
       .post("/api/credits/purchase/order")
       .set("x-test-user", USER_A)
-      .send({ packCode: "plan_100", currency: "INR" });
+      .send({ packCode: "quick_5", currency: "INR" });
     expect(res.status).toBe(503);
     expect(res.body.error).toBe("Razorpay is not configured");
   });
@@ -1286,7 +1317,7 @@ describe("credit purchase pipeline", () => {
     const order = await request(app)
       .post("/api/credits/purchase/order")
       .set("x-test-user", USER_A)
-      .send({ packCode: "plan_100", currency: "INR" });
+      .send({ packCode: "quick_5", currency: "INR" });
     const orderId = order.body.data.orderId;
 
     // Another user cannot fail it.

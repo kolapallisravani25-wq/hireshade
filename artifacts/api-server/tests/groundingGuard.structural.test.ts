@@ -114,7 +114,7 @@ describe("detectUnsupportedClaims — does NOT flag grounded specifics", () => {
 const THIN_CONTEXT_EMPTY = "";
 
 describe("auditAnswerGrounding — structured logging", () => {
-  it("buckets findings by type and calls the provided logger", () => {
+  it("logs finding counts without claim text", () => {
     let captured: Record<string, unknown> | null = null;
     const findings = auditAnswerGrounding({
       sessionId: "sess-1",
@@ -127,9 +127,11 @@ describe("auditAnswerGrounding — structured logging", () => {
     });
     expect(findings.length).toBeGreaterThan(0);
     expect(captured).not.toBeNull();
-    const meta = captured as unknown as Record<string, string[]>;
-    expect(meta["unsupportedIndustries"]!.length).toBeGreaterThan(0);
-    expect(meta["unsupportedCounts"]!.length).toBeGreaterThan(0);
-    expect(meta["unsupportedMetrics"]!.length).toBeGreaterThan(0);
+    const meta = captured as unknown as Record<string, number | string>;
+    expect(meta["unsupportedIndustries"]).toBeGreaterThan(0);
+    expect(meta["unsupportedCounts"]).toBeGreaterThan(0);
+    expect(meta["unsupportedMetrics"]).toBeGreaterThan(0);
+    expect(JSON.stringify(meta)).not.toContain("hospitality");
+    expect(JSON.stringify(meta)).not.toContain("30%");
   });
 });

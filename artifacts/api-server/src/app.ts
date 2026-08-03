@@ -5,6 +5,7 @@ import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { verifyUploadsSignature } from "./lib/resumeStorage";
+import { buildCorsOptions } from "./lib/corsPolicy.js";
 
 const app: Express = express();
 
@@ -27,15 +28,9 @@ app.use(
     },
   }),
 );
-// CORS: allowlist via CORS_ORIGINS (comma-separated). Unset = allow all —
-// required until every desktop origin (tauri://localhost etc.) is confirmed,
-// and safe-ish because auth is Bearer-token (no ambient cookies). Set e.g.
-// CORS_ORIGINS=https://app.scribeshade.org,tauri://localhost,http://tauri.localhost
-const corsOrigins = (process.env["CORS_ORIGINS"] ?? "")
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
-app.use(cors(corsOrigins.length > 0 ? { origin: corsOrigins } : {}));
+// Production fails closed until the browser and desktop origins are explicit.
+// Development remains permissive for local Vite/Tauri ports.
+app.use(cors(buildCorsOptions(process.env["CORS_ORIGINS"], process.env["NODE_ENV"])));
 // The Razorpay webhook signature is an HMAC over the RAW request bytes —
 // express.json() would consume and re-serialize the body, breaking byte-exact
 // verification. Mounting express.raw() for this one path first makes the
