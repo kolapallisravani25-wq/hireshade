@@ -10,9 +10,8 @@ import { getAuthHeaders } from "@/lib/globalAuth";
  * (Vite inlines import.meta.env at build), leaking the master key into
  * dist/public/assets/*.js served by nginx. It has been removed.
  *
- * (The desktop app's Rust STT transport has its own key handling via
- * option_env! in src-tauri — that path is compiled into the binary and is
- * entirely separate from this web resolver.)
+ * Desktop callers pass the same minted key to native commands at request time;
+ * no Deepgram credential is compiled into the application binary.
  *
  * The minted key is a normal Deepgram key, so it works everywhere the old key
  * did: browser WebSocket ["token", key] subprotocol and the Rust

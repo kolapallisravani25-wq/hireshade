@@ -13,6 +13,7 @@ import {
   signDesktopAccessToken,
   DESKTOP_ACCESS_TTL_SECONDS,
 } from "../lib/desktopAuth.js";
+import { buildManifest, type GhAsset, type GhRelease } from "../lib/desktopManifest.js";
 
 /**
  * Desktop release distribution — proxies the PRIVATE GitHub repo's releases.
@@ -48,20 +49,6 @@ import {
 
 const GITHUB_REPO = process.env["DESKTOP_RELEASES_REPO"] ?? "kolapallisravani25-wq/hireshade";
 const CACHE_TTL_MS = 5 * 60_000;
-
-interface GhAsset {
-  id: number;
-  name: string;
-  size: number;
-  browser_download_url: string;
-}
-interface GhRelease {
-  tag_name: string;
-  name: string | null;
-  body: string | null;
-  published_at: string | null;
-  assets: GhAsset[];
-}
 
 interface CachedRelease {
   fetchedAt: number;
@@ -135,69 +122,12 @@ function publicBase(): string {
   return process.env["PUBLIC_BACKEND_URL"] ?? "";
 }
 
-function proxyUrl(assetName: string): string {
-  return `${publicBase()}/api/desktop/download/${encodeURIComponent(assetName)}`;
-}
-
-/** Map release assets into updater `platforms` + web `downloads` shapes. */
-function buildManifest(release: GhRelease, signatures: Record<string, string>) {
-  const platforms: Record<string, { url: string; signature?: string }> = {};
-  const downloads: {
-    mac?: { dmg?: { url: string }; appTarGz?: { url: string } };
-    windows?: { exe?: { url: string }; msi?: { url: string } };
-    linux?: { appImage?: { url: string }; deb?: { url: string }; rpm?: { url: string } };
-  } = {};
-
-  const sigFor = (assetName: string) => signatures[`${assetName}.sig`];
-
-  for (const asset of release.assets) {
-    const n = asset.name;
-    const lower = n.toLowerCase();
-    const url = proxyUrl(n);
-
-    if (lower.endsWith(".sig")) continue;
-
-    if (lower.endsWith(".dmg")) {
-      downloads.mac = { ...downloads.mac, dmg: { url } };
-    } else if (lower.endsWith(".app.tar.gz")) {
-      downloads.mac = { ...downloads.mac, appTarGz: { url } };
-      // Tauri updater targets for macOS
-      for (const target of ["darwin-x86_64", "darwin-aarch64"]) {
-        if (lower.includes("aarch64") && target !== "darwin-aarch64") continue;
-        if (lower.includes("x64") && target !== "darwin-x86_64") continue;
-        platforms[target] = { url, signature: sigFor(n) };
-      }
-    } else if (lower.endsWith(".msi")) {
-      downloads.windows = { ...downloads.windows, msi: { url } };
-      platforms["windows-x86_64"] = platforms["windows-x86_64"] ?? { url, signature: sigFor(n) };
-    } else if (lower.endsWith(".exe")) {
-      downloads.windows = { ...downloads.windows, exe: { url } };
-      // NSIS installer is Tauri's preferred windows updater artifact when present.
-      platforms["windows-x86_64"] = { url, signature: sigFor(n) };
-    } else if (lower.endsWith(".appimage")) {
-      downloads.linux = { ...downloads.linux, appImage: { url } };
-      platforms["linux-x86_64"] = { url, signature: sigFor(n) };
-    } else if (lower.endsWith(".deb")) {
-      downloads.linux = { ...downloads.linux, deb: { url } };
-    } else if (lower.endsWith(".rpm")) {
-      downloads.linux = { ...downloads.linux, rpm: { url } };
-    }
-  }
-
-  return {
-    version: release.tag_name.replace(/^v/, ""),
-    notes: release.body ?? release.name ?? "",
-    pub_date: release.published_at ?? undefined,
-    platforms,
-    downloads,
-  };
-}
-
 const router: IRouter = Router();
 
 router.get("/latest", async (_req, res) => {
   try {
-    if (!githubToken()) {
+    const publicBackendUrl = publicBase().trim();
+    if (!githubToken() || !publicBackendUrl) {
       res.status(503).json({ error: "Desktop releases are not configured" });
       return;
     }
@@ -207,7 +137,7 @@ router.get("/latest", async (_req, res) => {
       return;
     }
     res.setHeader("Cache-Control", "public, max-age=300");
-    res.json(buildManifest(release, signatures));
+    res.json(buildManifest(release, signatures, publicBackendUrl));
   } catch (err) {
     logger.error({ err }, "[desktop] latest manifest error");
     res.status(502).json({ error: "Failed to load release information" });

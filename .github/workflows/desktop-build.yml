@@ -20,7 +20,6 @@ on:
       - ".npmrc"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
-      - "scripts/ci-patch-tauri-build.sh"
       - ".github/workflows/desktop-build.yml"
     tags:
       - "v*"
@@ -44,7 +43,6 @@ jobs:
       CI: true
       NODE_ENV: production
       VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
-      VITE_DEEPGRAM_API_KEY: ${{ secrets.VITE_DEEPGRAM_API_KEY }}
       VITE_RAZORPAY_KEY_ID: ${{ secrets.VITE_RAZORPAY_KEY_ID }}
       VITE_FRONTEND_URL: ${{ secrets.VITE_FRONTEND_URL }}
       VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
@@ -88,8 +86,6 @@ jobs:
           NODE_ENV: development
         run: |
           pnpm install --no-frozen-lockfile --config.optional=true
-      - name: Apply CI Tauri compatibility patch
-        run: bash scripts/ci-patch-tauri-build.sh
       - name: Typecheck desktop package
         run: pnpm --filter @workspace/craft-vita typecheck
       - name: Stamp app version from release tag
@@ -120,8 +116,9 @@ jobs:
           mkdir -p dist-installers
           find artifacts/craft-vita/src-tauri/target/release/bundle -type f \
             \( -name '*.dmg' -o -name '*.app.tar.gz' -o -name '*.app.tar.gz.sig' \
-               -o -name '*.msi' -o -name '*.msi.sig' \
-               -o -name '*.AppImage' -o -name '*.AppImage.sig' -o -name '*.deb' -o -name '*.rpm' \) \
+               -o -name '*.msi' -o -name '*.msi.zip' -o -name '*.msi.zip.sig' \
+               -o -name '*.AppImage' -o -name '*.AppImage.tar.gz' -o -name '*.AppImage.tar.gz.sig' \
+               -o -name '*.deb' -o -name '*.rpm' \) \
             -exec cp {} dist-installers/ \; || true
           ls -la dist-installers/ || true
       - name: Publish / update GitHub Release

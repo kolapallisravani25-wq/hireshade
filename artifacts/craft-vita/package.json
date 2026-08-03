@@ -9,7 +9,7 @@
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "tauri": "node scripts/tauri-wrapper.cjs",
+    "tauri": "tauri",
     "tauri:dev": "pnpm tauri dev",
     "tauri:build:mac": "pnpm tauri build --target universal-apple-darwin"
   },

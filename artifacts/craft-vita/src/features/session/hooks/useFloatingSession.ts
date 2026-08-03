@@ -134,14 +134,6 @@ async function persistWithRetry(
   return false;
 }
 
-function deepgramKeyFingerprint(key: string): string {
-  const trimmed = (key || "").trim();
-  if (!trimmed) return "empty";
-  const prefix = trimmed.slice(0, 4);
-  const suffix = trimmed.slice(-4);
-  return `len=${trimmed.length} ${prefix}…${suffix}`;
-}
-
 function normalizeTranscriptText(text: string): string {
   return text.toLowerCase().replace(/\s+/g, " ").trim();
 }
@@ -1473,12 +1465,6 @@ export function useFloatingSession() {
       audioControllerRef.current.startAudioSession("system", "start_system_audio");
       try {
         const dgKey = await resolveDeepgramKey();
-        if (import.meta.env.DEV) {
-          console.log("[audio-lifecycle] deepgramKeyFingerprint", {
-            source: "floating_invoke_system",
-            fingerprint: deepgramKeyFingerprint(dgKey),
-          });
-        }
         await invoke("start_system_audio_transcription", {
           language: lang,
           model: "nova-3",
@@ -2930,12 +2916,6 @@ export function useFloatingSession() {
         const keyterms = buildDeepgramKeyterms();
         try {
           const dgKey = await resolveDeepgramKey();
-          if (import.meta.env.DEV) {
-            console.log("[audio-lifecycle] deepgramKeyFingerprint", {
-              source: "floating_invoke_mic",
-              fingerprint: deepgramKeyFingerprint(dgKey),
-            });
-          }
           await invoke("start_mic_transcription", {
             language: getLanguageCode(sessionInfoRef.current.language ?? "English"),
             model: "nova-3",

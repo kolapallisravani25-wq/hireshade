@@ -42,7 +42,6 @@ tokio = { version = "1", features = ["full"] }
 axum = { version = "0.7", features = ["ws"] }
 tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
 futures-util = "0.3"
-dotenvy = "0.15"
 [target.'cfg(target_os = "macos")'.dependencies]
 # cpal captures the default input device (mic) â€” kept for user mic transcription.
 cpal = "0.15"

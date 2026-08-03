@@ -6,7 +6,7 @@
   "build": {
     "beforeDevCommand": "env PORT=5173 BASE_PATH=/ pnpm exec vite",
     "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "env PORT=5173 BASE_PATH=./ pnpm build && node ../../scripts/verify-bundle.cjs",
+    "beforeBuildCommand": "pnpm exec vite build --config vite.config.ts --base ./ && node ../../scripts/verify-bundle.cjs",
     "frontendDist": "../dist/public"
   },
   "app": {

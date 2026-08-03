@@ -1414,20 +1414,24 @@ fn stop_display_audio_stream() {}
 // are responsible only for OS-level audio capture and feeding PCM into a
 // broadcast channel that `deepgram::run_session` consumes.
 
-// Deepgram API key loaded from VITE_DEEPGRAM_API_KEY in .env at startup.
-// Stored as managed state so commands never receive the key from the frontend.
-struct DeepgramKey(String);
+fn require_deepgram_api_key(value: &str) -> Result<String, String> {
+    let key = value.trim();
+    if key.is_empty() {
+        return Err("Deepgram credential is missing; sign in again and retry".into());
+    }
+    Ok(key.to_owned())
+}
 
 // ── macOS: SCKit system audio → Deepgram ─────────────────────────────────────
 #[cfg(target_os = "macos")]
 #[tauri::command]
 async fn start_system_audio_transcription(
     app: tauri::AppHandle,
-    dg_key: tauri::State<'_, DeepgramKey>,
+    api_key: String,
     language: String,
     model: String,
 ) -> Result<(), String> {
-    let api_key = dg_key.0.clone();
+    let api_key = require_deepgram_api_key(&api_key)?;
     use screencapturekit::prelude::*;
     use tokio::sync::broadcast;
 
@@ -1600,11 +1604,11 @@ fn stop_system_audio_transcription() {
 #[tauri::command]
 async fn start_mic_transcription(
     app: tauri::AppHandle,
-    dg_key: tauri::State<'_, DeepgramKey>,
+    api_key: String,
     language: String,
     model: String,
 ) -> Result<(), String> {
-    let api_key = dg_key.0.clone();
+    let api_key = require_deepgram_api_key(&api_key)?;
     use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
     use tokio::sync::broadcast;
 
@@ -1748,11 +1752,11 @@ fn stop_mic_transcription() {
 #[tauri::command]
 async fn start_system_audio_transcription(
     app: tauri::AppHandle,
-    dg_key: tauri::State<'_, DeepgramKey>,
+    api_key: String,
     language: String,
     model: String,
 ) -> Result<(), String> {
-    let api_key = dg_key.0.clone();
+    let api_key = require_deepgram_api_key(&api_key)?;
     use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
     use tokio::sync::broadcast;
 
@@ -1898,11 +1902,11 @@ fn stop_system_audio_transcription() {
 #[tauri::command]
 async fn start_mic_transcription(
     app: tauri::AppHandle,
-    dg_key: tauri::State<'_, DeepgramKey>,
+    api_key: String,
     language: String,
     model: String,
 ) -> Result<(), String> {
-    let api_key = dg_key.0.clone();
+    let api_key = require_deepgram_api_key(&api_key)?;
     use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
     use tokio::sync::broadcast;
 
@@ -2045,7 +2049,7 @@ fn stop_mic_transcription() {
 #[cfg(not(any(target_os = "macos", target_os = "windows")))]
 #[tauri::command]
 async fn start_system_audio_transcription(
-    _app: tauri::AppHandle, _dg_key: tauri::State<'_, DeepgramKey>, _language: String, _model: String,
+    _app: tauri::AppHandle, _api_key: String, _language: String, _model: String,
 ) -> Result<(), String> { Err("STT is macOS/Windows-only".into()) }
 
 #[cfg(not(any(target_os = "macos", target_os = "windows")))]
@@ -2055,7 +2059,7 @@ fn stop_system_audio_transcription() {}
 #[cfg(not(any(target_os = "macos", target_os = "windows")))]
 #[tauri::command]
 async fn start_mic_transcription(
-    _app: tauri::AppHandle, _dg_key: tauri::State<'_, DeepgramKey>, _language: String, _model: String,
+    _app: tauri::AppHandle, _api_key: String, _language: String, _model: String,
 ) -> Result<(), String> { Err("STT is macOS/Windows-only".into()) }
 
 #[cfg(not(any(target_os = "macos", target_os = "windows")))]
@@ -2583,57 +2587,6 @@ fn show_launcher_widget(app: AppHandle) -> Result<(), String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // ── Deepgram API key resolution (two-tier) ────────────────────────────
-    //
-    // PRODUCTION (bundled .app):
-    //   The .env file is never shipped inside the bundle, so dotenvy finds
-    //   nothing and std::env::var returns Err.  The key must be baked into
-    //   the binary at compile time by the CI workflow.
-    //
-    //   option_env!("VITE_DEEPGRAM_API_KEY") reads the env var that the CI
-    //   runner exports during `pnpm tauri build`; the value is embedded as a
-    //   &'static str.  There is exactly one binary → one embed → no
-    //   possibility of the warning firing multiple times per launch.
-    //
-    // DEVELOPMENT (pnpm tauri dev):
-    //   dotenvy::dotenv() loads the project-root .env file, then
-    //   std::env::var picks up the runtime value as the fallback.
-    //
-    // WHY THE WARNING FIRED MULTIPLE TIMES BEFORE:
-    //   The Tauri auto-updater downloads a new binary, replaces the old one,
-    //   and spawns a fresh process — so run() (and this block) executes once
-    //   per relaunch.  Each fresh process had no .env → empty key → warning.
-    //   Baking the key at compile time removes the dependency on .env at
-    //   runtime, so the warning never fires in a correctly-built release.
-    dotenvy::dotenv().ok(); // dev only; silently a no-op in bundled builds
-
-    let deepgram_key: String = option_env!("VITE_DEEPGRAM_API_KEY")
-        // compile-time path: CI baked the key into the binary
-        .map(str::trim)
-        .filter(|k| !k.is_empty())
-        .map(str::to_string)
-        // runtime path: local .env loaded above (development)
-        .or_else(|| {
-            std::env::var("VITE_DEEPGRAM_API_KEY")
-                .ok()
-                .map(|k| k.trim().to_string())
-                .filter(|k| !k.is_empty())
-        })
-        .unwrap_or_default();
-
-    if deepgram_key.is_empty() {
-        eprintln!(
-            "[startup] VITE_DEEPGRAM_API_KEY is not set — STT will fail.\n\
-             Dev: add it to .env\n\
-             Release: add it as a GitHub Actions secret and expose it in the \
-             release workflow (VITE_DEEPGRAM_API_KEY: ${{{{ secrets.VITE_DEEPGRAM_API_KEY }}}})"
-        );
-        // In release builds, abort immediately — a missing key means STT is
-        // completely broken and would confuse debugging with permission errors.
-        #[cfg(not(debug_assertions))]
-        panic!("Release build is missing VITE_DEEPGRAM_API_KEY — aborting to prevent silent STT failure.");
-    }
-
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
@@ -2642,7 +2595,6 @@ pub fn run() {
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
-        .manage(DeepgramKey(deepgram_key))
         .setup(|app| {
             // ── macOS: switch to Accessory activation policy ───────────────
             //
@@ -3008,7 +2960,7 @@ pub fn run() {
 
 #[cfg(test)]
 mod mini_state_tests {
-    use super::mini_state_size;
+    use super::{mini_state_size, require_deepgram_api_key};
 
     // Issue 1 regression: the collapse/expand contract. The native window frame
     // must track React content so no leftover oversized strip (the "second bar")
@@ -3056,5 +3008,14 @@ mod mini_state_tests {
     #[test]
     fn unknown_state_is_rejected() {
         assert!(mini_state_size("bogus", None).is_err());
+    }
+
+    #[test]
+    fn transcription_requires_a_request_scoped_key() {
+        assert_eq!(
+            require_deepgram_api_key("  minted-key  ").unwrap(),
+            "minted-key"
+        );
+        assert!(require_deepgram_api_key("   ").is_err());
     }
 }
