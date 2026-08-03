@@ -454,14 +454,6 @@ function resolveQuestionFromContext(
   if (normalizedLiveInterim?.trim()) {
     // Apply intent detection to clean up speech recognition artifacts
     const intent = detectIntent(normalizedLiveInterim.trim());
-    console.log(
-      "[resolveQuestionFromContext] Intent detection applied to live_interim:",
-      {
-        original: intent.originalTranscript,
-        cleaned: intent.cleanedQuestion,
-        confidence: intent.confidence,
-      },
-    );
     return { question: intent.cleanedQuestion, source: "live_interim" };
   }
 
@@ -526,14 +518,6 @@ function resolveQuestionFromContext(
   if (mergedInterviewer.length > 0) {
     const joined = mergedInterviewer.join(" ");
     const intent = detectIntent(joined);
-    console.log(
-      "[resolveQuestionFromContext] Intent detection applied to transcript_history:",
-      {
-        original: intent.originalTranscript,
-        cleaned: intent.cleanedQuestion,
-        confidence: intent.confidence,
-      },
-    );
     return {
       question: intent.cleanedQuestion,
       source: "transcript_history",
@@ -549,18 +533,8 @@ function resolveQuestionFromContext(
   if (mergedUser.length > 0) {
     const joined = mergedUser.join(" ");
     // Check if the joined text is primarily filler/noise
-    if (isFillerPhrase(joined)) {
-      console.log("[resolveQuestionFromContext] User transcript is filler, skipping:", joined);
-    } else {
+    if (!isFillerPhrase(joined)) {
       const intent = detectIntent(joined);
-      console.log(
-        "[resolveQuestionFromContext] Intent detection applied to user_transcript:",
-        {
-          original: intent.originalTranscript,
-          cleaned: intent.cleanedQuestion,
-          confidence: intent.confidence,
-        },
-      );
       return {
         question: intent.cleanedQuestion,
         source: "user_transcript",
@@ -583,10 +557,6 @@ function resolveQuestionFromContext(
       .find((chunk) => !isFillerPhrase(chunk) && isQuestionLikeText(chunk));
     if (latestMeaningfulQuestion) {
       const intent = detectIntent(latestMeaningfulQuestion);
-      console.log(
-        "[resolveQuestionFromContext] Using latest meaningful fallback question:",
-        latestMeaningfulQuestion,
-      );
       return {
         question: intent.cleanedQuestion,
         source: "transcript_fallback",
@@ -598,20 +568,10 @@ function resolveQuestionFromContext(
     // Check if the deduped text is primarily filler/noise
     if (!isFillerPhrase(dedupedText)) {
       const intent = detectIntent(dedupedText);
-      console.log(
-        "[resolveQuestionFromContext] Intent detection applied to transcript_fallback:",
-        {
-          original: intent.originalTranscript,
-          cleaned: intent.cleanedQuestion,
-          confidence: intent.confidence,
-        },
-      );
       return {
         question: intent.cleanedQuestion,
         source: "transcript_fallback",
       };
-    } else {
-      console.log("[resolveQuestionFromContext] Fallback transcript is filler, skipping:", dedupedText);
     }
   }
 
@@ -2210,9 +2170,8 @@ export function useFloatingSession() {
           ignoredNoise: false,
         };
         console.log("[AI Answer][Click] low-confidence detection recovered via explicit-click fallback", {
-          originalDetection: detection,
           fallbackSource: fallbackResolved?.source || "pre_debounce",
-          fallbackQuestion,
+          confidence: effectiveDetection.confidenceScore,
         });
 	      } else {
 	        const transcriptFallback = msgsSnapshot
@@ -2229,10 +2188,8 @@ export function useFloatingSession() {
 	          confidenceScore: Math.max(detection.confidenceScore || 0, 0.2),
 	          ignoredNoise: false,
 	        };
-	        console.log("[useFloatingSession] handleAiAnswerClick: No confident active question; sending raw transcript to backend composer.", {
+	        console.log("[useFloatingSession] handleAiAnswerClick: No confident active question; sending transcript to backend composer.", {
 	          evolving,
-	          detection,
-	          preDebounceDetection,
 	          semanticallyStable,
 	          snapshotTimestamp,
 	        });
@@ -2285,13 +2242,14 @@ export function useFloatingSession() {
       console.log("[AI Answer][Click] allowing semantically-evolving followup due to high overlap", {
         evolving,
         overlapRatio,
-        preQuestion: preDebounceDetection.cleanedQuestion,
-        postQuestion: effectiveDetection.cleanedQuestion,
       });
     }
 
-    console.log("[useFloatingSession] handleAiAnswerClick: Resolved question from", source, ":", question);
-    console.log("[useFloatingSession] handleAiAnswerClick: Snapshot timestamp:", snapshotTimestamp);
+    console.log("[useFloatingSession] handleAiAnswerClick: Resolved question", {
+      source,
+      questionChars: question.length,
+      snapshotTimestamp,
+    });
 
     // Removed rapid re-answer blocking - user wants to be able to click multiple times
     // even for the same question to get different answers
@@ -2300,7 +2258,7 @@ export function useFloatingSession() {
 
     console.log("[useFloatingSession] handleAiAnswerClick: Invoking handleAiAnswer with:", {
       sessionId: info.sessionId,
-      question,
+      questionChars: question.length,
       source,
       model: selectedModelRef.current,
       snapshotTimestamp,
@@ -2528,10 +2486,7 @@ export function useFloatingSession() {
         const delta = Date.now() - prev.timestamp;
         if (isContinuationOfPreviousQuestion(snapshot, prev.transcript, delta)) {
           effective = `${prev.transcript} ${snapshot}`.replace(/\s+/g, " ").trim();
-          console.log(
-            "[MiniAutoAnswer] Continuation detected, merged:",
-            effective.slice(0, 80),
-          );
+          console.log("[MiniAutoAnswer] Continuation detected", { chars: effective.length });
         }
       }
 
@@ -2777,7 +2732,7 @@ export function useFloatingSession() {
       console.log("[useFloatingSession] handleAnalyzeScreenClick: Initiating handleAnalyzeScreen with:", {
         sessionId: info.sessionId,
         screenshotSize: screenshotBlob?.size,
-        contextQuestion,
+        contextQuestionChars: contextQuestion.length,
         model: ANALYZE_SCREEN_FAST_MODEL,
         selectedModel: selectedModelRef.current,
         windowSizeUsed: adaptiveContext.windowSizeUsed,

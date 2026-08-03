@@ -844,15 +844,13 @@ export const useAIChat = () => {
   const logContinuity = useCallback(
     (
       sourceType: "transcript" | "manual",
-      resolvedQuestion: string,
+      _resolvedQuestion: string,
       confidence: number,
-      previousTopic: string,
+      _previousTopic: string,
     ) => {
       if (!import.meta.env.DEV) return;
       console.log("[useAIChat] conversationalFollowUpDetected", {
         sourceType,
-        previousTopic,
-        resolvedQuestion,
         continuityConfidence: confidence,
       });
     },
@@ -1257,12 +1255,11 @@ export const useAIChat = () => {
           .map((entry) => entry.content)
           .join("\n");
       const generationInput = normalizedQuestion.trim() || fallbackTranscriptInput.trim();
-      if (import.meta.env.DEV) {
-        console.log("[AI Answer Debug][FE] Raw input request:", request);
-        console.log("[AI Answer Debug][FE] Base sanitized payload:", basePayload);
-        console.log("[AI Answer Debug][FE] Resolved query before normalization:", resolvedFromPayload);
-      }
-      console.log(`[useAIChat] handleAiAnswer triggered. sessionId: ${sessionId}, question: "${generationInput.slice(0, 100)}...", model: ${aiModel}`);
+      console.log("[useAIChat] handleAiAnswer triggered", {
+        sessionId,
+        inputChars: generationInput.length,
+        model: aiModel,
+      });
       if (!generationInput.trim()) {
         console.log("[useAIChat] handleAiAnswer: Transcript input is empty. Aborting.");
         return;
@@ -1276,10 +1273,6 @@ export const useAIChat = () => {
         transcript: basePayload.transcript || generationInput,
         ...(normalizedQuestion.trim() ? { currentQuestion: normalizedQuestion } : {}),
       });
-      if (import.meta.env.DEV) {
-        console.log("[AI Answer Debug][FE] Final normalized payload before routing:", normalizedPayload);
-      }
-
       // patchedTranscript is an explicit edited query signal.
       // It must bypass segmentation and be sent as-is in a single request.
       if (normalizedPayload.patchedTranscript?.trim()) {
@@ -1311,13 +1304,7 @@ export const useAIChat = () => {
       );
 
       if (decision.shouldGenerate === false) {
-        if (import.meta.env.DEV) {
-          console.log("[AI Answer Debug][FE] Generation blocked by pipeline:", decision);
-        }
         console.log(`[useAIChat] handleAiAnswer: Pipeline produced block reason but backend segmenter will handle it. Reason: ${decision.reason}`);
-      }
-      if (import.meta.env.DEV) {
-        console.log("[AI Answer Debug][FE] Generation decision:", decision);
       }
 
       const groupedTranscript = decision.groupedTranscript?.trim() || generationInput;
@@ -1418,9 +1405,6 @@ export const useAIChat = () => {
           sessionId,
           aiModel,
         };
-        if (import.meta.env.DEV) {
-          console.log("[AI Answer Debug][FE] POST /ai-answer body:", requestBody);
-        }
         console.log(`[useAIChat] handleAiAnswer: Dispatching POST to ${targetUrl}`, {
           requestId,
         });
@@ -1573,11 +1557,11 @@ export const useAIChat = () => {
       contextPayload?: Partial<AIAnswerRequestPayload>,
     ) => {
       const resolvedQuery = normalizeSttTranscript(query).trim();
-      console.log(`[useAIChat] handleCustomQuery triggered. sessionId: ${sessionId}, query: "${resolvedQuery}", model: ${aiModel}`);
-      if (import.meta.env.DEV) {
-        console.log("[AI Answer Debug][FE][Manual] Raw manual query:", query);
-        console.log("[AI Answer Debug][FE][Manual] Authoritative manual query:", resolvedQuery);
-      }
+      console.log("[useAIChat] handleCustomQuery triggered", {
+        sessionId,
+        queryChars: resolvedQuery.length,
+        model: aiModel,
+      });
       if (!resolvedQuery) {
         console.log("[useAIChat] handleCustomQuery: Query is empty. Aborting.");
         return;
@@ -1806,41 +1790,6 @@ export const useAIChat = () => {
             signal: controller.signal,
           },
 	        );
-	        if (import.meta.env.DEV) {
-          console.log("[AI Answer Debug][FE][Manual] POST /ai-answer body:", {
-              ...sanitizeAIAnswerPayload({
-                transcript: transcriptForRequest,
-                currentQuestion: resolvedQuery,
-                ...(recentTranscriptWindow.length > 0
-                  ? { recentTranscriptWindow }
-                  : {}),
-                ...(speakerSeparatedTranscript.length > 0
-                  ? { speakerSeparatedTranscript }
-                  : {}),
-                ...(previousAiAnswers.length > 0
-                  ? { previousAiAnswers }
-                  : latestAnswerContext.previousAiAnswers?.length
-                    ? { previousAiAnswers: latestAnswerContext.previousAiAnswers }
-                    : {}),
-                previousAiAnswer: previousAiAnswer || latestAnswerContext.previousAiAnswer,
-                previousCodeBlocks:
-                  previousCodeBlocks.length > 0
-                    ? previousCodeBlocks
-                    : latestAnswerContext.previousCodeBlocks || [],
-                latestAnswerId: latestAnswerContext.latestAnswerId,
-                latestAnswerQuestion: latestAnswerContext.latestAnswerQuestion,
-                latestAnswerText: latestAnswerContext.latestAnswerText,
-                latestAnswerTopic: latestAnswerContext.latestAnswerTopic,
-                sourcePlatform: runtimePlatform,
-                answerMode: "auto",
-                triggerSource: "custom_query",
-                isCustomQuery: true,
-                manualQueryType,
-              }),
-              aiModel,
-            });
-	        }
-
 	        if (response.status === 410) {
 	          console.warn("[useAIChat] handleCustomQuery: session not active (410)");
 	          setAiChat((prev) => prev.filter((msg) => msg.id !== aiMessageId));
@@ -1981,7 +1930,6 @@ export const useAIChat = () => {
         hasOriginalGenerationContext: !!cachedContext,
         hasOriginalTranscript: !!cachedContext?.originalTranscript,
         hasSelectedAnswerId: !!cachedContext?.selectedAnswerId,
-        originalQuestion: resolvedQuestion.slice(0, 140),
         isRegenerate: true,
         regenerateTargetAnswerId: messageId,
       });
@@ -2056,8 +2004,10 @@ export const useAIChat = () => {
           aiModel,
           snapshotId: targetMessage.snapshotId,
         };
-	        console.log("[useAIChat] handleRegenerate: requestBody keys", Object.keys(requestBody));
-	        console.log(`[useAIChat] handleRegenerate: Dispatching POST to ${targetUrl} with body:`, requestBody);
+	        console.log(`[useAIChat] handleRegenerate: Dispatching POST to ${targetUrl}`, {
+	          requestId,
+	          fieldCount: Object.keys(requestBody).length,
+	        });
 	        const response = await fetch(targetUrl, {
           method: "POST",
           headers: {

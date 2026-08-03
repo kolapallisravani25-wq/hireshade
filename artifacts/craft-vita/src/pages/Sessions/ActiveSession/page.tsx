@@ -721,7 +721,7 @@ export default function ActiveSession() {
       const normalizedText = normalizeSttTranscript(text || "");
       if (isFinal && normalizedText.trim()) {
         const now = Date.now();
-        console.log(`[Transcript Final Input] ${sender}: ${normalizedText}`);
+        console.log("[Transcript] Final input received", { sender, chars: normalizedText.length });
         setMessages((prev) => {
           let cleanText = deduplicatePhrases(normalizedText);
           // removeOverlap is only meaningful for the Interviewer (tab/system audio)
@@ -736,7 +736,10 @@ export default function ActiveSession() {
           }
           cleanText = cleanText.trim();
           if (!cleanText) {
-            console.log(`[Dedupe] Empty after overlap removal from ${sender}: "${normalizedText}"`);
+            console.log("[Dedupe] Empty after overlap removal", {
+              sender,
+              chars: normalizedText.length,
+            });
             return prev;
           }
 
@@ -746,7 +749,9 @@ export default function ActiveSession() {
             cleanText.split(/\s+/).length <= 6 &&
             isFillerPhrase(cleanText)
           ) {
-            console.log(`[Transcript] Skipped filler-only interviewer chunk: "${cleanText}"`);
+            console.log("[Transcript] Skipped filler-only interviewer chunk", {
+              chars: cleanText.length,
+            });
             return prev;
           }
 
@@ -789,7 +794,10 @@ export default function ActiveSession() {
               };
               return next;
             }
-            console.log(`[Dedup-self] Suppressed replay from ${sender}: "${cleanText}"`);
+            console.log("[Dedup-self] Suppressed replay", {
+              sender,
+              chars: cleanText.length,
+            });
             return prev;
           }
 
@@ -806,7 +814,7 @@ export default function ActiveSession() {
           });
 
           if (isEcho) {
-            console.log(`[Dedupe] Suppressed echo from ${sender}: "${cleanText}"`);
+            console.log("[Dedupe] Suppressed echo", { sender, chars: cleanText.length });
             return prev;
           }
 
@@ -1259,10 +1267,9 @@ export default function ActiveSession() {
           .replace(/\s+/g, " ")
           .trim();
         // eslint-disable-next-line no-console
-        console.log(
-          "[AutoAnswer] Continuation detected, merged:",
-          effectiveTranscript.slice(0, 80),
-        );
+        console.log("[AutoAnswer] Continuation detected", {
+          chars: effectiveTranscript.length,
+        });
       }
     }
 
@@ -1828,7 +1835,9 @@ export default function ActiveSession() {
 
       // If the user voice input is just filler/noise, look for a more meaningful recent User message
       if (userVoiceInput && isFillerPhrase(userVoiceInput)) {
-        console.log("[AI Answer] Detected filler phrase in user voice input:", userVoiceInput);
+        console.log("[AI Answer] Detected filler phrase in user voice input", {
+          chars: userVoiceInput.length,
+        });
         // Look for a more meaningful User message within the context window
         const meaningfulUserMsg = messagesSnapshot
           .filter((m) => 
@@ -1841,7 +1850,9 @@ export default function ActiveSession() {
           .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))[0];
         
         if (meaningfulUserMsg) {
-          console.log("[AI Answer] Using meaningful user message instead:", meaningfulUserMsg.text);
+          console.log("[AI Answer] Using meaningful user message instead", {
+            chars: meaningfulUserMsg.text.length,
+          });
           userVoiceInput = meaningfulUserMsg.text;
           questionSource = "meaningful_user";
         } else {
@@ -1902,7 +1913,7 @@ export default function ActiveSession() {
     }
 
     console.log("[AI Answer] Question extracted from source:", questionSource);
-    console.log("[AI Answer] Question content:", question.slice(0, 100));
+    console.log("[AI Answer] Question resolved", { chars: question.length });
     console.log("[AI Answer] Context window:", CONTEXT_WINDOW_MS, "ms");
     const adaptiveContext = buildAdaptiveAiContext({
       transcriptMessages: recentMessages,
@@ -2040,7 +2051,7 @@ export default function ActiveSession() {
 
     isExecutingRef.current = true;
     try {
-      console.log("[Trigger] AI Answer initiated for question:", question.slice(0, 80));
+      console.log("[Trigger] AI Answer initiated", { questionChars: question.length });
       handleAiAnswer(id, payload, selectedModel);
     } finally {
       setTimeout(() => {
