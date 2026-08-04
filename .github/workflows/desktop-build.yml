@@ -85,7 +85,7 @@ jobs:
         env:
           NODE_ENV: development
         run: |
-          pnpm install --no-frozen-lockfile --config.optional=true
+          pnpm install --frozen-lockfile --config.optional=true
       - name: Typecheck desktop package
         run: pnpm --filter @workspace/craft-vita typecheck
       - name: Stamp app version from release tag
