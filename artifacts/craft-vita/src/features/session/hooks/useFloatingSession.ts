@@ -81,6 +81,10 @@ import {
 } from "@/features/session/runtime/sessionRuntime";
 import type { AIAnswerRequestPayload } from "@/types/ai-answer";
 import { resolveDeepgramKey } from "@/lib/deepgramAuth";
+import {
+  decideAutoScrollOnAppend,
+  nextResponseIndexOnToggle,
+} from "@/features/session/hooks/autoScrollPolicy";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 // Deepgram credentials are minted server-side per-session via
@@ -1950,10 +1954,15 @@ export function useFloatingSession() {
   }, [dispatch, isDupeMessage]);
 
   // ── Auto-expand responses panel ─────────────────────────────────────────────
+  // TODO(follow-up): rendered component coverage for the responses panel
+  // scroll behavior — pending jsdom/@testing-library approval. Decision logic
+  // is unit-tested in autoScrollPolicy.test.ts; the panel rendering wiring in
+  // FloatingApp remains manually verified only.
 
-  // Track the previous count so we can distinguish "first response arrived"
-  // (jump to it) vs "another response was appended while user is reading an
-  // earlier one" (stay put).
+  // Track the previous count so we can detect newly appended responses.
+  // Auto-scroll follows the newest card; when disabled, manual browsing is
+  // preserved unless the user was already viewing the latest response.
+  // (Decision logic lives in autoScrollPolicy for unit-testability.)
   const prevResponsesLenRef = useRef(0);
   const wasGeneratingResponseRef = useRef(false);
 
@@ -1961,22 +1970,21 @@ export function useFloatingSession() {
     const prev = prevResponsesLenRef.current;
     const curr = aiResponses.length;
 
-    if (curr > 0 && prev === 0) {
-      // First response ever — open the panel and point at it.
+    const decision = decideAutoScrollOnAppend({
+      prevLen: prev,
+      currLen: curr,
+      currentIndex: currentResponseIndex,
+      autoScroll,
+    });
+    if (decision.type === "first-arrived") {
       dispatch(setCurrentResponseIndex(0));
       dispatch(setIsResponsesExpanded(true));
-    } else if (curr > prev) {
-      // New card(s) arrived. Only auto-advance to the latest card when the
-      // user was already viewing the last one — preserves manual browsing.
-      // Also clamp to curr-1 to ensure we never dispatch an out-of-bounds
-      // index (guards against Redux racing ahead of React state).
-      if (currentResponseIndex >= prev - 1) {
-        dispatch(setCurrentResponseIndex(curr - 1));
-      }
+    } else if (decision.type === "advance") {
+      dispatch(setCurrentResponseIndex(decision.index));
     }
 
     prevResponsesLenRef.current = curr;
-  }, [aiResponses.length, currentResponseIndex, dispatch]);
+  }, [aiResponses.length, autoScroll, currentResponseIndex, dispatch]);
 
   // Auto-expand the responses panel the moment the user triggers a generation
   // (AI Answer or Analyze Screen) so the "Generating response…" loader is
@@ -2672,8 +2680,13 @@ export function useFloatingSession() {
   }, [dispatch, autoGenerate]);
 
   const toggleAutoScroll = useCallback(() => {
-    dispatch(setAutoScroll(!autoScroll));
-  }, [dispatch, autoScroll]);
+    const nextAutoScroll = !autoScroll;
+    const nextIndex = nextResponseIndexOnToggle(nextAutoScroll, aiResponses.length);
+    if (nextIndex !== null) {
+      dispatch(setCurrentResponseIndex(nextIndex));
+    }
+    dispatch(setAutoScroll(nextAutoScroll));
+  }, [dispatch, autoScroll, aiResponses.length]);
 
   const handleAnalyzeScreenClick = useCallback(
     async (screenshotBlob?: Blob) => {
