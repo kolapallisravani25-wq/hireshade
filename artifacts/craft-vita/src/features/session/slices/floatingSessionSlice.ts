@@ -11,6 +11,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { toast } from "sonner";
+import { stopAllNativeTranscription } from "@/features/session/audio/audioSessionController";
 import { resetOverlaySettings } from "@/lib/overlaySettings";
 import type { RootState } from "@/store/store";
 import { getAuthHeaders } from "@/lib/globalAuth";
@@ -159,7 +160,7 @@ export const endSessionThunk = createAsyncThunk<void, EndSessionArgs | void>(
         if (recovered?.sessionId) {
           const authHeaders = await getAuthHeaders();
           await Promise.all([
-            invoke("stop_all_audio_transcription").catch(() => {}),
+            stopAllNativeTranscription(),
             fetch(
               `${BACKEND_URL}/api/session/${recovered.sessionId}/deactivate`,
               {
@@ -197,7 +198,7 @@ export const endSessionThunk = createAsyncThunk<void, EndSessionArgs | void>(
     // the server. The stale-session reaper now self-heals that within a few
     // minutes, but the user deserves to know immediately.
     const [, deactivateRes] = await Promise.all([
-      invoke("stop_all_audio_transcription").catch(() => {}),
+      stopAllNativeTranscription(),
       fetch(`${BACKEND_URL}/api/session/${sessionInfo.sessionId}/deactivate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders },

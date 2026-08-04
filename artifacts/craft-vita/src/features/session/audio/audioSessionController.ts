@@ -51,10 +51,24 @@ function shouldAllowAllMode(reason: string): boolean {
   return TERMINAL_ALL_REASONS.has(reason);
 }
 
+export async function stopAllNativeTranscription(): Promise<void> {
+  const results = await Promise.allSettled([
+    invoke("stop_mic_transcription"),
+    invoke("stop_system_audio_transcription"),
+  ]);
+  const failureCount = results.filter(
+    (result) => result.status === "rejected",
+  ).length;
+  if (failureCount > 0) {
+    console.warn("[audio-lifecycle] native transcription stop failed", {
+      failureCount,
+    });
+  }
+}
+
 async function stopNative(mode: AudioSessionMode, reason: string) {
   const stopMic = () => invoke("stop_mic_transcription").catch(() => {});
   const stopSystem = () => invoke("stop_system_audio_transcription").catch(() => {});
-  const stopAll = () => invoke("stop_all_audio_transcription").catch(() => {});
   const sessionActive = isSessionActive();
 
   if (mode === "mic") {
@@ -73,7 +87,7 @@ async function stopNative(mode: AudioSessionMode, reason: string) {
     return;
   }
   log("stopAllInvoked", { mode, reason, stopReason: reason, sessionActive });
-  await stopAll();
+  await stopAllNativeTranscription();
   log("nativeStopInvoked", { mode: "all" });
   log("stopReason", { mode, reason, sessionActive });
 }
