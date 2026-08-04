@@ -3,7 +3,7 @@ use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_opener::OpenerExt;
 use screenshots::Screen;
 use base64::{Engine as _, engine::general_purpose};
-use std::sync::{Arc, atomic::{AtomicU64, AtomicBool, AtomicU8, Ordering}};
+use std::sync::{Arc, Mutex, atomic::{AtomicU64, AtomicBool, AtomicU8, Ordering}};
 use url::Url as NavUrl;
 
 // Deepgram realtime transport (macOS + Windows only).
@@ -2231,14 +2231,24 @@ fn open_macos_privacy_settings(
 // ── Desktop auth persistence and cross-window sync ───────────────────────────
 // Clerk session IDs are persisted natively for Tauri desktop windows so the
 // launcher/main/mini webviews can restore and synchronize auth state reliably.
-// The frontend still keeps a localStorage fallback, but these commands are the
-// preferred desktop path.
-const DESKTOP_AUTH_SESSION_KEY: &str = "hireshade.desktop.clerk_session_id";
+// A process-wide lock prevents concurrent windows from observing a partial
+// write while another window is updating or clearing the session file.
+static DESKTOP_AUTH_SESSION_LOCK: Mutex<()> = Mutex::new(());
+const DESKTOP_AUTH_SESSION_FILE: &str = "auth_session.txt";
+
+fn desktop_auth_session_path(app: &AppHandle) -> Result<std::path::PathBuf, String> {
+    app.path()
+        .app_config_dir()
+        .map(|dir| dir.join(DESKTOP_AUTH_SESSION_FILE))
+        .map_err(|e| e.to_string())
+}
 
 #[tauri::command]
 fn auth_get_persisted_session(app: AppHandle) -> Result<Option<String>, String> {
-    let store = app.path().app_config_dir().map_err(|e| e.to_string())?;
-    let file = store.join("auth_session.txt");
+    let _guard = DESKTOP_AUTH_SESSION_LOCK
+        .lock()
+        .map_err(|_| "desktop auth session lock poisoned".to_string())?;
+    let file = desktop_auth_session_path(&app)?;
 
     match std::fs::read_to_string(file) {
         Ok(value) => {
@@ -2252,15 +2262,28 @@ fn auth_get_persisted_session(app: AppHandle) -> Result<Option<String>, String> 
 
 #[tauri::command]
 fn auth_set_persisted_session(app: AppHandle, session_id: String) -> Result<(), String> {
-    let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
+    let session_id = session_id.trim();
+    if session_id.is_empty() {
+        return Err("session_id must not be empty".to_string());
+    }
+
+    let _guard = DESKTOP_AUTH_SESSION_LOCK
+        .lock()
+        .map_err(|_| "desktop auth session lock poisoned".to_string())?;
+    let file = desktop_auth_session_path(&app)?;
+    let dir = file
+        .parent()
+        .ok_or_else(|| "desktop auth session path has no parent".to_string())?;
     std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    std::fs::write(dir.join("auth_session.txt"), session_id.trim()).map_err(|e| e.to_string())
+    std::fs::write(file, session_id).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 fn auth_clear_persisted_session(app: AppHandle) -> Result<(), String> {
-    let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
-    let file = dir.join("auth_session.txt");
+    let _guard = DESKTOP_AUTH_SESSION_LOCK
+        .lock()
+        .map_err(|_| "desktop auth session lock poisoned".to_string())?;
+    let file = desktop_auth_session_path(&app)?;
     match std::fs::remove_file(file) {
         Ok(_) => Ok(()),
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(()),
@@ -2946,14 +2969,22 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app, event| {
-            // macOS: clicking the Dock icon when no windows are visible fires
-            // Reopen instead of relaunching the process. Tauri has no default
-            // handler for it, so without this the Dock icon does nothing once
-            // the launcher/mini windows have been hidden.
-            if let tauri::RunEvent::Reopen { .. } = event {
-                if let Err(e) = handle_launcher_click(app.clone()) {
-                    eprintln!("[reopen] handle_launcher_click failed: {e}");
+            #[cfg(target_os = "macos")]
+            {
+                // macOS: clicking the Dock icon when no windows are visible fires
+                // Reopen instead of relaunching the process. Tauri has no default
+                // handler for it, so without this the Dock icon does nothing once
+                // the launcher/mini windows have been hidden.
+                if let tauri::RunEvent::Reopen { .. } = event {
+                    if let Err(e) = handle_launcher_click(app.clone()) {
+                        eprintln!("[reopen] handle_launcher_click failed: {e}");
+                    }
                 }
+            }
+
+            #[cfg(not(target_os = "macos"))]
+            {
+                let _ = (app, event);
             }
         });
 }

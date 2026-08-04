@@ -4,7 +4,7 @@
   "version": "0.1.22",
   "identifier": "org.hireshade.app",
   "build": {
-    "beforeDevCommand": "env PORT=5173 BASE_PATH=/ pnpm exec vite",
+    "beforeDevCommand": "pnpm exec vite --port 5173 --base /",
     "devUrl": "http://localhost:5173",
     "beforeBuildCommand": "pnpm exec vite build --config vite.config.ts --base ./ && node ../../scripts/verify-bundle.cjs",
     "frontendDist": "../dist/public"

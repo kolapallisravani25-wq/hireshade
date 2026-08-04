@@ -68,6 +68,9 @@ export default defineConfig({
     strictPort: true,
     host: "0.0.0.0",
     allowedHosts: true,
+    watch: {
+      ignored: ["**/src-tauri/target/**"],
+    },
     fs: {
       strict: true,
     },
