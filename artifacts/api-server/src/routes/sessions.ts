@@ -29,6 +29,7 @@ import {
 import { getSessionGrounding } from "../lib/sessionGrounding.js";
 import { auditAnswerGrounding } from "../lib/groundingGuard.js";
 import { isAlreadyAnswered } from "../lib/answeredQuestionMemory.js";
+import { acquireGenerationLock, releaseGenerationLock } from "../lib/sessionGenerationLock.js";
 import {
   generateSessionFeedback,
   getExistingFeedback,
@@ -907,137 +908,152 @@ router.post("/:id/analyze-screen", requireAuth, screenshotParser, async (req, re
     }
     if (!rateLimitAiOr429(res, userId, "session-screen")) return;
 
-    let contextPayload: {
-      currentQuestion?: string;
-      answerMode?: string;
-      previousAiAnswer?: string;
-      previousAiAnswers?: { question?: string; answer: string }[];
-    } = {};
-    try {
-      contextPayload = JSON.parse((req.body?.["contextPayload"] as string) ?? "{}");
-    } catch {
-      // Ignore malformed context payload; proceed with defaults.
+    // Cross-window duplicate/race guard (Q&A pipeline audit — Mini-Phase 2a):
+    // the main browser window and the desktop floating overlay run as two
+    // separate JS processes with their own client-side "already generating"
+    // guards, which cannot see each other. This backend route is the one
+    // place both windows' requests converge, so it's where the actual lock
+    // lives. 409 (not 410) — matches the client's existing "duplicate/in
+    // flight" contract, which silently drops the redundant placeholder card.
+    if (!acquireGenerationLock(sessionId)) {
+      res.status(409).json({ error: "GENERATION_IN_PROGRESS" });
+      return;
     }
+    try {
+      let contextPayload: {
+        currentQuestion?: string;
+        answerMode?: string;
+        previousAiAnswer?: string;
+        previousAiAnswers?: { question?: string; answer: string }[];
+      } = {};
+      try {
+        contextPayload = JSON.parse((req.body?.["contextPayload"] as string) ?? "{}");
+      } catch {
+        // Ignore malformed context payload; proceed with defaults.
+      }
 
-    const aiModel = process.env["ANSWER_MODEL"] || session.aiModel || undefined;
-    const resumeContext = await getResumeContextById(session.resumeId, userId);
-    const grounding = await getSessionGrounding(session);
-    const promptOpts = {
-      session,
-      resumeContext,
-      projectContext: grounding.projectContext,
-      documentContext: grounding.documentContext,
-      answerMode: contextPayload.answerMode,
-    };
-    const contextPresence = computeContextPresence(promptOpts);
-    const systemPrompt = buildInterviewSystemPrompt(promptOpts);
-
-    console.log("[sessions] analyze-screen context-presence", {
-      sessionId,
-      resumeLoaded: contextPresence.resumeLoaded,
-      projectLoaded: contextPresence.projectLoaded,
-      documentsLoaded: contextPresence.documentsLoaded,
-      jdLoaded: contextPresence.jdLoaded,
-      sessionPromptLoaded: contextPresence.sessionPromptLoaded,
-      thinContext: contextPresence.thinContext,
-      groundingSourceCount: contextPresence.groundingSourceCount,
-    });
-
-    const base64 = file.buffer.toString("base64");
-    const dataUrl = `data:${file.mimetype};base64,${base64}`;
-
-    // Multi-question screens: tell the model explicitly what's already been
-    // answered so it can identify the CURRENTLY active question (typically
-    // the most recent one without a visible answer) instead of re-answering
-    // something already covered.
-    const alreadyAnswered = (contextPayload.previousAiAnswers ?? [])
-      .filter((entry) => entry.question?.trim())
-      .slice(-5)
-      .map((entry, i) => `${i + 1}. ${entry.question!.trim()}`)
-      .join("\n");
-
-    // The frontend deliberately does NOT send a real currentQuestion for
-    // screen analysis (the screenshot is authoritative — a possibly-stale
-    // voice transcript must not override it). That means only the model
-    // itself, having seen the image, can say what the actual question is.
-    // So instead of the backend pre-writing a guessed/generic "**QUESTION:**"
-    // line, the model is instructed to state it, and its output is streamed
-    // through untouched. The frontend's `parseAnswerContent` already parses
-    // "**QUESTION:** ... **ANSWER:** ..." out of raw stream text regardless
-    // of whether the backend or the model produced it.
-    const instruction = [
-      "Analyze the screenshot. If multiple questions or tasks are visible, identify the ONE that is currently active — typically the most recent one that does not yet have a visible answer.",
-      alreadyAnswered
-        ? `Already answered in this session — do not regenerate an answer for these:\n${alreadyAnswered}`
-        : "",
-      'Respond in exactly this format: the first line is "**QUESTION:** " followed by the exact question or task text as it appears on screen. Then, starting on a new line, "**ANSWER:** " followed by your answer.',
-    ]
-      .filter(Boolean)
-      .join("\n\n");
-
-    const messages: ChatMessage[] = [
-      { role: "system", content: systemPrompt },
-      {
-        role: "user",
-        content: [
-          { type: "text", text: instruction },
-          { type: "image_url", image_url: { url: dataUrl } },
-        ],
-      },
-    ];
-
-    const estimatedTokens = Math.ceil((systemPrompt.length + instruction.length) / 4);
-    console.log("[sessions] analyze-screen context", {
-      sessionId,
-      systemPromptChars: systemPrompt.length,
-      instructionChars: instruction.length,
-      previousAnswersIncluded: contextPayload.previousAiAnswers?.length ?? 0,
-      estimatedTokens,
-    });
-
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Cache-Control", "no-cache");
-    res.flushHeaders();
-    // No hardcoded "**QUESTION:** ..." prefix here on purpose — see comment
-    // above. The model streams its own structured output directly.
-
-    const fullAnswer = await streamChatComplete(
-      { model: aiModel, messages, maxTokens: OPENROUTER_MAX_TOKENS },
-      (chunk) => {
-        res.write(chunk);
-      },
-    );
-    res.end();
-
-    // Fabrication audit for screen answers (logs only). The screenshot itself
-    // is the primary source and isn't in text form here, so a flagged employer
-    // name may occasionally be legitimately on-screen — this stays advisory.
-    auditAnswerGrounding({
-      sessionId,
-      answer: fullAnswer,
-      context: [
+      const aiModel = process.env["ANSWER_MODEL"] || session.aiModel || undefined;
+      const resumeContext = await getResumeContextById(session.resumeId, userId);
+      const grounding = await getSessionGrounding(session);
+      const promptOpts = {
+        session,
         resumeContext,
-        grounding.projectContext,
-        grounding.documentContext,
-        session.jobDescription ?? "",
-        session.instructions ?? "",
-        session.extraContext ?? "",
+        projectContext: grounding.projectContext,
+        documentContext: grounding.documentContext,
+        answerMode: contextPayload.answerMode,
+      };
+      const contextPresence = computeContextPresence(promptOpts);
+      const systemPrompt = buildInterviewSystemPrompt(promptOpts);
+
+      console.log("[sessions] analyze-screen context-presence", {
+        sessionId,
+        resumeLoaded: contextPresence.resumeLoaded,
+        projectLoaded: contextPresence.projectLoaded,
+        documentsLoaded: contextPresence.documentsLoaded,
+        jdLoaded: contextPresence.jdLoaded,
+        sessionPromptLoaded: contextPresence.sessionPromptLoaded,
+        thinContext: contextPresence.thinContext,
+        groundingSourceCount: contextPresence.groundingSourceCount,
+      });
+
+      const base64 = file.buffer.toString("base64");
+      const dataUrl = `data:${file.mimetype};base64,${base64}`;
+
+      // Multi-question screens: tell the model explicitly what's already been
+      // answered so it can identify the CURRENTLY active question (typically
+      // the most recent one without a visible answer) instead of re-answering
+      // something already covered.
+      const alreadyAnswered = (contextPayload.previousAiAnswers ?? [])
+        .filter((entry) => entry.question?.trim())
+        .slice(-5)
+        .map((entry, i) => `${i + 1}. ${entry.question!.trim()}`)
+        .join("\n");
+
+      // The frontend deliberately does NOT send a real currentQuestion for
+      // screen analysis (the screenshot is authoritative — a possibly-stale
+      // voice transcript must not override it). That means only the model
+      // itself, having seen the image, can say what the actual question is.
+      // So instead of the backend pre-writing a guessed/generic "**QUESTION:**"
+      // line, the model is instructed to state it, and its output is streamed
+      // through untouched. The frontend's `parseAnswerContent` already parses
+      // "**QUESTION:** ... **ANSWER:** ..." out of raw stream text regardless
+      // of whether the backend or the model produced it.
+      const instruction = [
+        "Analyze the screenshot. If multiple questions or tasks are visible, identify the ONE that is currently active — typically the most recent one that does not yet have a visible answer.",
+        alreadyAnswered
+          ? `Already answered in this session — do not regenerate an answer for these:\n${alreadyAnswered}`
+          : "",
+        'Respond in exactly this format: the first line is "**QUESTION:** " followed by the exact question or task text as it appears on screen. Then, starting on a new line, "**ANSWER:** " followed by your answer.',
       ]
         .filter(Boolean)
-        .join("\n"),
-    });
+        .join("\n\n");
 
-    // Persist the completed answer so it appears on the review page. Runs
-    // AFTER res.end() so it can't delay the stream the user already received,
-    // and only when the session opted into transcript saving. Best-effort:
-    // a DB hiccup must not turn a successful answer into a failure.
-    if (session.saveTranscription) {
-      persistAiAnswer({
+      const messages: ChatMessage[] = [
+        { role: "system", content: systemPrompt },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: instruction },
+            { type: "image_url", image_url: { url: dataUrl } },
+          ],
+        },
+      ];
+
+      const estimatedTokens = Math.ceil((systemPrompt.length + instruction.length) / 4);
+      console.log("[sessions] analyze-screen context", {
         sessionId,
-        question: "",
-        fullText: fullAnswer,
-        aiModel: aiModel ?? null,
-      }).catch((e) => console.error("[sessions] analyze-screen persist failed", e));
+        systemPromptChars: systemPrompt.length,
+        instructionChars: instruction.length,
+        previousAnswersIncluded: contextPayload.previousAiAnswers?.length ?? 0,
+        estimatedTokens,
+      });
+
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      res.setHeader("Cache-Control", "no-cache");
+      res.flushHeaders();
+      // No hardcoded "**QUESTION:** ..." prefix here on purpose — see comment
+      // above. The model streams its own structured output directly.
+
+      const fullAnswer = await streamChatComplete(
+        { model: aiModel, messages, maxTokens: OPENROUTER_MAX_TOKENS },
+        (chunk) => {
+          res.write(chunk);
+        },
+      );
+      res.end();
+
+      // Fabrication audit for screen answers (logs only). The screenshot itself
+      // is the primary source and isn't in text form here, so a flagged employer
+      // name may occasionally be legitimately on-screen — this stays advisory.
+      auditAnswerGrounding({
+        sessionId,
+        answer: fullAnswer,
+        context: [
+          resumeContext,
+          grounding.projectContext,
+          grounding.documentContext,
+          session.jobDescription ?? "",
+          session.instructions ?? "",
+          session.extraContext ?? "",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      });
+
+      // Persist the completed answer so it appears on the review page. Runs
+      // AFTER res.end() so it can't delay the stream the user already received,
+      // and only when the session opted into transcript saving. Best-effort:
+      // a DB hiccup must not turn a successful answer into a failure.
+      if (session.saveTranscription) {
+        persistAiAnswer({
+          sessionId,
+          question: "",
+          fullText: fullAnswer,
+          aiModel: aiModel ?? null,
+        }).catch((e) => console.error("[sessions] analyze-screen persist failed", e));
+      }
+    } finally {
+      releaseGenerationLock(sessionId);
     }
   } catch (err) {
     console.error("[sessions] analyze-screen error", err);
@@ -1081,6 +1097,17 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
     }
     if (!rateLimitAiOr429(res, userId, "session-answer")) return;
 
+    // Cross-window duplicate/race guard (Q&A pipeline audit — Mini-Phase 2a):
+    // see identical comment on /analyze-screen above. This is the one place
+    // main-window auto/manual, floating-window auto/manual, and typed Ask AI
+    // requests all converge, so it's the correct place to enforce "at most
+    // one generation in flight per session" without touching either
+    // multi-thousand-line frontend window implementation.
+    if (!acquireGenerationLock(sessionId)) {
+      res.status(409).json({ error: "GENERATION_IN_PROGRESS" });
+      return;
+    }
+    try {
     const body = req.body as {
       transcript?: string;
       currentQuestion?: string;
@@ -1321,6 +1348,9 @@ router.post("/:id/ai-answer", requireAuth, async (req, res) => {
         fullText: fullAnswer,
         aiModel: aiModel ?? null,
       }).catch((e) => console.error("[sessions] ai-answer persist failed", e));
+    }
+    } finally {
+      releaseGenerationLock(sessionId);
     }
   } catch (err) {
     console.error("[sessions] ai-answer error", err);

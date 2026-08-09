@@ -54,6 +54,8 @@ import { FloatingSurface } from "@/features/session/components/FloatingSurface";
 import { ResizeHandles } from "@/features/session/components/ResizeHandles";
 import { SessionTranscript } from "@/features/session/components/SessionTranscript";
 import { useFloatingSession } from "@/features/session/hooks/useFloatingSession";
+import { parseAnswerContent } from "@/hooks/useAIChat";
+import { isNearBottom, shouldForceScrollToBottom } from "./answerScrollPolicy";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -229,44 +231,6 @@ const CodeBlock = ({
       </div>
     </div>
   );
-};
-
-// Response Parser
-// Splits an AI response into optional question + answer sections so we can
-// render them with ParakeetAI-style iconic headers.
-interface ParsedSection {
-  question?: string;
-  answer: string;
-}
-
-const parseAIResponse = (raw: string): ParsedSection => {
-  if (!raw) return { answer: "" };
-  const text = raw.trim();
-
-  // Match patterns like:
-  //   **QUESTION:** ...\n**ANSWER:** ...
-  //   Question: ... \n Answer: ...
-  //   Summarized question: ...\nAnswer: ...
-  // Tolerates extra `**`, missing colons, no newlines.
-  const re =
-    /^\s*(?:\*+\s*)?(?:summarized\s+question|question)\s*:?\s*(?:\*+)?\s*([\s\S]*?)\s*(?:\*+\s*)?(?:answer)\s*:?\s*(?:\*+)?\s*([\s\S]*)$/i;
-  const m = text.match(re);
-  if (m) {
-    const cleanInline = (s: string) =>
-      s
-        .replace(/^\s*\*{1,3}\s*/, "")
-        .replace(/\s*\*{1,3}\s*$/, "")
-        .trim();
-    return { question: cleanInline(m[1]), answer: cleanInline(m[2]) };
-  }
-
-  // Answer-only marker
-  const ansOnly = text.match(
-    /^\s*(?:\*+)?\s*answer\s*:?\s*(?:\*+)?\s*([\s\S]*)$/i,
-  );
-  if (ansOnly) return { answer: ansOnly[1].trim() };
-
-  return { answer: text };
 };
 
 // Small inline copy button used within the answer area
@@ -601,6 +565,14 @@ const AnswerArea = memo(function AnswerArea({
   autoScroll = true,
 }: AnswerAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Inner content wrapper — NOT the scroll container itself. scrollRef is
+  // pinned to the parent panel's height (flex-1/h-full) so its own border-box
+  // size never changes as content streams in; only this wrapper's rendered
+  // height actually grows (markdown reflow, code blocks, the async
+  // native-window auto-grow below completing between tokens). A
+  // ResizeObserver must watch THIS element, not scrollRef, or it will never
+  // fire for "content grew but the scroll container's own box didn't."
+  const contentRef = useRef<HTMLDivElement>(null);
   const activeResponse = responses[0];
   const activeResponseId = activeResponse?.messageId ?? "";
   // Length of the active response's text — changes on every streamed token.
@@ -608,11 +580,48 @@ const AnswerArea = memo(function AnswerArea({
   // during streaming, not only when a NEW answer card starts.
   const activeResponseLength = activeResponse?.text?.length ?? 0;
 
-  // ── Streaming auto-scroll ────────────────────────────────────────────────
-  // Follow the active answer as each streamed chunk is rendered. Scheduling
-  // one animation frame at a time coalesces rapid token updates without
-  // starting competing smooth-scroll animations on every React render.
+  // ── Streaming auto-scroll (sticky-bottom, respects manual scroll-up) ─────
+  // Follow the active answer as each streamed chunk renders. Scheduling one
+  // animation frame at a time coalesces rapid token updates without starting
+  // competing smooth-scroll animations on every React render.
+  //
+  // isNearBottomRef tracks whether the user is still following the latest
+  // content — same pattern as ChatMessageList.tsx's sticky-bottom check.
+  // Starts true (a new answer should be visible immediately); flips false
+  // the moment the user scrolls up to read something earlier in a long
+  // answer (handleAnswerScroll below), which suppresses forced scrolling
+  // from BOTH the text-growth effect and the ResizeObserver below until they
+  // either scroll back near the bottom or a new answer starts.
   const scrollFrameRef = useRef<number | null>(null);
+  const isNearBottomRef = useRef(true);
+
+  const scheduleScrollToBottom = useCallback(() => {
+    if (scrollFrameRef.current !== null) return;
+    scrollFrameRef.current = window.requestAnimationFrame(() => {
+      scrollFrameRef.current = null;
+      if (!shouldForceScrollToBottom(isNearBottomRef.current)) return; // respect manual scroll-up
+      const scrollElement = scrollRef.current;
+      if (!scrollElement) return;
+      scrollElement.scrollTop = scrollElement.scrollHeight;
+    });
+  }, []);
+
+  const handleAnswerScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    isNearBottomRef.current = isNearBottom({
+      scrollTop: el.scrollTop,
+      scrollHeight: el.scrollHeight,
+      clientHeight: el.clientHeight,
+    });
+  }, []);
+
+  // A new answer card always resumes follow, regardless of where the user
+  // had scrolled on the PREVIOUS answer.
+  useEffect(() => {
+    isNearBottomRef.current = true;
+  }, [activeResponseId]);
+
   useEffect(() => {
     if (!autoScroll) {
       if (scrollFrameRef.current !== null) {
@@ -621,16 +630,27 @@ const AnswerArea = memo(function AnswerArea({
       }
       return;
     }
-    if (scrollFrameRef.current !== null) return;
-
-    scrollFrameRef.current = window.requestAnimationFrame(() => {
-      scrollFrameRef.current = null;
-      const scrollElement = scrollRef.current;
-      if (!scrollElement) return;
-      scrollElement.scrollTop = scrollElement.scrollHeight;
-    });
+    scheduleScrollToBottom();
   // Deps: new card, streaming chunks, setting toggle, and stream completion.
-  }, [activeResponseId, activeResponseLength, autoScroll, isStreaming]);
+  }, [activeResponseId, activeResponseLength, autoScroll, isStreaming, scheduleScrollToBottom]);
+
+  // Rendered-height awareness: a ResizeObserver on the actual content
+  // wrapper catches layout growth that ISN'T accompanied by a text-length
+  // change (markdown/code-block reflow, or the async native-window
+  // auto-grow below completing between tokens) by reacting to the real
+  // rendered height instead of only the source text length. Routes through
+  // the SAME scheduleScrollToBottom/scrollFrameRef coalescing as the effect
+  // above — never a second, competing scroll loop — and that function
+  // itself already bails out when the user has scrolled away from the
+  // bottom, so this never fights a manual scroll-up.
+  useEffect(() => {
+    if (!autoScroll) return;
+    const el = contentRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => scheduleScrollToBottom());
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [autoScroll, scheduleScrollToBottom]);
 
   // Cancel a pending frame only when AnswerArea actually unmounts. Keeping
   // this separate from the streaming effect avoids starving auto-scroll when
@@ -767,17 +787,24 @@ const AnswerArea = memo(function AnswerArea({
     //   the card” requirement even when the outer glass opacity is low.
     <div
       ref={scrollRef}
-      className="flex-1 min-h-0 h-full overflow-y-auto overflow-x-hidden overscroll-contain p-4 space-y-4 no-scrollbar [contain:layout_paint] bg-zinc-900/95"
+      onScroll={handleAnswerScroll}
+      className="flex-1 min-h-0 h-full overflow-y-auto overflow-x-hidden overscroll-contain p-4 no-scrollbar [contain:layout_paint] bg-zinc-900/95"
     >
+      {/* contentRef wraps the actual rendered answer content — this is what
+          grows in height during streaming/markdown/code-block reflow, unlike
+          scrollRef above which stays pinned to the panel's fixed height.
+          space-y-4 moved here from the scroll container since this is now
+          the direct parent of the mapped response block(s). */}
+      <div ref={contentRef} className="space-y-4">
       {responses.map((resp) => {
         // Render raw markdown as-is from the stream/result. Do not mutate content.
+        // parseAnswerContent (useAIChat.ts) is the single source of truth for
+        // splitting raw "**QUESTION:** ... **ANSWER:** ..." backend text into
+        // { question, answer } — used here instead of a duplicate local parser
+        // so this panel and the web ChatMessage renderer never disagree.
         const displayText = resp.text ?? "";
-        const parsed = parseAIResponse(displayText);
+        const parsed = parseAnswerContent(displayText, resp.question);
 
-        // The question comes from the message's `.question` field (set by
-        // parseAnswerContent during streaming) — this is the backend-extracted
-        // cleaned question and should be the source of truth. Fallback to
-        // re-parsing only if the message field is not set.
         const finalQuestion = parsed.question || resp.question?.trim() || "";
         const answerMarkdown = parsed.answer;
 
@@ -868,7 +895,14 @@ const AnswerArea = memo(function AnswerArea({
                 "[&_td]:border [&_td]:border-white/10 [&_td]:px-2 [&_td]:py-1",
               ].join(" ")}
             >
-              {resp.isStreaming && !displayText.trim() ? (
+              {/* Gate on the ANSWER body specifically, not the raw combined
+                  text: the backend writes "**QUESTION:** ...**ANSWER:** " as
+                  its very first bytes, before any model token exists, so
+                  displayText is non-empty almost instantly. Gating on it here
+                  made the skeleton vanish immediately while the answer itself
+                  was still genuinely empty — a blank body with no loading
+                  affordance until the first real token arrived. */}
+              {resp.isStreaming && !answerMarkdown.trim() ? (
                 <div className="space-y-2 animate-pulse mt-2 py-1">
                   <div className="h-3.5 bg-white/10 rounded w-11/12" />
                   <div className="h-3.5 bg-white/10 rounded w-3/4" />
@@ -985,6 +1019,7 @@ const AnswerArea = memo(function AnswerArea({
           </div>
         );
       })}
+      </div>
     </div>
   );
 }, (previous, next) => {
@@ -1145,7 +1180,15 @@ const FloatingApp: React.FC = () => {
     document.addEventListener("mouseup", reset);
     getCurrentWindow()
       .startDragging()
-      .catch(() => reset());
+      .catch((err) => {
+        // Was previously silently swallowed — a rejected drag looked
+        // identical to "nothing happened," with no way to tell whether the
+        // click missed the interactive region (cursor-passthrough poll
+        // hadn't caught up yet) or startDragging() itself failed. This
+        // doesn't change behavior, only makes a failed drag diagnosable.
+        console.warn("[FloatingApp] startDragging failed — overlay did not move", err);
+        reset();
+      });
   }, []);
 
   // ── Keyboard shortcuts (must live here so they fire with no element focused)
@@ -1392,7 +1435,12 @@ const FloatingApp: React.FC = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div
-                          className="p-1 rounded bg-white/25 text-white/20 group-hover/header:text-white/40 cursor-grab active:cursor-grabbing transition-colors select-none"
+                          // p-2 (up from p-1): a bigger acquire target is the
+                          // one safe, isolated lever available without
+                          // touching the shared cursor-passthrough polling
+                          // cadence — matches the padding already used by the
+                          // other icon buttons in this same toolbar.
+                          className="p-2 rounded bg-white/25 text-white/20 group-hover/header:text-white/40 cursor-grab active:cursor-grabbing transition-colors select-none"
                           onMouseDown={handleGripMouseDown}
                         >
                           <GripHorizontal

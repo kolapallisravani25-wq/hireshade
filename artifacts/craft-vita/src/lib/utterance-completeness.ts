@@ -111,3 +111,28 @@ export function isUtteranceComplete(text: string): boolean {
 export function isWeakTerminator(text: string): boolean {
   return classifyUtterance(text) === "statement";
 }
+
+/**
+ * Decide whether pending interim STT text should be force-committed as a
+ * final utterance right now.
+ *
+ * Used by interim→final promotion timers (e.g. the desktop session page's
+ * system-audio interim commit) that would otherwise freeze whatever text
+ * happened to be pending the moment the interviewer paused — including a
+ * mid-question pause ("...you mentioned Azure Data" <pause> "Why did you
+ * choose Azure Data Factory over Databricks?"), which used to get committed
+ * as if the first half were the entire question.
+ *
+ * A complete utterance (see {@link isUtteranceComplete}) commits immediately.
+ * An incomplete one waits — but only up to `maxWaitMs`, so genuine silence
+ * (no further STT events arriving at all, e.g. a dropped connection) still
+ * doesn't lose the words outright.
+ */
+export function shouldForceCommitInterim(
+  text: string,
+  waitedMs: number,
+  maxWaitMs: number,
+): boolean {
+  if (isUtteranceComplete(text)) return true;
+  return waitedMs >= maxWaitMs;
+}

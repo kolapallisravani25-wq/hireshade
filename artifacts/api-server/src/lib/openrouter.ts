@@ -190,10 +190,25 @@ export async function streamChatComplete(
   // every received chunk, so a healthy long stream is never cut off.
   const controller = new AbortController();
   let idleTimer: ReturnType<typeof setTimeout> | undefined;
+  let idleAborted = false;
   const armIdle = () => {
     if (idleTimer) clearTimeout(idleTimer);
-    idleTimer = setTimeout(() => controller.abort(), OPENROUTER_STREAM_IDLE_MS);
+    idleTimer = setTimeout(() => {
+      idleAborted = true;
+      controller.abort();
+    }, OPENROUTER_STREAM_IDLE_MS);
   };
+
+  // BUG 2 diagnostics (cut-off-answer investigation): capture enough to
+  // distinguish "model stopped naturally" from "model hit the token limit"
+  // from "the stream itself failed/aborted" — without this, a truncated-
+  // looking answer in the UI is indistinguishable from a rendering/scroll
+  // problem using logs alone. Only id/finish_reason/length/estimated-token
+  // metadata is logged — never prompt or answer text.
+  let generationId: string | null = null;
+  let finishReason: string | null = null;
+  let full = "";
+  let sawDone = false;
 
   try {
     armIdle();
@@ -222,41 +237,77 @@ export async function streamChatComplete(
       throw new Error(`OpenRouter request failed (${res.status})`);
     }
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    let full = "";
+    // Diagnostics scoped to just the streaming read loop — a request that
+    // never got a response body (handled above) is already logged with more
+    // specific context; this inner try/catch only covers genuine mid-stream
+    // failures (network drop, idle-timeout abort) so they aren't logged twice.
+    try {
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      armIdle();
-      buffer += decoder.decode(value, { stream: true });
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        armIdle();
+        buffer += decoder.decode(value, { stream: true });
 
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
 
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed.startsWith("data:")) continue;
-        const data = trimmed.slice(5).trim();
-        if (data === "[DONE]") continue;
-        try {
-          const parsed = JSON.parse(data) as {
-            choices?: { delta?: { content?: string } }[];
-          };
-          const delta = parsed.choices?.[0]?.delta?.content;
-          if (delta) {
-            full += delta;
-            onDelta(delta);
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith("data:")) continue;
+          const data = trimmed.slice(5).trim();
+          if (data === "[DONE]") {
+            sawDone = true;
+            continue;
           }
-        } catch {
-          // Ignore malformed/partial SSE lines.
+          try {
+            const parsed = JSON.parse(data) as {
+              id?: string;
+              choices?: { delta?: { content?: string }; finish_reason?: string | null }[];
+            };
+            if (parsed.id && !generationId) generationId = parsed.id;
+            if (parsed.choices?.[0]?.finish_reason) {
+              finishReason = parsed.choices[0].finish_reason;
+            }
+            const delta = parsed.choices?.[0]?.delta?.content;
+            if (delta) {
+              full += delta;
+              onDelta(delta);
+            }
+          } catch {
+            // Ignore malformed/partial SSE lines.
+          }
         }
       }
-    }
 
-    return full;
+      logger.info(
+        {
+          generationId,
+          finishReason: finishReason ?? (sawDone ? "unknown_stop" : "missing"),
+          outputChars: full.length,
+          estimatedTokens: Math.ceil(full.length / 4),
+          sawDone,
+        },
+        "[openrouter] streamChatComplete finished",
+      );
+      return full;
+    } catch (err) {
+      logger.error(
+        {
+          generationId,
+          finishReason,
+          outputChars: full.length,
+          estimatedTokens: Math.ceil(full.length / 4),
+          aborted: idleAborted,
+          errorName: err instanceof Error ? err.name : typeof err,
+        },
+        "[openrouter] streamChatComplete stream error/abort",
+      );
+      throw err;
+    }
   } finally {
     if (idleTimer) clearTimeout(idleTimer);
   }

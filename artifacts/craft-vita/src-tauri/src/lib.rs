@@ -558,6 +558,22 @@ fn set_cursor_passthrough(
         .map_err(|e| e.to_string())
 }
 
+/// Global cursor position in physical screen coordinates, used by
+/// useCursorPassthrough's poll loop to decide whether the cursor is over an
+/// interactive region. The frontend has called this since the passthrough
+/// hook was written, but the command was never implemented — every invoke
+/// rejected, so the loop could set passthrough to true (click-through) but
+/// could never detect re-entry into an interactive region to set it back to
+/// false, permanently stranding the overlay in click-through once anything
+/// (e.g. React StrictMode's dev-mode double-effect unmount) ever enabled it.
+#[tauri::command]
+fn get_cursor_position(window: tauri::WebviewWindow) -> Result<(f64, f64), String> {
+    window
+        .cursor_position()
+        .map(|p| (p.x, p.y))
+        .map_err(|e| e.to_string())
+}
+
 // ── macOS native audio capture commands ──────────────────────────────────────
 // Start a cpal input stream on the chosen device, encode raw samples as 16-bit
 // little-endian PCM, and broadcast them to all connected WebSocket clients on
@@ -2951,6 +2967,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             toggle_floating, capture_screen, show_mini_top_center, set_mini_state,
             set_mini_size_instant, toggle_content_protection, set_cursor_passthrough,
+            get_cursor_position,
             start_audio_stream, stop_audio_stream, list_audio_devices,
             start_display_audio_stream, stop_display_audio_stream,
             start_system_audio_transcription, stop_system_audio_transcription,

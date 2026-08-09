@@ -260,6 +260,39 @@ export function shouldTriggerGeneration(input: {
 // segmentQuestions
 // ---------------------------------------------------------------------------
 
+// Coordinating conjunctions that, when they open a `?`-delimited segment,
+// signal it's a CONTINUATION of the previous clause rather than an
+// independent question — e.g. Deepgram's smart_format can insert a "?" at a
+// natural mid-question pause ("...in object-oriented programming?" <pause>
+// "And give a practical example of when you would use each?"), and splitting
+// on that spurious boundary loses the referent for words like "each"/"that"
+// in the second half, producing a second generation with no context.
+//
+// Deliberately narrower than semantic-classifier.ts's
+// stripLeadingConjunctionsAndFillers (which also strips fillers like
+// "okay"/"well"/"right"): a genuinely NEW question prefixed with a filler
+// ("Okay, what's your favorite language?") must still split, only a true
+// grammatical continuation should be merged back.
+const LEADING_COORDINATING_CONJUNCTION_RE = /^(?:and|or|but|so)\b/i;
+
+/**
+ * Merge a `?`-delimited segment back into the previous one when it opens
+ * with a coordinating conjunction. Preserves genuine multi-question turns
+ * ("What's your name? Where are you from?") since "where" isn't a
+ * conjunction — only literal continuations get merged.
+ */
+function mergeConjunctionContinuations(parts: string[]): string[] {
+  const merged: string[] = [];
+  for (const part of parts) {
+    if (merged.length > 0 && LEADING_COORDINATING_CONJUNCTION_RE.test(part)) {
+      merged[merged.length - 1] = `${merged[merged.length - 1]} ${part}`.trim();
+    } else {
+      merged.push(part);
+    }
+  }
+  return merged;
+}
+
 /**
  * Split a stable transcript blob into independent questions when the utterance
  * clearly contains a numbered list ("one: ...  two: ...") or multiple `?`
@@ -296,11 +329,14 @@ export function segmentQuestions(text: string): string[] {
     return numberedParts;
   }
 
-  // Otherwise split on '?' boundaries (preserving the '?').
-  const questionParts = trimmed
-    .split(/(?<=\?)\s+/g)
-    .map((s) => s.trim())
-    .filter((s) => s.endsWith('?') && s.length > 6);
+  // Otherwise split on '?' boundaries (preserving the '?'), then re-merge
+  // any part that's actually a continuation of the previous one.
+  const questionParts = mergeConjunctionContinuations(
+    trimmed
+      .split(/(?<=\?)\s+/g)
+      .map((s) => s.trim())
+      .filter((s) => s.endsWith('?') && s.length > 6),
+  );
 
   if (questionParts.length >= 1) return questionParts;
 

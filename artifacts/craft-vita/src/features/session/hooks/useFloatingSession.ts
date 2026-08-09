@@ -73,7 +73,13 @@ import {
   isContinuationOfPreviousQuestion,
   segmentQuestions,
 } from "@/lib/generation-pipeline";
-import { isUtteranceComplete, isWeakTerminator } from "@/lib/utterance-completeness";
+import {
+  isUtteranceComplete,
+  shouldForceCommitInterim,
+} from "@/lib/utterance-completeness";
+import { resolveEffectiveLiveInterimText } from "./autoGenQuestionSource";
+import { attachCancellableListener } from "./cancellableListener";
+import { computeTrailingInterviewerMessages } from "./autoGenTrailingTranscript";
 import {
   createSessionOperationRegistry,
   createSessionTransitionGuard,
@@ -244,6 +250,13 @@ const FALLBACK_MSG_COUNT = 12;
 const NEAR_DUPLICATE_GAP_MS = 2500;
 const STT_INTERIM_FALLBACK_MS = 600;
 const SYSTEM_STT_INTERIM_FALLBACK_MS = 300;
+// Parity with page.tsx's SYSTEM_INTERIM_MAX_INCOMPLETE_WAIT_MS: bound on how
+// long an INCOMPLETE interim fragment (per isUtteranceComplete — dangling
+// connector, no terminal punctuation, too few words) can withhold a forced
+// fallback commit, e.g. across a natural mid-question pause. Prevents an
+// unpunctuated-but-truly-finished utterance (no real STT final ever arrives)
+// from being lost forever.
+const FALLBACK_MAX_INCOMPLETE_WAIT_MS = 6000;
 const MIN_INCLUDE_DUPLICATE_LEN = 20;
 const SYSTEM_EMPTY_FINAL_STORM_COUNT = 6;
 const SYSTEM_EMPTY_FINAL_STORM_WINDOW_MS = 10_000;
@@ -801,6 +814,10 @@ export function useFloatingSession() {
         fallbackMessageId: string | null;
         fallbackCommittedAt: number | null;
         timer: ReturnType<typeof setTimeout> | null;
+        // Timestamp of when the current uncommitted interim text started
+        // accumulating without a real STT final — bounds how long an
+        // incomplete fragment can withhold a forced fallback commit.
+        fallbackPendingSince: number | null;
       }
     >
   >({
@@ -810,6 +827,7 @@ export function useFloatingSession() {
       fallbackMessageId: null,
       fallbackCommittedAt: null,
       timer: null,
+      fallbackPendingSince: null,
     },
     system: {
       latestInterimText: "",
@@ -817,6 +835,7 @@ export function useFloatingSession() {
       fallbackMessageId: null,
       fallbackCommittedAt: null,
       timer: null,
+      fallbackPendingSince: null,
     },
   });
 
@@ -1112,14 +1131,82 @@ export function useFloatingSession() {
     (source: SttSourceKey) => {
       clearSttSourceTimer(source);
       const sourceState = sttSourceStateRef.current[source];
-      sourceState.timer = setTimeout(() => {
+      if (sourceState.fallbackPendingSince === null) {
+        sourceState.fallbackPendingSince = Date.now();
+      }
+      const intervalMs =
+        source === "system" ? SYSTEM_STT_INTERIM_FALLBACK_MS : STT_INTERIM_FALLBACK_MS;
+
+      const runCheck = () => {
         sourceState.timer = null;
         const interim = sourceState.latestInterimText.trim();
-        if (!interim) return;
+        if (!interim) {
+          sourceState.fallbackPendingSince = null;
+          return;
+        }
+
+        // Parity fix (long-question split root cause): a bare elapsed-timer
+        // must not force-commit an obviously incomplete fragment ("Can you
+        // explain the difference between an interface and an abstract") just
+        // because no new interim arrived for `intervalMs` — a natural
+        // mid-question pause looks identical to "done speaking" to a bare
+        // timer, and each premature commit was becoming its OWN separate
+        // transcript row (confirmed via runtime trace: repeated
+        // [DIAG][stt-fallback-outcome] status: "inserted" on progressive
+        // fragments). Reuse the same isUtteranceComplete-based gate
+        // page.tsx's scheduleSystemInterimCommit already uses, bounded by
+        // FALLBACK_MAX_INCOMPLETE_WAIT_MS so a genuinely stalled/unpunctuated
+        // utterance still commits eventually rather than being lost forever.
+        const pendingSince = sourceState.fallbackPendingSince ?? Date.now();
+        const waitedMs = Date.now() - pendingSince;
+        if (!shouldForceCommitInterim(interim, waitedMs, FALLBACK_MAX_INCOMPLETE_WAIT_MS)) {
+          // TEMP DIAGNOSTIC (long-question split investigation, remove
+          // after): proves the gate is actively holding back an incomplete
+          // fragment instead of committing it. Dev-only.
+          if (import.meta.env.DEV) {
+            console.log("[DIAG][stt-fallback-waiting]", {
+              source,
+              interim,
+              waitedMs,
+              at: Date.now(),
+            });
+          }
+          sourceState.timer = setTimeout(runCheck, intervalMs);
+          return;
+        }
+
+        sourceState.fallbackPendingSince = null;
         const sender = senderForSource(source);
         const sourceLabel: TranscriptInsertSource =
           source === "mic" ? "stt:user" : "stt:interviewer";
+        // TEMP DIAGNOSTIC (long-question split investigation, remove after):
+        // the fallback timer fired — this is the exact text it's about to
+        // force-commit as a "final" row. Answers "did scheduleFallbackCommit
+        // fire during the natural mid-question pause?". Dev-only.
+        if (import.meta.env.DEV) {
+          console.log("[DIAG][stt-fallback-firing]", {
+            source,
+            interim,
+            interimLength: interim.length,
+            at: Date.now(),
+          });
+        }
         const outcome = commitTranscriptMessage(sender, interim, sourceLabel, Date.now());
+        // TEMP DIAGNOSTIC (long-question split investigation, remove after):
+        // the actual commitTranscriptMessage outcome for THIS fallback fire —
+        // "inserted" means a NEW transcript row was created; "patched" means
+        // an existing (near-duplicate) row was extended in place. Answers
+        // "did it create a separate transcript row or extend the existing
+        // one?". Dev-only.
+        if (import.meta.env.DEV) {
+          console.log("[DIAG][stt-fallback-outcome]", {
+            source,
+            status: outcome?.status,
+            id: (outcome as { id?: string } | undefined)?.id,
+            reason: (outcome as { reason?: string } | undefined)?.reason,
+            at: Date.now(),
+          });
+        }
         if (outcome?.status === "inserted" || outcome?.status === "patched") {
           sourceState.fallbackMessageId = outcome.id;
           sourceState.fallbackCommittedAt = Date.now();
@@ -1131,7 +1218,9 @@ export function useFloatingSession() {
             sourcePlatform: "tauri",
           });
         }
-      }, source === "system" ? SYSTEM_STT_INTERIM_FALLBACK_MS : STT_INTERIM_FALLBACK_MS);
+      };
+
+      sourceState.timer = setTimeout(runCheck, intervalMs);
     },
     [clearSttSourceTimer, commitTranscriptMessage, senderForSource],
   );
@@ -1196,6 +1285,7 @@ export function useFloatingSession() {
       sourceState.latestInterimAt = 0;
       sourceState.fallbackMessageId = null;
       sourceState.fallbackCommittedAt = null;
+      sourceState.fallbackPendingSince = null;
     },
     [
       clearSttSourceTimer,
@@ -1229,6 +1319,35 @@ export function useFloatingSession() {
       const source: SttSourceKey = "system";
       const sourceState = sttSourceStateRef.current[source];
       const normalizedText = normalizeSttTranscript(text || "");
+      // TEMP DIAGNOSTIC (long-question split investigation, remove after):
+      // raw STT event as received from Rust, before any of our own
+      // commit/fallback/stabilizer logic runs. Answers "did Deepgram itself
+      // emit this as two separate is_final chunks?". Dev-only, no PII beyond
+      // the interview transcript text itself (no secrets/tokens/resume).
+      if (import.meta.env.DEV) {
+        console.log("[DIAG][stt-raw][system]", {
+          isFinal,
+          text: normalizedText,
+          length: normalizedText.length,
+          at: Date.now(),
+        });
+      }
+      // Activity heartbeat (Layer 1). The auto-gen stabilizer is only FED from
+      // committed transcript rows, which lag raw STT by scheduleFallbackCommit's
+      // debounce (300ms, extendable to FALLBACK_MAX_INCOMPLETE_WAIT_MS while the
+      // fragment still looks incomplete) plus Deepgram's own final latency. That
+      // left the inactivity countdown running off transcript-COMMIT timing
+      // rather than off actual speech: a fresh interim arriving 100ms before the
+      // 3000ms window elapsed could not stop the fire, so a still-speaking
+      // interviewer got answered mid-turn. Note it here — the single shared
+      // interviewer entry point, covering interim AND final — before any
+      // commit/fallback/completeness logic. Deliberately NOT done for mic input
+      // (handleUserTranscript): candidate speech must not extend the
+      // interviewer's turn. noteActivity() never mutates the generation
+      // snapshot, so unstable interim text cannot leak into a question.
+      if (normalizedText.trim()) {
+        autoGenStabilizerRef.current?.noteActivity();
+      }
       if (isFinal) {
         return reconcileFinalForSource(source, normalizedText);
       }
@@ -1535,13 +1654,18 @@ export function useFloatingSession() {
   }, [startSystemAudio]);
 
   // System audio transcript + status listeners (unconditional — wires up once)
+  //
+  // StrictMode-safe registration: listen() is async, and dev-mode
+  // double-invoke (mount → cleanup → mount again) can run this effect's
+  // cleanup BEFORE the first listen() promise resolves. attachCancellableListener
+  // guards that race — if cleanup already ran by the time registration
+  // resolves, the just-registered listener is unlistened immediately instead
+  // of leaking (which previously caused duplicate STT event delivery in dev).
   useEffect(() => {
-    let unlistenTx: (() => void) | undefined;
-    let unlistenSt: (() => void) | undefined;
-    let unlistenHealth: (() => void) | undefined;
     console.log("[Tauri][WindowLifecycle] stt system listeners register count=3");
 
-    listen<{ text: string; is_final: boolean }>("stt:system-audio", (event) => {
+    const txListener = attachCancellableListener(
+      listen<{ text: string; is_final: boolean }>("stt:system-audio", (event) => {
       const { text, is_final } = event.payload;
       const normalizedText = normalizeSttTranscript(text || "");
       const now = Date.now();
@@ -1592,9 +1716,12 @@ export function useFloatingSession() {
         setTabInterimTranscript(normalizedText);
         handleInterviewerTranscriptRef.current(normalizedText, false);
       }
-    }).then((fn) => { unlistenTx = fn; }).catch(() => {});
+      }),
+      (fn) => fn(),
+    );
 
-    listen<{ status: string; error?: string }>("stt:status:system", (event) => {
+    const stListener = attachCancellableListener(
+      listen<{ status: string; error?: string }>("stt:status:system", (event) => {
       const { status, error } = event.payload;
       if (import.meta.env.DEV) {
         if (status === "connecting" && previousSystemPhaseRef.current === "idle") {
@@ -1626,9 +1753,12 @@ export function useFloatingSession() {
       } else if (status === "transcribing") {
         setTabError(null);
       }
-    }).then((fn) => { unlistenSt = fn; }).catch(() => {});
+      }),
+      (fn) => fn(),
+    );
 
-    listen<SystemHealthPayload>("stt:health:system", (event) => {
+    const healthListener = attachCancellableListener(
+      listen<SystemHealthPayload>("stt:health:system", (event) => {
       const now = Date.now();
       const payload = event.payload;
       const health = systemHealthRef.current;
@@ -1659,12 +1789,14 @@ export function useFloatingSession() {
         }
       }
       logSystemHealthSummary(health.healthState, previousIsSystemStaleRef.current);
-    }).then((fn) => { unlistenHealth = fn; }).catch(() => {});
+      }),
+      (fn) => fn(),
+    );
 
     return () => {
-      unlistenTx?.();
-      unlistenSt?.();
-      unlistenHealth?.();
+      txListener.cancel();
+      stListener.cancel();
+      healthListener.cancel();
       console.log("[Tauri][WindowLifecycle] stt system listeners unregister count=3");
     };
   }, []);
@@ -1816,41 +1948,48 @@ export function useFloatingSession() {
   }, [captureArmed, sessionInfo?.sessionId, tabStatus, tabError, reacquireSystemAudio]);
 
   // Mic STT listeners
+  //
+  // StrictMode-safe registration — see the system-audio effect above for why
+  // attachCancellableListener is needed here (dev-mode double-invoke can run
+  // cleanup before listen() resolves, leaking an orphaned listener).
   useEffect(() => {
-    let unlistenTx: (() => void) | undefined;
-    let unlistenSt: (() => void) | undefined;
+    const txListener = attachCancellableListener(
+      listen<{ text: string; is_final: boolean }>("stt:mic", (event) => {
+        const { text, is_final } = event.payload;
+        const normalizedText = normalizeSttTranscript(text || "");
+        if (is_final) {
+          setMicInterimTranscript("");
+          handleUserTranscriptRef.current(normalizedText, true);
+        } else {
+          setMicInterimTranscript(normalizedText);
+          handleUserTranscriptRef.current(normalizedText, false);
+        }
+      }),
+      (fn) => fn(),
+    );
 
-    listen<{ text: string; is_final: boolean }>("stt:mic", (event) => {
-      const { text, is_final } = event.payload;
-      const normalizedText = normalizeSttTranscript(text || "");
-      if (is_final) {
-        setMicInterimTranscript("");
-        handleUserTranscriptRef.current(normalizedText, true);
-      } else {
-        setMicInterimTranscript(normalizedText);
-        handleUserTranscriptRef.current(normalizedText, false);
-      }
-    }).then((fn) => { unlistenTx = fn; }).catch(() => {});
-
-    listen<{ status: string; error?: string }>("stt:status:mic", (event) => {
-      const { status, error } = event.payload;
-      if (status === "transcribing") {
-        setIsMicActive(true);
-        setIsMicConnecting(false);
-      } else if (status === "connecting") {
-        setIsMicConnecting(true);
-      } else {
-        setIsMicActive(false);
-        setIsMicConnecting(false);
-      }
-      if (status === "error" && error) {
-        toast.error(`Mic: ${error}`, { duration: 6000 });
-      }
-    }).then((fn) => { unlistenSt = fn; }).catch(() => {});
+    const stListener = attachCancellableListener(
+      listen<{ status: string; error?: string }>("stt:status:mic", (event) => {
+        const { status, error } = event.payload;
+        if (status === "transcribing") {
+          setIsMicActive(true);
+          setIsMicConnecting(false);
+        } else if (status === "connecting") {
+          setIsMicConnecting(true);
+        } else {
+          setIsMicActive(false);
+          setIsMicConnecting(false);
+        }
+        if (status === "error" && error) {
+          toast.error(`Mic: ${error}`, { duration: 6000 });
+        }
+      }),
+      (fn) => fn(),
+    );
 
     return () => {
-      unlistenTx?.();
-      unlistenSt?.();
+      txListener.cancel();
+      stListener.cancel();
     };
   }, []);
 
@@ -2020,7 +2159,15 @@ export function useFloatingSession() {
 
   // ── AI action handlers ──────────────────────────────────────────────────────
 
-  const handleAiAnswerClick = useCallback(async () => {
+  const handleAiAnswerClick = useCallback(async (
+    origin: "overlay_click" | "manual_click" | "auto" = "overlay_click",
+    // Mini-Phase B: only ever passed for origin === "auto" — the exact
+    // stabilized/classified text (or individual segment) that caused
+    // autoGenFireRef to fire. See resolveEffectiveLiveInterimText below for
+    // the invariant this enforces. Manual origins never pass this and are
+    // byte-for-byte unaffected.
+    stabilizedQuestion?: string,
+  ) => {
     console.log("[AI Answer][Click] received", {
       clickSource: "button",
       isDuplicateSuppressed: false,
@@ -2030,6 +2177,42 @@ export function useFloatingSession() {
       isEmitting: isEmittingRef.current,
       isAnswering,
     });
+    // TEMP DIAGNOSTIC (long-question split investigation, remove after):
+    // marks the start of EVERY handleAiAnswerClick invocation with its
+    // origin, so multiple calls (e.g. from the multi-segment stagger) can be
+    // correlated against [DIAG][autogen-fire-start] by timestamp. Dev-only.
+    if (import.meta.env.DEV) {
+      console.log("[DIAG][handle-ai-answer-click-start]", {
+        origin,
+        isAiAnswerRunning: isAiAnswerRunningRef.current,
+        isEmitting: isEmittingRef.current,
+        at: Date.now(),
+      });
+    }
+
+    // Mini-Phase B invariant: for origin === "auto", never fall back to live
+    // interim text (tabInterimTranscript) — that fallback is exactly the
+    // race condition being fixed (a newer, still-forming interim fragment
+    // winning over the stabilized snapshot that actually triggered this
+    // call). Computed once, up front, before any state/lock is touched, so
+    // an invariant violation is a true no-op bail-out.
+    const effectiveLiveInterimText = resolveEffectiveLiveInterimText(
+      origin,
+      stabilizedQuestion,
+      tabInterimTranscript,
+    );
+    if (effectiveLiveInterimText === null) {
+      if (import.meta.env.DEV) {
+        console.warn("[DIAG][auto-invariant-violation]", {
+          origin,
+          stabilizedQuestion,
+          reason:
+            "origin===\"auto\" but stabilizedQuestion was missing/empty — skipping generation instead of falling back to live interim text",
+          at: Date.now(),
+        });
+      }
+      return;
+    }
 
     // Validation: Ensure a valid model is selected
     const currentModel = selectedModelRef.current;
@@ -2090,20 +2273,21 @@ export function useFloatingSession() {
     //    detectActiveQuestion and resolveQuestionFromContext calls below.
     const { forDetection: normalizedForDetection, forResolution: normalizedForResolution } = getOrBuildNormalizedMsgs();
     const preDebounceDetection = detectActiveQuestion({
-      liveInterimText: tabInterimTranscript.trim(),
+      liveInterimText: effectiveLiveInterimText,
       allMessages: normalizedForDetection,
       cutoffTimestamp:
         lastAnswerTimestampRef.current !== null
           ? Math.min(lastAnswerTimestampRef.current, Date.now() - 5000)
           : Date.now() - FIRST_ANSWER_WINDOW_MS,
       selectedAnswerQuestion: "",
+      answeredQuestionKeys: answeredQuestionsHistoryRef.current.map((a) => a.text),
     });
     const evolving = false;
 
     // 2) Freeze immutable snapshot used for this request only.
     const snapshotTimestamp = Date.now();
     const msgsSnapshot = [...messagesRef.current];
-    const liveInterviewerTextSnapshot = tabInterimTranscript.trim();
+    const liveInterviewerTextSnapshot = effectiveLiveInterimText;
 
     console.log("[useFloatingSession] Creating transcript snapshot at timestamp:", snapshotTimestamp);
     console.log("[useFloatingSession] Snapshot contains", msgsSnapshot.length, "messages");
@@ -2118,14 +2302,33 @@ export function useFloatingSession() {
       allMessages: normalizedForDetection,
       cutoffTimestamp: cutoff,
       selectedAnswerQuestion: "",
+      answeredQuestionKeys: answeredQuestionsHistoryRef.current.map((a) => a.text),
     });
+
+    // TEMP DIAGNOSTIC (long-question split investigation, remove after):
+    // exactly what THIS invocation of handleAiAnswerClick resolved as the
+    // active question, and what was already in answeredQuestionKeys at that
+    // moment. Answers "why did the card receive only the trailing clause?"
+    // and "was the first clause already marked answered before the second
+    // call ran?". Dev-only.
+    if (import.meta.env.DEV) {
+      console.log("[DIAG][detect-active-question]", {
+        origin,
+        resolvedQuestion: detection.cleanedQuestion,
+        source: detection.source,
+        confidenceScore: detection.confidenceScore,
+        ignoredNoise: detection.ignoredNoise,
+        answeredQuestionKeysAtCallTime: answeredQuestionsHistoryRef.current.map((a) => a.text),
+        at: Date.now(),
+      });
+    }
 
     let question = detection.cleanedQuestion.trim();
     const source = detection.source;
     let effectiveDetection = detection;
-    // This handler is only ever invoked by an explicit user action (the
-    // overlay AI Answer button or the Cmd/Ctrl+G shortcut), never by the
-    // auto-generation path. Always-answer contract: a deliberate click must
+    // Invoked by explicit user actions (overlay AI Answer button, Cmd/Ctrl+G
+    // shortcut) and by the auto-generation path (which passes origin="auto").
+    // Always-answer contract: a deliberate click must
     // produce an answer even while the transcript is still evolving. Rapid
     // double-clicks are already debounced by `isAnswering` in FloatingApp and
     // the backend in-flight (409) lock, so we never silently drop a click.
@@ -2345,7 +2548,7 @@ export function useFloatingSession() {
           }
         : {}),
       answerMode: "auto",
-      triggerSource: "overlay_click",
+      triggerSource: origin,
       sourcePlatform: "tauri",
     };
 
@@ -2377,6 +2580,15 @@ export function useFloatingSession() {
       // messages that arrive after this answer completes.
       lastAnswerTimestampRef.current = Date.now();
 
+      // TEMP DIAGNOSTIC (long-question split investigation, remove after):
+      // exact moment a question is recorded as "answered" — this only
+      // happens AFTER handleAiAnswer's full streaming response resolves.
+      // Answers "was the first clause already added to answeredQuestionKeys
+      // before the second clause arrived?" by timestamp comparison against
+      // [DIAG][autogen-fire-start]/[DIAG][detect-active-question]. Dev-only.
+      if (import.meta.env.DEV) {
+        console.log("[DIAG][answered-history-push]", { question, at: Date.now() });
+      }
       // Record this answered question for the rapid-refire dedup check.
       answeredQuestionsHistoryRef.current.push({
         text: question,
@@ -2473,6 +2685,18 @@ export function useFloatingSession() {
   const autoGenFireRef = useRef<(snapshot: string) => void>(() => {});
   useEffect(() => {
     autoGenFireRef.current = (snapshot: string) => {
+      // TEMP DIAGNOSTIC (long-question split investigation, remove after):
+      // marks EVERY stabilizer onStable firing. If two of these appear
+      // seconds apart (not ~500ms apart), the two generation cards came from
+      // TWO SEPARATE stabilizer firings, not one firing's multi-segment
+      // stagger. Dev-only.
+      if (import.meta.env.DEV) {
+        console.log("[DIAG][autogen-fire-start]", {
+          snapshot,
+          snapshotLength: snapshot.length,
+          at: Date.now(),
+        });
+      }
       if (!autoGenerate) {
         // Toggle was turned off between the stabilizer arming and the freeze
         // window elapsing — respect the user's intent.
@@ -2518,7 +2742,28 @@ export function useFloatingSession() {
         return;
       }
 
+      // Turn-finalization fix: advance the consumed-boundary the moment this
+      // turn is ACCEPTED for generation — not after the LLM call succeeds. A
+      // failed generation must not leave the boundary ambiguous, and the auto
+      // pipeline must not silently re-attempt the same turn on the next feed
+      // (manual Regenerate remains available via the message card's own
+      // stored context, independent of this ref — see useAIChat.ts). The new
+      // baseline is autoGenLastFedIdRef: the newest Interviewer message id
+      // that was actually part of THIS accepted blob (set by the "feed the
+      // stabilizer" effect below on every feed). Every future trailing-walk
+      // stops at this id, so an already-accepted question can never leak
+      // into the next one — even with no candidate mic utterance in between.
+      if (autoGenLastFedIdRef.current) {
+        autoGenBaselineIdRef.current = autoGenLastFedIdRef.current;
+      }
+
       // ── Segment multi-question turns ───────────────────────────────────
+      // TEMP DIAGNOSTIC (long-question split investigation, remove after):
+      // the exact full string handed to segmentQuestions(). Answers "what
+      // exact full string reached segmentQuestions()?". Dev-only.
+      if (import.meta.env.DEV) {
+        console.log("[DIAG][segment-input]", { effective, at: Date.now() });
+      }
       const segmented = segmentQuestions(effective);
       const segments =
         segmented.length >= 2
@@ -2527,6 +2772,13 @@ export function useFloatingSession() {
             ? [effective]
             : classification.segments;
 
+      // TEMP DIAGNOSTIC (long-question split investigation, remove after):
+      // the actual segment TEXTS, not just the count — shows exactly how the
+      // blob was divided (or not). Dev-only.
+      if (import.meta.env.DEV) {
+        console.log("[DIAG][segment-result]", { segmented, segments, at: Date.now() });
+      }
+
       console.log("[MiniAutoAnswer] Firing", {
         segmentCount: segments.length,
         classification: classification.type,
@@ -2534,19 +2786,21 @@ export function useFloatingSession() {
       });
 
       // ── Fire ───────────────────────────────────────────────────────────
-      // handleAiAnswerClick reads live transcript + messagesRef to resolve
-      // the current question, so a single click is sufficient even when
-      // there are multiple segments — the adaptive-context builder inside
-      // handleAiAnswerClick sees the same transcript we just stabilized.
-      // For truly independent multi-segment turns, we fire once per segment
-      // with a small stagger to match main-window behaviour.
+      // Mini-Phase B: pass the exact stabilized text through instead of
+      // letting handleAiAnswerClick independently re-resolve from live
+      // component state (which can race ahead to a newer, still-forming
+      // interim fragment by the time this async call runs — the proven root
+      // cause of a partial fragment like "And can you give a..." being
+      // generated and marked answered). For truly independent multi-segment
+      // turns, we fire once per segment with a small stagger, each carrying
+      // its own exact segment text.
       if (segments.length <= 1) {
-        void handleAiAnswerClick();
+        void handleAiAnswerClick("auto", effective);
       } else {
-        segments.forEach((_seg, index) => {
+        segments.forEach((seg, index) => {
           setTimeout(() => {
             if (isAiAnswerRunningRef.current || isEmittingRef.current) return;
-            void handleAiAnswerClick();
+            void handleAiAnswerClick("auto", seg);
           }, index * 500);
         });
       }
@@ -2568,8 +2822,25 @@ export function useFloatingSession() {
     };
   }, [autoGenerate, handleAiAnswerClick]);
 
-  // Create the stabilizer once. Same options as the main window so behaviour
-  // is symmetric across both windows and both use the same tuning.
+  // Create the stabilizer once.
+  //
+  // Turn-finalization fix: a single explicit inactivity window (3000ms),
+  // applied uniformly regardless of punctuation. Previously `needsConfirmation`
+  // only required an extra quiet window for "."/"!"-terminated snapshots
+  // (isWeakTerminator) — a "?"-terminated snapshot fired on the very first
+  // freeze elapse, with zero confirmation. Since Deepgram's smart_format can
+  // punctuate a natural MID-QUESTION pause with "?", that let auto-generation
+  // fire while the interviewer was still mid-turn. Dropping needsConfirmation
+  // entirely (not passing it) makes every complete snapshot require the same
+  // single 3000ms silence window before firing — punctuation no longer
+  // shortens or lengthens the wait. maxWaitMs (22000ms) is a stalled-input
+  // safety valve only (see transcript-stabilizer.ts — now measured from the
+  // last feed, not utterance age), not an active-question duration cap: a
+  // continuously-spoken 30-60s+ question keeps resetting it via its own
+  // periodic feeds and never trips this ceiling while speech continues.
+  //
+  // Deliberately diverges from page.tsx's stabilizer (2000ms + isWeakTerminator
+  // confirmation), which is left unchanged — out of scope for this fix.
   useEffect(() => {
     if (autoGenStabilizerRef.current) return;
     autoGenStabilizerRef.current = createTranscriptStabilizer(
@@ -2579,13 +2850,9 @@ export function useFloatingSession() {
         autoGenFireRef.current(snapshot);
       },
       {
-        // Mid-sentence breath commonly runs ~1.5-2s; keep freeze above that.
-        freezeWindowMs: 2000,
+        freezeWindowMs: 3000,
         isComplete: isUtteranceComplete,
-        // Generous ceiling for long multi-clause questions (can take 15s+).
         maxWaitMs: 22000,
-        // Defer statement-terminated windows one extra quiet window.
-        needsConfirmation: isWeakTerminator,
       },
     );
     return () => {
@@ -2606,20 +2873,15 @@ export function useFloatingSession() {
 
     // Build trailing interviewer transcript: walk backwards from the end
     // collecting consecutive Interviewer messages, stopping at the first
-    // User message (candidate answered → new turn) or when we hit the
-    // baseline id (nothing new to feed).
+    // User message (candidate answered → new turn) or at the baseline id
+    // (everything at/before it was already consumed by a prior accepted
+    // auto-gen turn — see the baseline-advance in autoGenFireRef below).
+    // Extracted to autoGenTrailingTranscript.ts for unit-testability.
     const baseline = autoGenBaselineIdRef.current;
-    const trailing: TranscriptMessage[] = [];
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i];
-      if (m.sender === "User") break;
-      if (m.sender !== "Interviewer") continue;
-      if (!m.text?.trim()) continue;
-      // Below baseline → pre-existing lines that were present when
-      // auto-answer was enabled. Skip.
-      if (baseline && m.id === baseline) break;
-      trailing.unshift(m);
-    }
+    const trailing: TranscriptMessage[] = computeTrailingInterviewerMessages(
+      messages,
+      baseline,
+    );
 
     // First observation: set the baseline to the newest interviewer message
     // (so we don't answer anything already on screen) and do nothing else

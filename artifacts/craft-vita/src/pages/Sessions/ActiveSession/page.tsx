@@ -24,7 +24,11 @@ import {
   isContinuationOfPreviousQuestion,
   segmentQuestions,
 } from "@/lib/generation-pipeline";
-import { isUtteranceComplete, isWeakTerminator } from "@/lib/utterance-completeness";
+import {
+  isUtteranceComplete,
+  isWeakTerminator,
+  shouldForceCommitInterim,
+} from "@/lib/utterance-completeness";
 
 import {
   ResizableHandle,
@@ -72,6 +76,12 @@ function normalizeLineForDedup(text: string): string {
 
 const NEAR_DUPLICATE_GAP_MS = 2500;
 const SYSTEM_INTERIM_COMMIT_MS = 300;
+// Bound on how long an INCOMPLETE interim clause (per isUtteranceComplete —
+// dangling connector, no terminal punctuation, too few words) can withhold a
+// forced commit, e.g. across a natural mid-question pause. Matches the
+// transcript-stabilizer's own maxWaitMs default so an unpunctuated-but-truly-
+// finished utterance (STT never sends a real final) still isn't lost forever.
+const SYSTEM_INTERIM_MAX_INCOMPLETE_WAIT_MS = 6000;
 const SYSTEM_FINAL_RECONCILE_WINDOW_MS = 8000;
 const MIN_INCLUDE_DUPLICATE_LEN = 20;
 const OVERLAY_TRANSCRIPT_MAX_MESSAGES = 60;
@@ -691,6 +701,10 @@ export default function ActiveSession() {
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const systemInterimCommitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestSystemInterimRef = useRef("");
+  // Timestamp of when the current uncommitted interim text started accumulating
+  // without a real STT final — used only to bound how long an incomplete
+  // clause (e.g. a natural mid-question pause) can withhold a forced commit.
+  const systemInterimPendingSinceRef = useRef<number | null>(null);
   const DEBOUNCE_MS = 1200;
 
   // Stabilizer-based auto-answer pipeline
@@ -963,14 +977,37 @@ export default function ActiveSession() {
       const trimmed = normalizeSttTranscript(text || "").trim();
       if (!trimmed) return;
       latestSystemInterimRef.current = trimmed;
+      if (systemInterimPendingSinceRef.current === null) {
+        systemInterimPendingSinceRef.current = Date.now();
+      }
       clearSystemInterimCommitTimer();
-      systemInterimCommitTimerRef.current = setTimeout(() => {
+      const runCheck = () => {
         systemInterimCommitTimerRef.current = null;
         const latest = latestSystemInterimRef.current.trim();
-        if (!latest) return;
+        if (!latest) {
+          systemInterimPendingSinceRef.current = null;
+          return;
+        }
+        // A natural mid-question pause ("...you mentioned Azure Data" <pause>)
+        // must not freeze the incomplete first half as if it were the whole
+        // question — reuse the same completeness predicate the stabilizer uses
+        // rather than a bare silence timer. Only force-commit an incomplete
+        // clause once it's been pending past the bounded max-wait, so genuine
+        // silence (no more STT events coming at all) still doesn't lose words.
+        const pendingSince = systemInterimPendingSinceRef.current;
+        const waitedMs = pendingSince === null ? 0 : Date.now() - pendingSince;
+        if (!shouldForceCommitInterim(latest, waitedMs, SYSTEM_INTERIM_MAX_INCOMPLETE_WAIT_MS)) {
+          // Keep waiting: re-check on the same cadence in case no further
+          // interim events arrive (a resumed utterance re-enters via
+          // scheduleSystemInterimCommit itself, which reschedules this timer).
+          systemInterimCommitTimerRef.current = setTimeout(runCheck, SYSTEM_INTERIM_COMMIT_MS);
+          return;
+        }
         latestSystemInterimRef.current = "";
+        systemInterimPendingSinceRef.current = null;
         handleTranscript("Interviewer", latest, true);
-      }, SYSTEM_INTERIM_COMMIT_MS);
+      };
+      systemInterimCommitTimerRef.current = setTimeout(runCheck, SYSTEM_INTERIM_COMMIT_MS);
     },
     [clearSystemInterimCommitTimer, handleTranscript],
   );
@@ -980,6 +1017,7 @@ export default function ActiveSession() {
       if (isFinal) {
         clearSystemInterimCommitTimer();
         latestSystemInterimRef.current = "";
+        systemInterimPendingSinceRef.current = null;
         handleTranscript("Interviewer", text, true);
         return;
       }
