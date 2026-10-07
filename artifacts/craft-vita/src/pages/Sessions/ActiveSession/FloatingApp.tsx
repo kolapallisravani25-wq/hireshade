@@ -1141,6 +1141,16 @@ const FloatingApp: React.FC = () => {
     session.isCapturing ||
     session.isAnswering;
 
+  // Lifted out of the answer panel's render IIFE (Phase B two-column layout)
+  // so the left column's Detected Question card can read the same data
+  // without a second, independently-drifting computation.
+  const safeResponseIndex =
+    session.aiResponses.length > 0
+      ? Math.min(session.currentResponseIndex, session.aiResponses.length - 1)
+      : 0;
+  const currentAiResponse = session.aiResponses[safeResponseIndex];
+  const currentDetectedQuestion = currentAiResponse?.question?.trim() || "";
+
   // ── CSS-based widget drag (fullscreen window stays fixed; widget moves inside it)
   const [widgetPos, setWidgetPos] = useState<{
     top: number;
@@ -1917,260 +1927,269 @@ const FloatingApp: React.FC = () => {
                 </div>
               </div>
 
-              {/* ── Bottom Panel: Transcript Drawer OR AI Answer Panel (exclusive) ── */}
-              {session.isTranscriptExpanded ? (
-                /* ── Transcript Drawer ─────────────────────────────────────────── */
-                <div className="flex flex-col border-t border-white/10 min-h-[240px] max-h-[320px] bg-zinc-900/95 rounded-b-xl overflow-hidden">
-                  {/* Drawer header */}
-                  <div className="px-3 py-2 flex items-center justify-between shrink-0 border-b border-white/5 bg-white/[0.02]">
-                    <div className="flex items-center gap-2">
-                      <AlignJustify size={12} className="text-blue-400 shrink-0" />
-                      <span className="text-[11px] font-bold uppercase tracking-widest text-white/50">
-                        Transcript
-                      </span>
-                      {session.messages.length > 0 && (
-                        <span className="text-[10px] text-white/25 font-mono tabular-nums">
-                          {session.messages.length} entries
-                        </span>
-                      )}
-                    </div>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={session.toggleTranscriptExpanded}
-                          className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-zinc-400 hover:text-white transition-all active:scale-95"
-                        >
-                          <ChevronDown size={13} />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="bg-slate-900 border-white/10 text-white font-medium text-[11px]">
-                        Close Transcript
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  {/* Scrollable transcript content — own scroll, never bleeds into answer */}
-                  <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar min-h-0">
-                    <SessionTranscript
-                      messages={session.messages}
-                      micInterim={session.micInterimTranscript}
-                      tabInterim={session.tabInterimTranscript}
-                      onPatchMessage={session.handlePatchTranscriptMessage}
-                    />
-                  </div>
-                </div>
-              ) : (
-                /* ── AI Answer Panel ───────────────────────────────────────────── */
-                (isAnalysisBusy || session.aiResponses.length > 0) && (
-                  // flex-1 + min-h-0 makes this panel absorb all remaining
-                  // vertical space inside the bounded card, so the AnswerArea
-                  // child gets a real height to fill and scroll within.
-                  // bg-zinc-900/95 is an OPAQUE container inside the card so
-                  // the answer paints on solid dark backing (not the desktop
-                  // showing through) even though the outer card is glass.
-                  <div className="flex flex-col flex-1 min-h-0 border-t border-white/10 bg-zinc-900/95 rounded-b-xl overflow-hidden">
-                    {(() => {
-                      // Clamp the Redux index to the current React array length so we
-                      // never access aiResponses[undefined] when Redux races ahead of
-                      // the React state update.
-                      const safeIndex =
-                        session.aiResponses.length > 0
-                          ? Math.min(
-                              session.currentResponseIndex,
-                              session.aiResponses.length - 1,
-                            )
-                          : 0;
-                      const currentResponse = session.aiResponses[safeIndex];
-                      const currentQuestion = currentResponse?.question?.trim() || "";
+              {/* ── Bottom Panel: two-column — Live Transcript + Detected
+                  Question (left, toggled via the existing transcript
+                  button) alongside the AI Answer (right, always shown when
+                  there's something to show). Previously these were mutually
+                  exclusive (transcript drawer REPLACED the answer panel),
+                  which is why a long answer only ever got whatever leftover
+                  space existed after the top controls — this row lets both
+                  be visible together, each with its own independent scroll,
+                  and the answer column no longer shrinks to make room for a
+                  transcript view. ── */}
+              {(() => {
+                const showTranscriptColumn = session.isTranscriptExpanded;
+                const showAnswerColumn =
+                  isAnalysisBusy || session.aiResponses.length > 0;
+                if (!showTranscriptColumn && !showAnswerColumn) return null;
 
-                      return (
-                        <>
-                          {/* Response nav toolbar */}
-                          <div className="px-3 py-2 flex items-center justify-between shrink-0">
-                            <div className="flex items-center gap-1">
+                return (
+                  <div className="flex flex-row flex-1 min-h-0 border-t border-white/10 bg-zinc-900/95 rounded-b-xl overflow-hidden">
+                    {showTranscriptColumn && (
+                      /* ── Left column: Live Transcript + Detected Question ── */
+                      <div
+                        className={cn(
+                          "flex flex-col min-h-0",
+                          showAnswerColumn
+                            ? "shrink-0 border-r border-white/10 basis-[38%] min-w-[220px] max-w-[380px]"
+                            : "flex-1",
+                        )}
+                      >
+                        <div className="px-3 py-2 flex items-center justify-between shrink-0 border-b border-white/5 bg-white/[0.02]">
+                          <div className="flex items-center gap-2">
+                            <AlignJustify size={12} className="text-blue-400 shrink-0" />
+                            <span className="text-[11px] font-bold uppercase tracking-widest text-white/50">
+                              Live Transcript
+                            </span>
+                            {session.messages.length > 0 && (
+                              <span className="text-[10px] text-white/25 font-mono tabular-nums">
+                                {session.messages.length} entries
+                              </span>
+                            )}
+                          </div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
                               <button
-                                onClick={session.goToPrevResponse}
-                                disabled={
-                                  safeIndex === 0 ||
-                                  session.aiResponses.length === 0
-                                }
-                                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-25 disabled:cursor-not-allowed text-white transition-all active:scale-95"
+                                onClick={session.toggleTranscriptExpanded}
+                                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-zinc-400 hover:text-white transition-all active:scale-95"
                               >
-                                <ChevronLeft size={14} />
+                                <ChevronDown size={13} />
                               </button>
-                              <button
-                                onClick={session.goToNextResponse}
-                                disabled={
-                                  safeIndex >= session.aiResponses.length - 1
-                                }
-                                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-25 disabled:cursor-not-allowed text-white transition-all active:scale-95"
-                              >
-                                <ChevronRight size={14} />
-                              </button>
-                              {session.aiResponses.length > 1 && (
-                                <span className="text-[11px] text-white/40 ml-1 font-mono">
-                                  {safeIndex + 1}/{session.aiResponses.length}
-                                </span>
-                              )}
-                              {isAnalysisBusy &&
-                                session.aiResponses.length === 0 && (
-                                  <span className="flex items-center gap-1.5 ml-1 text-[11px] text-blue-400/80">
-                                    <Loader2 size={11} className="animate-spin" />
-                                    {isAnalyzeCaptureLocked || session.isCapturing
-                                      ? "Capturing screen..."
-                                      : "Generating..."}
-                                  </span>
-                                )}
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="bg-slate-900 border-white/10 text-white font-medium text-[11px]">
+                              Close Transcript
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        {/* Sizing box only — SessionTranscript owns the actual
+                            scroll container internally (its virtualizer measures
+                            its own element), so this wrapper must not also set
+                            overflow-y-auto or the two would fight over scroll
+                            ownership. */}
+                        <div className="flex-1 min-h-0 overflow-hidden">
+                          <SessionTranscript
+                            messages={session.messages}
+                            micInterim={session.micInterimTranscript}
+                            tabInterim={session.tabInterimTranscript}
+                            onPatchMessage={session.handlePatchTranscriptMessage}
+                          />
+                        </div>
+                        {/* Detected Question — the most recent AI response's
+                            question. There is currently no separate
+                            pre-answer "live detected question" signal
+                            exposed by useFloatingSession, only the question
+                            already attached to a generated answer. */}
+                        {currentDetectedQuestion && (
+                          <div className="shrink-0 border-t border-white/10 px-3 py-2">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <HelpCircle size={11} className="text-blue-400 shrink-0" />
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                                Detected Question
+                              </span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <button
-                                    onClick={() =>
-                                      void session.handleRegenerateResponse(
-                                        currentResponse?.id ?? "",
-                                      )
-                                    }
-                                    disabled={
-                                      !currentResponse?.id || isAnalysisBusy
-                                    }
-                                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-25 disabled:cursor-not-allowed text-white transition-all active:scale-95"
-                                  >
-                                    <RotateCcw size={13} />
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent
-                                  side="left"
-                                  className="bg-slate-900 border-white/10 text-white font-medium text-[11px]"
+                            <div className="flex items-start gap-2">
+                              <p
+                                className={cn(
+                                  "text-[11px] leading-relaxed text-white/70 flex-1",
+                                  !isQuestionExpanded && "line-clamp-3",
+                                )}
+                                style={{
+                                  whiteSpace: "pre-wrap",
+                                  overflowWrap: "anywhere",
+                                  wordBreak: "break-word",
+                                }}
+                              >
+                                {currentDetectedQuestion}
+                              </p>
+                              {currentDetectedQuestion.length > 90 && (
+                                <button
+                                  onClick={() => setIsQuestionExpanded((q) => !q)}
+                                  className="shrink-0 text-[9px] font-bold text-blue-400/60 hover:text-blue-400 transition-colors mt-0.5 uppercase tracking-wider"
                                 >
-                                  Regenerate answer
-                                </TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <button
-                                    onClick={session.toggleResponsesExpanded}
-                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 hover:text-blue-400 text-white/50 transition-all active:scale-95"
-                                  >
-                                    {session.isResponsesExpanded ? (
-                                      <ChevronDown size={13} />
-                                    ) : (
-                                      <ChevronUp size={13} />
-                                    )}
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent
-                                  side="left"
-                                  className="bg-slate-900 border-white/10 text-white font-medium text-[11px]"
-                                >
-                                  {session.isResponsesExpanded
-                                    ? "Collapse"
-                                    : "Expand"}
-                                </TooltipContent>
-                              </Tooltip>
+                                  {isQuestionExpanded ? "Less" : "More"}
+                                </button>
+                              )}
                             </div>
                           </div>
+                        )}
+                      </div>
+                    )}
 
-                          {/* Expandable detected question card */}
-                          {session.isResponsesExpanded && currentQuestion && (
-                            <div className="mx-3 mb-1.5 px-3 py-2 rounded-lg bg-white/[0.04] border border-white/10 shrink-0">
-                              <div className="flex items-start gap-2">
-                                <HelpCircle size={11} className="text-blue-400 mt-0.5 shrink-0" />
-                                <p
-                                  className={cn(
-                                    "text-[11px] leading-relaxed text-white/55 flex-1",
-                                    !isQuestionExpanded && "line-clamp-2",
-                                  )}
-                                  // Item 4: force long question text to wrap.
-                                  // pre-wrap preserves any newlines from the
-                                  // question detector; anywhere/break-word
-                                  // guarantee overflow never happens even
-                                  // with URLs, code, or unspaced strings.
-                                  style={{
-                                    whiteSpace: "pre-wrap",
-                                    overflowWrap: "anywhere",
-                                    wordBreak: "break-word",
-                                  }}
+                    {showAnswerColumn && (
+                      /* ── Right column: AI Answer — the primary reading
+                          area. flex-1 + min-h-0 makes this column absorb all
+                          remaining row width/height so AnswerArea's own
+                          overflow-y-auto gets a real box to scroll within,
+                          independent of the transcript column's scroll. ── */
+                      <div className="flex flex-col flex-1 min-h-0 bg-zinc-900/95">
+                        {/* Response nav toolbar */}
+                        <div className="px-3 py-2 flex items-center justify-between shrink-0">
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={session.goToPrevResponse}
+                              disabled={
+                                safeResponseIndex === 0 ||
+                                session.aiResponses.length === 0
+                              }
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-25 disabled:cursor-not-allowed text-white transition-all active:scale-95"
+                            >
+                              <ChevronLeft size={14} />
+                            </button>
+                            <button
+                              onClick={session.goToNextResponse}
+                              disabled={
+                                safeResponseIndex >= session.aiResponses.length - 1
+                              }
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-25 disabled:cursor-not-allowed text-white transition-all active:scale-95"
+                            >
+                              <ChevronRight size={14} />
+                            </button>
+                            {session.aiResponses.length > 1 && (
+                              <span className="text-[11px] text-white/40 ml-1 font-mono">
+                                {safeResponseIndex + 1}/{session.aiResponses.length}
+                              </span>
+                            )}
+                            {isAnalysisBusy &&
+                              session.aiResponses.length === 0 && (
+                                <span className="flex items-center gap-1.5 ml-1 text-[11px] text-blue-400/80">
+                                  <Loader2 size={11} className="animate-spin" />
+                                  {isAnalyzeCaptureLocked || session.isCapturing
+                                    ? "Capturing screen..."
+                                    : "Generating..."}
+                                </span>
+                              )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={() =>
+                                    void session.handleRegenerateResponse(
+                                      currentAiResponse?.id ?? "",
+                                    )
+                                  }
+                                  disabled={
+                                    !currentAiResponse?.id || isAnalysisBusy
+                                  }
+                                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-25 disabled:cursor-not-allowed text-white transition-all active:scale-95"
                                 >
-                                  {currentQuestion}
-                                </p>
-                                {currentQuestion.length > 90 && (
-                                  <button
-                                    onClick={() => setIsQuestionExpanded((q) => !q)}
-                                    className="shrink-0 text-[9px] font-bold text-blue-400/60 hover:text-blue-400 transition-colors mt-0.5 uppercase tracking-wider"
-                                  >
-                                    {isQuestionExpanded ? "Less" : "More"}
-                                  </button>
-                                )}
-                              </div>
+                                  <RotateCcw size={13} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="left"
+                                className="bg-slate-900 border-white/10 text-white font-medium text-[11px]"
+                              >
+                                Regenerate answer
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={session.toggleResponsesExpanded}
+                                  className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 hover:text-blue-400 text-white/50 transition-all active:scale-95"
+                                >
+                                  {session.isResponsesExpanded ? (
+                                    <ChevronDown size={13} />
+                                  ) : (
+                                    <ChevronUp size={13} />
+                                  )}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="left"
+                                className="bg-slate-900 border-white/10 text-white font-medium text-[11px]"
+                              >
+                                {session.isResponsesExpanded
+                                  ? "Collapse"
+                                  : "Expand"}
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </div>
+
+                        {/* Answer content — primary scrollable area.
+                            flex-1 + min-h-0 makes this wrapper grow to fill
+                            the column and lets AnswerArea's overflow-y:auto
+                            take effect. */}
+                        {session.isResponsesExpanded &&
+                          session.aiResponses.length > 0 && (
+                            <div className="flex-1 min-h-0 border-t border-white/10 bg-zinc-900/95">
+                              <AnswerAreaErrorBoundary>
+                                <AnswerArea
+                                  responses={[
+                                    {
+                                      messageId: currentAiResponse?.id ?? "",
+                                      text: currentAiResponse?.text ?? "",
+                                      question: currentAiResponse?.question ?? "",
+                                      isStreaming:
+                                        safeResponseIndex ===
+                                          session.aiResponses.length - 1 &&
+                                        (session.isAnswering ||
+                                          session.isAnalyzing),
+                                    },
+                                  ].filter((r) => r.messageId)}
+                                  isStreaming={
+                                    session.isAnswering || session.isAnalyzing
+                                  }
+                                  autoScroll={session.autoScroll}
+                                />
+                              </AnswerAreaErrorBoundary>
                             </div>
                           )}
 
-                          {/* Answer content — primary scrollable area.
-                              flex-1 + min-h-0 makes this wrapper grow to fill
-                              the panel and lets AnswerArea’s overflow-y:auto
-                              take effect. The AnswerArea below now uses the
-                              same flex-1/min-h-0/overflow-y-auto instead of a
-                              fixed max-h so the scroll region resizes with
-                              the Tauri window (item 2). */}
-                          {session.isResponsesExpanded &&
-                            session.aiResponses.length > 0 && (
-                              <div className="flex-1 min-h-0 border-t border-white/10 bg-zinc-900/95">
-                                <AnswerAreaErrorBoundary>
-                                  <AnswerArea
-                                    responses={[
-                                      {
-                                        messageId: currentResponse?.id ?? "",
-                                        text: currentResponse?.text ?? "",
-                                        question: currentResponse?.question ?? "",
-                                        isStreaming:
-                                          safeIndex ===
-                                            session.aiResponses.length - 1 &&
-                                          (session.isAnswering ||
-                                            session.isAnalyzing),
-                                      },
-                                    ].filter((r) => r.messageId)}
-                                    isStreaming={
-                                      session.isAnswering || session.isAnalyzing
-                                    }
-                                    autoScroll={session.autoScroll}
-                                  />
-                                </AnswerAreaErrorBoundary>
+                        {/* Loading skeleton — shown while waiting for first chunk */}
+                        {session.isResponsesExpanded &&
+                          isAnalysisBusy &&
+                          session.aiResponses.length === 0 && (
+                            <div className="px-4 pb-4">
+                              <div className="relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                                <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
+                                  <span className="absolute inset-y-[-60%] -left-[20%] w-1/3 h-[220%] bg-gradient-to-r from-transparent via-blue-400/20 to-transparent animate-[ai-sweep_1.2s_cubic-bezier(0.25,0.46,0.45,0.94)_infinite]" />
+                                </span>
+                                <div className="relative z-10 flex items-center gap-2 text-blue-400/80 mb-3">
+                                  <Loader2 size={16} className="animate-spin" />
+                                  <span className="text-[13px] font-medium">
+                                    {isAnalyzeCaptureLocked || session.isCapturing
+                                      ? "Capturing screen..."
+                                      : session.isAnalyzing
+                                        ? "Analyzing screen..."
+                                        : "Generating response..."}
+                                  </span>
+                                </div>
+                                <div className="relative z-10 space-y-2 animate-pulse">
+                                  <div className="h-2.5 w-[92%] rounded bg-white/10" />
+                                  <div className="h-2.5 w-[80%] rounded bg-white/10" />
+                                  <div className="h-2.5 w-[86%] rounded bg-white/10" />
+                                </div>
                               </div>
-                            )}
-                        </>
-                      );
-                    })()}
-
-                    {/* Loading skeleton — shown while waiting for first chunk */}
-                    {session.isResponsesExpanded &&
-                      isAnalysisBusy &&
-                      session.aiResponses.length === 0 && (
-                        <div className="px-4 pb-4">
-                          <div className="relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                            <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
-                              <span className="absolute inset-y-[-60%] -left-[20%] w-1/3 h-[220%] bg-gradient-to-r from-transparent via-blue-400/20 to-transparent animate-[ai-sweep_1.2s_cubic-bezier(0.25,0.46,0.45,0.94)_infinite]" />
-                            </span>
-                            <div className="relative z-10 flex items-center gap-2 text-blue-400/80 mb-3">
-                              <Loader2 size={16} className="animate-spin" />
-                              <span className="text-[13px] font-medium">
-                                {isAnalyzeCaptureLocked || session.isCapturing
-                                  ? "Capturing screen..."
-                                  : session.isAnalyzing
-                                    ? "Analyzing screen..."
-                                    : "Generating response..."}
-                              </span>
                             </div>
-                            <div className="relative z-10 space-y-2 animate-pulse">
-                              <div className="h-2.5 w-[92%] rounded bg-white/10" />
-                              <div className="h-2.5 w-[80%] rounded bg-white/10" />
-                              <div className="h-2.5 w-[86%] rounded bg-white/10" />
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                          )}
+                      </div>
+                    )}
                   </div>
-                )
-              )}
+                );
+              })()}
             </FloatingSurface>
             </>
           )}

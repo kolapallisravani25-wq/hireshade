@@ -1,5 +1,72 @@
 import { describe, expect, it } from "vitest";
-import { computeTrailingInterviewerMessages } from "./autoGenTrailingTranscript";
+import {
+  AUTO_GEN_INACTIVITY_MS,
+  computeTrailingInterviewerMessages,
+  findNewestInterviewerMessageId,
+  shouldFeedAutoGenCandidate,
+} from "./autoGenTrailingTranscript";
+
+describe("floating auto-generation lifecycle contract", () => {
+  it("uses the intended approximately 2000ms inactivity window", () => {
+    expect(AUTO_GEN_INACTIVITY_MS).toBe(2000);
+  });
+
+  it("A. an initially enabled empty session does not consume the first interviewer turn", () => {
+    const baseline = findNewestInterviewerMessageId([]);
+    const firstTurn = [
+      { id: "q1", sender: "Interviewer" as const, text: "Tell me about yourself?" },
+    ];
+
+    expect(baseline).toBeNull();
+    expect(computeTrailingInterviewerMessages(firstTurn, baseline)).toEqual(firstTurn);
+  });
+
+  it("E/F. re-enable seeds existing transcript but allows the next interviewer turn", () => {
+    const existing = [
+      { id: "q1", sender: "Interviewer" as const, text: "Old question?" },
+    ];
+    const baseline = findNewestInterviewerMessageId(existing);
+
+    expect(baseline).toBe("q1");
+    expect(computeTrailingInterviewerMessages(existing, baseline)).toEqual([]);
+
+    const withNewTurn = [
+      ...existing,
+      { id: "q2", sender: "Interviewer" as const, text: "New question?" },
+    ];
+    expect(computeTrailingInterviewerMessages(withNewTurn, baseline)).toEqual([
+      withNewTurn[1],
+    ]);
+  });
+
+  it("G. an unchanged rejected candidate is not fed again without new activity", () => {
+    expect(
+      shouldFeedAutoGenCandidate(
+        "q1",
+        "Could you clarify",
+        "q1",
+        "Could you clarify",
+      ),
+    ).toBe(false);
+  });
+
+  it("H. later interviewer activity is eligible and retains rejected turn context", () => {
+    const baseline = "q0";
+    const messages = [
+      { id: "q0", sender: "Interviewer" as const, text: "Consumed question?" },
+      { id: "q1", sender: "Interviewer" as const, text: "Could you clarify" },
+      { id: "q2", sender: "Interviewer" as const, text: "how you would debug it?" },
+    ];
+    const trailing = computeTrailingInterviewerMessages(messages, baseline);
+    const blob = trailing.map((message) => message.text).join(" ");
+
+    expect(trailing.map((message) => message.id)).toEqual(["q1", "q2"]);
+    expect(blob).toBe("Could you clarify how you would debug it?");
+    expect(
+      shouldFeedAutoGenCandidate("q1", "Could you clarify", "q2", blob),
+    ).toBe(true);
+  });
+});
 
 describe("computeTrailingInterviewerMessages — Mini-Phase 3 baseline boundary", () => {
   it("11. a first (baseline-advanced) answered interviewer question does not leak into the second, even with no candidate mic message in between", () => {

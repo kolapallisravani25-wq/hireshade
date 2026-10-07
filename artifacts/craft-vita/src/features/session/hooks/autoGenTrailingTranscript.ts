@@ -22,6 +22,37 @@ export interface TrailingWalkMessage {
   text: string;
 }
 
+/** Shared floating-overlay inactivity contract. Punctuation never bypasses it. */
+export const AUTO_GEN_INACTIVITY_MS = 2000;
+
+/** Find the baseline used when enabling auto-generation over existing history. */
+export function findNewestInterviewerMessageId(
+  messages: readonly TrailingWalkMessage[],
+): string | null {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i];
+    if (message.sender === "Interviewer" && message.text?.trim()) {
+      return message.id;
+    }
+  }
+  return null;
+}
+
+/**
+ * Decide whether a committed transcript candidate contains new activity.
+ * Keeping the last rejected id/blob prevents an identical Redux message
+ * update from re-arming the inactivity timer, while any new id or text is
+ * still eligible to extend the current interviewer turn.
+ */
+export function shouldFeedAutoGenCandidate(
+  lastFedId: string | null,
+  lastFedBlob: string,
+  newestId: string,
+  nextBlob: string,
+): boolean {
+  return lastFedId !== newestId || lastFedBlob !== nextBlob;
+}
+
 export function computeTrailingInterviewerMessages<T extends TrailingWalkMessage>(
   messages: readonly T[],
   baselineId: string | null,

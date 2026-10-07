@@ -79,7 +79,12 @@ import {
 } from "@/lib/utterance-completeness";
 import { resolveEffectiveLiveInterimText } from "./autoGenQuestionSource";
 import { attachCancellableListener } from "./cancellableListener";
-import { computeTrailingInterviewerMessages } from "./autoGenTrailingTranscript";
+import {
+  AUTO_GEN_INACTIVITY_MS,
+  computeTrailingInterviewerMessages,
+  findNewestInterviewerMessageId,
+  shouldFeedAutoGenCandidate,
+} from "./autoGenTrailingTranscript";
 import {
   createSessionOperationRegistry,
   createSessionTransitionGuard,
@@ -2642,9 +2647,9 @@ export function useFloatingSession() {
   //      transcript blob (bounded by a User message which acts as a natural
   //      turn break — candidate answered, next interviewer text is a new
   //      question).
-  //   2. Feed that blob into a TranscriptStabilizer with the same params as
-  //      page.tsx: 2000ms freeze window, isUtteranceComplete gate, 22000ms
-  //      maxWait ceiling, weak-terminator confirmation.
+  //   2. Feed that blob into a TranscriptStabilizer with a uniform 2000ms
+  //      inactivity window, isUtteranceComplete gate, and 22000ms maxWait
+  //      ceiling. Punctuation does not shorten the inactivity requirement.
   //   3. On stable fire: check for a follow-up continuation off the last
   //      auto-answered question, merge context if so.
   //   4. Classify + shouldTriggerGeneration to filter noise/repeats.
@@ -2652,16 +2657,16 @@ export function useFloatingSession() {
   //   6. Fire handleAiAnswerClick() (same entry point manual clicks use —
   //      internally resolves the current question and manages dedup).
   //
-  // Seed guard: on first observation of an interviewer message we set
-  // autoGenBaselineIdRef but do NOT seed the stabilizer with the pre-existing
-  // transcript. The stabilizer only sees NEW text — anything already in the
-  // transcript when auto-answer is enabled is ignored.
-
-  // Baseline: the message id of the newest interviewer message at the moment
-  // auto-answer is (re-)enabled. Everything older than this baseline is
-  // considered "already existed" and never triggers a generation. This
-  // preserves the pre-existing seed-silently-on-first-observation behaviour.
+  // Baseline: the message id of the newest interviewer message already present
+  // when auto-answer is enabled/re-enabled. A separate initialized flag is
+  // required because `null` has two meanings: "not seeded yet" and "seeded
+  // successfully when no interviewer rows existed." Distinguishing those
+  // states lets the first genuine turn in a new empty session generate while
+  // still suppressing transcript history on mid-session re-enable.
   const autoGenBaselineIdRef = useRef<string | null>(null);
+  const autoGenBaselineInitializedRef = useRef(false);
+  const autoGenWasEnabledRef = useRef(autoGenerate);
+  const autoGenSessionIdRef = useRef<string | null>(null);
   // The id of the last message included in the stabilizer's current utterance.
   // Used to detect when a new interviewer message extends the current one.
   const autoGenLastFedIdRef = useRef<string | null>(null);
@@ -2735,10 +2740,11 @@ export function useFloatingSession() {
       });
       if (!triggerResult.trigger) {
         console.log("[MiniAutoAnswer] Skipped:", triggerResult.reason);
-        // Clear the current utterance blob so the next interviewer turn
-        // starts a fresh utterance. Also clear baseline so we don't re-fire
-        // this same skipped text later.
-        autoGenCurrentBlobRef.current = "";
+        // Keep the exact rejected id/blob as the last observed candidate.
+        // With no new interviewer activity, an identical messages update must
+        // not re-arm the timer and reconsider it. The consumed baseline is
+        // intentionally NOT advanced: later speech may complete this same
+        // interviewer turn, and the trailing walk must retain that context.
         return;
       }
 
@@ -2824,7 +2830,7 @@ export function useFloatingSession() {
 
   // Create the stabilizer once.
   //
-  // Turn-finalization fix: a single explicit inactivity window (3000ms),
+  // Turn-finalization fix: a single explicit inactivity window (2000ms),
   // applied uniformly regardless of punctuation. Previously `needsConfirmation`
   // only required an extra quiet window for "."/"!"-terminated snapshots
   // (isWeakTerminator) — a "?"-terminated snapshot fired on the very first
@@ -2832,15 +2838,15 @@ export function useFloatingSession() {
   // punctuate a natural MID-QUESTION pause with "?", that let auto-generation
   // fire while the interviewer was still mid-turn. Dropping needsConfirmation
   // entirely (not passing it) makes every complete snapshot require the same
-  // single 3000ms silence window before firing — punctuation no longer
+  // single 2000ms silence window before firing — punctuation no longer
   // shortens or lengthens the wait. maxWaitMs (22000ms) is a stalled-input
   // safety valve only (see transcript-stabilizer.ts — now measured from the
   // last feed, not utterance age), not an active-question duration cap: a
   // continuously-spoken 30-60s+ question keeps resetting it via its own
   // periodic feeds and never trips this ceiling while speech continues.
   //
-  // Deliberately diverges from page.tsx's stabilizer (2000ms + isWeakTerminator
-  // confirmation), which is left unchanged — out of scope for this fix.
+  // The main-window pipeline also uses an approximately 2000ms window, but its
+  // weak-terminator confirmation remains independent and unchanged.
   useEffect(() => {
     if (autoGenStabilizerRef.current) return;
     autoGenStabilizerRef.current = createTranscriptStabilizer(
@@ -2850,7 +2856,7 @@ export function useFloatingSession() {
         autoGenFireRef.current(snapshot);
       },
       {
-        freezeWindowMs: 3000,
+        freezeWindowMs: AUTO_GEN_INACTIVITY_MS,
         isComplete: isUtteranceComplete,
         maxWaitMs: 22000,
       },
@@ -2861,13 +2867,53 @@ export function useFloatingSession() {
     };
   }, []);
 
-  // Feed the stabilizer whenever the trailing interviewer transcript changes.
+  // Seed lifecycle state before feeding the stabilizer. This single effect
+  // deliberately handles enable/disable transitions before looking for a
+  // candidate, so re-enable can never arm stale transcript content.
   useEffect(() => {
-    // Nothing to do if auto-answer is off. We still track the baseline so
-    // we don't answer pre-existing lines when it's turned on later.
-    if (!autoGenerate) {
+    const currentSessionId = sessionInfo?.sessionId ?? null;
+    const sessionChanged = autoGenSessionIdRef.current !== currentSessionId;
+    const wasEnabled = autoGenWasEnabledRef.current;
+    autoGenWasEnabledRef.current = autoGenerate;
+
+    const clearPendingCandidate = () => {
       autoGenStabilizerRef.current?.cancel();
       autoGenCurrentBlobRef.current = "";
+      autoGenLastFedIdRef.current = null;
+    };
+
+    if (!currentSessionId) {
+      clearPendingCandidate();
+      autoGenSessionIdRef.current = null;
+      autoGenBaselineIdRef.current = null;
+      autoGenBaselineInitializedRef.current = false;
+      return;
+    }
+
+    if (sessionChanged) {
+      clearPendingCandidate();
+      autoGenSessionIdRef.current = currentSessionId;
+      autoGenBaselineIdRef.current = autoGenerate
+        ? findNewestInterviewerMessageId(messages)
+        : null;
+      autoGenBaselineInitializedRef.current = autoGenerate;
+      return;
+    }
+
+    if (!autoGenerate) {
+      clearPendingCandidate();
+      autoGenBaselineIdRef.current = null;
+      autoGenBaselineInitializedRef.current = false;
+      return;
+    }
+
+    // OFF → ON: seed from the transcript visible in THIS render and return
+    // before candidate construction. Existing history is therefore ignored;
+    // the next messages change must contain new interviewer activity.
+    if (!wasEnabled || !autoGenBaselineInitializedRef.current) {
+      clearPendingCandidate();
+      autoGenBaselineIdRef.current = findNewestInterviewerMessageId(messages);
+      autoGenBaselineInitializedRef.current = true;
       return;
     }
 
@@ -2883,59 +2929,34 @@ export function useFloatingSession() {
       baseline,
     );
 
-    // First observation: set the baseline to the newest interviewer message
-    // (so we don't answer anything already on screen) and do nothing else
-    // for this pass.
-    if (baseline === null) {
-      const newest = [...messages]
-        .reverse()
-        .find((m) => m.sender === "Interviewer" && !!m.text?.trim());
-      if (newest) {
-        autoGenBaselineIdRef.current = newest.id;
-        console.log(
-          "[MiniAutoAnswer] Baseline set — pre-existing lines ignored:",
-          newest.id,
-        );
-      }
-      return;
-    }
-
     if (trailing.length === 0) {
       // No new interviewer content past the baseline yet.
       return;
     }
 
     const newestId = trailing[trailing.length - 1].id;
-    if (autoGenLastFedIdRef.current === newestId &&
-        trailing.map((m) => m.text).join(" ") === autoGenCurrentBlobRef.current) {
+    const blob = trailing
+      .map((message) => message.text.trim())
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (
+      !shouldFeedAutoGenCandidate(
+        autoGenLastFedIdRef.current,
+        autoGenCurrentBlobRef.current,
+        newestId,
+        blob,
+      )
+    ) {
       // Same content we already fed — skip to avoid re-arming the stabilizer
       // timer needlessly (which would push out firing indefinitely).
       return;
     }
 
-    const blob = trailing.map((m) => m.text.trim()).join(" ").replace(/\s+/g, " ").trim();
     autoGenCurrentBlobRef.current = blob;
     autoGenLastFedIdRef.current = newestId;
     autoGenStabilizerRef.current?.feed(blob);
-  }, [autoGenerate, messages]);
-
-  // When the toggle flips OFF → cancel any in-flight stabilization and clear
-  // the utterance state so re-enabling doesn't fire on stale text. When it
-  // flips ON, reset the baseline so the newest CURRENT interviewer line is
-  // the seed (not something old).
-  useEffect(() => {
-    if (!autoGenerate) {
-      autoGenStabilizerRef.current?.cancel();
-      autoGenCurrentBlobRef.current = "";
-      autoGenLastFedIdRef.current = null;
-      return;
-    }
-    // On enable: force baseline re-seed on the next messages tick. Setting
-    // it to null triggers the "first observation" branch above.
-    autoGenBaselineIdRef.current = null;
-    autoGenLastFedIdRef.current = null;
-    autoGenCurrentBlobRef.current = "";
-  }, [autoGenerate]);
+  }, [autoGenerate, messages, sessionInfo?.sessionId]);
 
   const toggleAutoGenerate = useCallback(() => {
     dispatch(setAutoGenerate(!autoGenerate));

@@ -49,7 +49,7 @@ export const SessionTranscript: React.FC<SessionTranscriptProps> = ({
 
   if (count === 0) {
     return (
-      <div className="border-b border-white/10 max-h-52 overflow-y-auto no-scrollbar px-3 py-2.5">
+      <div className="px-3 py-2.5">
         <p className="text-[11px] text-white/30 text-center py-2">No transcript yet…</p>
       </div>
     );
@@ -58,9 +58,14 @@ export const SessionTranscript: React.FC<SessionTranscriptProps> = ({
   const items = virtualizer.getVirtualItems();
 
   return (
+    // h-full: this is now the SOLE scroll container for the transcript
+    // (the parent box in FloatingApp only sizes it, it does not itself
+    // scroll) — the virtualizer measures THIS element's scrollTop/
+    // scrollHeight, so a second overflow-y-auto ancestor would fight it
+    // for scroll ownership instead of cooperating.
     <div
       ref={scrollRef}
-      className="border-b border-white/10 max-h-52 overflow-y-auto no-scrollbar px-3 py-2.5"
+      className="h-full overflow-y-auto no-scrollbar px-3 py-2.5"
     >
       <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
         {items.map((item) => {

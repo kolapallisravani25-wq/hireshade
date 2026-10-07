@@ -5,6 +5,7 @@ import {
   isWeakTerminator,
   classifyUtterance,
 } from "./utterance-completeness";
+import { AUTO_GEN_INACTIVITY_MS } from "../features/session/hooks/autoGenTrailingTranscript";
 
 // -------------------------------------------------------------------------
 // Defect A — the question-detection / answer-trigger must only fire on a
@@ -298,13 +299,13 @@ describe("createTranscriptStabilizer — completeness gate", () => {
 
 // -------------------------------------------------------------------------
 // Mini-Phase 3 — the ACTUAL useFloatingSession.ts production configuration:
-// freezeWindowMs 3000, no needsConfirmation. Punctuation strength ("?" vs
+// freezeWindowMs 2000, no needsConfirmation. Punctuation strength ("?" vs
 // "."/"!") no longer determines how long the wait is — every complete
-// snapshot requires the same single 3000ms inactivity window.
+// snapshot requires the same single 2000ms inactivity window.
 // -------------------------------------------------------------------------
-describe("createTranscriptStabilizer — useFloatingSession.ts config: single 3000ms inactivity window, no confirmation stage", () => {
+describe("createTranscriptStabilizer — useFloatingSession.ts config: single 2000ms inactivity window, no confirmation stage", () => {
   const FLOATING_CONFIG = {
-    freezeWindowMs: 3000,
+    freezeWindowMs: AUTO_GEN_INACTIVITY_MS,
     isComplete: isUtteranceComplete,
     maxWaitMs: 22000,
   };
@@ -315,11 +316,11 @@ describe("createTranscriptStabilizer — useFloatingSession.ts config: single 30
     vi.useRealTimers();
   });
 
-  it("1. short complete question fires exactly once after 3000ms inactivity", () => {
+  it("1. short complete question fires exactly once after 2000ms inactivity", () => {
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     s.feed("What's your name?");
-    vi.advanceTimersByTime(2999);
+    vi.advanceTimersByTime(1999);
     expect(onStable).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1);
     expect(onStable).toHaveBeenCalledTimes(1);
@@ -330,12 +331,12 @@ describe("createTranscriptStabilizer — useFloatingSession.ts config: single 30
   it("2. a 60-second continuously-changing question produces zero premature fires while feeds continue", () => {
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
-    // Simulate ~60s of speech: a new (still-incomplete) chunk every 2.5s —
-    // under the 3000ms window, so freeze() never gets a chance to run.
+    // Simulate ~60s of speech: a new (still-incomplete) chunk every 1.5s —
+    // under the 2000ms window, so freeze() never gets a chance to run.
     let text = "Explain how race conditions can occur in an asynchronous system and";
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 40; i++) {
       s.feed(text);
-      vi.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(1500);
       text += " furthermore point " + i + " and";
     }
     expect(onStable).not.toHaveBeenCalled();
@@ -346,16 +347,16 @@ describe("createTranscriptStabilizer — useFloatingSession.ts config: single 30
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     // Deepgram smart_format inserts a spurious "?" mid-turn (real observed
-    // behavior); the interviewer keeps talking before 3000ms elapses.
+    // behavior); the interviewer keeps talking before 2000ms elapses.
     s.feed("How would you detect and prevent them?");
-    vi.advanceTimersByTime(1500);
+    vi.advanceTimersByTime(1000);
     expect(onStable).not.toHaveBeenCalled();
     s.feed(
       "How would you detect and prevent them, and can you give a practical example involving two concurrent API requests updating the same database record?",
     );
-    vi.advanceTimersByTime(1500);
-    expect(onStable).not.toHaveBeenCalled(); // timer reset by the new feed, only 1500ms since it
-    vi.advanceTimersByTime(1500);
+    vi.advanceTimersByTime(1000);
+    expect(onStable).not.toHaveBeenCalled(); // timer reset by the new feed, only 1000ms since it
+    vi.advanceTimersByTime(1000);
     expect(onStable).toHaveBeenCalledTimes(1);
     expect(onStable).toHaveBeenCalledWith(
       "How would you detect and prevent them, and can you give a practical example involving two concurrent API requests updating the same database record?",
@@ -367,26 +368,26 @@ describe("createTranscriptStabilizer — useFloatingSession.ts config: single 30
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     s.feed("Explain how race conditions can occur in an asynchronous Node.js application.");
-    vi.advanceTimersByTime(1500);
+    vi.advanceTimersByTime(1000);
     expect(onStable).not.toHaveBeenCalled();
     s.feed(
       "Explain how race conditions can occur in an asynchronous Node.js application. How would you detect and prevent them?",
     );
-    vi.advanceTimersByTime(1500);
+    vi.advanceTimersByTime(1000);
     expect(onStable).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(1500);
+    vi.advanceTimersByTime(1000);
     expect(onStable).toHaveBeenCalledTimes(1);
     s.destroy();
   });
 
-  it("5. natural pauses shorter than the 3000ms threshold do not trigger generation", () => {
+  it("5. natural pauses shorter than the 2000ms threshold do not trigger generation", () => {
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     s.feed("Suppose you have an API endpoint that retrieves user data but");
-    vi.advanceTimersByTime(2000); // a 2s breath — under the threshold
+    vi.advanceTimersByTime(1500); // a 1.5s breath — under the threshold
     expect(onStable).not.toHaveBeenCalled();
     s.feed("Suppose you have an API endpoint that retrieves user data but it becomes slow");
-    vi.advanceTimersByTime(2000);
+    vi.advanceTimersByTime(1500);
     expect(onStable).not.toHaveBeenCalled();
     s.destroy();
   });
@@ -395,10 +396,10 @@ describe("createTranscriptStabilizer — useFloatingSession.ts config: single 30
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     s.feed("Tell me about a challenging project you worked on?");
-    vi.advanceTimersByTime(2900); // 100ms shy of firing
+    vi.advanceTimersByTime(1900); // 100ms shy of firing
     expect(onStable).not.toHaveBeenCalled();
     s.feed("Tell me about a challenging project you worked on recently?");
-    vi.advanceTimersByTime(2900); // would have fired at the OLD 3000ms mark
+    vi.advanceTimersByTime(1900); // would have fired at the OLD 2000ms mark
     expect(onStable).not.toHaveBeenCalled(); // reset by the new feed
     vi.advanceTimersByTime(100);
     expect(onStable).toHaveBeenCalledTimes(1);
@@ -412,7 +413,7 @@ describe("createTranscriptStabilizer — useFloatingSession.ts config: single 30
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     s.feed("What's your greatest strength?");
-    vi.advanceTimersByTime(3000);
+    vi.advanceTimersByTime(2000);
     expect(onStable).toHaveBeenCalledTimes(1);
     // No further feeds — must not fire again on its own.
     vi.advanceTimersByTime(10000);
@@ -424,9 +425,9 @@ describe("createTranscriptStabilizer — useFloatingSession.ts config: single 30
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     s.feed("Tell me about yourself?");
-    vi.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(500);
     s.feed("Tell me about yourself?"); // duplicate delivery, e.g. from a StrictMode-leaked listener
-    vi.advanceTimersByTime(3000);
+    vi.advanceTimersByTime(2000);
     expect(onStable).toHaveBeenCalledTimes(1);
     s.destroy();
   });
@@ -435,9 +436,9 @@ describe("createTranscriptStabilizer — useFloatingSession.ts config: single 30
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     let text = "Describe the trade-offs between consistency and availability and";
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 16; i++) {
       s.feed(text);
-      vi.advanceTimersByTime(2000); // 24s of total age via regular feeds
+      vi.advanceTimersByTime(1500); // 24s of total age via regular feeds
       text += " plus consideration " + i + " and";
     }
     expect(onStable).not.toHaveBeenCalled();
@@ -448,10 +449,9 @@ describe("createTranscriptStabilizer — useFloatingSession.ts config: single 30
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     s.feed("Walk me through the architecture end to end and"); // never completes
-    // The ceiling is only checked at each 3000ms re-arm poll (3000, 6000, ...,
-    // 21000, 24000), not continuously — the first poll AT OR PAST 22000ms is
-    // at 24000ms, so advance past that to guarantee the check has run.
-    vi.advanceTimersByTime(25000); // zero new feeds this whole time
+    // The ceiling is checked at each 2000ms re-arm poll; advance past the
+    // 22000ms ceiling to guarantee the check has run.
+    vi.advanceTimersByTime(23000); // zero new feeds this whole time
     expect(onStable).toHaveBeenCalledTimes(1);
     s.destroy();
   });
@@ -460,14 +460,14 @@ describe("createTranscriptStabilizer — useFloatingSession.ts config: single 30
 // -------------------------------------------------------------------------
 // Activity heartbeat — the stabilizer is FED from committed transcript rows,
 // which lag raw STT by scheduleFallbackCommit's debounce plus Deepgram's own
-// final latency. Before noteActivity() the 3000ms countdown was therefore
-// "3000ms since the last committed row", not "3000ms since the interviewer
+// final latency. Before noteActivity() the 2000ms countdown was therefore
+// "2000ms since the last committed row", not "2000ms since the interviewer
 // last spoke": a fresh interim arriving 100ms before the window elapsed could
 // not stop the fire. These tests pin the corrected semantics.
 // -------------------------------------------------------------------------
 describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
   const FLOATING_CONFIG = {
-    freezeWindowMs: 3000,
+    freezeWindowMs: AUTO_GEN_INACTIVITY_MS,
     isComplete: isUtteranceComplete,
     maxWaitMs: 22000,
   };
@@ -502,20 +502,20 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     s.feed("Tell me about yourself?");
-    vi.advanceTimersByTime(2900);
+    vi.advanceTimersByTime(1900);
     s.noteActivity();
     vi.advanceTimersByTime(100);
     expect(onStable).not.toHaveBeenCalled();
     s.destroy();
   });
 
-  it("2. after that activity, a fresh full 3000ms of silence produces exactly one fire", () => {
+  it("2. after that activity, a fresh full 2000ms of silence produces exactly one fire", () => {
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     s.feed("Tell me about yourself?");
-    vi.advanceTimersByTime(2900);
+    vi.advanceTimersByTime(1900);
     s.noteActivity();
-    vi.advanceTimersByTime(2999);
+    vi.advanceTimersByTime(1999);
     expect(onStable).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1);
     expect(onStable).toHaveBeenCalledTimes(1);
@@ -528,10 +528,10 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     const stable = "Tell me about yourself?";
     s.feed(stable);
     const mutatedAt = s.getLastMutationTimestamp();
-    vi.advanceTimersByTime(2900);
+    vi.advanceTimersByTime(1900);
     s.noteActivity();
     s.noteActivity();
-    vi.advanceTimersByTime(3000);
+    vi.advanceTimersByTime(2000);
     expect(onStable).toHaveBeenCalledWith(stable);
     expect(onStable).toHaveBeenCalledTimes(1);
     // Content-mutation time is a distinct concept from activity time and must
@@ -554,7 +554,7 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     s.feed("Tell me about yourself?");
-    vi.advanceTimersByTime(3000);
+    vi.advanceTimersByTime(2000);
     expect(onStable).toHaveBeenCalledTimes(1);
     s.noteActivity();
     vi.advanceTimersByTime(60000);
@@ -562,14 +562,14 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     s.destroy();
   });
 
-  it("5. heartbeats every 2s for 60s produce zero fires, with no feed() in between", () => {
+  it("5. heartbeats every 1s for 60s produce zero fires, with no feed() in between", () => {
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     // Complete-looking ("?"-terminated) on purpose: punctuation must not
     // shorten the requirement, only genuine inactivity may fire it.
     s.feed("How would you debug this performance problem?");
-    for (let i = 0; i < 30; i++) {
-      vi.advanceTimersByTime(2000);
+    for (let i = 0; i < 60; i++) {
+      vi.advanceTimersByTime(1000);
       s.noteActivity();
     }
     expect(onStable).not.toHaveBeenCalled();
@@ -582,8 +582,8 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     // Deliberately INCOMPLETE so the only thing that could fire it is the
     // maxWait ceiling — proving the ceiling measures inactivity, not age.
     s.feed("Walk me through the architecture end to end and");
-    for (let i = 0; i < 30; i++) {
-      vi.advanceTimersByTime(2000);
+    for (let i = 0; i < 60; i++) {
+      vi.advanceTimersByTime(1000);
       s.noteActivity();
     }
     expect(onStable).not.toHaveBeenCalled();
@@ -598,7 +598,7 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     const stt = sttDriver(s);
     stt.commitRow("Suppose you have an API endpoint?");
-    vi.advanceTimersByTime(2900);
+    vi.advanceTimersByTime(1900);
     stt.sttEvent("that retrieves user data"); // interim only — no commit yet
     vi.advanceTimersByTime(100);
     expect(onStable).not.toHaveBeenCalled();
@@ -610,7 +610,7 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     const stt = sttDriver(s);
     stt.commitRow("Suppose you have an API endpoint?");
-    vi.advanceTimersByTime(2900);
+    vi.advanceTimersByTime(1900);
     // Final arrives: activity is noted synchronously; the committed row only
     // lands after the dispatch → effect round-trip.
     stt.sttEvent("that retrieves user data from a database.");
@@ -619,7 +619,7 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     stt.commitRow(
       "Suppose you have an API endpoint? that retrieves user data from a database.",
     );
-    vi.advanceTimersByTime(3000);
+    vi.advanceTimersByTime(2000);
     expect(onStable).toHaveBeenCalledTimes(1);
     expect(onStable).toHaveBeenCalledWith(
       "Suppose you have an API endpoint? that retrieves user data from a database.",
@@ -643,7 +643,7 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     s.destroy();
   });
 
-  it("10. once STT activity genuinely stops, exactly one generation fires ~3000ms later", () => {
+  it("10. once STT activity genuinely stops, exactly one generation fires ~2000ms later", () => {
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     const stt = sttDriver(s);
@@ -652,7 +652,7 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
       vi.advanceTimersByTime(400);
       stt.sttEvent("still talking");
     }
-    vi.advanceTimersByTime(2999);
+    vi.advanceTimersByTime(1999);
     expect(onStable).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1);
     expect(onStable).toHaveBeenCalledTimes(1);
@@ -661,7 +661,7 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     s.destroy();
   });
 
-  it("13/15. a multi-sentence turn full of ?/./! punctuation still requires the same 3000ms of inactivity, and duplicate identical events fire only once", () => {
+  it("13/15. a multi-sentence turn full of ?/./! punctuation still requires the same 2000ms of inactivity, and duplicate identical events fire only once", () => {
     const onStable = vi.fn();
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     const stt = sttDriver(s);
@@ -676,7 +676,7 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
       stt.sttEvent("Really.");
     }
     expect(onStable).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(3000);
+    vi.advanceTimersByTime(2000);
     expect(onStable).toHaveBeenCalledTimes(1);
     expect(onStable).toHaveBeenCalledWith(turn);
     s.destroy();
@@ -687,7 +687,7 @@ describe("createTranscriptStabilizer — noteActivity() heartbeat", () => {
     const s = createTranscriptStabilizer(onStable, FLOATING_CONFIG);
     const stt = sttDriver(s);
     stt.commitRow("Tell me about yourself?");
-    vi.advanceTimersByTime(2900);
+    vi.advanceTimersByTime(1900);
     stt.sttEvent("   "); // Deepgram empty-final storm — must be ignored
     vi.advanceTimersByTime(100);
     expect(onStable).toHaveBeenCalledTimes(1);
