@@ -35,7 +35,29 @@ export const LauncherLayer: React.FC<LauncherLayerProps> = ({ children }) => {
         willChange: "opacity, transform",
       }}
     >
-      {children}
+      {/*
+        Interactive content wrapper.
+        `pointer-events` is inherited, so the layer root above (none, to keep
+        empty areas from grabbing clicks) would otherwise make every button in
+        a card that does not set its own `pointer-events: auto` un-clickable
+        the moment USE_UNIFIED_OVERLAY / ENABLE_SESSION_LAYER is turned on.
+        Re-enabling it one level down restores hit-testing for the whole
+        content subtree while leaving the layer itself hit-area free.
+        Deliberately NOT marked `data-interactive`: useCursorPassthrough
+        derives the OS-level click-through state from those elements, so a
+        full-bleed interactive region would pin the overlay in click-capture
+        mode and block the app behind it.
+      */}
+      <div
+        data-layer-content="launcher"
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "auto",
+        }}
+      >
+        {children}
+      </div>
     </motion.div>
   );
 };

@@ -63,7 +63,13 @@ export function DesktopAuthHydrator({ children, source, loadingFallback }: Deskt
       setHydrated(true);
       return;
     }
-    if (!isLoaded || hydrationState !== 'idle') return;
+    // In the Tauri desktop runtime the desktop access token is the auth source
+    // and Clerk is never signed in, so Clerk must NOT be allowed to block
+    // hydration. Clerk can also fail to initialise entirely in the webview
+    // (dev-instance browser-auth 401s leave `window.Clerk.status === "error"`
+    // and `isLoaded === false` forever) — gating on it here would stop
+    // `hydrated` from ever flipping true. On the web, Clerk remains the gate.
+    if ((!isLoaded && !isTauri()) || hydrationState !== 'idle') return;
 
     setHydrationState('restoring');
     let cancelled = false;
@@ -124,6 +130,23 @@ export function DesktopAuthHydrator({ children, source, loadingFallback }: Deskt
 
     return () => { cancelled = true; };
   }, [isLoaded, setActive, source]);
+
+  // Safety net: in Tauri the Clerk gate must never hang the whole app.
+  // Clerk can fail to initialise inside the desktop webview, and the restore
+  // effect above bails while Clerk is unloaded — which would otherwise leave
+  // `hydrated === false` and pin the app on the full-screen loading fallback
+  // permanently (the "blank white screen" report).
+  React.useEffect(() => {
+    if (!isTauri()) return;
+    const t = setTimeout(() => {
+      // Only rescue the genuinely-stuck-idle case. Never preempt a restore that
+      // is already in flight — that would flip `completed` early and let the
+      // persistence effect below clear a session that is still being restored.
+      setHydrationState((s) => (s === 'idle' ? 'completed' : s));
+      setHydrated(true);
+    }, 3000);
+    return () => clearTimeout(t);
+  }, []);
 
   React.useEffect(() => {
     if (!isTauri()) return;
@@ -205,7 +228,7 @@ export function DesktopAuthHydrator({ children, source, loadingFallback }: Deskt
     };
   }, [hydrationState, hydrated, isLoaded, isSignedIn, sessionId, source]);
 
-  if (!isLoaded || !hydrated) {
+  if ((!isLoaded && !isTauri()) || !hydrated) {
     return (
       <>
         {loadingFallback ?? (

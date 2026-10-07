@@ -53,6 +53,7 @@
         "alwaysOnTop": true,
         "skipTaskbar": true,
         "visibleOnAllWorkspaces": true,
+        "acceptFirstMouse": true,
         "useHttpsScheme": true
       }
     ],

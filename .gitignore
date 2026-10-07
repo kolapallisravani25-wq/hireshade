@@ -26,6 +26,9 @@ exports
 .local/
 .agents/
 
+# Local diagnostics (CDP screenshots / scratch output)
+diagnostics/
+
 # Temporary and backups
 .migration-backup/
 *.bak

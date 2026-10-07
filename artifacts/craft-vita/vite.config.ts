@@ -24,6 +24,14 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  // Scope the dependency scanner to the real entry HTML files. Without this it
+  // globs `**/*.html` from the project root and also scans stale build output
+  // (dist/public/**, src-tauri/target/**/tauri-codegen-assets/**), which makes
+  // the scan fail on deps that only exist inside old chunks (e.g.
+  // @emotion/is-prop-valid) and silently skips dependency pre-bundling.
+  optimizeDeps: {
+    entries: ["index.html", "launcher.html", "floating.html"],
+  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),

@@ -92,7 +92,9 @@ unsafe extern "system" fn mini_subclass_proc(
     _ref_data: usize,
 ) -> windows::Win32::Foundation::LRESULT {
     use windows::Win32::Foundation::{RECT, LRESULT};
-    use windows::Win32::UI::WindowsAndMessaging::{WM_NCHITTEST, WM_NCCALCSIZE, GetWindowRect};
+    use windows::Win32::UI::WindowsAndMessaging::{
+        WM_NCHITTEST, WM_NCCALCSIZE, WM_MOUSEACTIVATE, MA_ACTIVATE, GetWindowRect,
+    };
     use windows::Win32::UI::Shell::DefSubclassProc;
 
     // Intercept WM_NCCALCSIZE (wParam=TRUE) and return 0 so that the entire
@@ -101,6 +103,17 @@ unsafe extern "system" fn mini_subclass_proc(
     // Windows versions, without also killing the compositor drop-shadow.
     if msg == WM_NCCALCSIZE && wparam.0 != 0 {
         return LRESULT(0);
+    }
+
+    // WM_MOUSEACTIVATE: return MA_ACTIVATE so a mouse-down on a non-active
+    // (topmost but unfocused) overlay window is BOTH used to activate the
+    // window AND delivered to the control under the cursor. Without this,
+    // Windows consumes the first mouse-down purely to activate the window and
+    // the button never fires — the user has to click twice. This is the
+    // Windows counterpart of macOS `acceptFirstMouse`, which these windows
+    // also set.
+    if msg == WM_MOUSEACTIVATE {
+        return LRESULT(MA_ACTIVATE as isize);
     }
 
     // WM_NCHITTEST: only used to make pixels outside the rounded-corner arcs
@@ -239,6 +252,7 @@ fn toggle_floating(app: AppHandle) -> Result<(), String> {
             .maximizable(false)
             .decorations(false)
             .skip_taskbar(true)
+            .accept_first_mouse(true)
             .build()
             .map_err(|e| e.to_string())?;
 
@@ -2441,6 +2455,7 @@ async fn open_main_dashboard(
             .maximized(true)
             .skip_taskbar(false)
             .content_protected(false)
+            .accept_first_mouse(true)
             .on_navigation(move |url| {
                 let scheme = url.scheme();
                 let host = url.host_str().unwrap_or("");
