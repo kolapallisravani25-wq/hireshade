@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, Plus, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface WidgetSelectOption {
@@ -17,6 +17,17 @@ interface WidgetSelectProps {
   options: WidgetSelectOption[];
   isLoading?: boolean;
   emptyMessage?: string;
+  /**
+   * Optional CTAs rendered in the empty state (e.g. "Upload a resume" /
+   * "Build with AI"). Stacked full-width so a brand-new user with zero uploads
+   * always has a way forward instead of hitting a dead end.
+   */
+  emptyActions?: Array<{
+    label: string;
+    onClick: () => void;
+    icon?: "plus" | "sparkles";
+    variant?: "default" | "accent";
+  }>;
   className?: string;
   listClassName?: string;
 }
@@ -44,6 +55,7 @@ export function WidgetSelect({
   options,
   isLoading = false,
   emptyMessage = "Nothing uploaded yet",
+  emptyActions,
   className,
   listClassName,
 }: WidgetSelectProps) {
@@ -129,7 +141,40 @@ export function WidgetSelect({
                 <Loader2 className="w-4 h-4 animate-spin text-zinc-300" />
               </div>
             ) : options.length === 0 ? (
-              <p className="py-3 text-center text-xs text-zinc-400">{emptyMessage}</p>
+              <div className="py-3 text-center">
+                <p className="text-xs text-zinc-400">{emptyMessage}</p>
+                {emptyActions && emptyActions.length > 0 && (
+                  <div className="mt-2 flex flex-col gap-1.5 px-2 pb-1">
+                    {emptyActions.map((action) => {
+                      const ActionIcon =
+                        action.icon === "sparkles"
+                          ? Sparkles
+                          : action.icon === "plus"
+                            ? Plus
+                            : null;
+                      return (
+                        <button
+                          key={action.label}
+                          type="button"
+                          onClick={() => {
+                            closeDropdown();
+                            action.onClick();
+                          }}
+                          className={cn(
+                            "w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors",
+                            action.variant === "accent"
+                              ? "border border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100"
+                              : "border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50",
+                          )}
+                        >
+                          {ActionIcon && <ActionIcon className="w-3.5 h-3.5" />}
+                          {action.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             ) : (
               <div className={cn("max-h-44 overflow-y-auto", listClassName)}>
                 {options.map((opt) => (

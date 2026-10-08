@@ -10,6 +10,7 @@ import {
   useDesktopAuth,
 } from "@/contexts/DesktopAuthProvider";
 import { invoke } from "@tauri-apps/api/core";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useCreditsBalance } from "@/hooks/useCreditsBalance";
 import { useOverlayShortcuts } from "@/hooks/useOverlayShortcuts";
@@ -67,6 +68,7 @@ import {
   APP_NAME,
   AI_MODELS_WIDGET,
   JOB_DESCRIPTION_REGEX,
+  FRONTEND_URL,
 } from "@/features/launcher/constants";
 import type { SessionInfo } from "@/features/launcher/types";
 import { DEFAULT_SESSION_INFO } from "@/features/launcher/types";
@@ -81,7 +83,10 @@ import { SessionSelector } from "@/features/session/components/SessionSelector";
 import { ActionButtons } from "@/features/session/components/ActionButtons";
 import { PastSessionsTab } from "@/features/session/components/PastSessionsTab";
 import { AuthScreen } from "@/features/auth/components/AuthScreen";
-import { useSessionResources } from "@/features/session/hooks/useSessionResources";
+import {
+  useSessionResources,
+  invalidateSessionResources,
+} from "@/features/session/hooks/useSessionResources";
 import { useSessionCreation } from "@/features/session/hooks/useSessionCreation";
 import { HoverTooltip } from "@/shared/components/HoverTooltip";
 import { CreditsBadge } from "@/shared/components/CreditsBadge";
@@ -220,6 +225,15 @@ function WidgetContent() {
     isLoadingProjects,
     resourcesError,
   } = useSessionResources(isSignedIn, user?.id);
+
+  // Resume uploads happen in the web app (a different window), so refetch the
+  // resource list when the launcher regains focus instead of waiting out the
+  // 5-minute TTL cache in useSessionResources.
+  useEffect(() => {
+    const onFocus = () => invalidateSessionResources();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, []);
 
   // ── Session creation ───────────────────────────────────────────────────────
   const {
@@ -732,6 +746,26 @@ function WidgetContent() {
                                           ? `Couldn't load resumes: ${resourcesError}`
                                           : "No resumes uploaded yet"
                                       }
+                                      emptyActions={
+                                        resourcesError
+                                          ? undefined
+                                          : [
+                                              {
+                                                label: "Upload a resume",
+                                                icon: "plus",
+                                                variant: "default",
+                                                onClick: () =>
+                                                  void openUrl(`${FRONTEND_URL}/resume/all`),
+                                              },
+                                              {
+                                                label: "Build with AI",
+                                                icon: "sparkles",
+                                                variant: "accent",
+                                                onClick: () =>
+                                                  void openUrl(`${FRONTEND_URL}/resume/build`),
+                                              },
+                                            ]
+                                      }
                                       listClassName="max-h-[80px]"
                                     />
                                     {sessionInfo.resumeId && (
@@ -932,18 +966,15 @@ function WidgetContent() {
                                 </div>
 
                                 <div className="space-y-3">
-                                  {/* <div className="flex items-center justify-between">
+                                  <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                       <Sparkles className="w-4 h-4 text-zinc-600" />
                                       <Label className="text-sm font-medium text-zinc-700">
-                                        Auto Generate AI Response
+                                        Auto-generate AI answers
                                       </Label>
-                                      <HoverTooltip text="Automatically generate responses based on the conversation.">
+                                      <HoverTooltip text="Generate an AI answer automatically whenever the interviewer asks a question. Each generation spends credits. Off by default.">
                                         <Info className="w-3 h-3 text-zinc-400 cursor-help" />
                                       </HoverTooltip>
-                                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold shadow-sm shadow-emerald-500/10">
-                                        New
-                                      </span>
                                     </div>
                                     <Switch
                                       checked={sessionInfo.autoGenerateAI}
@@ -951,7 +982,11 @@ function WidgetContent() {
                                         dispatch(updateSessionInfo({ autoGenerateAI: val }))
                                       }
                                     />
-                                  </div> */}
+                                  </div>
+                                  <p className="text-[11px] text-amber-600">
+                                    Off by default — turning this on spends credits automatically as
+                                    questions are detected.
+                                  </p>
 
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">

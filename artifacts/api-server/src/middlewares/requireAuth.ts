@@ -9,6 +9,7 @@ import {
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { SIGNUP_CREDITS } from "../lib/signupGrant.js";
+import { logger } from "../lib/logger.js";
 
 declare global {
   namespace Express {
@@ -32,11 +33,13 @@ export async function requireAuth(
 
   const token = authHeader.slice(7);
 
+  // ── Phase 1: token validation ──────────────────────────────────────────────
+  // Accept EITHER a desktop access token (HS256, issued by /api/desktop/token)
+  // or a Clerk session token (RS256). Both resolve to a Clerk user id, which
+  // the rest of this middleware maps to the internal user exactly the same way.
+  // A failure HERE is a genuine auth failure -> 401.
+  let clerkUserId: string;
   try {
-    // Accept EITHER a desktop access token (HS256, issued by /api/desktop/token)
-    // or a Clerk session token (RS256). Both resolve to a Clerk user id, which
-    // the rest of this middleware maps to the internal user exactly the same way.
-    let clerkUserId: string;
     const desktop = await verifyDesktopAccessToken(token);
     if (desktop) {
       clerkUserId = desktop.sub;
@@ -46,7 +49,22 @@ export async function requireAuth(
       req.auth = payload;
       clerkUserId = payload.sub;
     }
+  } catch (err) {
+    // Log the underlying jose/JWKS error. Without this, a transient verification
+    // failure is indistinguishable from a genuinely bad token on the wire.
+    logger.warn(
+      { err, url: req.originalUrl },
+      "[requireAuth] token verification failed",
+    );
+    res.status(401).json({ error: "Invalid or expired token" });
+    return;
+  }
 
+  // ── Phase 2: identity provisioning (database) ──────────────────────────────
+  // A failure HERE is INFRASTRUCTURE, not auth. Answering 401 here previously
+  // let a Postgres outage masquerade as "you are signed out" and cost a full
+  // debugging session; fail loudly with 503 and log the real cause instead.
+  try {
     const existing = await db
       .select()
       .from(usersTable)
@@ -85,6 +103,10 @@ export async function requireAuth(
 
     next();
   } catch (err) {
-    res.status(401).json({ error: "Invalid or expired token" });
+    logger.error(
+      { err, url: req.originalUrl },
+      "[requireAuth] identity lookup failed — infrastructure error",
+    );
+    res.status(503).json({ error: "Service temporarily unavailable" });
   }
 }

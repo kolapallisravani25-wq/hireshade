@@ -203,7 +203,8 @@ router.post("/create-session", requireAuth, formParser, async (req, res) => {
     const extraContext = body["extraContext"] ?? "";
     const instructions = body["instructions"] ?? "";
     const aiModel = body["aiModel"] ?? "anthropic/claude-haiku-4.5";
-    const autoGenerateResponse = body["autoGenerateAI"] !== "false";
+    // Opt-in: auto-generation spends credits, so an absent field must mean OFF.
+    const autoGenerateResponse = body["autoGenerateAI"] === "true";
     const saveTranscription = body["saveTranscript"] !== "false";
     const free = body["free"] === "true";
     const questionBankContributionOptIn =

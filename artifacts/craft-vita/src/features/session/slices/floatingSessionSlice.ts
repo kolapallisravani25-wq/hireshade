@@ -274,8 +274,9 @@ const floatingSessionSlice = createSlice({
       state.isResponsesExpanded = false;
       state.isTranscriptExpanded = false;
       state.currentResponseIndex = 0;
-      // Seed the auto-generate toggle from the wizard preference (default on).
-      state.autoGenerate = action.payload.autoGenerateAI ?? true;
+      // Seed the auto-generate toggle from the wizard preference. Defaults to
+      // OFF — auto-generation spends credits, so the user must opt in.
+      state.autoGenerate = action.payload.autoGenerateAI ?? false;
       state.autoScroll = true;
     },
 

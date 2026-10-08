@@ -32,6 +32,22 @@ interface CachedResources {
 let _cachedResources: CachedResources | null = null;
 let _inflight: Promise<CachedResources | null> | null = null;
 
+/** Notified whenever the cache is invalidated so mounted hooks refetch. */
+const _listeners = new Set<() => void>();
+
+/**
+ * Drop the TTL cache and force every mounted consumer to refetch.
+ *
+ * Needed because the 5-minute TTL otherwise hides a brand-new resume, and
+ * uploads happen in the web app (a different window) — so callers invalidate
+ * on window focus and after any in-app upload.
+ */
+export function invalidateSessionResources(): void {
+  _cachedResources = null;
+  _inflight = null;
+  _listeners.forEach((notify) => notify());
+}
+
 function isCacheValid(userId: string): boolean {
   if (!_cachedResources) return false;
   if (_cachedResources.userId !== userId) return false;
@@ -49,6 +65,15 @@ export function useSessionResources(
   isSignedIn: boolean | undefined,
   clerkUserId: string | undefined,
 ): UseSessionResourcesReturn {
+  // Bumped by invalidateSessionResources() to re-run the fetch effect below.
+  const [reloadToken, setReloadToken] = useState(0);
+  useEffect(() => {
+    const notify = () => setReloadToken((n) => n + 1);
+    _listeners.add(notify);
+    return () => {
+      _listeners.delete(notify);
+    };
+  }, []);
 
   const [resumes, setResumes] = useState<Resume[]>(
     () => _cachedResources?.resumes ?? [],
@@ -231,7 +256,7 @@ export function useSessionResources(
     return () => {
       cancelled = true;
     };
-  }, [isSignedIn, clerkUserId]);
+  }, [isSignedIn, clerkUserId, reloadToken]);
 
   return {
     resumes,

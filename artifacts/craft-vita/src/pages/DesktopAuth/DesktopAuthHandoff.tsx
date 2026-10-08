@@ -40,18 +40,33 @@ export function DesktopAuthHandoff() {
 
       setStatus("linking");
       try {
-        const token = await getToken();
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/desktop/link`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            body: JSON.stringify({ label: "HireShade Desktop" }),
+        // Clerk can hand back null for a moment right after sign-in; retry
+        // briefly before treating it as a hard failure.
+        let token = await getToken();
+        for (let i = 0; !token && i < 5; i++) {
+          await new Promise((r) => setTimeout(r, 300));
+          token = await getToken();
+        }
+
+        const linkUrl = `${import.meta.env.VITE_BACKEND_URL}/api/desktop/link`;
+        const linkInit: RequestInit = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
-        );
+          body: JSON.stringify({ label: "HireShade Desktop" }),
+        };
+
+        let res = await fetch(linkUrl, linkInit);
+
+        // A single transient 401 here used to brick this page permanently
+        // (startedRef blocks any re-run), forcing a full restart of the flow.
+        // Retry once before surfacing an error.
+        if (res.status === 401) {
+          await new Promise((r) => setTimeout(r, 500));
+          res = await fetch(linkUrl, linkInit);
+        }
 
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
