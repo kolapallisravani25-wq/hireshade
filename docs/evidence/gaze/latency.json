@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-10-20T15:16:33.807Z",
+  "environment": {
+    "node": "v24.19.0",
+    "platform": "win32 x64",
+    "cpu": "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz",
+    "resolution": "1280x720",
+    "compiled_modules": [
+      "demoGaze.js",
+      "detector.js",
+      "frameSource.js",
+      "index.js",
+      "previewState.js",
+      "processor.js",
+      "smoothing.js",
+      "syntheticFace.js",
+      "types.js",
+      "virtualCamera.js",
+      "warp.js"
+    ]
+  },
+  "latency": {
+    "resolution": {
+      "width": 1280,
+      "height": 720
+    },
+    "fps": 30,
+    "iterations": 60,
+    "warmup_frames": 8,
+    "percentiles": {
+      "p50_ms": 3.538,
+      "p95_ms": 6.301,
+      "max_ms": 10.445,
+      "mean_ms": 4.144,
+      "min_ms": 3.353
+    },
+    "budget_ms": 25,
+    "headroom_at_p95_ms": 18.699,
+    "target": "p95 extra processing time < 25 ms/frame at 720p30",
+    "pass": true
+  }
+}

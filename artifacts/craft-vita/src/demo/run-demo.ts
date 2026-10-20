@@ -41,6 +41,7 @@ import {
   evaluateLatencyBudget,
   type LatencySample,
 } from "./metrics";
+import { isGazeDemoEnabled, runDemoGazeStage, type DemoGazeSummary } from "../gaze/demoGaze";
 
 const PROVIDER_KEYS = [
   "OPENROUTER_API_KEY",
@@ -423,6 +424,8 @@ async function main(): Promise<void> {
   const report = evaluateLatencyBudget(samples, DEMO_LATENCY_BUDGETS);
   const first = firstRun as DemoPipelineResult;
   const overlay = buildOverlayReplay(first.sessionId, first.events);
+  // W4 extension: deterministic synthetic gaze burst when DEMO_GAZE=1 (make demo).
+  const gaze: DemoGazeSummary | null = isGazeDemoEnabled(process.env) ? runDemoGazeStage({ env: process.env }) : null;
 
   mkdirSync(EVIDENCE_DIR, { recursive: true });
   const evidence = {
@@ -480,7 +483,8 @@ async function main(): Promise<void> {
     mockHttpSurface: probe.server,
     runs: runEvidence,
     latency: report,
-    pass: report.pass && probe.sse.pass,
+    extensions: { gaze },
+    pass: report.pass && probe.sse.pass && (gaze === null || (gaze.enabled && gaze.appliedFrames === gaze.framesProcessed)),
     evidenceFiles: {
       latency: "docs/evidence/demo/demo-latency.json",
       transcript: "docs/evidence/demo/demo-transcript.md",
@@ -509,6 +513,11 @@ async function main(): Promise<void> {
     ) + "\n",
   );
 
+  if (gaze) {
+    console.log(
+      "[demo] extensions: gaze frames=" + gaze.framesProcessed + " applied=" + gaze.appliedFrames + " passthrough=" + gaze.passthroughFrames + " mean=" + gaze.meanDurationMs.toFixed(2) + " ms max=" + gaze.maxDurationMs.toFixed(2) + " ms output=" + gaze.output.width + "x" + gaze.output.height + "@" + gaze.output.fps,
+    );
+  }
   console.log("[demo] latency checks:");
   for (const check of report.checks) {
     console.log("[demo]   " + (check.pass ? "PASS" : "FAIL") + " " + check.metric + " " + check.statistic + " = " + check.actualMs.toFixed(1) + " ms (budget " + check.thresholdMs + " ms)");
@@ -518,6 +527,9 @@ async function main(): Promise<void> {
   console.log("[demo] total " + ((Date.now() - started) / 1000).toFixed(1) + " s");
   if (!report.pass) throw new Error("latency budget failed");
   if (!probe.sse.pass) throw new Error("target SSE contract probe failed");
+  if (gaze && (!gaze.enabled || gaze.appliedFrames !== gaze.framesProcessed)) {
+    throw new Error("gaze extension stage failed (applied " + gaze.appliedFrames + "/" + gaze.framesProcessed + ")");
+  }
 }
 
 main().catch((err: unknown) => {

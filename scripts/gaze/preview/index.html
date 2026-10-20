@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HireShade gaze correction preview (W4)</title>
+    <style>
+      :root { color-scheme: dark; }
+      body { margin: 0; background: #0f1115; color: #e6e9ef; font: 14px/1.45 system-ui, -apple-system, Segoe UI, sans-serif; }
+      main { max-width: 1180px; margin: 0 auto; padding: 24px; }
+      h1 { font-size: 20px; margin: 0 0 4px; }
+      p.sub { margin: 0 0 20px; color: #9aa4b2; }
+      .row { display: flex; gap: 20px; flex-wrap: wrap; }
+      .panel { flex: 1 1 460px; background: #171a21; border: 1px solid #262b35; border-radius: 12px; padding: 14px; }
+      .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: #9aa4b2; margin: 0 0 10px; }
+      canvas { width: 100%; height: auto; border-radius: 8px; background: #000; display: block; }
+      .controls { margin-top: 20px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); background: #171a21; border: 1px solid #262b35; border-radius: 12px; padding: 16px; }
+      label.control { display: flex; flex-direction: column; gap: 6px; color: #c7cfdb; }
+      input[type="range"] { width: 100%; }
+      .checks { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+      .checks label { display: flex; gap: 8px; align-items: center; color: #c7cfdb; }
+      .stats { margin-top: 18px; background: #10131a; border: 1px dashed #2b3442; border-radius: 10px; padding: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; white-space: pre-wrap; }
+      .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #1f2b3d; color: #8fb4ff; font-size: 12px; margin-left: 8px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Gaze correction preview <span class="badge">synthetic face · mock detector</span></h1>
+      <p class="sub">Warp-based eye-region re-centering with EMA smoothing. No camera or model is required for this preview.</p>
+      <div class="row">
+        <section class="panel"><h2>Before (raw frame)</h2><canvas id="before" width="640" height="360"></canvas></section>
+        <section class="panel"><h2>After (warped output)</h2><canvas id="after" width="640" height="360"></canvas></section>
+      </div>
+      <section class="controls">
+        <label class="control">Strength <input id="strength" type="range" min="0" max="100" value="85" /><span id="strengthValue">85%</span></label>
+        <div class="checks">
+          <label><input id="enabled" type="checkbox" checked /> Correction on</label>
+          <label><input id="streaming" type="checkbox" /> Streaming boost</label>
+          <label><input id="move" type="checkbox" checked /> Move iris (simulate off-axis)</label>
+        </div>
+      </section>
+      <div id="stats" class="stats"></div>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

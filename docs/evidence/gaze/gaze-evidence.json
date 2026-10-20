@@ -1,0 +1,133 @@
+{
+  "generated_at": "2026-10-20T15:16:33.807Z",
+  "environment": {
+    "node": "v24.19.0",
+    "platform": "win32 x64",
+    "cpu": "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz",
+    "resolution": "1280x720",
+    "compiled_modules": [
+      "demoGaze.js",
+      "detector.js",
+      "frameSource.js",
+      "index.js",
+      "previewState.js",
+      "processor.js",
+      "smoothing.js",
+      "syntheticFace.js",
+      "types.js",
+      "virtualCamera.js",
+      "warp.js"
+    ]
+  },
+  "target_check": {
+    "source": "docs/raw/desktop/gaze-scan.json (Lead scan of the shipped ParakeetAI build)",
+    "result": "0 gaze/eye/iris/virtual-camera matches in main/renderer/preload and all four native addons; brand-new feature, not parity."
+  },
+  "synthetic_displacement_reduction": {
+    "frame": {
+      "width": 640,
+      "height": 360
+    },
+    "strength": 0.85,
+    "correction_px": {
+      "left": {
+        "x": -10.2,
+        "y": -2.55
+      },
+      "right": {
+        "x": -10.2,
+        "y": -2.55
+      }
+    },
+    "measurements": [
+      {
+        "eye": "left",
+        "requested_offset_px": {
+          "x": 12,
+          "y": 3
+        },
+        "measured_before_offset_px": {
+          "x": 12.01,
+          "y": 3.004
+        },
+        "measured_after_offset_px": {
+          "x": 2.215,
+          "y": 0.679
+        },
+        "displacement_before_px": 12.38,
+        "displacement_after_px": 2.316,
+        "reduction": 0.8129
+      },
+      {
+        "eye": "right",
+        "requested_offset_px": {
+          "x": 12,
+          "y": 3
+        },
+        "measured_before_offset_px": {
+          "x": 12.004,
+          "y": 3.004
+        },
+        "measured_after_offset_px": {
+          "x": 2.185,
+          "y": 0.658
+        },
+        "displacement_before_px": 12.375,
+        "displacement_after_px": 2.282,
+        "reduction": 0.8156
+      }
+    ],
+    "min_reduction": 0.8129,
+    "target": ">= 0.70 displacement reduction toward the eye axis",
+    "pass": true
+  },
+  "smoothing_jitter": {
+    "frames": 90,
+    "ema_alpha": 0.35,
+    "synthetic_jitter_amplitude_px": 2,
+    "raw_offset_stddev_px": 1.1139,
+    "smoothed_correction_stddev_px": 0.3657,
+    "target": "smoothed jitter < 1 px stddev",
+    "pass": true
+  },
+  "latency_720p30": {
+    "resolution": {
+      "width": 1280,
+      "height": 720
+    },
+    "fps": 30,
+    "iterations": 60,
+    "warmup_frames": 8,
+    "percentiles": {
+      "p50_ms": 3.538,
+      "p95_ms": 6.301,
+      "max_ms": 10.445,
+      "mean_ms": 4.144,
+      "min_ms": 3.353
+    },
+    "budget_ms": 25,
+    "headroom_at_p95_ms": 18.699,
+    "target": "p95 extra processing time < 25 ms/frame at 720p30",
+    "pass": true
+  },
+  "pass_through": {
+    "disabled": {
+      "identical_bytes": true,
+      "reason": "disabled"
+    },
+    "detector_unavailable": {
+      "identical_bytes": true,
+      "reason": "detector-unavailable"
+    },
+    "target": "output bytes identical on disabled/failing detector",
+    "pass": true
+  },
+  "streaming_boost": {
+    "idle": 0.85,
+    "streaming": 1,
+    "clamped": 1,
+    "target": "streaming boost raises strength and clamps at 1.0",
+    "pass": true
+  },
+  "overall_pass": true
+}

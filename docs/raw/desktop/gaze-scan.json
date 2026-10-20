@@ -1,0 +1,120 @@
+{
+  "docs/raw/desktop/asar-extracted/dist/main/main.js": {},
+  "docs/raw/desktop/asar-extracted/dist/main/preload.js": {},
+  "docs/raw/desktop/asar-extracted/dist/renderer/renderer.js": {
+    "camera": [
+      {
+        "offset": 1895268,
+        "ctx": "ermissions. Error: ${(0,o.stringifyUnknownError)(e)}`,source:`${x}.performStart.getUserMedia`,error:e,severity:\"info\"}}const F=(0,l.useTranscriptionSession)({label:\"Microphone\",sourceBase:x,source:\"mi"
+      },
+      {
+        "offset": 1896046,
+        "ctx": "choCancellation:g,noiseSuppression:!1};let r;try{r=await navigator.mediaDevices.getUserMedia({audio:t?{...n,deviceId:{exact:t}}:n})}catch(e){const o=(e instanceof Error||e instanceof DOMException)&&[\""
+      },
+      {
+        "offset": 1896298,
+        "ctx": "ror\"].includes(e.name);if(!t||!o)return j(e);try{r=await navigator.mediaDevices.getUserMedia({audio:n}),L({type:\"device-fallback\"})}catch(e){return j(e)}}e.setMediaStream(r),A.current=r,R(r,C.current)"
+      },
+      {
+        "offset": 2200291,
+        "ctx": "sync function i(e){return e?new MediaStream([e.clone()]):navigator.mediaDevices.getUserMedia({audio:{echoCancellation:!0,noiseSuppression:!0,autoGainControl:!0}})}},63660(e,t){\"use strict\";t.REALTIME_"
+      }
+    ]
+  },
+  "docs/raw/desktop/mac-unpacked/ParakeetAI.app/Contents/Resources/app.asar.unpacked/dist/main/parakeetai-native.win32-x64-msvc.node": {
+    "matchedStrings": [
+      {
+        "offset": 1089457,
+        "s": "num_frames ("
+      },
+      {
+        "offset": 1102448,
+        "s": "C:\\Users\\runneradmin\\.cargo\\git\\checkouts\\sonora-c0cc0c3c8411109a\\dec6a07\\crates\\sonora-aec3\\src\\block_framer.rs"
+      },
+      {
+        "offset": 1102712,
+        "s": "C:\\Users\\runneradmin\\.cargo\\git\\checkouts\\sonora-c0cc0c3c8411109a\\dec6a07\\crates\\sonora-aec3\\src\\frame_blocker.rs"
+      },
+      {
+        "offset": 1119128,
+        "s": "source frames exceed maximum"
+      },
+      {
+        "offset": 1121344,
+        "s": "assertion failed: destination.len() >= self.destination_framesassertion failed: source_frames > 0"
+      },
+      {
+        "offset": 1121472,
+        "s": "assertion failed: destination_frames > 0"
+      },
+      {
+        "offset": 1121926,
+        "s": " frames but source has "
+      },
+      {
+        "offset": 1135733,
+        "s": " frame"
+      }
+    ]
+  },
+  "docs/raw/desktop/mac-unpacked/ParakeetAI.app/Contents/Resources/app.asar.unpacked/dist/main/parakeetai-native.darwin-arm64.node": {
+    "matchedStrings": [
+      {
+        "offset": 744,
+        "s": "__eh_frame"
+      },
+      {
+        "offset": 2168,
+        "s": "/System/Library/Frameworks/AudioUnit.framework/Versions/A/AudioUnit"
+      },
+      {
+        "offset": 2264,
+        "s": "/System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox"
+      },
+      {
+        "offset": 2368,
+        "s": "/System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio"
+      },
+      {
+        "offset": 2464,
+        "s": "/System/Library/Frameworks/OpenAL.framework/Versions/A/OpenAL"
+      },
+      {
+        "offset": 2552,
+        "s": "/System/Library/Frameworks/CoreMIDI.framework/Versions/A/CoreMIDI"
+      },
+      {
+        "offset": 2704,
+        "s": "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation"
+      },
+      {
+        "offset": 800046,
+        "s": "assertion failed: dst.len() >= self.dst_samples_per_channelresample_mono requires 1 channelassertion failed: src_samples_per_channel > 0source frames exceed maximum"
+      },
+      {
+        "offset": 801015,
+        "s": "?dest is out of boundsassertion failed: resampler.block_size > KERNEL_SIZEassertion failed: destination.len() >= self.destination_framesassertion failed: source_frames > 0assertion"
+      },
+      {
+        "offset": 814345,
+        "s": "num_frames ("
+      },
+      {
+        "offset": 817075,
+        "s": "/Users/runner/.cargo/git/checkouts/sonora-c0cc0c3c8411109a/dec6a07/crates/sonora-aec3/src/block_framer.rs"
+      },
+      {
+        "offset": 817181,
+        "s": "/Users/runner/.cargo/git/checkouts/sonora-c0cc0c3c8411109a/dec6a07/crates/sonora-aec3/src/frame_blocker.rs"
+      },
+      {
+        "offset": 822833,
+        "s": " frames but source has "
+      },
+      {
+        "offset": 824508,
+        "s": " frame"
+      }
+    ]
+  }
+}
