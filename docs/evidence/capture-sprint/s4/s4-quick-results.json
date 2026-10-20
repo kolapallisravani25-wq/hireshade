@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T17:14:46.968Z",
+  "generatedAt": "2026-10-20T17:42:49.893Z",
   "quick": true,
   "environment": {
     "platform": "win32",
@@ -56,10 +56,10 @@
         }
       ],
       "timings": {
-        "launchMs": 3508,
-        "clickOnMs": 2176,
-        "clickOffMs": 1635,
-        "totalMs": 9482
+        "launchMs": 1174,
+        "clickOnMs": 1787,
+        "clickOffMs": 1673,
+        "totalMs": 6417
       },
       "on": {
         "info": {
@@ -97,7 +97,7 @@
             "xRel": 0.44619523443504994,
             "yRel": 0.46653005464480873
           },
-          "foregroundTitleHint": "target"
+          "foregroundTitleHint": "overlay"
         },
         "point": {
           "x": 240,
@@ -115,7 +115,7 @@
         "lastTargetClick": {
           "x": 228,
           "y": 139,
-          "at": 1792516493573
+          "at": 1792518172923
         }
       },
       "off": {
@@ -172,7 +172,7 @@
         "stdout": "Mandatory Label\\Medium Mandatory Level                        Label            S-1-16-8192",
         "stderr": "",
         "error": null,
-        "durationMs": 619
+        "durationMs": 699
       },
       "elevated": false,
       "status": "UNTESTED-BLOCKED"
@@ -183,10 +183,10 @@
       "name": "click-through-proof",
       "pass": true,
       "detail": {
-        "launchMs": 3508,
-        "clickOnMs": 2176,
-        "clickOffMs": 1635,
-        "totalMs": 9482
+        "launchMs": 1174,
+        "clickOnMs": 1787,
+        "clickOffMs": 1673,
+        "totalMs": 6417
       }
     },
     {
@@ -206,6 +206,6 @@
     "displays": "PASS",
     "elevationQuick": "PASS"
   },
-  "durationMs": 11143,
+  "durationMs": 7666,
   "evidenceFile": "docs/evidence/capture-sprint/s4/s4-quick-results.json"
 }

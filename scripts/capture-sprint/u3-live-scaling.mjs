@@ -66,6 +66,12 @@ async function main() {
   const baseline = await probe("baseline");
   results.measurements.push(baseline);
   results.baseline = baseline;
+  // Capture the TRUE session baseline registry DPI once, before any attempt, so
+  // attempt 3 always restores the original state instead of a value polluted by
+  // an earlier run.
+  const originalRegistryRead = run("powershell", ["-NoProfile", "-Command", "Get-ItemProperty 'HKCU:\\Control Panel\\Desktop' -Name LogPixels,Win8DpiScaling -ErrorAction SilentlyContinue | ConvertTo-Json -Compress"]);
+  const originalRegistry = parseJson(originalRegistryRead.stdout) || {};
+  results.originalRegistry = originalRegistry;
   const targetRatio = 1.5;
   const baselineScale = baseline.scaleFactor || 1;
   const reachedTarget = (row) => row.scaleFactor && Math.abs(row.scaleFactor / baselineScale - targetRatio) < 0.02;
@@ -167,20 +173,15 @@ async function main() {
 
   // ── Attempt 3: registry LogPixels + WM_SETTINGCHANGE broadcast ─────────
   console.log("[u3] == attempt 3: registry LogPixels + WM_SETTINGCHANGE broadcast ==");
-  const registryBefore = run("powershell", ["-NoProfile", "-Command", "Get-ItemProperty 'HKCU:\Control Panel\Desktop' -Name LogPixels,Win8DpiScaling -ErrorAction SilentlyContinue | ConvertTo-Json -Compress"]);
-  const previousLogPixels = (parseJson(registryBefore.stdout) || {}).LogPixels;
-  const previousWin8 = (parseJson(registryBefore.stdout) || {}).Win8DpiScaling;
+  const registryBefore = { command: originalRegistryRead.command, status: originalRegistryRead.status, stdout: originalRegistryRead.stdout };
+  const previousLogPixels = originalRegistry.LogPixels;
+  const previousWin8 = originalRegistry.Win8DpiScaling;
   const broadcastScript = path.join(here, "u3-broadcast.ps1");
   const setBroadcast = runPowerShellScript(broadcastScript, ["-LogPixels", "144", "-Win8DpiScaling", "1", "-Broadcast"]);
   const afterBroadcast = await probe("after-registry-broadcast-150");
   results.measurements.push(afterBroadcast);
-  const restoreArgs = previousLogPixels !== undefined && previousLogPixels !== null
-    ? ["-LogPixels", String(previousLogPixels), "-Win8DpiScaling", String(previousWin8 === undefined || previousWin8 === null ? 0 : previousWin8), "-ReadOnly"]
-    : ["-LogPixels", "120", "-Win8DpiScaling", "0", "-ReadOnly"];
-  const restoreBroadcast = runPowerShellScript(broadcastScript, restoreArgs);
-  // Restore actually needs a registry write; -ReadOnly keeps the current (144)
-  // value, so explicitly write the previous values back.
-  const restoreWrite = run("powershell", ["-NoProfile", "-Command", "reg add 'HKCU:\Control Panel\Desktop' /v LogPixels /t REG_DWORD /d " + (previousLogPixels ?? 120) + " /f; reg add 'HKCU:\Control Panel\Desktop' /v Win8DpiScaling /t REG_DWORD /d " + (previousWin8 ?? 0) + " /f"]);
+  // Always restore the registry DPI values captured BEFORE any attempt.
+  const restoreWrite = run("powershell", ["-NoProfile", "-Command", "reg add 'HKCU:\Control Panel\Desktop' /v LogPixels /t REG_DWORD /d " + (previousLogPixels ?? 120) + " /f; reg add 'HKCU:\Control Panel\Desktop' /v Win8DpiScaling /t REG_DWORD /d " + (previousWin8 ?? 0) + " /f; Get-ItemProperty 'HKCU:\Control Panel\Desktop' -Name LogPixels,Win8DpiScaling | ConvertTo-Json -Compress"]);
   const afterBroadcastRestore = await probe("after-registry-restore");
   results.measurements.push(afterBroadcastRestore);
   results.restore.push({ name: "registry-restore", command: restoreWrite.command, status: restoreWrite.status, output: restoreWrite.stdout + restoreWrite.stderr, measurement: afterBroadcastRestore });
