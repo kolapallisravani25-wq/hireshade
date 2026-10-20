@@ -1,0 +1,6 @@
+﻿{
+    "captured_at":  "2026-10-20T23:40:15.4331535+05:30",
+    "method":  "user32 ShowWindow(SW_SHOW)+SetWindowPos(HWND_TOPMOST)+SetForegroundWindow",
+    "matched":  false,
+    "window":  null
+}

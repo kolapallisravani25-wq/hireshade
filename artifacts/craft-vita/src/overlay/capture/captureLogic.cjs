@@ -41,10 +41,10 @@ const SELF_CHECK_COPY = {
   hiddenLabel: "It is hidden",
   visibleLabel: "I can still see it",
   visibleReported:
-    "Thanks - that means this capture path is showing the overlay. Try compatibility mode, or share a window/tab instead of the whole screen.",
+    "Thanks - that means this capture path is showing the overlay. Share a window/tab instead of the whole screen, or move to a second monitor. Compatibility mode does not change capture behavior.",
   hiddenReported: "Good - the overlay was not visible in the capture you checked.",
   compatSuggestion:
-    "Compatibility mode recreates the overlay as an opaque surface with a solid scrim (no transparency, blur or rounded compositing). It is more reliable in capture apps that ignore per-window exclusion.",
+    "Compatibility mode changes only the look (opaque scrim, no transparency/blur). V1 measured no capture effect: transparent and opaque were identical on GDI, desktopCapturer screen/window, PrintWindow and DXGI under 0x11.",
   noReliableDetection:
     "Capture visibility cannot be reliably detected automatically. This check is manual on purpose.",
 };
@@ -73,9 +73,9 @@ const FALLBACK_LADDER = [
     step: 3,
     id: "compatibility-mode",
     addresses: "black rectangle / black bar in PrintWindow or transparent-compositing capture",
-    title: "Turn on compatibility mode",
+    title: "Try the dark surface (cosmetic only)",
     detail:
-      "Fixes the black-bar symptom (a transparent protected surface printing as black) by using an opaque surface + solid colour scrim with no blur or rounded compositing. It does NOT fix DXGI Desktop Duplication - use monitor 2 or window/tab share for that.",
+      "Opaque scrim for contrast. Demoted: V1 measured it identical to transparent on all five capture paths under 0x11; it does NOT fix the black bar or DXGI. Use monitor 2 or window/tab share for capture.",
   },
   {
     step: 4,

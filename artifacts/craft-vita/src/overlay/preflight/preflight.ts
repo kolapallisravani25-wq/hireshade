@@ -21,9 +21,11 @@ import {
   TESTED_APPS_TESTED_ON,
 } from './testedApps.data';
 import type {
+  AffinityMode,
   PreflightActionId,
   PreflightDisplay,
   PreflightInput,
+  PreflightPresetId,
   PreflightStatus,
   PreflightVerdict,
   UserVisibilityReport,
@@ -40,7 +42,18 @@ export const SINGLE_DISPLAY_COPY =
 export const DEFAULT_MONITOR_COPY =
   'Put HireShade on monitor 2 - recommended whenever a second display exists, because a full-screen share of the meeting display cannot contain it.';
 
-const MIN_LARGE_OVERLAY_RATIO = 0.45;
+/**
+ * Black box (WDA_MONITOR / 0x01) is a TARGETED mitigation, never an upgrade.
+ * Copy must always state the cost on paths that already worked.
+ */
+export const BLACK_BOX_COST_COPY =
+  'Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable.';
+
+export const BLACK_BOX_JUSTIFIED_COPY =
+  'Known-DXGI/high-risk single-display setup: black box mode can stop the answer text leaking, at the cost of a discoverable black rectangle.';
+
+export const BLACK_BOX_UNDO_COPY =
+  'No known-DXGI/high-risk single-display setup was detected for this session, so black box mode is not targeted at anything here. Switching back restores invisibility on paths that already worked.';
 
 function sanitizeDisplays(displays: readonly PreflightDisplay[] | null | undefined): PreflightDisplay[] {
   if (!Array.isArray(displays)) return [];
@@ -97,8 +110,17 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
   const compatMode = input.compatMode === true;
   const report = normalizeReport(input.userReport);
   const areaRatio = Math.min(1, Math.max(0, Number(input.overlay?.areaRatio ?? 0)));
-  const transparent = input.overlay?.transparent !== false;
   const preset = input.overlay?.preset ?? null;
+  const affinityMode: AffinityMode = input.affinityMode === 'monitor' ? 'monitor' : 'exclude';
+  // Black box may be OFFERED only for a known-ignoring path / high-risk app on a
+  // single display, and never when the user already verified the overlay hidden.
+  const blackBoxJustified = !hasSecondDisplay && (knownIgnoringCapturePath || captureRisk === 'high');
+  const blackBoxEligible = affinityMode === 'exclude' && report !== 'hidden' && blackBoxJustified;
+  const recommendedPresetId: PreflightPresetId | null =
+    affinityMode === 'monitor' && preset !== 'card' ? 'card' : null;
+  const presetRecommendationCopy = recommendedPresetId
+    ? ' Black box mode is on: switch to COMPACT so the black band reads as a small docked panel, not a full-width slab.'
+    : '';
 
   if (displays.length === 0) {
     const facts = {
@@ -112,6 +134,9 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
       compatMode,
       knownIgnoringCapturePath,
       userReport: report,
+      affinityMode,
+      blackBoxEligible,
+      blackBoxJustified,
       appListVersion: TESTED_APPS_LIST_VERSION,
       appListTestedOn: TESTED_APPS_TESTED_ON,
     };
@@ -125,7 +150,8 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
       recommendation: {
         moveOverlayToDisplayId: null,
         isDefaultRecommendation: false,
-        copy: SINGLE_DISPLAY_COPY,
+        recommendedPresetId,
+        copy: SINGLE_DISPLAY_COPY + presetRecommendationCopy,
       },
       facts,
     };
@@ -165,6 +191,9 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
     compatMode,
     knownIgnoringCapturePath,
     userReport: report,
+    affinityMode,
+    blackBoxEligible,
+    blackBoxJustified,
     appListVersion: TESTED_APPS_LIST_VERSION,
     appListTestedOn: TESTED_APPS_TESTED_ON,
   };
@@ -172,8 +201,61 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
   const recommendation = {
     moveOverlayToDisplayId: recommendedDisplayId,
     isDefaultRecommendation: hasSecondDisplay,
-    copy: hasSecondDisplay ? DEFAULT_MONITOR_COPY : SINGLE_DISPLAY_COPY,
+    recommendedPresetId,
+    copy: (hasSecondDisplay ? DEFAULT_MONITOR_COPY : SINGLE_DISPLAY_COPY) + presetRecommendationCopy,
   };
+
+  // Black box mode is ON: it is a targeted mitigation, so either keep it only
+  // where the setup justifies it (and shrink the band), or offer the undo.
+  if (affinityMode === 'monitor') {
+    why.push('Black box mode (WDA_MONITOR / 0x01) is ON - a targeted mitigation, not an upgrade.');
+    const presetActionIds: PreflightActionId[] = preset !== 'card' ? ['switch-to-compact'] : [];
+    let blackBoxStatus: PreflightStatus;
+    let blackBoxHeadline: string;
+    let blackBoxMessage: string;
+    let blackBoxActionIds: PreflightActionId[];
+    if (report === 'visible') {
+      blackBoxStatus = 'RED';
+      blackBoxHeadline = 'Black box mode did not hide it';
+      blackBoxMessage =
+        'You still saw the overlay with black box mode on, so this setup needs a window/tab share instead. ' +
+        BLACK_BOX_COST_COPY;
+      blackBoxActionIds = ['window-share-guidance', 'switch-back-to-invisible'];
+    } else if (blackBoxJustified) {
+      why.push(BLACK_BOX_JUSTIFIED_COPY);
+      if (preset !== 'card') {
+        blackBoxStatus = 'AMBER';
+        blackBoxHeadline = 'Shrink the black band';
+        blackBoxMessage =
+          'Black box mode is justified for this single-display/DXGI-risk setup, but a full-width band is a big black slab. ' +
+          'Switch to COMPACT so the black band reads as a small docked panel. ' +
+          BLACK_BOX_COST_COPY;
+        blackBoxActionIds = ['switch-to-compact'];
+      } else {
+        blackBoxStatus = 'GREEN';
+        blackBoxHeadline = "You're set";
+        blackBoxMessage =
+          'Black box mode is on for a known-DXGI/high-risk single-display setup and the overlay is COMPACT, so the black band reads as a docked panel. ' +
+          BLACK_BOX_COST_COPY;
+        blackBoxActionIds = [];
+      }
+    } else {
+      blackBoxStatus = 'AMBER';
+      blackBoxHeadline = 'Switch back to invisible mode';
+      blackBoxMessage = BLACK_BOX_UNDO_COPY + ' ' + BLACK_BOX_COST_COPY;
+      blackBoxActionIds = ['switch-back-to-invisible', ...presetActionIds];
+    }
+    return {
+      status: blackBoxStatus,
+      headline: blackBoxHeadline,
+      message: blackBoxMessage,
+      why,
+      honestNote: HONEST_DETECTION_COPY,
+      actions: blackBoxActionIds.map((id, index) => makeAction(id, index + 1)),
+      recommendation,
+      facts,
+    };
+  }
 
   let status: PreflightStatus;
   let headline: string;
@@ -190,12 +272,17 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
       actionIds = ['move-to-monitor-2', 'window-share-guidance'];
       why.push('A second display is available but the overlay is not on it yet.');
     } else {
-      message = knownIgnoringCapturePath
-        ? 'This capture path ignores normal window exclusion. Turn on black box mode (the interviewer sees a black rectangle, not your answers) or share only a window/tab, then run the self-check.'
+      // Black box is offered ONLY when the setup is known-DXGI/high-risk on a
+      // single display - never as the default mitigation.
+      const offerBlackBox = blackBoxEligible;
+      message = offerBlackBox
+        ? 'This setup can ignore normal window exclusion. Black box mode is a targeted mitigation: the interviewer sees a black rectangle instead of your answers, but ' +
+          'paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band, and the rectangle is discoverable. Share only a window/tab for the cleanest fix.'
         : 'Exclusion cannot be relied on for this setup. Share only the meeting window or browser tab, and run the self-check before you rely on it.';
-      actionIds = knownIgnoringCapturePath
+      actionIds = offerBlackBox
         ? ['enable-black-box-mode', 'window-share-guidance']
         : ['window-share-guidance', 'run-self-check'];
+      if (offerBlackBox) why.push(BLACK_BOX_COST_COPY);
     }
     if (report === 'visible' && compatMode) {
       why.push('The overlay was still visible with compatibility mode ON, so compatibility mode alone will not fix this setup.');
@@ -204,9 +291,17 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
     // Likely native/hardware capture path (DXGI family) and no structural escape.
     status = 'RED';
     headline = 'This setup cannot rely on window exclusion';
-    message =
-      'This app likely uses a hardware capture path that ignores normal exclusion, and there is only one display. Turn on black box mode (a black rectangle in their capture instead of your answers) or share a window/tab, then run the self-check.';
-    actionIds = ['enable-black-box-mode', 'window-share-guidance'];
+    const offerBlackBox = blackBoxEligible;
+    message = offerBlackBox
+      ? 'This app likely uses a hardware capture path that ignores normal exclusion, and there is only one display. ' +
+        'Black box mode is the targeted mitigation (a black rectangle instead of your answers), but ' +
+        'paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band and the rectangle is discoverable. ' +
+        'Sharing only a window/tab avoids the trade-off entirely.'
+      : 'This app likely uses a hardware capture path that ignores normal exclusion, and there is only one display. Share a window/tab and run the self-check.';
+    actionIds = offerBlackBox
+      ? ['enable-black-box-mode', 'window-share-guidance']
+      : ['window-share-guidance', 'run-self-check'];
+    if (offerBlackBox) why.push(BLACK_BOX_COST_COPY);
   } else if (hasSecondDisplay && !overlayOnRecommendedDisplay) {
     // Requirement: putting the overlay on the second display is the DEFAULT
     // recommendation whenever one exists - never a fallback.
@@ -225,12 +320,6 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
     headline = "You're set";
     message = 'Your last self-check confirmed the overlay was hidden. Nothing to change before this call.';
     actionIds = [];
-  } else if (!compatMode && transparent && areaRatio >= MIN_LARGE_OVERLAY_RATIO) {
-    status = 'AMBER';
-    headline = 'Make the overlay opaque for this call';
-    message =
-      'This is a large transparent overlay on a single display. Compatibility mode makes it opaque with a solid scrim, which is more reliable in some capture paths.';
-    actionIds = ['enable-compatibility-mode'];
   } else {
     // Default single-display, unverified setup: exactly one thing to do - verify.
     status = 'AMBER';

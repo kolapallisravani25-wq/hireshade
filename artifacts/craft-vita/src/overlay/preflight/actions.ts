@@ -25,16 +25,30 @@ export const PREFLIGHT_ACTION_CATALOG: Readonly<Record<PreflightActionId, Prefli
   },
   'enable-compatibility-mode': {
     id: 'enable-compatibility-mode',
-    label: 'Turn on compatibility mode',
+    label: 'Turn on the dark surface (cosmetic)',
     description:
-      'Opaque surface with a solid scrim (no transparency/blur/rounded compositing). More reliable in some capture paths; not a guarantee.',
+      'Opaque scrim for contrast/readability. DEMOTED: V1 measured it identical to the transparent surface on all five capture paths under 0x11 (GDI, desktopCapturer screen/window, PrintWindow, DXGI), including a 0x00 positive control. It is not a capture mitigation.',
     kind: 'one-click',
   },
   'enable-black-box-mode': {
     id: 'enable-black-box-mode',
-    label: 'Turn on black box mode',
+    label: 'Turn on black box mode (targeted mitigation)',
     description:
-      'Switch exclusion to WDA_MONITOR: capture apps that ignore normal exclusion (DXGI Desktop Duplication) then see a black rectangle instead of your answers. The rectangle is discoverable, but the answer text does not leak.',
+      'Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade.',
+    kind: 'one-click',
+  },
+  'switch-to-compact': {
+    id: 'switch-to-compact',
+    label: 'Switch to COMPACT overlay',
+    description:
+      'Keeps black box mode on but shrinks the window, so the black band reads as a small docked panel instead of a full-width slab. Recommended whenever black box mode is enabled.',
+    kind: 'one-click',
+  },
+  'switch-back-to-invisible': {
+    id: 'switch-back-to-invisible',
+    label: 'Switch back to invisible mode',
+    description:
+      'Returns to WDA_EXCLUDEFROMCAPTURE (0x11, invisible). Use this when no known-DXGI/high-risk setup was detected: black box mode is a targeted mitigation, not an upgrade, and it makes paths that already worked show a black band.',
     kind: 'one-click',
   },
   'run-self-check': {

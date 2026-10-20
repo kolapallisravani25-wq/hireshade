@@ -1,0 +1,8 @@
+﻿{
+    "captured_at":  "2026-10-20T23:42:57.9251402+05:30",
+    "method":  "user32 GetWindowLongPtr(GWL_EXSTYLE) + GetWindowDisplayAffinity + DwmGetWindowAttribute",
+    "layered_means_transparent_surface":  true,
+    "windows":  [
+
+                ]
+}

@@ -1,0 +1,15 @@
+﻿{
+    "captured_at":  "2026-10-20T23:42:59.2536629+05:30",
+    "expect":  "0x0",
+    "note":  "V1 positive control 0x00",
+    "electron_pids":  [
+                          13976
+                      ],
+    "windows":  [
+
+                ],
+    "matching":  [
+
+                 ],
+    "pass":  false
+}

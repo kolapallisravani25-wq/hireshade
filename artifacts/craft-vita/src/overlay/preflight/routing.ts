@@ -32,6 +32,8 @@ export const REUSED_CAPTURE_CHANNELS = {
   reportVisible: 'desktop:capture:report-visible',
   markSelfCheck: 'desktop:capture:mark-self-check',
   assertNow: 'desktop:capture:assert-now',
+  setAffinityMode: 'desktop:capture:set-affinity-mode',
+  applyProfile: 'desktop:capture:apply-profile',
 } as const;
 
 /** Shape returned by desktop:preflight:get-context (main.js). */
@@ -41,6 +43,7 @@ export interface ElectronPreflightContext {
   readonly overlayDisplayId?: number | null;
   readonly captureState?: {
     readonly lastProfile?: string;
+    readonly affinityMode?: 'exclude' | 'monitor' | string | null;
     readonly compatMode?: boolean;
     readonly reportedVisible?: boolean;
     readonly lastSelfCheckAt?: number | null;
@@ -105,6 +108,7 @@ export function contextToPreflightInput(
     userReport,
     compatMode: capture.compatMode === true,
     capturePathHint: capture.knownBadCapturePath ?? null,
+    affinityMode: capture.affinityMode === 'monitor' ? 'monitor' : 'exclude',
     ...(overrides.appList ? { appList: overrides.appList } : {}),
   };
 }
@@ -167,7 +171,39 @@ export async function routePreflightAction(
         return {
           actionId: action.id,
           handled: true,
-          message: 'Black box mode enabled: capture paths that ignore exclusion will see a black rectangle instead of your answers.',
+          message:
+            'Black box mode enabled for this known-DXGI/high-risk single-display setup. Cost: paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band, and the rectangle is discoverable. Switch to COMPACT if you keep it on.',
+        };
+      }
+      case 'switch-to-compact': {
+        if (!safeHost.setCaptureProfile) {
+          return {
+            actionId: action.id,
+            handled: false,
+            message: 'Overlay profile switching is not wired to this shell yet.',
+          };
+        }
+        await safeHost.setCaptureProfile('card');
+        return {
+          actionId: action.id,
+          handled: true,
+          message: 'Switched to COMPACT: the black band now reads as a small docked panel instead of a full-width slab.',
+        };
+      }
+      case 'switch-back-to-invisible': {
+        if (!safeHost.setBlackBoxMode) {
+          return {
+            actionId: action.id,
+            handled: false,
+            message: 'Black box mode control is not wired to this shell yet.',
+          };
+        }
+        await safeHost.setBlackBoxMode(false);
+        return {
+          actionId: action.id,
+          handled: true,
+          message:
+            'Switched back to invisible mode (WDA_EXCLUDEFROMCAPTURE / 0x11). Paths that already honoured exclusion are invisible again.',
         };
       }
       case 'enable-compatibility-mode': {
@@ -219,6 +255,7 @@ export interface RendererBridgeLike {
   readonly hireshadeCapture?: {
     setCompatMode?: (enabled: boolean) => Promise<unknown>;
     setAffinityMode?: (mode: 'monitor' | 'exclude') => Promise<unknown>;
+    applyProfile?: (profile: string) => Promise<unknown>;
     markSelfCheck?: () => Promise<unknown>;
     reportVisible?: (visible: boolean) => Promise<unknown>;
   };
@@ -239,6 +276,9 @@ export function createRendererPreflightHost(
       : undefined,
     setBlackBoxMode: capture?.setAffinityMode
       ? (enabled) => capture.setAffinityMode!(enabled ? 'monitor' : 'exclude')
+      : undefined,
+    setCaptureProfile: capture?.applyProfile
+      ? (profile) => capture.applyProfile!(profile)
       : undefined,
     runSelfCheck: preflight?.showSelfCheck
       ? (pattern) => preflight.showSelfCheck!(pattern)

@@ -1,0 +1,14 @@
+﻿{
+    "captured_at":  "2026-10-20T23:28:53.3152450+05:30",
+    "label":  "B-dc-on-vs-hidden",
+    "a":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-B-hidden-baseline-screen-0.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-B-visible-screen-0.png",
+    "threshold":  16,
+    "width":  1366,
+    "height":  768,
+    "rect":  "",
+    "mean_abs_diff":  40.432,
+    "fraction_diff_gt_threshold":  0.954,
+    "mean_diff_where_changed":  77.05,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\diff-B-dc-on-vs-hidden.png"
+}

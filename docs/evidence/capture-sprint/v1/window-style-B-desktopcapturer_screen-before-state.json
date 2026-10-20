@@ -1,0 +1,27 @@
+﻿{
+    "captured_at":  "2026-10-20T23:38:11.8372410+05:30",
+    "method":  "user32 GetWindowLongPtr(GWL_EXSTYLE) + GetWindowDisplayAffinity + DwmGetWindowAttribute",
+    "layered_means_transparent_surface":  true,
+    "windows":  [
+                    {
+                        "title":  "Floating Mini-Screen",
+                        "hwnd":  "0x3F0308",
+                        "pid":  7424,
+                        "visible":  true,
+                        "style":  "0x14C50000",
+                        "exstyle":  "0x80128",
+                        "WS_EX_LAYERED":  true,
+                        "affinity":  "0x11",
+                        "bounds":  {
+                                       "y":  43,
+                                       "width":  1258,
+                                       "height":  635,
+                                       "x":  54
+                                   },
+                        "DWM_cloaked":  0,
+                        "DWM_composition":  true,
+                        "foreground":  false,
+                        "topmost":  true
+                    }
+                ]
+}

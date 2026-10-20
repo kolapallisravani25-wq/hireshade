@@ -1,0 +1,548 @@
+{
+  "generatedAt": "2026-10-20T18:00:11.388Z",
+  "modules": {
+    "preflight": "artifacts/craft-vita/src/overlay/preflight/preflight.ts",
+    "actions": "artifacts/craft-vita/src/overlay/preflight/actions.ts"
+  },
+  "fact": "0x11 (exclude) is invisible on good paths and leaks on DXGI; 0x01 (monitor/black box) is black on GDI/PrintWindow/DXGI, so it is a targeted mitigation, not an upgrade.",
+  "matrix": [
+    {
+      "name": "exclude-good-path-unknown-app",
+      "status": "AMBER",
+      "affinityMode": "exclude",
+      "blackBoxEligible": false,
+      "blackBoxJustified": false,
+      "offersBlackBox": false,
+      "actions": [
+        {
+          "id": "run-self-check",
+          "label": "Run the screen-share self-check",
+          "description": "Show a high-contrast pattern (including a black-bar leak pattern) and confirm on the other device whether the overlay is visible.",
+          "kind": "one-click",
+          "order": 1
+        }
+      ],
+      "message": "You have one display. Run the self-check once and confirm whether the overlay shows in the share; if it does, share a window/tab instead.",
+      "recommendation": {
+        "moveOverlayToDisplayId": null,
+        "isDefaultRecommendation": false,
+        "recommendedPresetId": null,
+        "copy": "Single display: keep HireShade compact, or share a window/tab instead of the whole screen."
+      },
+      "headline": "Verify hiding before the call",
+      "pass": true
+    },
+    {
+      "name": "exclude-medium-risk-app",
+      "status": "AMBER",
+      "affinityMode": "exclude",
+      "blackBoxEligible": false,
+      "blackBoxJustified": false,
+      "offersBlackBox": false,
+      "actions": [
+        {
+          "id": "run-self-check",
+          "label": "Run the screen-share self-check",
+          "description": "Show a high-contrast pattern (including a black-bar leak pattern) and confirm on the other device whether the overlay is visible.",
+          "kind": "one-click",
+          "order": 1
+        }
+      ],
+      "message": "You have one display. Run the self-check once and confirm whether the overlay shows in the share; if it does, share a window/tab instead.",
+      "recommendation": {
+        "moveOverlayToDisplayId": null,
+        "isDefaultRecommendation": false,
+        "recommendedPresetId": null,
+        "copy": "Single display: keep HireShade compact, or share a window/tab instead of the whole screen."
+      },
+      "headline": "Verify hiding before the call",
+      "pass": true
+    },
+    {
+      "name": "exclude-generic-visible-report",
+      "status": "RED",
+      "affinityMode": "exclude",
+      "blackBoxEligible": false,
+      "blackBoxJustified": false,
+      "offersBlackBox": false,
+      "actions": [
+        {
+          "id": "window-share-guidance",
+          "label": "Share a window or tab instead of the screen",
+          "description": "Window/tab shares capture only that surface. This avoids whole-screen capture paths (such as DXGI Desktop Duplication) that can ignore window exclusion.",
+          "kind": "info",
+          "order": 1
+        },
+        {
+          "id": "run-self-check",
+          "label": "Run the screen-share self-check",
+          "description": "Show a high-contrast pattern (including a black-bar leak pattern) and confirm on the other device whether the overlay is visible.",
+          "kind": "one-click",
+          "order": 2
+        }
+      ],
+      "message": "Exclusion cannot be relied on for this setup. Share only the meeting window or browser tab, and run the self-check before you rely on it.",
+      "recommendation": {
+        "moveOverlayToDisplayId": null,
+        "isDefaultRecommendation": false,
+        "recommendedPresetId": null,
+        "copy": "Single display: keep HireShade compact, or share a window/tab instead of the whole screen."
+      },
+      "headline": "Don't rely on hiding for this call",
+      "pass": true
+    },
+    {
+      "name": "exclude-hint-but-user-confirmed-hidden",
+      "status": "GREEN",
+      "affinityMode": "exclude",
+      "blackBoxEligible": false,
+      "blackBoxJustified": true,
+      "offersBlackBox": false,
+      "actions": [],
+      "message": "Your last self-check confirmed the overlay was hidden. Nothing to change before this call.",
+      "recommendation": {
+        "moveOverlayToDisplayId": null,
+        "isDefaultRecommendation": false,
+        "recommendedPresetId": null,
+        "copy": "Single display: keep HireShade compact, or share a window/tab instead of the whole screen."
+      },
+      "headline": "You're set",
+      "pass": true
+    },
+    {
+      "name": "exclude-high-risk-with-second-display",
+      "status": "AMBER",
+      "affinityMode": "exclude",
+      "blackBoxEligible": false,
+      "blackBoxJustified": false,
+      "offersBlackBox": false,
+      "actions": [
+        {
+          "id": "move-to-monitor-2",
+          "label": "Move HireShade to monitor 2",
+          "description": "Keep the overlay on the other display. Full-screen shares of the meeting display then cannot contain it - this works regardless of capture path.",
+          "kind": "one-click",
+          "order": 1
+        }
+      ],
+      "message": "Keep the overlay on the other display and share only your meeting display. Full-screen shares then cannot contain it, regardless of capture path.",
+      "recommendation": {
+        "moveOverlayToDisplayId": 2,
+        "isDefaultRecommendation": true,
+        "recommendedPresetId": null,
+        "copy": "Put HireShade on monitor 2 - recommended whenever a second display exists, because a full-screen share of the meeting display cannot contain it."
+      },
+      "headline": "Move HireShade to monitor 2",
+      "pass": true
+    },
+    {
+      "name": "exclude-known-dxgi-single-display",
+      "status": "RED",
+      "affinityMode": "exclude",
+      "blackBoxEligible": true,
+      "blackBoxJustified": true,
+      "offersBlackBox": true,
+      "actions": [
+        {
+          "id": "enable-black-box-mode",
+          "label": "Turn on black box mode (targeted mitigation)",
+          "description": "Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade.",
+          "kind": "one-click",
+          "order": 1
+        },
+        {
+          "id": "window-share-guidance",
+          "label": "Share a window or tab instead of the screen",
+          "description": "Window/tab shares capture only that surface. This avoids whole-screen capture paths (such as DXGI Desktop Duplication) that can ignore window exclusion.",
+          "kind": "info",
+          "order": 2
+        }
+      ],
+      "message": "This setup can ignore normal window exclusion. Black box mode is a targeted mitigation: the interviewer sees a black rectangle instead of your answers, but paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band, and the rectangle is discoverable. Share only a window/tab for the cleanest fix.",
+      "recommendation": {
+        "moveOverlayToDisplayId": null,
+        "isDefaultRecommendation": false,
+        "recommendedPresetId": null,
+        "copy": "Single display: keep HireShade compact, or share a window/tab instead of the whole screen."
+      },
+      "headline": "Don't rely on hiding for this call",
+      "pass": true
+    },
+    {
+      "name": "exclude-high-risk-single-display",
+      "status": "RED",
+      "affinityMode": "exclude",
+      "blackBoxEligible": true,
+      "blackBoxJustified": true,
+      "offersBlackBox": true,
+      "actions": [
+        {
+          "id": "enable-black-box-mode",
+          "label": "Turn on black box mode (targeted mitigation)",
+          "description": "Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade.",
+          "kind": "one-click",
+          "order": 1
+        },
+        {
+          "id": "window-share-guidance",
+          "label": "Share a window or tab instead of the screen",
+          "description": "Window/tab shares capture only that surface. This avoids whole-screen capture paths (such as DXGI Desktop Duplication) that can ignore window exclusion.",
+          "kind": "info",
+          "order": 2
+        }
+      ],
+      "message": "This app likely uses a hardware capture path that ignores normal exclusion, and there is only one display. Black box mode is the targeted mitigation (a black rectangle instead of your answers), but paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band and the rectangle is discoverable. Sharing only a window/tab avoids the trade-off entirely.",
+      "recommendation": {
+        "moveOverlayToDisplayId": null,
+        "isDefaultRecommendation": false,
+        "recommendedPresetId": null,
+        "copy": "Single display: keep HireShade compact, or share a window/tab instead of the whole screen."
+      },
+      "headline": "This setup cannot rely on window exclusion",
+      "pass": true
+    },
+    {
+      "name": "monitor-unjustified-banner",
+      "status": "AMBER",
+      "affinityMode": "monitor",
+      "blackBoxEligible": false,
+      "blackBoxJustified": false,
+      "offersBlackBox": false,
+      "actions": [
+        {
+          "id": "switch-back-to-invisible",
+          "label": "Switch back to invisible mode",
+          "description": "Returns to WDA_EXCLUDEFROMCAPTURE (0x11, invisible). Use this when no known-DXGI/high-risk setup was detected: black box mode is a targeted mitigation, not an upgrade, and it makes paths that already worked show a black band.",
+          "kind": "one-click",
+          "order": 1
+        },
+        {
+          "id": "switch-to-compact",
+          "label": "Switch to COMPACT overlay",
+          "description": "Keeps black box mode on but shrinks the window, so the black band reads as a small docked panel instead of a full-width slab. Recommended whenever black box mode is enabled.",
+          "kind": "one-click",
+          "order": 2
+        }
+      ],
+      "message": "No known-DXGI/high-risk single-display setup was detected for this session, so black box mode is not targeted at anything here. Switching back restores invisibility on paths that already worked. Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable.",
+      "recommendation": {
+        "moveOverlayToDisplayId": null,
+        "isDefaultRecommendation": false,
+        "recommendedPresetId": "card",
+        "copy": "Single display: keep HireShade compact, or share a window/tab instead of the whole screen. Black box mode is on: switch to COMPACT so the black band reads as a small docked panel, not a full-width slab."
+      },
+      "headline": "Switch back to invisible mode",
+      "pass": true
+    },
+    {
+      "name": "monitor-justified-banner",
+      "status": "AMBER",
+      "affinityMode": "monitor",
+      "blackBoxEligible": false,
+      "blackBoxJustified": true,
+      "offersBlackBox": false,
+      "actions": [
+        {
+          "id": "switch-to-compact",
+          "label": "Switch to COMPACT overlay",
+          "description": "Keeps black box mode on but shrinks the window, so the black band reads as a small docked panel instead of a full-width slab. Recommended whenever black box mode is enabled.",
+          "kind": "one-click",
+          "order": 1
+        }
+      ],
+      "message": "Black box mode is justified for this single-display/DXGI-risk setup, but a full-width band is a big black slab. Switch to COMPACT so the black band reads as a small docked panel. Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable.",
+      "recommendation": {
+        "moveOverlayToDisplayId": null,
+        "isDefaultRecommendation": false,
+        "recommendedPresetId": "card",
+        "copy": "Single display: keep HireShade compact, or share a window/tab instead of the whole screen. Black box mode is on: switch to COMPACT so the black band reads as a small docked panel, not a full-width slab."
+      },
+      "headline": "Shrink the black band",
+      "pass": true
+    },
+    {
+      "name": "monitor-justified-compact",
+      "status": "GREEN",
+      "affinityMode": "monitor",
+      "blackBoxEligible": false,
+      "blackBoxJustified": true,
+      "offersBlackBox": false,
+      "actions": [],
+      "message": "Black box mode is on for a known-DXGI/high-risk single-display setup and the overlay is COMPACT, so the black band reads as a docked panel. Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable.",
+      "recommendation": {
+        "moveOverlayToDisplayId": null,
+        "isDefaultRecommendation": false,
+        "recommendedPresetId": null,
+        "copy": "Single display: keep HireShade compact, or share a window/tab instead of the whole screen."
+      },
+      "headline": "You're set",
+      "pass": true
+    },
+    {
+      "name": "monitor-visible-report",
+      "status": "RED",
+      "affinityMode": "monitor",
+      "blackBoxEligible": false,
+      "blackBoxJustified": false,
+      "offersBlackBox": false,
+      "actions": [
+        {
+          "id": "window-share-guidance",
+          "label": "Share a window or tab instead of the screen",
+          "description": "Window/tab shares capture only that surface. This avoids whole-screen capture paths (such as DXGI Desktop Duplication) that can ignore window exclusion.",
+          "kind": "info",
+          "order": 1
+        },
+        {
+          "id": "switch-back-to-invisible",
+          "label": "Switch back to invisible mode",
+          "description": "Returns to WDA_EXCLUDEFROMCAPTURE (0x11, invisible). Use this when no known-DXGI/high-risk setup was detected: black box mode is a targeted mitigation, not an upgrade, and it makes paths that already worked show a black band.",
+          "kind": "one-click",
+          "order": 2
+        }
+      ],
+      "message": "You still saw the overlay with black box mode on, so this setup needs a window/tab share instead. Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable.",
+      "recommendation": {
+        "moveOverlayToDisplayId": null,
+        "isDefaultRecommendation": false,
+        "recommendedPresetId": "card",
+        "copy": "Single display: keep HireShade compact, or share a window/tab instead of the whole screen. Black box mode is on: switch to COMPACT so the black band reads as a small docked panel, not a full-width slab."
+      },
+      "headline": "Black box mode did not hide it",
+      "pass": true
+    }
+  ],
+  "copy": {
+    "blackBoxActionDescription": "Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade.",
+    "blackBoxCostCopy": "Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable.",
+    "blackBoxJustifiedCopy": "Known-DXGI/high-risk single-display setup: black box mode can stop the answer text leaking, at the cost of a discoverable black rectangle.",
+    "blackBoxUndoCopy": "No known-DXGI/high-risk single-display setup was detected for this session, so black box mode is not targeted at anything here. Switching back restores invisibility on paths that already worked.",
+    "undoVerdictMessage": "No known-DXGI/high-risk single-display setup was detected for this session, so black box mode is not targeted at anything here. Switching back restores invisibility on paths that already worked. Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable.",
+    "switchToCompactMessage": "Black box mode is justified for this single-display/DXGI-risk setup, but a full-width band is a big black slab. Switch to COMPACT so the black band reads as a small docked panel. Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable."
+  },
+  "assertions": [
+    {
+      "name": "offer-rule-exclude-good-path-unknown-app",
+      "pass": true,
+      "detail": {
+        "offered": false,
+        "eligible": false,
+        "actions": [
+          "run-self-check"
+        ]
+      }
+    },
+    {
+      "name": "offer-rule-exclude-medium-risk-app",
+      "pass": true,
+      "detail": {
+        "offered": false,
+        "eligible": false,
+        "actions": [
+          "run-self-check"
+        ]
+      }
+    },
+    {
+      "name": "offer-rule-exclude-generic-visible-report",
+      "pass": true,
+      "detail": {
+        "offered": false,
+        "eligible": false,
+        "actions": [
+          "window-share-guidance",
+          "run-self-check"
+        ]
+      }
+    },
+    {
+      "name": "offer-rule-exclude-hint-but-user-confirmed-hidden",
+      "pass": true,
+      "detail": {
+        "offered": false,
+        "eligible": false,
+        "actions": []
+      }
+    },
+    {
+      "name": "offer-rule-exclude-high-risk-with-second-display",
+      "pass": true,
+      "detail": {
+        "offered": false,
+        "eligible": false,
+        "actions": [
+          "move-to-monitor-2"
+        ]
+      }
+    },
+    {
+      "name": "offer-rule-exclude-known-dxgi-single-display",
+      "pass": true,
+      "detail": {
+        "offered": true,
+        "eligible": true,
+        "actions": [
+          "enable-black-box-mode",
+          "window-share-guidance"
+        ]
+      }
+    },
+    {
+      "name": "offer-rule-exclude-high-risk-single-display",
+      "pass": true,
+      "detail": {
+        "offered": true,
+        "eligible": true,
+        "actions": [
+          "enable-black-box-mode",
+          "window-share-guidance"
+        ]
+      }
+    },
+    {
+      "name": "offer-rule-monitor-unjustified-banner",
+      "pass": true,
+      "detail": {
+        "offered": false,
+        "eligible": false,
+        "actions": [
+          "switch-back-to-invisible",
+          "switch-to-compact"
+        ]
+      }
+    },
+    {
+      "name": "offer-rule-monitor-justified-banner",
+      "pass": true,
+      "detail": {
+        "offered": false,
+        "eligible": false,
+        "actions": [
+          "switch-to-compact"
+        ]
+      }
+    },
+    {
+      "name": "offer-rule-monitor-justified-compact",
+      "pass": true,
+      "detail": {
+        "offered": false,
+        "eligible": false,
+        "actions": []
+      }
+    },
+    {
+      "name": "offer-rule-monitor-visible-report",
+      "pass": true,
+      "detail": {
+        "offered": false,
+        "eligible": false,
+        "actions": [
+          "window-share-guidance",
+          "switch-back-to-invisible"
+        ]
+      }
+    },
+    {
+      "name": "never-defaults-to-0x01",
+      "pass": true,
+      "detail": [
+        {
+          "row": "exclude-known-dxgi-single-display",
+          "status": "RED"
+        },
+        {
+          "row": "exclude-high-risk-single-display",
+          "status": "RED"
+        }
+      ]
+    },
+    {
+      "name": "offered-only-for-known-dxgi-or-high-risk-single-display",
+      "pass": true,
+      "detail": [
+        "exclude-known-dxgi-single-display",
+        "exclude-high-risk-single-display"
+      ]
+    },
+    {
+      "name": "cost-copy-action-gdi",
+      "pass": true,
+      "detail": "Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade."
+    },
+    {
+      "name": "cost-copy-action-printwindow",
+      "pass": true,
+      "detail": "Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade."
+    },
+    {
+      "name": "cost-copy-action-desktopcapturer",
+      "pass": true,
+      "detail": "Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade."
+    },
+    {
+      "name": "cost-copy-action-black band",
+      "pass": true,
+      "detail": "Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade."
+    },
+    {
+      "name": "cost-copy-action-discoverable",
+      "pass": true,
+      "detail": "Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade."
+    },
+    {
+      "name": "cost-copy-action-not as an upgrade",
+      "pass": true,
+      "detail": "Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade."
+    },
+    {
+      "name": "cost-copy-constant-gdi",
+      "pass": true,
+      "detail": "Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable."
+    },
+    {
+      "name": "cost-copy-constant-printwindow",
+      "pass": true,
+      "detail": "Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable."
+    },
+    {
+      "name": "cost-copy-constant-desktopcapturer",
+      "pass": true,
+      "detail": "Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable."
+    },
+    {
+      "name": "cost-copy-constant-black band",
+      "pass": true,
+      "detail": "Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable."
+    },
+    {
+      "name": "cost-copy-constant-discoverable",
+      "pass": true,
+      "detail": "Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable."
+    },
+    {
+      "name": "undo-offered-when-unjustified",
+      "pass": true,
+      "detail": [
+        "switch-back-to-invisible",
+        "switch-to-compact"
+      ]
+    },
+    {
+      "name": "switch-to-compact-offered-when-justified",
+      "pass": true,
+      "detail": {
+        "actions": [
+          "switch-to-compact"
+        ],
+        "recommendedPresetId": "card"
+      }
+    },
+    {
+      "name": "justified-compact-is-green",
+      "pass": true,
+      "detail": "GREEN"
+    }
+  ],
+  "pass": true
+}

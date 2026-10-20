@@ -1,0 +1,18 @@
+﻿{
+    "captured_at":  "2026-10-20T23:28:08.8653464+05:30",
+    "label":  "A-visible",
+    "method":  "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+    "title":  "Floating Mini-Screen",
+    "hwnd":  "0x5A019A",
+    "printwindow_ok":  true,
+    "flag_used":  0,
+    "path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\printwindow-A-visible.png",
+    "width":  1257,
+    "height":  635,
+    "stats":  {
+                  "mean_luma":  0,
+                  "std_luma":  0,
+                  "unique_colors_sampled":  1,
+                  "black_fraction":  1
+              }
+}

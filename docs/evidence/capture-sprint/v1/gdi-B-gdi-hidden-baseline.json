@@ -1,0 +1,21 @@
+﻿{
+    "captured_at":  "2026-10-20T23:34:35.8995649+05:30",
+    "label":  "B-gdi-hidden-baseline",
+    "note":  "B-gdi-hidden-baseline",
+    "method":  "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+    "bounds":  {
+                   "y":  42,
+                   "width":  1259,
+                   "height":  636,
+                   "x":  54
+               },
+    "full_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-B-gdi-hidden-baseline-full.png",
+    "crop_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-B-gdi-hidden-baseline-crop.png",
+    "stats":  {
+                  "mean_luma":  181.73,
+                  "std_luma":  35.55,
+                  "unique_colors_sampled":  328,
+                  "high_contrast_fraction":  0.1194,
+                  "non_black_fraction":  0
+              }
+}

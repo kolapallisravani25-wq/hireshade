@@ -117,7 +117,7 @@ async function main() {
       check("quick-display-enumerated", results.sections.displays.displayCount !== null, results.sections.displays.displayCount);
       // Informational integrity probe: expected Medium (non-elevated). Assert the
       // probe ran, not that the process is elevated.
-      check("quick-elevation-readable", integrity.status === 0 || integrity.status === null, { status: integrity.status, elevated: results.sections.elevationQuick.elevated });
+      check("quick-elevation-readable", typeof integrity.status === "number", { status: integrity.status, elevated: results.sections.elevationQuick.elevated });
     } else {
       // ── 2. Chrome/Edge share (protected overlay, then unprotected control) ─
       console.log("");

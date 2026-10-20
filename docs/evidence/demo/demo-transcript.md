@@ -1,6 +1,6 @@
 # HireShade zero-key demo - transcript & latency evidence
 
-Generated: 2026-10-20T17:46:31.145Z
+Generated: 2026-10-20T18:31:15.919Z
 
 ## Result
 
@@ -8,136 +8,136 @@ Generated: 2026-10-20T17:46:31.145Z
 
 | Budget | Statistic | Threshold | Measured | Pass |
 |---|---|---|---|---|
-| partialLatencyMs | p95 | 500 ms | 262.5 ms | yes |
-| silenceToQuestionMs | p95 | 800 ms | 712.5 ms | yes |
-| questionToFirstTokenMs | p95 | 1200 ms | 771.1 ms | yes |
-| answerVisibleMs | p50 | 3000 ms | 1652.1 ms | yes |
-| answerVisibleMs | p95 | 5000 ms | 1942.4 ms | yes |
+| partialLatencyMs | p95 | 500 ms | 258.6 ms | yes |
+| silenceToQuestionMs | p95 | 800 ms | 707.6 ms | yes |
+| questionToFirstTokenMs | p95 | 1200 ms | 766.6 ms | yes |
+| answerVisibleMs | p50 | 3000 ms | 1676.0 ms | yes |
+| answerVisibleMs | p95 | 5000 ms | 1900.4 ms | yes |
 
 ## Measured latency (all runs)
 
 | Metric | n | p50 | p95 | max |
 |---|---|---|---|---|
-| partial transcript | 18 | 249.0 | 262.5 | 265.6 |
-| silence -> question | 18 | 699.4 | 712.5 | 713.8 |
-| question -> first token | 18 | 510.9 | 771.1 | 772.7 |
-| question -> answer visible | 18 | 1652.1 | 1942.4 | 1953.8 |
+| partial transcript | 18 | 249.9 | 258.6 | 268.2 |
+| silence -> question | 18 | 701.9 | 707.6 | 711.8 |
+| question -> first token | 18 | 513.8 | 766.6 | 768.2 |
+| question -> answer visible | 18 | 1676.0 | 1900.4 | 1900.6 |
 
 ## Target transport contracts (docs/TARGET_VERIFIED.md)
 
 - ASR (T-09): websocket wss://global.rt.speechmatics.com/v2, pcm_f32le @ 16000 Hz mono, JWT query param; events AddPartialTranscript/AddTranscript/EndOfUtterance; two sockets (Microphone, Screen Sharing).
-- LLM answers (T-10): POST /api/chat SSE with Content-Type: text/event-stream, Cache-Control: no-cache, no-transform, X-Accel-Buffering: no. Live probe first delta: 553.9 ms.
+- LLM answers (T-10): POST /api/chat SSE with Content-Type: text/event-stream, Cache-Control: no-cache, no-transform, X-Accel-Buffering: no. Live probe first delta: 575.2 ms.
 - Session create (T-11): validated against the observed desktop-app contract.
 
 ## Per-run detail
 
 ### run-01-gpt-5 - model gpt-5
 
-Session wall time 5686 ms; prompt 6198 chars; answer 814 chars.
+Session wall time 5710 ms; prompt 6198 chars; answer 814 chars.
 
 - mic (candidate, demo-mic.wav): 1 VAD segment(s), 1 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Okay, got it."
 - screen (interviewer, demo-screen.wav): 2 VAD segment(s), 4 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Can you explain how you would design a rate limiter using Redis?", "And how would you handle the case where Redis is unavailable?"
 
 | question | partial ms | silence->q ms | first token ms | answer visible ms |
 |---|---|---|---|---|
-| Can you explain how you would design a rate limiter using Redis? | 244.4 | 702.4 | 510.0 | 1659.9 |
-| And how would you handle the case where Redis is unavailable? | 237.7 | 698.0 | 520.3 | 1665.1 |
+| Can you explain how you would design a rate limiter using Redis? | 242.2 | 706.9 | 516.4 | 1618.6 |
+| And how would you handle the case where Redis is unavailable? | 249.1 | 711.8 | 509.4 | 1694.0 |
 
 ### run-02-gpt-5 - model gpt-5
 
-Session wall time 5724 ms; prompt 6198 chars; answer 814 chars.
+Session wall time 5678 ms; prompt 6198 chars; answer 814 chars.
 
 - mic (candidate, demo-mic.wav): 1 VAD segment(s), 1 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Okay, got it."
 - screen (interviewer, demo-screen.wav): 2 VAD segment(s), 4 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Can you explain how you would design a rate limiter using Redis?", "And how would you handle the case where Redis is unavailable?"
 
 | question | partial ms | silence->q ms | first token ms | answer visible ms |
 |---|---|---|---|---|
-| Can you explain how you would design a rate limiter using Redis? | 235.7 | 713.8 | 512.5 | 1644.3 |
-| And how would you handle the case where Redis is unavailable? | 245.4 | 702.9 | 510.3 | 1700.8 |
+| Can you explain how you would design a rate limiter using Redis? | 250.8 | 702.1 | 514.7 | 1735.0 |
+| And how would you handle the case where Redis is unavailable? | 268.2 | 693.9 | 506.6 | 1658.0 |
 
 ### run-03-gpt-5 - model gpt-5
 
-Session wall time 5631 ms; prompt 6198 chars; answer 814 chars.
+Session wall time 5681 ms; prompt 6198 chars; answer 814 chars.
 
 - mic (candidate, demo-mic.wav): 1 VAD segment(s), 1 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Okay, got it."
 - screen (interviewer, demo-screen.wav): 2 VAD segment(s), 4 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Can you explain how you would design a rate limiter using Redis?", "And how would you handle the case where Redis is unavailable?"
 
 | question | partial ms | silence->q ms | first token ms | answer visible ms |
 |---|---|---|---|---|
-| Can you explain how you would design a rate limiter using Redis? | 265.6 | 702.7 | 508.6 | 1639.1 |
-| And how would you handle the case where Redis is unavailable? | 261.9 | 698.4 | 511.6 | 1607.7 |
+| Can you explain how you would design a rate limiter using Redis? | 250.4 | 702.1 | 513.0 | 1699.8 |
+| And how would you handle the case where Redis is unavailable? | 241.9 | 696.2 | 516.0 | 1651.0 |
 
 ### run-04-gemini-3-1-flash-lite - model gemini-3-1-flash-lite
 
-Session wall time 5600 ms; prompt 6198 chars; answer 814 chars.
+Session wall time 5577 ms; prompt 6198 chars; answer 814 chars.
 
 - mic (candidate, demo-mic.wav): 1 VAD segment(s), 1 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Okay, got it."
 - screen (interviewer, demo-screen.wav): 2 VAD segment(s), 4 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Can you explain how you would design a rate limiter using Redis?", "And how would you handle the case where Redis is unavailable?"
 
 | question | partial ms | silence->q ms | first token ms | answer visible ms |
 |---|---|---|---|---|
-| Can you explain how you would design a rate limiter using Redis? | 253.1 | 700.2 | 396.0 | 1528.0 |
-| And how would you handle the case where Redis is unavailable? | 248.6 | 711.7 | 402.5 | 1568.9 |
+| Can you explain how you would design a rate limiter using Redis? | 247.7 | 702.3 | 389.0 | 1549.1 |
+| And how would you handle the case where Redis is unavailable? | 256.9 | 703.6 | 401.4 | 1547.9 |
 
 ### run-05-gemini-3-1-flash-lite - model gemini-3-1-flash-lite
 
-Session wall time 5618 ms; prompt 6198 chars; answer 814 chars.
+Session wall time 5558 ms; prompt 6198 chars; answer 814 chars.
 
 - mic (candidate, demo-mic.wav): 1 VAD segment(s), 1 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Okay, got it."
 - screen (interviewer, demo-screen.wav): 2 VAD segment(s), 4 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Can you explain how you would design a rate limiter using Redis?", "And how would you handle the case where Redis is unavailable?"
 
 | question | partial ms | silence->q ms | first token ms | answer visible ms |
 |---|---|---|---|---|
-| Can you explain how you would design a rate limiter using Redis? | 239.8 | 693.8 | 391.7 | 1551.5 |
-| And how would you handle the case where Redis is unavailable? | 252.7 | 698.6 | 388.5 | 1589.5 |
+| Can you explain how you would design a rate limiter using Redis? | 252.1 | 699.9 | 397.3 | 1531.1 |
+| And how would you handle the case where Redis is unavailable? | 249.4 | 703.8 | 387.2 | 1513.0 |
 
 ### run-06-gemini-3-1-flash-lite - model gemini-3-1-flash-lite
 
-Session wall time 5588 ms; prompt 6198 chars; answer 814 chars.
+Session wall time 5608 ms; prompt 6198 chars; answer 814 chars.
 
 - mic (candidate, demo-mic.wav): 1 VAD segment(s), 1 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Okay, got it."
 - screen (interviewer, demo-screen.wav): 2 VAD segment(s), 4 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Can you explain how you would design a rate limiter using Redis?", "And how would you handle the case where Redis is unavailable?"
 
 | question | partial ms | silence->q ms | first token ms | answer visible ms |
 |---|---|---|---|---|
-| Can you explain how you would design a rate limiter using Redis? | 251.5 | 707.3 | 396.6 | 1596.0 |
-| And how would you handle the case where Redis is unavailable? | 249.5 | 690.2 | 393.7 | 1559.9 |
+| Can you explain how you would design a rate limiter using Redis? | 250.0 | 701.8 | 399.4 | 1534.7 |
+| And how would you handle the case where Redis is unavailable? | 250.2 | 700.6 | 387.2 | 1585.9 |
 
 ### run-07-gemini-3-6-flash - model gemini-3-6-flash
 
-Session wall time 5918 ms; prompt 6198 chars; answer 814 chars.
+Session wall time 5932 ms; prompt 6198 chars; answer 814 chars.
 
 - mic (candidate, demo-mic.wav): 1 VAD segment(s), 1 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Okay, got it."
 - screen (interviewer, demo-screen.wav): 2 VAD segment(s), 4 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Can you explain how you would design a rate limiter using Redis?", "And how would you handle the case where Redis is unavailable?"
 
 | question | partial ms | silence->q ms | first token ms | answer visible ms |
 |---|---|---|---|---|
-| Can you explain how you would design a rate limiter using Redis? | 254.0 | 712.3 | 765.5 | 1940.4 |
-| And how would you handle the case where Redis is unavailable? | 238.7 | 691.8 | 772.7 | 1900.2 |
+| Can you explain how you would design a rate limiter using Redis? | 248.0 | 703.3 | 768.2 | 1900.3 |
+| And how would you handle the case where Redis is unavailable? | 250.5 | 702.9 | 764.5 | 1897.0 |
 
 ### run-08-gemini-3-6-flash - model gemini-3-6-flash
 
-Session wall time 5955 ms; prompt 6198 chars; answer 814 chars.
+Session wall time 5930 ms; prompt 6198 chars; answer 814 chars.
 
 - mic (candidate, demo-mic.wav): 1 VAD segment(s), 1 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Okay, got it."
 - screen (interviewer, demo-screen.wav): 2 VAD segment(s), 4 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Can you explain how you would design a rate limiter using Redis?", "And how would you handle the case where Redis is unavailable?"
 
 | question | partial ms | silence->q ms | first token ms | answer visible ms |
 |---|---|---|---|---|
-| Can you explain how you would design a rate limiter using Redis? | 242.3 | 697.7 | 769.6 | 1912.3 |
-| And how would you handle the case where Redis is unavailable? | 253.2 | 698.3 | 770.8 | 1926.4 |
+| Can you explain how you would design a rate limiter using Redis? | 249.0 | 699.3 | 766.4 | 1899.0 |
+| And how would you handle the case where Redis is unavailable? | 249.9 | 700.2 | 762.2 | 1900.6 |
 
 ### run-09-gemini-3-6-flash - model gemini-3-6-flash
 
-Session wall time 5973 ms; prompt 6198 chars; answer 814 chars.
+Session wall time 5916 ms; prompt 6198 chars; answer 814 chars.
 
 - mic (candidate, demo-mic.wav): 1 VAD segment(s), 1 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Okay, got it."
 - screen (interviewer, demo-screen.wav): 2 VAD segment(s), 4 partial(s), 294400 bytes as pcm_f32le -> ASR. Finals: "Can you explain how you would design a rate limiter using Redis?", "And how would you handle the case where Redis is unavailable?"
 
 | question | partial ms | silence->q ms | first token ms | answer visible ms |
 |---|---|---|---|---|
-| Can you explain how you would design a rate limiter using Redis? | 244.7 | 702.7 | 761.7 | 1909.4 |
-| And how would you handle the case where Redis is unavailable? | 249.6 | 696.2 | 760.8 | 1953.8 |
+| Can you explain how you would design a rate limiter using Redis? | 252.1 | 701.6 | 765.6 | 1899.7 |
+| And how would you handle the case where Redis is unavailable? | 249.1 | 686.0 | 765.0 | 1898.6 |
 
 ## Full transcript - first run (screen-share channel)
 
@@ -163,9 +163,9 @@ Session wall time 5973 ms; prompt 6198 chars; answer 814 chars.
 
 ## Mock HTTP surface (zero keys)
 
-- demo server: http://127.0.0.1:65454
+- demo server: http://127.0.0.1:61544
 - GET /auth/me: {"id":"demo-user-00000000-0000-4000-8000-000000000001","clerkUserId":"demo_clerk_user_harness","email":"demo@hireshade.local","firstName":"Demo","lastName":"Candidate","imageUrl":"","createdAt":"2026-01-01T00:00:00.000Z","demo":true}
-- POST /auth/deepgram-token: {"key":"dg_demo_mock_demo-user-00000000-0000-4000-8000-000000000001","expiresAt":"2026-10-20T19:45:36.515Z","ttlSeconds":7200,"mocked":true,"provider":"mock"}
+- POST /auth/deepgram-token: {"key":"dg_demo_mock_demo-user-00000000-0000-4000-8000-000000000001","expiresAt":"2026-10-20T20:30:21.308Z","ttlSeconds":7200,"mocked":true,"provider":"mock"}
 - GET /demo/status: {"demoMode":{"requested":true,"safe":true,"production":false,"nodeEnv":"development","mode":"mock","reason":"DEMO_MODE accepted (non-production); mock providers active"},"user":{"id":"demo-user-00000000-0000-4000-8000-000000000001","clerkUserId":"demo_clerk_user_harness","email":"demo@hireshade.local","firstName":"Demo","lastName":"Candidate","imageUrl":"","createdAt":"2026-01-01T00:00:00.000Z"},"keysRequired":false,"providers":{"llm":"mock-llm","asr":"mock-asr","tts":"mock-tts"}}
 
 ## Reference: target per-model first-token table (T-10/T-11)

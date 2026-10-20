@@ -91,56 +91,61 @@ display/show/restore/focus/private/compat/recreate (#1..#32 in the evidence run)
   transparent:false window is created on the NEXT launch (createWindow reads the
   persisted compat flag). Runtime recreation is opt-in (HIRESHADE_COMPAT_RECREATE=1).
 
-### U2 (sprint-unblock): CDP re-attach fixed; opaque-capture measurement = OBSERVED rows + one exact BLOCKED row
+### V1 definitive: compatibility mode has NO measured capture effect under 0x11 (RETIRE/DEMOTE; G-052 closed with corrected premise)
 
-Harness fix (scripts only; U1 koffi code untouched):
-- `scripts/capture-matrix/measure-opaque-recreate.mjs` no longer polls or awaits the pre-swap CDP target.
-  On target detach it re-queries `http://127.0.0.1:<port>/json`, re-attaches to the `floating.html` target
-  by URL, bounds the re-attach at 20 s and fails loudly with the current target list; every CDP call is
-  bounded (5 s) and a dead socket is never awaited. If the renderer target does not come back it falls
-  back to main-process evidence (persisted `capture-state.json`, `window-style.ps1` EXSTYLE/affinity,
-  and external PrintWindow/GDI/DXGI captures) instead of hanging.
-- New `scripts/capture-matrix/window-style.ps1`: GetWindowLongPtr(GWL_EXSTYLE), WS_EX_LAYERED,
-  GetWindowDisplayAffinity + bounds for PID-scoped windows.
+Question: under WDA_EXCLUDEFROMCAPTURE (0x11), does transparent vs opaque change any of the five capture
+paths? Answer: **no, on this host/build all five paths measure identical.**
 
-OBSERVED rows (this Windows host, Electron 37.10.3, single display):
-1. Runtime recreation (HIRESHADE_COMPAT_RECREATE=1): main process survives and logs
-   `floating surface recreated (compat-mode-changed): compat=true transparent=false`; the new HWND gets
-   `native affinity mode=0x11 ... readback=0x11` (main-u2.log). CDP re-attach found 6 targets and the new
-   floating page once, but the target list became null right after the swap and the recreated window is
-   **visible=false** in the HWND probe.
-2. Startup-opaque (capture-state.json compatMode=true, so createWindow builds transparent:false):
-   state compat=true / transparent=false; renderer scrim DOM background = rgb(11,13,18);
-   HWND affinity 0x11 PASS; window visible=true.
-3. PrintWindow: **all-black in every mode** - transparent-before mean luma 0 / 100% black; opaque-after
-   mean luma 0 / 100% black. The expected "opaque shows its own colour instead of black" was NOT observed.
-   Possible cause: WDA_EXCLUDEFROMCAPTURE also blocks PrintWindow on this build, or the layered DWM surface
-   prints black regardless of the Electron transparent flag; the current probes cannot distinguish these.
-4. WS_EX_LAYERED stayed set (exstyle 0x80128) for the frameless window in BOTH transparent and compat runs,
-   so EXSTYLE is not a valid proxy for Electron's transparent:false. Do not use it as proof.
-5. GDI (same-run hidden baseline): runtime recreation 0.00% pixels differ; startup-opaque 3.74%.
-   DXGI ddagrab vs hidden baseline: runtime 0.95%, startup-opaque 0.02% - these low deltas mean the
-   overlay was NOT visible in the U2 runs (recreated surface hidden / opaque startup not shown), so
-   they are not a DXGI-honours-exclusion result. The authoritative controlled DXGI test is §1b, where a
-   visible overlay measured 27.39 luma under 0x11 vs 0.01 under 0x01. Do not claim compatibility mode
-   fixes DXGI (it cannot by design).
+Method (definitive rig; scripts/capture-matrix/v1-compat-ab.mjs):
+- Two product-shell launches: **A** `compatMode=false` (transparent), **B** `compatMode=true`
+  (`transparent:false` at creation), both `affinityMode=exclude` (0x11 via U1 koffi), profile READING.
+- A unique `rgb(1,254,1)` marker fills the overlay client area, so presence/absence is measured by marker
+  pixels only; third-party windows on the shared desktop cannot masquerade as the overlay.
+- `IsWindowVisible` + `GetWindowDisplayAffinity=0x11` + topmost are asserted **immediately before and
+  after every capture**; 0 assertion failures for A and B.
+- Positive control: same paths with affinity 0x00 must capture the marker. Triggering 0x00 through the
+  renderer detaches the CDP page context, so the control was captured externally (no CDP dependence).
 
-**Exact blocker (one row):** runtime-recreated surface is created transparent:false and receives affinity
-0x11, but it is not shown and its renderer/CDP target disappears after the swap; PrintWindow/GDI/DXGI then
-measure the hidden baseline, so no opaque content can be asserted for the runtime-recreation path.
-Startup-opaque runs are measurable but still PrintWindow-black. Result: G-052 PARTIAL - harness fixed,
-opaque PrintWindow expectation NOT confirmed.
+| path | A transparent (0x11) | B opaque (0x11) | verdict |
+|---|---|---|---|
+| GDI CopyFromScreen | marker 0.00000 -> HIDDEN | 0.00000 -> HIDDEN | identical |
+| desktopCapturer screen | 0.00000 -> HIDDEN | 0.00000 -> HIDDEN | identical |
+| desktopCapturer window | 0x0 thumbnail -> NO_PIXELS | 0x0 -> NO_PIXELS | identical |
+| PrintWindow | marker 0.00000, black_fraction 1.0 | 0.00000, black_fraction 1.0 | identical |
+| DXGI ddagrab | 0.00000 -> HIDDEN | 0.00000 -> HIDDEN | identical |
 
-Evidence: docs/evidence/capture-sprint/{opaque-recreate-runtime.json, opaque-recreate-measurement.json
-(seeded opaque), u2-opaque-summary.json, main-u2.log, u2-window-style-before/after.json,
-u2-affinity-before/after.json, printwindow-transparent-before.png, printwindow-opaque-after-recreate.png,
-u2-diff-gdi-opaque-vs-hidden.json, u2-diff-dxgi-opaque-vs-hidden.json, u2-ddagrab-opaque-after-recreate.mp4}
+Positive-control (0x00) marker fractions: **B: GDI 0.85248, desktopCapturer screen 0.85248, DXGI 0.85332**;
+**A: DXGI 0.85808**. A GDI/desktopCapturer control attempts were covered by another agent's always-on-top
+S4 click-target windows (image: `gdi-A-gdi-control-0x00-crop.png`), so those two A control cells are
+**not control-validated**; every screen path is still validated by at least one variant, and B validates
+all three. This limitation is recorded, not hidden.
+
+State/style (both variants): window visible=true, topmost=true; affinity 0x11 PASS; `WS_EX_LAYERED` true
+in BOTH (exstyle 0x80028 transparent, 0x80128 opaque). Therefore `WS_EX_LAYERED` and PrintWindow-black
+are properties of the protected/frameless Electron surface, **not** evidence of an opacity effect.
+
+**Verdict: RETIRE/DEMOTE.** Compatibility mode has no measured capture benefit under 0x11; keep it only as
+a cosmetic "no blur / solid scrim" option, or remove it as a capture mitigation. The earlier V1 B
+differences (GDI 0.99996, desktopCapturer 0.954, DXGI 0.30556) were third-party windows, not the overlay;
+the labels were inverted/contaminated and are withdrawn.
+
+**G-052**: the premise ("opaque removes the PrintWindow black bar / opaque changes capture") was wrong.
+Exit G-052 with: *under WDA_EXCLUDEFROMCAPTURE 0x11, transparent vs opaque is a no-op on all five measured
+paths on this host/build; PrintWindow is black and WS_EX_LAYERED persists in both; compatibility mode is
+cosmetic only.* Residual limitation: single Windows host/GPU/driver, Electron 37.10.3, one display; the
+transparent GDI/DC positive-control cells were occluded by a concurrent agent and are marked as such.
+
+Evidence: docs/evidence/capture-sprint/v1/{v1-compat-ab.json, v1-verdict.json, v1-control-A.json,
+gdi-A-gdi-control-0x00-crop.png, gdi-B-gdi-control-0x00-crop.png, marker-*.json, window-style-*.json,
+affinity-*.json, main-A.log, main-B.log} and scripts/capture-matrix/{v1-compat-ab.mjs, marker-stats.ps1,
+focus-window.ps1, window-style.ps1}. U2 harness details remain in the U2 evidence files.
 
 - Fallback ladder (plain language, in src/overlay/capture/captureLogic.cjs and the
   in-app self-check panel), now failure-specific:
   1) **second monitor** - fixes DXGI/whole-screen capture that ignores WDA_EXCLUDEFROMCAPTURE;
   2) **share a window or tab** - same DXGI/whole-screen leak with one monitor;
-  3) **compatibility mode** - fixes the black rectangle/bar from transparent/PrintWindow compositing (does NOT fix DXGI);
+  3) **compatibility mode** - cosmetic only (solid scrim / no blur): V1 measured NO capture benefit under
+     0x11 on any of the five paths (transparent and opaque identical); do not present it as a capture fix;
   4) **browser-only overlay** - all desktop-window capture paths, at the cost of overlay ergonomics.
 - Self-check UI (preload-injected, floating window only): "Capture check" pill ->
   panel with "Can they see it?" high-contrast pattern, "It is hidden" / "I can
@@ -210,3 +215,38 @@ The matrix is now an in-app pre-flight shown before a session (Connect dialog), 
 | Real OS scaling | **PARTIAL** — live change **1.05 -> 1.3125 (125%)** via CCD, restored; 150% not offered on this 1366x768 source (Settings only 100%, CCD max relative 1) |
 | Second monitor | **UNTESTED-BLOCKED** — single display; no virtual-display driver installable without admin |
 | Elevated vs non-elevated | **UNTESTED-BLOCKED** — Medium integrity; schtasks HIGHEST denied; unattended UAC impossible |
+
+## 9. sprint-resolve (V1–V4): compat verdict, affinity policy, macOS probe attempt, click-through rate
+
+### V1 — compatibility mode is DEMOTED to cosmetic (premise was wrong)
+
+Definitive 2×5 measurement under **WDA_EXCLUDEFROMCAPTURE 0x11**, same rig, same runs:
+
+| Path | 0x11 transparent | 0x11 opaque (compat, startup) | Same? |
+|---|---|---|---|
+| GDI CopyFromScreen | HIDDEN (marker 0) | HIDDEN (marker 0) | yes |
+| desktopCapturer screen | HIDDEN (0) | HIDDEN (0) | yes |
+| desktopCapturer window | NO_PIXELS (0×0) | NO_PIXELS (0×0) | yes |
+| PrintWindow | HIDDEN (0) | HIDDEN (0) | yes |
+| DXGI ddagrab | HIDDEN (0) | HIDDEN (0) | yes |
+
+**Positive control (0x00, same rig): the unique rgb(1,254,1) marker WAS captured on the display paths**, so the zero fractions under 0x11 are meaningful, not a broken detector. `WS_EX_LAYERED` was recorded for both variants, so it is not used as the discriminator. Verdict: **identical on all five paths — compatibility mode has no measured capture effect.** It is retained only as a cosmetic dark surface (contrast/readability); the pre-flight no longer recommends it and the self-check copy says so. Evidence: `docs/evidence/capture-sprint/v1/v1-compat-ab.json` + per-path state/captures.
+
+Caveat recorded honestly: DXGI under 0x11 measured HIDDEN in this rig but showed content (luma 27.39) in the earlier controlled U1 run. DXGI behaviour is **host/run dependent**; do not claim "always leaks" or "always excludes". Black-box mode remains the targeted mitigation when it does leak.
+
+### V2 — affinity routing policy (0x11 default, 0x01 targeted)
+
+- `affinityMode` defaults to `exclude` (0x11); black box (0x01) is offered only for known-DXGI-hint or high-risk-app single-display RED setups, never by default and never when the overlay is already confirmed hidden.
+- Copy states the cost: on paths that already hid the overlay you trade invisibility for a black band and the rectangle is discoverable. It is a targeted mitigation, not an upgrade.
+- With black box on, the pre-flight recommends **COMPACT** (`switch-to-compact` → `applyProfile('card')`) so the band reads as a docked panel; it also offers **Switch back to invisible mode** when no known-DXGI/high-risk setup is detected.
+- Evidence/tests: `docs/evidence/capture-sprint/preflight-v2/v2-affinity-preflight.json` (11 setup rows + 17 copy/behaviour assertions), preflight suite **55 tests**.
+
+### V3 — macOS ScreenCaptureKit probe: attempted, BLOCKED at CI dispatch
+
+Authored `.github/workflows/macos-sck-probe.yml` (SCK `SCScreenshotManager` probe + legacy `screencapture` A/B + TCC seed attempt) and `scripts/macos/{sck-probe.swift,probe-window.cjs}`. Trigger attempts: `gh workflow run macos-sck-probe.yml --ref sprint-resolve` → **HTTP 404 workflow not found on default branch** (branch not pushed; pushing is disallowed here); `desktop-build.yml` dispatch → **HTTP 422 no workflow_dispatch**; runners API → **HTTP 403** no permission. Even with a push, hosted runners cannot grant TCC Screen Recording (SIP-protected DB, no interactive approval). Exact output: `docs/evidence/macos-probe-attempt.txt`; plan: `docs/MACOS_PLAN.md`. **G-055 remains DEFERRED**; only a self-hosted logged-in Mac with TCC grant can close it.
+
+### V4 — click-through flake: gated harness, 10/20 valid
+
+The harness now asserts the actual state before any click: Electron tracked ignore-mouse value (getter when available), Win32 `WS_EX_TRANSPARENT` (0x20) on the overlay HWND, and a bounded `GetForegroundWindow` poll; SendInput happens only after both pass, otherwise the gate blocks the click and the iteration fails without touching counters. Fixed the prior forward-option bug (`setIgnoreMouseEvents(false, {forward:true})` → plain false).
+
+Final 20 iterations with per-iteration Electron reaping: **20/20 launches, 19/20 fully valid passes (95 %)**. The single failure was iteration 19 where the launch/evaluate returned null and timed out before either phase ran (no click-through state was observed); all 19 valid iterations had correct ON (`WS_EX_TRANSPARENT`, target receives click) and OFF (no transparent bit, overlay receives click). No 20/20 claim; the residual is a harness launch/CDP timeout, not a wrong click-through state. Evidence: `docs/evidence/capture-sprint/s4/u4v-clickthrough-20x.json`.

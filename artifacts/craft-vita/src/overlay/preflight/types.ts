@@ -15,6 +15,9 @@ export interface PreflightDisplay {
 
 export type PreflightPresetId = "card" | "banner" | "reading";
 
+/** Window display affinity: exclude (0x11, invisible) or monitor (0x01, black box). */
+export type AffinityMode = "exclude" | "monitor";
+
 export interface PreflightOverlayState {
   /** Display the overlay is currently on, when known. */
   readonly displayId?: number | null;
@@ -41,6 +44,12 @@ export interface PreflightInput {
   readonly compatMode?: boolean;
   /** Diagnostic hint from main (env/debug IPC), e.g. "dxgi-desktop-duplication". */
   readonly capturePathHint?: string | null;
+  /**
+   * Current WDA mode from the capture state. "monitor" is the black-box mode
+   * (0x01); it is never a default - only offered for known-DXGI/high-risk
+   * single-display setups and always undoable.
+   */
+  readonly affinityMode?: AffinityMode | null;
   /** Tested-app list override (tests/fixtures); defaults to TESTED_APPS. */
   readonly appList?: readonly TestedApp[];
 }
@@ -50,6 +59,8 @@ export type PreflightActionId =
   | "window-share-guidance"
   | "enable-compatibility-mode"
   | "enable-black-box-mode"
+  | "switch-to-compact"
+  | "switch-back-to-invisible"
   | "run-self-check";
 
 export interface PreflightAction {
@@ -73,6 +84,11 @@ export interface PreflightFacts {
   readonly compatMode: boolean;
   readonly knownIgnoringCapturePath: boolean;
   readonly userReport: UserVisibilityReport;
+  readonly affinityMode: AffinityMode;
+  /** True when black-box mode may be OFFERED for this setup (never automatic). */
+  readonly blackBoxEligible: boolean;
+  /** True when the current setup actually warrants black-box mode. */
+  readonly blackBoxJustified: boolean;
   readonly appListVersion: string;
   readonly appListTestedOn: string;
 }
@@ -90,6 +106,8 @@ export interface PreflightVerdict {
   readonly recommendation: {
     readonly moveOverlayToDisplayId: number | null;
     readonly isDefaultRecommendation: boolean;
+    /** When black-box mode is on, COMPACT keeps the black band panel-sized. */
+    readonly recommendedPresetId: PreflightPresetId | null;
     readonly copy: string;
   };
   readonly facts: PreflightFacts;
@@ -100,5 +118,6 @@ export interface PreflightHostActions {
   readonly showWindowShareGuidance?: () => Promise<unknown> | unknown;
   readonly setCompatibilityMode?: (enabled: boolean) => Promise<unknown> | unknown;
   readonly setBlackBoxMode?: (enabled: boolean) => Promise<unknown> | unknown;
+  readonly setCaptureProfile?: (profile: PreflightPresetId) => Promise<unknown> | unknown;
   readonly runSelfCheck?: (patternKind: "content-leak" | "black-bar-leak") => Promise<unknown> | unknown;
 }

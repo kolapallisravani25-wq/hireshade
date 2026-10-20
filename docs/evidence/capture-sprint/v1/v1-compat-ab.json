@@ -1,0 +1,869 @@
+{
+  "generated_at": "2026-10-20T18:08:50.002Z",
+  "method": "V1 definitive A/B. Unique rgb(1,254,1) marker fills the overlay client area. Visible captures are preceded and followed by IsWindowVisible+GetWindowDisplayAffinity(0x11)+topmost assertions; hidden baseline uses in-process setOpacity(0) (HWND stays owned/visible), then opacity is restored. Marker pixel fractions are measured inside the window rect; marker >=20% = VISIBLE, <20% = HIDDEN, a baseline with marker present invalidates the cell.",
+  "marker_rgb": "rgb(1,254,1)",
+  "runs": [
+    {
+      "variant": "A",
+      "label": "transparent (compatMode=false)",
+      "compat_seeded": false,
+      "app_pid": 864,
+      "assertion_failures": [],
+      "cells": {
+        "gdi": {
+          "invalid": false,
+          "before": {
+            "label": "A-gdi-before",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80028",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "after": {
+            "label": "A-gdi-after",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80028",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-A-gdi-visible-crop.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:37:14.3679093+05:30",
+            "label": "A-gdi-visible",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-A-gdi-visible-crop.png",
+            "rect": "",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 0,
+            "sampled_pixels": 400044,
+            "fraction": 0,
+            "present": false
+          },
+          "window_source_size": null,
+          "printwindow_stats": {
+            "mean_luma": 57.16,
+            "std_luma": 21.36,
+            "unique_colors_sampled": 151,
+            "high_contrast_fraction": 0.0058,
+            "non_black_fraction": 0
+          },
+          "visible": false,
+          "fraction": 0,
+          "reason": null
+        },
+        "desktopcapturer_screen": {
+          "invalid": false,
+          "before": {
+            "label": "A-desktopcapturer_screen-before",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80028",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "after": {
+            "label": "A-desktopcapturer_screen-after",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80028",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-A-desktopcapturer_screen-visible-screen-0.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:37:23.9499157+05:30",
+            "label": "A-desktopcapturer_screen-visible",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-A-desktopcapturer_screen-visible-screen-0.png",
+            "rect": "54,42,1258,636",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 0,
+            "sampled_pixels": 400044,
+            "fraction": 0,
+            "present": false
+          },
+          "window_source_size": null,
+          "printwindow_stats": null,
+          "visible": false,
+          "fraction": 0,
+          "reason": null
+        },
+        "desktopcapturer_window": {
+          "invalid": false,
+          "before": {
+            "label": "A-desktopcapturer_window-before",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80028",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "after": {
+            "label": "A-desktopcapturer_window-after",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80028",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-A-desktopcapturer_window-visible-window-Floating-Mini-Screen.png",
+          "marker": {
+            "error": "empty file",
+            "fraction": null,
+            "present": false
+          },
+          "window_source_size": {
+            "width": 0,
+            "height": 0
+          },
+          "printwindow_stats": null,
+          "visible": null,
+          "fraction": null,
+          "reason": null
+        },
+        "printwindow": {
+          "invalid": false,
+          "before": {
+            "label": "A-printwindow-before",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80028",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "after": {
+            "label": "A-printwindow-after",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80028",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\printwindow-A-printwindow-visible.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:37:36.5607437+05:30",
+            "label": "A-printwindow-visible",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\printwindow-A-printwindow-visible.png",
+            "rect": "",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 0,
+            "sampled_pixels": 399415,
+            "fraction": 0,
+            "present": false
+          },
+          "window_source_size": null,
+          "printwindow_stats": {
+            "mean_luma": 0,
+            "std_luma": 0,
+            "unique_colors_sampled": 1,
+            "black_fraction": 1
+          },
+          "visible": false,
+          "fraction": 0,
+          "reason": null
+        },
+        "dxgi": {
+          "invalid": false,
+          "before": {
+            "label": "A-dxgi-before",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80028",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "after": {
+            "label": "A-dxgi-after",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80028",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-A-dxgi-visible-frame.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:37:44.0461174+05:30",
+            "label": "A-dxgi-visible",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-A-dxgi-visible-frame.png",
+            "rect": "54,42,1258,636",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 0,
+            "sampled_pixels": 400044,
+            "fraction": 0,
+            "present": false
+          },
+          "window_source_size": null,
+          "printwindow_stats": null,
+          "visible": false,
+          "fraction": 0,
+          "reason": null
+        }
+      },
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "visible": true,
+        "affinityMode": "exclude"
+      },
+      "focus_visible": {
+        "captured_at": "2026-10-20T23:37:10.2924911+05:30",
+        "method": "user32 ShowWindow(SW_SHOW)+SetWindowPos(HWND_TOPMOST)+SetForegroundWindow",
+        "matched": true,
+        "window": {
+          "hwnd": "0x3B0528",
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "foreground": false,
+          "topmost": true
+        }
+      },
+      "control": {
+        "cdp_error": "CDP socket error: ",
+        "gdi": {
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-A-gdi-control-0x00-crop.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:37:51.3527261+05:30",
+            "label": "A-gdi-control-0x00",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-A-gdi-control-0x00-crop.png",
+            "rect": "",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 0,
+            "sampled_pixels": 400044,
+            "fraction": 0,
+            "present": false
+          },
+          "fraction": 0
+        },
+        "desktopcapturer_screen": {
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-A-desktopcapturer_screen-control-0x00-screen-0.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:37:54.4642239+05:30",
+            "label": "A-desktopcapturer_screen-control-0x00",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-A-desktopcapturer_screen-control-0x00-screen-0.png",
+            "rect": "54,42,1258,636",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 0,
+            "sampled_pixels": 400044,
+            "fraction": 0,
+            "present": false
+          },
+          "fraction": 0
+        },
+        "dxgi": {
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-A-dxgi-control-0x00-frame.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:37:57.4159206+05:30",
+            "label": "A-dxgi-control-0x00",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-A-dxgi-control-0x00-frame.png",
+            "rect": "54,42,1258,636",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 343269,
+            "sampled_pixels": 400044,
+            "fraction": 0.85808,
+            "present": true
+          },
+          "fraction": 0.85808
+        }
+      },
+      "log_tail": "2026-10-20T18:07:08.583Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:07:08.583Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:07:08.584Z [info] [capture] native affinity mode=0x11 hwnd=3867944 applied=true readback=0x11\n2026-10-20T18:07:08.584Z [info] [capture] reassert #7 reason=focus (focus) applied=1\n2026-10-20T18:07:11.238Z [info] [capture] native affinity mode=0x11 hwnd=10422146 applied=true readback=0x11\n2026-10-20T18:07:11.239Z [info] [capture] reassert #8 reason=focus (focus) applied=1\n2026-10-20T18:07:22.227Z [info] [capture] native affinity mode=0x11 hwnd=10422146 applied=true readback=0x11\n2026-10-20T18:07:22.227Z [info] [capture] reassert #9 reason=focus (focus) applied=1\n2026-10-20T18:07:28.244Z [info] [capture] native affinity mode=0x11 hwnd=10422146 applied=true readback=0x11\n2026-10-20T18:07:28.245Z [info] [capture] reassert #10 reason=focus (focus) applied=1\n2026-10-20T18:07:34.117Z [info] [capture] native affinity mode=0x11 hwnd=10422146 applied=true readback=0x11\n2026-10-20T18:07:34.118Z [info] [capture] reassert #11 reason=focus (focus) applied=1\n2026-10-20T18:07:40.509Z [info] [capture] native affinity mode=0x11 hwnd=10422146 applied=true readback=0x11\n2026-10-20T18:07:40.509Z [info] [capture] reassert #12 reason=focus (focus) applied=1\n2026-10-20T18:07:46.994Z [info] [capture] native affinity mode=0x0 hwnd=3867944 applied=true readback=0x0\n2026-10-20T18:07:46.994Z [info] [capture] native affinity mode=0x0 hwnd=10422146 applied=true readback=0x0\n2026-10-20T18:07:46.995Z [info] [capture] reassert #13 reason=private-mode-changed (private-mode-changed) applied=2\n2026-10-20T18:07:46.996Z [info] [overlay] private mode=false\n2026-10-20T18:07:56.860Z [info] [capture] native affinity mode=0x0 hwnd=10422146 applied=true readback=0x0\n2026-10-20T18:07:56.861Z [info] [capture] reassert #14 reason=focus (focus) applied=1"
+    },
+    {
+      "variant": "B",
+      "label": "opaque (compatMode=true, transparent:false)",
+      "compat_seeded": true,
+      "app_pid": 7424,
+      "assertion_failures": [],
+      "cells": {
+        "gdi": {
+          "invalid": false,
+          "before": {
+            "label": "B-gdi-before",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80128",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "after": {
+            "label": "B-gdi-after",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80128",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-B-gdi-visible-crop.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:38:08.3994645+05:30",
+            "label": "B-gdi-visible",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-B-gdi-visible-crop.png",
+            "rect": "",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 0,
+            "sampled_pixels": 400680,
+            "fraction": 0,
+            "present": false
+          },
+          "window_source_size": null,
+          "printwindow_stats": {
+            "mean_luma": 55.33,
+            "std_luma": 18.88,
+            "unique_colors_sampled": 256,
+            "high_contrast_fraction": 0.0036,
+            "non_black_fraction": 0
+          },
+          "visible": false,
+          "fraction": 0,
+          "reason": null
+        },
+        "desktopcapturer_screen": {
+          "invalid": false,
+          "before": {
+            "label": "B-desktopcapturer_screen-before",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80128",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "after": {
+            "label": "B-desktopcapturer_screen-after",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80128",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-B-desktopcapturer_screen-visible-screen-0.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:38:17.2041119+05:30",
+            "label": "B-desktopcapturer_screen-visible",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-B-desktopcapturer_screen-visible-screen-0.png",
+            "rect": "54,42,1259,636",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 0,
+            "sampled_pixels": 400680,
+            "fraction": 0,
+            "present": false
+          },
+          "window_source_size": null,
+          "printwindow_stats": null,
+          "visible": false,
+          "fraction": 0,
+          "reason": null
+        },
+        "desktopcapturer_window": {
+          "invalid": false,
+          "before": {
+            "label": "B-desktopcapturer_window-before",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80128",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "after": {
+            "label": "B-desktopcapturer_window-after",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80128",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-B-desktopcapturer_window-visible-window-Floating-Mini-Screen.png",
+          "marker": {
+            "error": "empty file",
+            "fraction": null,
+            "present": false
+          },
+          "window_source_size": {
+            "width": 0,
+            "height": 0
+          },
+          "printwindow_stats": null,
+          "visible": null,
+          "fraction": null,
+          "reason": null
+        },
+        "printwindow": {
+          "invalid": false,
+          "before": {
+            "label": "B-printwindow-before",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80128",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "after": {
+            "label": "B-printwindow-after",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80128",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\printwindow-B-printwindow-visible.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:38:31.6817529+05:30",
+            "label": "B-printwindow-visible",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\printwindow-B-printwindow-visible.png",
+            "rect": "",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 0,
+            "sampled_pixels": 399415,
+            "fraction": 0,
+            "present": false
+          },
+          "window_source_size": null,
+          "printwindow_stats": {
+            "mean_luma": 0,
+            "std_luma": 0,
+            "unique_colors_sampled": 1,
+            "black_fraction": 1
+          },
+          "visible": false,
+          "fraction": 0,
+          "reason": null
+        },
+        "dxgi": {
+          "invalid": false,
+          "before": {
+            "label": "B-dxgi-before",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80128",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "after": {
+            "label": "B-dxgi-after",
+            "window": {
+              "title": "Floating Mini-Screen",
+              "visible": true,
+              "topmost": true,
+              "foreground": false,
+              "affinity": "0x11",
+              "exstyle": "0x80128",
+              "WS_EX_LAYERED": true
+            },
+            "affinity_values": [
+              "0x11",
+              "0x11"
+            ],
+            "ok": true
+          },
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-B-dxgi-visible-frame.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:38:39.5622851+05:30",
+            "label": "B-dxgi-visible",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-B-dxgi-visible-frame.png",
+            "rect": "54,42,1259,636",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 0,
+            "sampled_pixels": 400680,
+            "fraction": 0,
+            "present": false
+          },
+          "window_source_size": null,
+          "printwindow_stats": null,
+          "visible": false,
+          "fraction": 0,
+          "reason": null
+        }
+      },
+      "state": {
+        "compatMode": true,
+        "transparent": false,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1199,
+          "height": 606
+        },
+        "physical": "54,42,1259,636",
+        "visible": true,
+        "affinityMode": "exclude"
+      },
+      "focus_visible": {
+        "captured_at": "2026-10-20T23:38:02.4701837+05:30",
+        "method": "user32 ShowWindow(SW_SHOW)+SetWindowPos(HWND_TOPMOST)+SetForegroundWindow",
+        "matched": true,
+        "window": {
+          "hwnd": "0x3F0308",
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "foreground": false,
+          "topmost": true
+        }
+      },
+      "control": {
+        "cdp_error": "CDP socket closed",
+        "gdi": {
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-B-gdi-control-0x00-crop.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:38:45.2474110+05:30",
+            "label": "B-gdi-control-0x00",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-B-gdi-control-0x00-crop.png",
+            "rect": "",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 341570,
+            "sampled_pixels": 400680,
+            "fraction": 0.85248,
+            "present": true
+          },
+          "fraction": 0.85248
+        },
+        "desktopcapturer_screen": {
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-B-desktopcapturer_screen-control-0x00-screen-0.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:38:47.2176628+05:30",
+            "label": "B-desktopcapturer_screen-control-0x00",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-B-desktopcapturer_screen-control-0x00-screen-0.png",
+            "rect": "54,42,1259,636",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 341570,
+            "sampled_pixels": 400680,
+            "fraction": 0.85248,
+            "present": true
+          },
+          "fraction": 0.85248
+        },
+        "dxgi": {
+          "image": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-B-dxgi-control-0x00-frame.png",
+          "marker": {
+            "captured_at": "2026-10-20T23:38:49.8059964+05:30",
+            "label": "B-dxgi-control-0x00",
+            "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-B-dxgi-control-0x00-frame.png",
+            "rect": "54,42,1259,636",
+            "marker_rgb": [
+              1,
+              254,
+              1
+            ],
+            "tolerance": 8,
+            "matched_pixels": 341908,
+            "sampled_pixels": 400680,
+            "fraction": 0.85332,
+            "present": true
+          },
+          "fraction": 0.85332
+        }
+      },
+      "log_tail": "2026-10-20T18:08:00.548Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:08:00.548Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:08:00.549Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:08:00.549Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:08:00.551Z [info] [capture] native affinity mode=0x11 hwnd=4129544 applied=true readback=0x11\n2026-10-20T18:08:00.551Z [info] [capture] reassert #7 reason=focus (focus) applied=1\n2026-10-20T18:08:03.235Z [info] [capture] native affinity mode=0x11 hwnd=3999824 applied=true readback=0x11\n2026-10-20T18:08:03.235Z [info] [capture] reassert #8 reason=focus (focus) applied=1\n2026-10-20T18:08:09.876Z [info] [capture] native affinity mode=0x11 hwnd=3999824 applied=true readback=0x11\n2026-10-20T18:08:09.877Z [info] [capture] reassert #9 reason=focus (focus) applied=1\n2026-10-20T18:08:23.893Z [info] [capture] native affinity mode=0x11 hwnd=3999824 applied=true readback=0x11\n2026-10-20T18:08:23.894Z [info] [capture] reassert #10 reason=focus (focus) applied=1\n2026-10-20T18:08:30.719Z [info] [capture] native affinity mode=0x11 hwnd=3999824 applied=true readback=0x11\n2026-10-20T18:08:30.720Z [info] [capture] reassert #11 reason=focus (focus) applied=1\n2026-10-20T18:08:37.839Z [info] [capture] native affinity mode=0x11 hwnd=3999824 applied=true readback=0x11\n2026-10-20T18:08:37.839Z [info] [capture] reassert #12 reason=focus (focus) applied=1\n2026-10-20T18:08:41.965Z [info] [capture] native affinity mode=0x0 hwnd=4129544 applied=true readback=0x0\n2026-10-20T18:08:41.966Z [info] [capture] native affinity mode=0x0 hwnd=3999824 applied=true readback=0x0\n2026-10-20T18:08:41.966Z [info] [capture] reassert #13 reason=private-mode-changed (private-mode-changed) applied=2\n2026-10-20T18:08:41.967Z [info] [overlay] private mode=false"
+    }
+  ],
+  "table": {
+    "gdi": {
+      "transparent": {
+        "state": "HIDDEN",
+        "marker_fraction": 0
+      },
+      "opaque": {
+        "state": "HIDDEN",
+        "marker_fraction": 0
+      },
+      "identical": true,
+      "full_resolution": "unique-marker pixel fraction inside the window rect"
+    },
+    "desktopcapturer_screen": {
+      "transparent": {
+        "state": "HIDDEN",
+        "marker_fraction": 0
+      },
+      "opaque": {
+        "state": "HIDDEN",
+        "marker_fraction": 0
+      },
+      "identical": true,
+      "full_resolution": "unique-marker pixel fraction inside the window rect"
+    },
+    "desktopcapturer_window": {
+      "transparent": {
+        "state": "NO_PIXELS",
+        "size": {
+          "width": 0,
+          "height": 0
+        }
+      },
+      "opaque": {
+        "state": "NO_PIXELS",
+        "size": {
+          "width": 0,
+          "height": 0
+        }
+      },
+      "identical": true,
+      "full_resolution": "thumbnail size is the proxy because WDA returns 0x0 for the protected window"
+    },
+    "printwindow": {
+      "transparent": {
+        "state": "HIDDEN",
+        "marker_fraction": 0
+      },
+      "opaque": {
+        "state": "HIDDEN",
+        "marker_fraction": 0
+      },
+      "identical": true,
+      "full_resolution": "unique-marker pixel fraction inside the window rect"
+    },
+    "dxgi": {
+      "transparent": {
+        "state": "HIDDEN",
+        "marker_fraction": 0
+      },
+      "opaque": {
+        "state": "HIDDEN",
+        "marker_fraction": 0
+      },
+      "identical": true,
+      "full_resolution": "unique-marker pixel fraction inside the window rect"
+    }
+  },
+  "identical_all_paths": true,
+  "verdict": "SAME ON ALL FIVE PATHS: under WDA_EXCLUDEFROMCAPTURE 0x11, transparent and opaque surfaces behave identically; compatibility mode has no measured capture effect. Both were HIDDEN/NO_PIXELS on every path (0x11 honoured); the 0x00 positive control saw the marker. Positive control (0x00) captured the marker, so the zero fractions under 0x11 are meaningful."
+}

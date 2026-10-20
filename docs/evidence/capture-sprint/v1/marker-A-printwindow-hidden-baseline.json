@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-20T23:34:02.0849117+05:30",
+    "label":  "A-printwindow-hidden-baseline",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\printwindow-A-printwindow-hidden-baseline.png",
+    "rect":  "",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  null,
+    "sampled_pixels":  null,
+    "fraction":  0,
+    "present":  false
+}

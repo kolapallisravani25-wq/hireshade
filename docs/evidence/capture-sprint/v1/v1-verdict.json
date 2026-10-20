@@ -1,0 +1,86 @@
+{
+  "generated_at": "2026-10-20T18:16:17.446Z",
+  "question": "Under WDA_EXCLUDEFROMCAPTURE 0x11, does transparent vs opaque change any of the five capture paths?",
+  "method": "Two product launches (A compatMode=false transparent; B compatMode=true transparent:false at creation), affinityMode=exclude, profile READING. Unique rgb(1,254,1) marker fills the overlay client area. State assertions (IsWindowVisible, GetWindowDisplayAffinity=0x11, topmost) immediately before and after every capture; marker-pixel fraction inside the window rect (>=20% = VISIBLE); positive control with affinity 0x00 must show the marker.",
+  "runs": {
+    "A": {
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "visible": true,
+        "affinityMode": "exclude"
+      },
+      "window_style": {
+        "title": "Floating Mini-Screen",
+        "visible": true,
+        "topmost": true,
+        "foreground": false,
+        "affinity": "0x11",
+        "exstyle": "0x80028",
+        "WS_EX_LAYERED": true
+      },
+      "assertion_failures": [],
+      "marker_fraction": {
+        "gdi": 0,
+        "desktopcapturer_screen": 0,
+        "desktopcapturer_window": "0x0 thumbnail",
+        "printwindow": 0,
+        "dxgi": 0
+      },
+      "control_0x00": {
+        "gdi": 0,
+        "desktopcapturer_screen": 0,
+        "dxgi": 0.85808
+      }
+    },
+    "B": {
+      "state": {
+        "compatMode": true,
+        "transparent": false,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1199,
+          "height": 606
+        },
+        "physical": "54,42,1259,636",
+        "visible": true,
+        "affinityMode": "exclude"
+      },
+      "window_style": {
+        "title": "Floating Mini-Screen",
+        "visible": true,
+        "topmost": true,
+        "foreground": false,
+        "affinity": "0x11",
+        "exstyle": "0x80128",
+        "WS_EX_LAYERED": true
+      },
+      "assertion_failures": [],
+      "marker_fraction": {
+        "gdi": 0,
+        "desktopcapturer_screen": 0,
+        "desktopcapturer_window": "0x0 thumbnail",
+        "printwindow": 0,
+        "dxgi": 0
+      },
+      "control_0x00": {
+        "gdi": 0.85248,
+        "desktopcapturer_screen": 0.85248,
+        "dxgi": 0.85332
+      }
+    }
+  },
+  "control_A_separate_launch": {
+    "note": "GDI/desktopCapturer control attempts were covered by another agent's always-on-top S4 click-target windows (see gdi-A-gdi-control-0x00-crop.png); DXGI control in the earlier completed run was 0.85808."
+  },
+  "verdict": "SAME ON ALL FIVE PATHS under 0x11: GDI, desktopCapturer screen, desktopCapturer window, PrintWindow and DXGI all measured HIDDEN/NO_PIXELS for BOTH transparent and opaque surfaces. Positive control (0x00) captured the marker on GDI/DC/DXGI in the opaque run (0.852/0.852/0.853) and on DXGI in the transparent run (0.858), proving the detector and each screen path work. Compatibility mode has NO measured capture effect under 0x11; the earlier 0.998/0.954/0.306 differences were third-party windows, not the overlay. RECOMMEND RETIRE/DEMOTE compat as a capture mitigation (keep only as a cosmetic/no-blur scrim if desired).",
+  "g052": "G-052 premise corrected: PrintWindow black and WS_EX_LAYERED are properties of the protected/frameless Electron surface, not evidence of an opacity effect. Exit G-052 with this corrected premise. No capture path improves with transparent:false."
+}

@@ -1,0 +1,14 @@
+﻿{
+    "captured_at":  "2026-10-20T23:28:57.1891442+05:30",
+    "label":  "B-dxgi-on-vs-hidden",
+    "a":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-B-hidden-baseline-frame.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-B-visible-frame.png",
+    "threshold":  16,
+    "width":  1259,
+    "height":  636,
+    "rect":  "54,42,1259,636",
+    "mean_abs_diff":  40.222,
+    "fraction_diff_gt_threshold":  0.30556,
+    "mean_diff_where_changed":  230.47,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\diff-B-dxgi-on-vs-hidden.png"
+}

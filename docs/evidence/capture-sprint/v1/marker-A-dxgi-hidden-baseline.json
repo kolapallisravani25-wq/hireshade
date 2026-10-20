@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-20T23:34:00.5711423+05:30",
+    "label":  "A-dxgi-hidden-baseline",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-A-dxgi-hidden-baseline-frame.png",
+    "rect":  "54,42,1258,636",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  null,
+    "sampled_pixels":  null,
+    "fraction":  0,
+    "present":  false
+}

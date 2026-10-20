@@ -1,0 +1,78 @@
+node.exe : $ vitest run
+At C:\Program Files\nodejs\pnpm.ps1:16 char:5
++     & "$basedir/node$exe"  "$basedir/node_modules/corepack/dist/pnpm. ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ($ vitest run:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+ RUN  v4.1.9 D:/hireshade/artifacts/craft-vita
+
+ ✓ src/gaze/warp.test.ts (8 tests) 344ms
+ ✓ src/gaze/latency.test.ts (1 test) 1172ms
+     ✓ keeps p95 per-frame CPU cost below 25 ms (best of 3 batches)  1167ms
+ ✓ src/gaze/demoGaze.test.ts (4 tests) 1244ms
+     ✓ runs a deterministic mock burst for the demo pipeline  620ms
+     ✓ is byte-deterministic across runs  610ms
+ ✓ src/gaze/processor.test.ts (13 tests) 1754ms
+     ✓ auto-boosts strength while tokens stream, clamped to 1  411ms
+ ✓ src/overlay/presets/readability.test.ts (13 tests) 265ms
+ ✓ src/features/pronunciation/pronunciation.test.ts (22 tests) 208ms
+ ✓ src/overlay/answerFormat.test.ts (15 tests) 154ms
+ ✓ src/overlay/preflight/domAdapter.test.ts (8 tests) 228ms
+ ✓ src/demo/pipeline.test.ts (5 tests) 806ms
+ ✓ src/demo/pipeline.pronunciation.test.ts (3 tests) 600ms
+ ✓ src/lib/instructions.test.ts (8 tests) 113ms
+ ✓ src/gaze/syntheticFace.test.ts (6 tests) 116ms
+ ✓ src/overlay/autoscroll/autoScrollMachine.test.ts (29 tests) 101ms
+ ✓ src/features/session/detection/activeQuestionDetector.test.ts (4 tests) 103ms
+ ✓ src/lib/transcript-stabilizer.test.ts (37 tests) 89ms
+ ✓ src/lib/meetingDetection.test.ts (45 tests) 57ms
+ ✓ src/overlay/autoscroll/overlayAutoScroll.test.ts (17 tests) 67ms
+ ✓ src/overlay/presets/presets.test.ts (26 tests) 59ms
+ ✓ src/fixtures/pronunciation/pronunciationMetrics.test.ts (7 tests) 2484ms
+     ✓ is deterministic and large enough  2473ms
+ ✓ src/overlay/size.test.ts (19 tests) 48ms
+ ✓ src/lib/languages.test.ts (30 tests) 117ms
+ ✓ src/demo/vad.test.ts (8 tests) 49ms
+ ✓ src/overlay/presets/domAdapter.test.ts (15 tests) 51ms
+ ✓ src/features/meetingDetection/meetingAutoDetector.test.ts (11 tests) 59ms
+ ✓ src/demo/wav.test.ts (2 tests) 21ms
+ ✓ src/overlay/preflight/testedApps.test.ts (5 tests) 29ms
+ ✓ src/overlay/capture/captureLogic.test.ts (17 tests) 32ms
+ ✓ src/overlay/preflight/preflight.test.ts (37 tests) 89ms
+ ✓ src/overlay/hotkeys.test.ts (23 tests) 49ms
+ ✓ src/gaze/frameSource.test.ts (5 tests) 67ms
+ ✓ src/features/coding/codingMode.test.ts (29 tests) 61ms
+ ✓ src/gaze/smoothing.test.ts (5 tests) 18ms
+ ✓ src/overlay/overlayGeometry.test.ts (14 tests) 32ms
+ ✓ src/gaze/virtualCamera.test.ts (7 tests) 33ms
+ ✓ src/features/mockInterview/interviewLoop.test.ts (14 tests) 34ms
+ ✓ src/demo/metrics.test.ts (9 tests) 25ms
+ ✓ src/overlay/tauriCsp.test.ts (4 tests) 23ms
+ ✓ src/demo/overlayStream.test.ts (5 tests) 21ms
+ ✓ src/lib/utterance-completeness.test.ts (13 tests) 24ms
+ ✓ src/features/session/hooks/autoGenTrailingTranscript.test.ts (11 tests) 23ms
+ ✓ src/lib/generation-pipeline.test.ts (13 tests) 20ms
+ ✓ src/hooks/useAIChat.test.ts (10 tests) 22ms
+ ✓ src/sensitiveLogging.test.ts (3 tests) 20ms
+ ✓ src/features/session/hooks/cancellableListener.test.ts (4 tests) 34ms
+ ✓ src/features/session/hooks/autoScrollPolicy.test.ts (14 tests) 20ms
+ ✓ src/gaze/detector.test.ts (5 tests) 19ms
+ ✓ src/features/session/audio/audioSessionController.test.ts (2 tests) 21ms
+ ✓ src/overlay/preflight/selfCheckPattern.test.ts (5 tests) 20ms
+ ✓ src/tauriSecurityManifest.test.ts (4 tests) 25ms
+ ✓ src/demo/demoSession.test.ts (4 tests) 25ms
+ ✓ src/features/session/audio/systemHealth.test.ts (11 tests) 21ms
+ ✓ src/pages/Sessions/ActiveSession/answerScrollPolicy.test.ts (9 tests) 14ms
+ ✓ src/features/session/hooks/autoGenQuestionSource.test.ts (10 tests) 14ms
+ ✓ src/types/ai-answer.test.ts (4 tests) 15ms
+ ✓ src/features/session/detection/classifierMetrics.test.ts (7 tests) 19ms
+ ✓ src/features/session/audio/captureStatus.test.ts (9 tests) 19ms
+ ✓ src/gaze/previewState.test.ts (3 tests) 16ms
+
+ Test Files  57 passed (57)
+      Tests  671 passed (671)
+   Start at  23:47:35
+   Duration  16.44s (transform 36.56s, setup 0ms, import 42.23s, tests 11.21s, environment 25ms)
+

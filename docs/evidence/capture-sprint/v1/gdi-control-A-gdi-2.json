@@ -1,0 +1,21 @@
+﻿{
+    "captured_at":  "2026-10-20T23:43:10.7471442+05:30",
+    "label":  "control-A-gdi-2",
+    "note":  "control 0x00",
+    "method":  "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+    "bounds":  {
+                   "y":  42,
+                   "width":  1258,
+                   "height":  636,
+                   "x":  54
+               },
+    "full_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-control-A-gdi-2-full.png",
+    "crop_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-control-A-gdi-2-crop.png",
+    "stats":  {
+                  "mean_luma":  49.26,
+                  "std_luma":  41.42,
+                  "unique_colors_sampled":  275,
+                  "high_contrast_fraction":  0.9384,
+                  "non_black_fraction":  0
+              }
+}

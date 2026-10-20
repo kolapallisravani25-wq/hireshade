@@ -152,19 +152,20 @@ describe('pre-flight DOM panel', () => {
     });
   });
 
-  it('routes compatibility-mode and self-check clicks', async () => {
-    const setCompatibilityMode = vi.fn(async () => undefined);
+  it('routes black-box-mode and self-check clicks', async () => {
+    const setBlackBoxMode = vi.fn(async () => undefined);
     const runSelfCheck = vi.fn(async () => undefined);
 
-    const compat = mount(
+    const blackBox = mount(
       {
         displays: [AMBER_INPUT.displays[0]!],
-        overlay: { displayId: 1, preset: 'reading', transparent: true, areaRatio: 0.7 },
+        capturePathHint: 'DXGI Desktop Duplication',
+        affinityMode: 'exclude',
       },
-      { setCompatibilityMode },
+      { setBlackBoxMode },
     );
-    actionButtons(compat.panel.element)[0]!.click();
-    await vi.waitFor(() => expect(setCompatibilityMode).toHaveBeenCalledWith(true));
+    actionButtons(blackBox.panel.element)[0]!.click();
+    await vi.waitFor(() => expect(setBlackBoxMode).toHaveBeenCalledWith(true));
 
     const check = mount(
       { displays: [AMBER_INPUT.displays[0]!], overlay: { displayId: 1 } },
@@ -204,5 +205,29 @@ describe('pre-flight DOM panel', () => {
     expect(panel.element.getAttribute('data-status')).toBe('GREEN');
     expect(actionButtons(panel.element)).toHaveLength(0);
     expect(panel.element.getAttribute('data-list-version')).toBe(verdict.facts.appListVersion);
+  });
+});
+describe('black box mode DOM affordances (V2)', () => {
+  it('renders undo + COMPACT actions and routes them', async () => {
+    const setBlackBoxMode = vi.fn(async () => undefined);
+    const setCaptureProfile = vi.fn(async () => undefined);
+    const input: PreflightInput = {
+      displays: [{ id: 1, primary: true, bounds: { x: 0, y: 0, width: 1920, height: 1080 } }],
+      overlay: { displayId: 1, preset: 'banner' },
+      affinityMode: 'monitor',
+    };
+    const { panel } = mount(input, { setBlackBoxMode, setCaptureProfile });
+    const buttons = actionButtons(panel.element);
+    expect(buttons.map((button) => button.getAttribute('data-action-id'))).toEqual([
+      'switch-back-to-invisible',
+      'switch-to-compact',
+    ]);
+    expect(byTestId(panel.element, 'preflight-honest')?.textContent).toContain("can't reliably detect");
+    const undo = buttons[0]!;
+    undo.click();
+    await vi.waitFor(() => expect(setBlackBoxMode).toHaveBeenCalledWith(false));
+    const compact = actionButtons(panel.element)[1]!;
+    compact.click();
+    await vi.waitFor(() => expect(setCaptureProfile).toHaveBeenCalledWith('card'));
   });
 });

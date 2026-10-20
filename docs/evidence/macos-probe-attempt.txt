@@ -1,0 +1,38 @@
+﻿=== 2026-10-20T23:26:54.5021403+05:30 ===
+git branch --show-current: sprint-resolve
+remote branches containing sprint-resolve:
+
+--- gh workflow list ---
+Desktop Build	active	305315962
+Job Agent CI	active	314800888
+
+--- trigger macos-sck-probe on sprint-resolve ---
+gh : HTTP 404: workflow macos-sck-probe.yml not found on the default branch 
+(https://api.github.com/repos/kolapallisravani25-wq/hireshade/actions/workflows/macos-sck-probe.yml)
+At line:1 char:817
++ ... ding utf8; (gh workflow run macos-sck-probe.yml --ref sprint-resolve  ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (HTTP 404: workf...-sck-probe.yml):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+--- trigger existing desktop-build (macos-latest build only) ---
+gh : could not create workflow dispatch event: HTTP 422: Workflow does not have 'workflow_dispatch' trigger 
+(https://api.github.com/repos/kolapallisravani25-wq/hireshade/actions/workflows/305315962/dispatches)
+At line:1 char:1041
++ ... ppend -Encoding utf8; (gh workflow run desktop-build.yml 2>&1 | Out-S ...
++                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (could not creat...962/dispatches):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+--- self-hosted runners ---
+gh : gh: You must have repository read permissions or have the repository runners fine-grained permission. (HTTP 403)
+At line:1 char:1205
++ ... ding utf8; (gh api repos/kolapallisravani25-wq/hireshade/actions/runn ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (gh: You must ha...ion. (HTTP 403):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+{"message":"You must have repository read permissions or have the repository runners fine-grained permission.","documentation_url":"https://docs.github.com/rest/actions/self-hosted-runners#list-self-hosted-runners-for-a-repository","status":"403"}
+

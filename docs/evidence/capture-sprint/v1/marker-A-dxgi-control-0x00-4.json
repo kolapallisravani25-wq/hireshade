@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-20T23:41:07.9780266+05:30",
+    "label":  "A-dxgi-control-0x00-4",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\ddagrab-A-dxgi-control-0x00-4-frame.png",
+    "rect":  "54,42,1258,636",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  0,
+    "sampled_pixels":  400044,
+    "fraction":  0,
+    "present":  false
+}

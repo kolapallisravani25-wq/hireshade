@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T17:49:04.970Z",
+  "generatedAt": "2026-10-20T18:33:54.283Z",
   "pass": true,
   "kind": "overlay-size-acceptance",
   "environment": {
@@ -1193,29 +1193,29 @@
     "samples": [
       {
         "id": "teleprompter",
-        "applyMs": 2.399999976158142,
-        "frameMs": 8.899999976158142,
+        "applyMs": 3.199999988079071,
+        "frameMs": 5.300000011920929,
         "preset": "teleprompter",
         "fontSize": 23
       },
       {
         "id": "compact",
-        "applyMs": 3.5,
-        "frameMs": 13.399999976158142,
+        "applyMs": 4.099999964237213,
+        "frameMs": 14,
         "preset": "compact",
         "fontSize": 17
       },
       {
         "id": "reading",
-        "applyMs": 0.699999988079071,
-        "frameMs": 13.400000035762787,
+        "applyMs": 1.899999976158142,
+        "frameMs": 13.800000011920929,
         "preset": "reading",
         "fontSize": 20
       }
     ],
-    "medianApplyMs": 2.399999976158142,
-    "maxApplyMs": 3.5,
-    "frameMs": 13.400000035762787,
+    "medianApplyMs": 3.199999988079071,
+    "maxApplyMs": 4.099999964237213,
+    "frameMs": 13.800000011920929,
     "preset": "reading",
     "fontSize": 20,
     "method": "median of 3 preset switches; applyMs = attribute + forced style/layout read; frameMs = until next rAF"
@@ -1223,12 +1223,12 @@
   "persistence": {
     "persisted": {
       "stored": "reading",
-      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792518481411}"
+      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792521169711}"
     },
     "restored": {
       "preset": "reading",
       "stored": "reading",
-      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792518501995}",
+      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792521190554}",
       "metrics": {
         "preset": "reading",
         "presetSource": "o1",
@@ -1298,10 +1298,10 @@
       "ok": true,
       "status": 0,
       "stderr": "",
-      "foregroundBefore": "HireShade overlay size acceptance",
+      "foregroundBefore": "# MISSION You are a — DeepSeek Harness",
       "foregroundAfter": "# MISSION You are a — DeepSeek Harness"
     },
-    "foregroundBefore": "HireShade overlay size acceptance",
+    "foregroundBefore": "# MISSION You are a — DeepSeek Harness",
     "foregroundAfter": "# MISSION You are a — DeepSeek Harness",
     "status": "UNTESTED"
   },
@@ -1398,11 +1398,11 @@
       "status": "PASS",
       "required": true,
       "detail": {
-        "medianApplyMs": 2.399999976158142,
+        "medianApplyMs": 3.199999988079071,
         "samples": [
-          0.699999988079071,
-          2.399999976158142,
-          3.5
+          1.899999976158142,
+          3.199999988079071,
+          4.099999964237213
         ]
       }
     },
@@ -1415,7 +1415,7 @@
         "preset": "reading",
         "fontSize": 20,
         "expectedFont": 20,
-        "frameMs": 13.400000035762787
+        "frameMs": 13.800000011920929
       }
     },
     {
@@ -1459,10 +1459,10 @@
           "ok": true,
           "status": 0,
           "stderr": "",
-          "foregroundBefore": "HireShade overlay size acceptance",
+          "foregroundBefore": "# MISSION You are a — DeepSeek Harness",
           "foregroundAfter": "# MISSION You are a — DeepSeek Harness"
         },
-        "foregroundBefore": "HireShade overlay size acceptance",
+        "foregroundBefore": "# MISSION You are a — DeepSeek Harness",
         "foregroundAfter": "# MISSION You are a — DeepSeek Harness",
         "status": "UNTESTED"
       }

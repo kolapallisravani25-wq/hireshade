@@ -95,6 +95,8 @@ export function launchElectron(root, options) {
     DSH_STEALTH: options.stealth ? "1" : "0",
     DSH_CLICK_THROUGH: options.clickThrough ? "1" : "0",
     DSH_USER_DATA_DIR: options.userDataDir,
+    DSH_OVERLAY_RECT: options.overlayRect ? JSON.stringify(options.overlayRect) : "",
+    DSH_TARGET_FOLLOWS_OVERLAY: options.targetFollowsOverlay ? "1" : "0",
   });
   if (options.userDataDir) mkdirSync(options.userDataDir, { recursive: true });
   delete env.ELECTRON_RUN_AS_NODE;

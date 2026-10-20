@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-20T23:38:45.2474110+05:30",
+    "label":  "B-gdi-control-0x00",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-B-gdi-control-0x00-crop.png",
+    "rect":  "",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  341570,
+    "sampled_pixels":  400680,
+    "fraction":  0.85248,
+    "present":  true
+}

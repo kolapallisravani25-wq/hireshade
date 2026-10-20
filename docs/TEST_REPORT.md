@@ -215,3 +215,35 @@ Evidence: `docs/evidence/capture-sprint/{opaque-recreate-runtime.json,opaque-rec
 Fixed by capturing a dedicated app tab in a separate window over CDP with `getDisplayMedia({ video: { displaySurface: 'browser' }, selfBrowserSurface: 'exclude', preferCurrentTab: false, surfaceSwitching: 'exclude' })` and no fake-UI flag. Chrome 155 + Edge: `displaySurface=browser`, app-tab DOM pixel **rgb 30,78,217**, control **59,7,100**, overlay sample equals app-tab pixels, **0 magenta pixels** — the overlay never appears in a tab capture. **Result: OBSERVED PASS**, tab share is the recommended share mode. Evidence: `u4-tab-share-results.json`, `u4-tab-{chrome,edge}-{captured,app-tab}.png`.
 
 All three were attempted; only U4 fully closed. U2 and U3 remain PARTIAL with the exact technical impediment recorded, not an unexplained blocker.
+
+## 16. Sprint-resolve — V1 compat verdict, V2 routing, V3 macOS attempt, V4 click-through rate
+
+### V1 — compatibility mode demoted (premise corrected)
+
+Definitive 2x5 under 0x11, both launches with affinity readback 0x11 and window visible/topmost asserted before and after every capture; marker-only detection (rgb(1,254,1)); 0x00 positive control:
+
+| Path | transparent 0x11 | opaque 0x11 |
+|---|---|---|
+| GDI | 0.00000 HIDDEN | 0.00000 HIDDEN |
+| desktopCapturer screen | 0.00000 HIDDEN | 0.00000 HIDDEN |
+| desktopCapturer window | 0x0 NO_PIXELS | 0x0 NO_PIXELS |
+| PrintWindow | 0.00000 / black 1.0 | 0.00000 / black 1.0 |
+| DXGI ddagrab | 0.00000 HIDDEN | 0.00000 HIDDEN |
+
+Positive control (0x00): GDI 0.85248, desktopCapturer screen 0.85248, DXGI 0.85332 (variant B); A DXGI 0.85808. A GDI/DC controls were occluded by concurrent S4 windows and are not control-validated; B validates GDI/DC/DXGI. `WS_EX_LAYERED` was true in both variants (0x80028 vs 0x80128), so it does not track opacity and is not used as the discriminator. **Verdict: identical on all five paths; compatibility mode has no measured capture effect and is demoted to cosmetic.** G-052 is reclassified as retired-as-mitigation with the corrected premise, not closed as a success. Evidence: `v1/v1-compat-ab.json`, `v1-verdict.json`, `v1-control-A.json`, scripts `v1-compat-ab.mjs`, `marker-stats.ps1`.
+
+### V2 — routing hardening (preflight)
+
+0x11 remains default; 0x01 is never default and is offered only for known-DXGI/high-risk single-display RED setups, with explicit cost copy (invisible -> black band on paths that already worked). Black box recommends COMPACT (`switch-to-compact`) and offers `switch-back-to-invisible` when no known-bad setup is detected; `affinityMode` is part of PreflightInput. Evidence `preflight-v2/v2-affinity-preflight.json` (11 setups + 17 assertions); preflight suite 55 tests; full frontend 671 tests at V2 handoff.
+
+### V3 — macOS ScreenCaptureKit probe attempted
+
+Workflow + Swift SCK probe authored. `gh workflow run` -> HTTP 404 (workflow not on default branch), runner API -> HTTP 403, no push performed. Hosted runners cannot grant TCC ScreenCapture (SIP), so even a dispatch could not run the probe. Exact output in `docs/evidence/macos-probe-attempt.txt`; G-055 stays DEFERRED with the self-hosted-Mac requirement.
+
+### V4 — click-through 20x (gated, no false passes)
+
+Harness now checks Electron tracked ignore-mouse, `WS_EX_TRANSPARENT` (0x20), and `GetForegroundWindow` in a bounded poll, and sends input only if all match. Fixed `setIgnoreMouseEvents(false,{forward:true})` -> plain false and reaped stale Electron processes between iterations. **20 launches / 20 succeeded; 19/20 fully valid click-through passes (95 %).** The single failure was a launch/evaluate null timeout before any phase; all 19 valid runs had correct ON and OFF states. **No 20/20 claim; one harness launch timeout remains.** Evidence: `s4/u4v-clickthrough-20x.json`.
+
+### Gates
+
+Gates (all on sprint-resolve): frontend **57 files / 671 tests pass** (`docs/evidence/29-resolve-frontend.txt`); workspace typecheck exit 0 (`30-resolve-typecheck.txt`); **full keyless `make demo` exit 0** with the quick capture-sprint step PASS (`31-resolve-make-demo.txt`).

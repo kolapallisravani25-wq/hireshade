@@ -1,0 +1,72 @@
+name: macOS ScreenCaptureKit exclusion probe
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sck-probe:
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Attempt TCC.db seed (expected to be blocked by SIP on hosted runners)
+        run: |
+          set +e
+          USER_TCC="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
+          SYS_TCC="/Library/Application Support/com.apple.TCC/TCC.db"
+          echo "TCC attempt $(date -u)" 
+          sqlite3 "$USER_TCC" ".tables" 2>&1 | head -5
+          sqlite3 "$USER_TCC" "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version, csreq, policy_id, indirect_object_identifier_type, indirect_object_identifier, indirect_object_code_identity, flags, last_modified) VALUES ('kTCCServiceScreenCapture','/usr/sbin/screencapture',0,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,strftime('%s','now'));" 2>&1 | head -5
+          sudo sqlite3 "$SYS_TCC" ".tables" 2>&1 | head -5
+          sudo sqlite3 "$SYS_TCC" "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version, csreq, policy_id, indirect_object_identifier_type, indirect_object_identifier, indirect_object_code_identity, flags, last_modified) VALUES ('kTCCServiceScreenCapture','/usr/sbin/screencapture',0,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,strftime('%s','now'));" 2>&1 | head -5
+          sudo killall tccd 2>&1 | head -3
+          echo "TCC seed attempt finished (may be blocked)"
+      - name: Build and launch Electron magenta probe window
+        working-directory: scripts/macos
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install electron@37 --no-audit --no-fund >/dev/null 2>&1
+          npx electron probe-window.cjs > probe-window.log 2>&1 &
+          sleep 8
+          cat probe-window.log
+      - name: ScreenCaptureKit probe (the API Zoom/Meet use on 13+)
+        working-directory: scripts/macos
+        run: |
+          swiftc -O sck-probe.swift -o sck-probe
+          BOUNDS=$(grep PROBE_BOUNDS probe-window.log | sed 's/PROBE_BOUNDS //')
+          echo "$BOUNDS" > bounds.json
+          X=$(python3 -c "import json;d=json.load(open('bounds.json'));print(d['x'])")
+          Y=$(python3 -c "import json;d=json.load(open('bounds.json'));print(d['y'])")
+          W=$(python3 -c "import json;d=json.load(open('bounds.json'));print(d['width'])")
+          H=$(python3 -c "import json;d=json.load(open('bounds.json'));print(d['height'])")
+          ./sck-probe "$X" "$Y" "$W" "$H" sck.png | tee sck-result.json
+      - name: Legacy screencapture A/B (CGWindowList; expected to honour NSWindowSharingNone)
+        working-directory: scripts/macos
+        run: |
+          screencapture -x legacy.png || true
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+import json
+from PIL import Image
+bounds=json.load(open('bounds.json'))
+img=Image.open('legacy.png').convert('RGB')
+x,y,w,h=bounds['x'],bounds['y'],bounds['width'],bounds['height']
+crop=img.crop((x,y,x+w,y+h))
+px=list(crop.getdata())
+avg=tuple(sum(c[i] for c in px)//len(px) for i in range(3))
+print(json.dumps({"path":"legacy-screencapture","avg":avg,"n":len(px)}))
+PY
+      - name: Summary
+        working-directory: scripts/macos
+        run: |
+          echo "SCK result:"; cat sck-result.json || true
+          echo "Upload sck.png/legacy.png as artifacts for manual comparison"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-capture-probe
+          path: scripts/macos/*.png
+          if-no-files-found: ignore

@@ -18,12 +18,13 @@ public class U2WindowStyle {
     [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hWnd, out RECT r);
     [DllImport("user32.dll")] public static extern uint GetWindowDisplayAffinity(IntPtr hWnd, out uint affinity);
     [DllImport("dwmapi.dll")] public static extern int DwmGetWindowAttribute(IntPtr hWnd, int attr, out int value, int size);
+    [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
     [StructLayout(LayoutKind.Sequential)] public struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
     public class Info {
         public long hwnd; public int pid; public string title; public bool visible;
         public long style; public long exstyle; public bool layered; public uint affinity;
         public int left; public int top; public int width; public int height;
-        public int cloaked; public bool dwmComposition;
+        public int cloaked; public bool dwmComposition; public bool foreground; public bool topmost;
     }
     public static List<Info> ForPids(int[] pids, string wanted) {
         var set = new HashSet<uint>();
@@ -43,6 +44,8 @@ public class U2WindowStyle {
             info.layered = (info.exstyle & 0x80000L) != 0; // WS_EX_LAYERED
             uint aff; GetWindowDisplayAffinity(hWnd, out aff); info.affinity = aff;
             info.left = r.Left; info.top = r.Top; info.width = r.Right - r.Left; info.height = r.Bottom - r.Top;
+            info.foreground = GetForegroundWindow() == hWnd;
+            info.topmost = (info.exstyle & 0x8L) != 0;
             int cloaked = 0; DwmGetWindowAttribute(hWnd, 14, out cloaked, 4); info.cloaked = cloaked;
             int comp = 0; try { DwmGetWindowAttribute(hWnd, 1, out comp, 4); } catch { comp = 0; } info.dwmComposition = comp != 0;
             list.Add(info);
@@ -67,6 +70,8 @@ foreach ($w in $all) {
         bounds = @{ x = $w.left; y = $w.top; width = $w.width; height = $w.height }
         DWM_cloaked = $w.cloaked
         DWM_composition = $w.dwmComposition
+        foreground = $w.foreground
+        topmost = $w.topmost
     }
 }
 $payload = [ordered]@{

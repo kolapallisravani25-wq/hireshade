@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-20T23:34:36.5950012+05:30",
+    "label":  "B-gdi-hidden-baseline",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\gdi-B-gdi-hidden-baseline-crop.png",
+    "rect":  "",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  null,
+    "sampled_pixels":  null,
+    "fraction":  0,
+    "present":  false
+}

@@ -1,0 +1,15 @@
+﻿{
+    "captured_at":  "2026-10-20T23:39:44.2250458+05:30",
+    "expect":  "0x11",
+    "note":  "V1 A-desktopcapturer_window-before-state",
+    "electron_pids":  [
+                          14400
+                      ],
+    "windows":  [
+
+                ],
+    "matching":  [
+
+                 ],
+    "pass":  false
+}

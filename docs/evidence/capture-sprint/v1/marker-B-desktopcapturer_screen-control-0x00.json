@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-20T23:38:47.2176628+05:30",
+    "label":  "B-desktopcapturer_screen-control-0x00",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-B-desktopcapturer_screen-control-0x00-screen-0.png",
+    "rect":  "54,42,1259,636",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  341570,
+    "sampled_pixels":  400680,
+    "fraction":  0.85248,
+    "present":  true
+}

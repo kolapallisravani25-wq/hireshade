@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T17:49:49.467Z",
+  "generatedAt": "2026-10-20T18:33:58.611Z",
   "quick": true,
   "environment": {
     "platform": "win32",
@@ -9,137 +9,913 @@
   },
   "sections": {
     "clickThrough": {
+      "iteration": 0,
       "assertions": [
         {
-          "name": "click-through-on-target-received-click",
+          "phase": "on",
+          "name": "electron-tracked-ignore-mouse",
           "pass": true,
           "detail": {
-            "targetClicks": 1
+            "expected": true,
+            "tracked": true
           }
         },
         {
-          "name": "click-through-on-overlay-did-not-receive-click",
+          "phase": "on",
+          "name": "electron-getter-ignore-mouse",
           "pass": true,
           "detail": {
-            "overlayClicks": 0
+            "available": false,
+            "value": null
           }
         },
         {
-          "name": "click-through-off-overlay-control-received-click",
+          "phase": "on",
+          "name": "win32-gate-before-click",
           "pass": true,
           "detail": {
-            "overlayBefore": 0,
-            "overlayAfter": 1
+            "elapsedMs": 3313,
+            "action": "assertAndClick",
+            "state": {
+              "overlayHwnd": "0xAE0822",
+              "overlayTitle": "S4 protected overlay",
+              "overlayClass": "Chrome_WidgetWin_1",
+              "exStyle": "0x80028",
+              "wsExTransparent": true,
+              "foregroundHwnd": "0x7D07F8",
+              "foregroundTitle": "S4 click target",
+              "foregroundClass": "Chrome_WidgetWin_1",
+              "foregroundMatches": true,
+              "hitHwnd": "0x7D07F8",
+              "hitTitle": "S4 click target",
+              "hitClass": "Chrome_WidgetWin_1",
+              "hitMatches": true
+            },
+            "ok": true,
+            "stateAtAssert": {
+              "overlayHwnd": "0xAE0822",
+              "overlayTitle": "S4 protected overlay",
+              "overlayClass": "Chrome_WidgetWin_1",
+              "exStyle": "0x80028",
+              "wsExTransparent": true,
+              "foregroundHwnd": "0x7D07F8",
+              "foregroundTitle": "S4 click target",
+              "foregroundClass": "Chrome_WidgetWin_1",
+              "foregroundMatches": true,
+              "hitHwnd": "0x7D07F8",
+              "hitTitle": "S4 click target",
+              "hitClass": "Chrome_WidgetWin_1",
+              "hitMatches": true
+            },
+            "clicked": true,
+            "point": {
+              "y": 52,
+              "x": 933
+            },
+            "attempts": 44
           }
         },
         {
-          "name": "click-through-off-target-did-not-receive-click",
+          "phase": "on",
+          "name": "sendinput-only-after-assertions",
+          "pass": true,
+          "detail": true
+        },
+        {
+          "phase": "on",
+          "name": "win32-exstyle-transparent",
+          "pass": true,
+          "detail": true
+        },
+        {
+          "phase": "on",
+          "name": "win32-expected-foreground",
           "pass": true,
           "detail": {
-            "targetBefore": 1,
-            "targetAfter": 1
+            "expected": "8194040",
+            "actual": "0x7D07F8",
+            "title": "S4 click target"
+          }
+        },
+        {
+          "phase": "on",
+          "name": "counter-delta",
+          "pass": true,
+          "detail": {
+            "ok": true,
+            "attempts": 1,
+            "elapsedMs": 8,
+            "counters": {
+              "overlayClicks": 0,
+              "targetClicks": 1
+            },
+            "expectations": {
+              "overlayDelta": 0,
+              "targetDelta": 1
+            }
+          }
+        },
+        {
+          "phase": "on",
+          "name": "overlay-did-not-receive-click",
+          "pass": true,
+          "detail": {
+            "before": 0,
+            "after": 0
+          }
+        },
+        {
+          "phase": "on",
+          "name": "target-received-click",
+          "pass": true,
+          "detail": {
+            "before": 0,
+            "after": 1
+          }
+        },
+        {
+          "phase": "off",
+          "name": "electron-tracked-ignore-mouse",
+          "pass": true,
+          "detail": {
+            "expected": false,
+            "tracked": false
+          }
+        },
+        {
+          "phase": "off",
+          "name": "electron-getter-ignore-mouse",
+          "pass": true,
+          "detail": {
+            "available": false,
+            "value": null
+          }
+        },
+        {
+          "phase": "off",
+          "name": "win32-gate-before-click",
+          "pass": true,
+          "detail": {
+            "elapsedMs": 357,
+            "action": "assertAndClick",
+            "state": {
+              "overlayHwnd": "0xAE0822",
+              "overlayTitle": "S4 protected overlay",
+              "overlayClass": "Chrome_WidgetWin_1",
+              "exStyle": "0x8",
+              "wsExTransparent": false,
+              "foregroundHwnd": "0xAE0822",
+              "foregroundTitle": "S4 protected overlay",
+              "foregroundClass": "Chrome_WidgetWin_1",
+              "foregroundMatches": true,
+              "hitHwnd": "0xAE0822",
+              "hitTitle": "S4 protected overlay",
+              "hitClass": "Chrome_WidgetWin_1",
+              "hitMatches": true
+            },
+            "ok": true,
+            "stateAtAssert": {
+              "overlayHwnd": "0xAE0822",
+              "overlayTitle": "S4 protected overlay",
+              "overlayClass": "Chrome_WidgetWin_1",
+              "exStyle": "0x8",
+              "wsExTransparent": false,
+              "foregroundHwnd": "0xAE0822",
+              "foregroundTitle": "S4 protected overlay",
+              "foregroundClass": "Chrome_WidgetWin_1",
+              "foregroundMatches": true,
+              "hitHwnd": "0xAE0822",
+              "hitTitle": "S4 protected overlay",
+              "hitClass": "Chrome_WidgetWin_1",
+              "hitMatches": true
+            },
+            "clicked": true,
+            "point": {
+              "y": 162,
+              "x": 1124
+            },
+            "attempts": 1
+          }
+        },
+        {
+          "phase": "off",
+          "name": "sendinput-only-after-assertions",
+          "pass": true,
+          "detail": true
+        },
+        {
+          "phase": "off",
+          "name": "win32-exstyle-transparent",
+          "pass": true,
+          "detail": false
+        },
+        {
+          "phase": "off",
+          "name": "win32-expected-foreground",
+          "pass": true,
+          "detail": {
+            "expected": "11405346",
+            "actual": "0xAE0822",
+            "title": "S4 protected overlay"
+          }
+        },
+        {
+          "phase": "off",
+          "name": "counter-delta",
+          "pass": true,
+          "detail": {
+            "ok": true,
+            "attempts": 1,
+            "elapsedMs": 4,
+            "counters": {
+              "overlayClicks": 1,
+              "targetClicks": 0
+            },
+            "expectations": {
+              "overlayDelta": 1,
+              "targetDelta": 0
+            }
+          }
+        },
+        {
+          "phase": "off",
+          "name": "overlay-control-received-click",
+          "pass": true,
+          "detail": {
+            "before": 0,
+            "after": 1
+          }
+        },
+        {
+          "phase": "off",
+          "name": "target-did-not-receive-click",
+          "pass": true,
+          "detail": {
+            "before": 0,
+            "after": 0
           }
         }
       ],
       "screenshots": [
         {
           "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-clickthrough-on-overlay.png",
-          "bytes": 11826
+          "bytes": 10617
         },
         {
           "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-clickthrough-on-target.png",
-          "bytes": 13746
+          "bytes": 10663
         },
         {
           "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-clickthrough-off-overlay.png",
-          "bytes": 11460
+          "bytes": 10617
         }
       ],
       "timings": {
-        "launchMs": 1084,
-        "clickOnMs": 1657,
-        "clickOffMs": 1621,
-        "totalMs": 6115
+        "launchMs": 2044,
+        "totalMs": 12830
+      },
+      "pass": true,
+      "launchAttempts": [
+        {
+          "attempt": 1,
+          "ok": true,
+          "port": 12664
+        }
+      ],
+      "launch": {
+        "attempts": 1,
+        "success": true,
+        "finalError": null
+      },
+      "info": {
+        "mode": "click",
+        "stealth": false,
+        "clickThrough": true,
+        "scaleFactor": 1.0499999523162842,
+        "displayBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 732
+        },
+        "targetBounds": {
+          "x": 859,
+          "y": 20,
+          "width": 425,
+          "height": 323
+        },
+        "overlayBounds": {
+          "x": 859,
+          "y": 20,
+          "width": 423,
+          "height": 323
+        },
+        "transparentPointDip": {
+          "x": 889,
+          "y": 50
+        },
+        "transparentPointPhysical": {
+          "x": 933,
+          "y": 52
+        },
+        "overlayCenterRelativeToDisplay": {
+          "xRel": 0.8228285933897003,
+          "yRel": 0.24795081967213115
+        },
+        "overlayHwnd": "11405346",
+        "targetHwnd": "8194040",
+        "foregroundTitleHint": "target"
       },
       "on": {
-        "info": {
-          "mode": "click",
-          "stealth": false,
-          "clickThrough": true,
-          "scaleFactor": 1.0499999523162842,
-          "displayBounds": {
-            "x": 0,
-            "y": 0,
-            "width": 1301,
-            "height": 732
+        "name": "on",
+        "mode": "on",
+        "expectedTransparent": true,
+        "expectedForeground": "target",
+        "failures": [],
+        "timings": {
+          "prepareMs": 1219,
+          "forceForegroundMs": 1256,
+          "gateMs": 4359,
+          "totalMs": 6925
+        },
+        "countersBefore": {
+          "overlayClicks": 0,
+          "targetClicks": 0
+        },
+        "prepareAttempts": 1,
+        "prepareFinalState": {
+          "overlayHwnd": "11405346",
+          "overlayHwndHex": "0xAE0822",
+          "targetHwnd": "8194040",
+          "targetHwndHex": "0x7D07F8",
+          "ignoreMouseTracked": true,
+          "electronGetter": {
+            "available": false,
+            "value": null
+          },
+          "overlayVisible": true,
+          "overlayFocused": false,
+          "targetVisible": true,
+          "targetFocused": true,
+          "overlayBounds": {
+            "x": 859,
+            "y": 20,
+            "width": 423,
+            "height": 323
           },
           "targetBounds": {
-            "x": 0,
-            "y": 0,
-            "width": 1303,
-            "height": 688
+            "x": 859,
+            "y": 20,
+            "width": 425,
+            "height": 323
           },
+          "scaleFactor": 1.0499999523162842
+        },
+        "prepareState": {
+          "overlayHwnd": "11405346",
+          "overlayHwndHex": "0xAE0822",
+          "targetHwnd": "8194040",
+          "targetHwndHex": "0x7D07F8",
+          "ignoreMouseTracked": true,
+          "electronGetter": {
+            "available": false,
+            "value": null
+          },
+          "overlayVisible": true,
+          "overlayFocused": false,
+          "targetVisible": true,
+          "targetFocused": true,
           "overlayBounds": {
-            "x": 199,
-            "y": 109,
-            "width": 763,
-            "height": 465
+            "x": 859,
+            "y": 20,
+            "width": 423,
+            "height": 323
           },
-          "transparentPointDip": {
-            "x": 229,
-            "y": 139
+          "targetBounds": {
+            "x": 859,
+            "y": 20,
+            "width": 425,
+            "height": 323
           },
-          "transparentPointPhysical": {
-            "x": 240,
-            "y": 146
-          },
-          "overlayCenterRelativeToDisplay": {
-            "xRel": 0.44619523443504994,
-            "yRel": 0.46653005464480873
-          },
-          "foregroundTitleHint": "target"
+          "scaleFactor": 1.0499999523162842
         },
-        "point": {
-          "x": 240,
-          "y": 146
+        "electronState": {
+          "overlayHwnd": "11405346",
+          "overlayHwndHex": "0xAE0822",
+          "targetHwnd": "8194040",
+          "targetHwndHex": "0x7D07F8",
+          "ignoreMouseTracked": true,
+          "electronGetter": {
+            "available": false,
+            "value": null
+          },
+          "overlayVisible": true,
+          "overlayFocused": false,
+          "targetVisible": true,
+          "targetFocused": true,
+          "overlayBounds": {
+            "x": 859,
+            "y": 20,
+            "width": 423,
+            "height": 323
+          },
+          "targetBounds": {
+            "x": 859,
+            "y": 20,
+            "width": 425,
+            "height": 323
+          },
+          "scaleFactor": 1.0499999523162842
         },
-        "injected": {
+        "assertions": [
+          {
+            "name": "electron-tracked-ignore-mouse",
+            "pass": true,
+            "detail": {
+              "expected": true,
+              "tracked": true
+            }
+          },
+          {
+            "name": "electron-getter-ignore-mouse",
+            "pass": true,
+            "detail": {
+              "available": false,
+              "value": null
+            }
+          },
+          {
+            "name": "win32-gate-before-click",
+            "pass": true,
+            "detail": {
+              "elapsedMs": 3313,
+              "action": "assertAndClick",
+              "state": {
+                "overlayHwnd": "0xAE0822",
+                "overlayTitle": "S4 protected overlay",
+                "overlayClass": "Chrome_WidgetWin_1",
+                "exStyle": "0x80028",
+                "wsExTransparent": true,
+                "foregroundHwnd": "0x7D07F8",
+                "foregroundTitle": "S4 click target",
+                "foregroundClass": "Chrome_WidgetWin_1",
+                "foregroundMatches": true,
+                "hitHwnd": "0x7D07F8",
+                "hitTitle": "S4 click target",
+                "hitClass": "Chrome_WidgetWin_1",
+                "hitMatches": true
+              },
+              "ok": true,
+              "stateAtAssert": {
+                "overlayHwnd": "0xAE0822",
+                "overlayTitle": "S4 protected overlay",
+                "overlayClass": "Chrome_WidgetWin_1",
+                "exStyle": "0x80028",
+                "wsExTransparent": true,
+                "foregroundHwnd": "0x7D07F8",
+                "foregroundTitle": "S4 click target",
+                "foregroundClass": "Chrome_WidgetWin_1",
+                "foregroundMatches": true,
+                "hitHwnd": "0x7D07F8",
+                "hitTitle": "S4 click target",
+                "hitClass": "Chrome_WidgetWin_1",
+                "hitMatches": true
+              },
+              "clicked": true,
+              "point": {
+                "y": 52,
+                "x": 933
+              },
+              "attempts": 44
+            }
+          },
+          {
+            "name": "sendinput-only-after-assertions",
+            "pass": true,
+            "detail": true
+          },
+          {
+            "name": "win32-exstyle-transparent",
+            "pass": true,
+            "detail": true
+          },
+          {
+            "name": "win32-expected-foreground",
+            "pass": true,
+            "detail": {
+              "expected": "8194040",
+              "actual": "0x7D07F8",
+              "title": "S4 click target"
+            }
+          },
+          {
+            "name": "counter-delta",
+            "pass": true,
+            "detail": {
+              "ok": true,
+              "attempts": 1,
+              "elapsedMs": 8,
+              "counters": {
+                "overlayClicks": 0,
+                "targetClicks": 1
+              },
+              "expectations": {
+                "overlayDelta": 0,
+                "targetDelta": 1
+              }
+            }
+          },
+          {
+            "name": "overlay-did-not-receive-click",
+            "pass": true,
+            "detail": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          {
+            "name": "target-received-click",
+            "pass": true,
+            "detail": {
+              "before": 0,
+              "after": 1
+            }
+          }
+        ],
+        "expectedForegroundHwnd": "8194040",
+        "forcedForeground": {
+          "action": "forceForeground",
+          "elapsedMs": 212,
           "ok": true,
-          "status": 0,
-          "stderr": "",
-          "foregroundBefore": "S4 click target",
-          "foregroundAfter": "S4 click target"
+          "setForegroundWindow": true,
+          "state": {
+            "overlayHwnd": "0x7D07F8",
+            "overlayTitle": "S4 click target",
+            "overlayClass": "Chrome_WidgetWin_1",
+            "exStyle": "0x108",
+            "wsExTransparent": false,
+            "foregroundHwnd": "0x7D07F8",
+            "foregroundTitle": "S4 click target",
+            "foregroundClass": "Chrome_WidgetWin_1",
+            "foregroundMatches": true,
+            "hitHwnd": "0x2A070E",
+            "hitTitle": "*hireshade venice prompts for deepseek harness.txt - Notepad",
+            "hitClass": "Notepad",
+            "hitMatches": true
+          },
+          "attached": true
         },
-        "overlayClicks": 0,
-        "targetClicks": 1,
-        "lastTargetClick": {
-          "x": 228,
-          "y": 139,
-          "at": 1792518592269
-        }
+        "gate": {
+          "elapsedMs": 3313,
+          "action": "assertAndClick",
+          "state": {
+            "overlayHwnd": "0xAE0822",
+            "overlayTitle": "S4 protected overlay",
+            "overlayClass": "Chrome_WidgetWin_1",
+            "exStyle": "0x80028",
+            "wsExTransparent": true,
+            "foregroundHwnd": "0x7D07F8",
+            "foregroundTitle": "S4 click target",
+            "foregroundClass": "Chrome_WidgetWin_1",
+            "foregroundMatches": true,
+            "hitHwnd": "0x7D07F8",
+            "hitTitle": "S4 click target",
+            "hitClass": "Chrome_WidgetWin_1",
+            "hitMatches": true
+          },
+          "ok": true,
+          "stateAtAssert": {
+            "overlayHwnd": "0xAE0822",
+            "overlayTitle": "S4 protected overlay",
+            "overlayClass": "Chrome_WidgetWin_1",
+            "exStyle": "0x80028",
+            "wsExTransparent": true,
+            "foregroundHwnd": "0x7D07F8",
+            "foregroundTitle": "S4 click target",
+            "foregroundClass": "Chrome_WidgetWin_1",
+            "foregroundMatches": true,
+            "hitHwnd": "0x7D07F8",
+            "hitTitle": "S4 click target",
+            "hitClass": "Chrome_WidgetWin_1",
+            "hitMatches": true
+          },
+          "clicked": true,
+          "point": {
+            "y": 52,
+            "x": 933
+          },
+          "attempts": 44
+        },
+        "counters": {
+          "ok": true,
+          "attempts": 1,
+          "elapsedMs": 8,
+          "counters": {
+            "overlayClicks": 0,
+            "targetClicks": 1
+          },
+          "expectations": {
+            "overlayDelta": 0,
+            "targetDelta": 1
+          }
+        },
+        "pass": true
       },
       "off": {
-        "buttonRect": {
-          "x": 287.9761962890625,
-          "y": 178.5416717529297,
-          "width": 187.85716247558594,
-          "height": 52.73809814453125
+        "name": "off",
+        "mode": "off",
+        "expectedTransparent": false,
+        "expectedForeground": "overlay",
+        "failures": [],
+        "timings": {
+          "prepareMs": 1128,
+          "forceForegroundMs": 1037,
+          "gateMs": 1219,
+          "totalMs": 3456
         },
-        "point": {
-          "x": 610,
-          "y": 330
+        "countersBefore": {
+          "overlayClicks": 0,
+          "targetClicks": 0
         },
-        "injected": {
+        "prepareAttempts": 1,
+        "prepareFinalState": {
+          "overlayHwnd": "11405346",
+          "overlayHwndHex": "0xAE0822",
+          "targetHwnd": "8194040",
+          "targetHwndHex": "0x7D07F8",
+          "ignoreMouseTracked": false,
+          "electronGetter": {
+            "available": false,
+            "value": null
+          },
+          "overlayVisible": true,
+          "overlayFocused": true,
+          "targetVisible": true,
+          "targetFocused": false,
+          "overlayBounds": {
+            "x": 859,
+            "y": 20,
+            "width": 423,
+            "height": 323
+          },
+          "targetBounds": {
+            "x": 859,
+            "y": 20,
+            "width": 425,
+            "height": 323
+          },
+          "scaleFactor": 1.0499999523162842
+        },
+        "prepareState": {
+          "overlayHwnd": "11405346",
+          "overlayHwndHex": "0xAE0822",
+          "targetHwnd": "8194040",
+          "targetHwndHex": "0x7D07F8",
+          "ignoreMouseTracked": false,
+          "electronGetter": {
+            "available": false,
+            "value": null
+          },
+          "overlayVisible": true,
+          "overlayFocused": true,
+          "targetVisible": true,
+          "targetFocused": false,
+          "overlayBounds": {
+            "x": 859,
+            "y": 20,
+            "width": 423,
+            "height": 323
+          },
+          "targetBounds": {
+            "x": 859,
+            "y": 20,
+            "width": 425,
+            "height": 323
+          },
+          "scaleFactor": 1.0499999523162842
+        },
+        "electronState": {
+          "overlayHwnd": "11405346",
+          "overlayHwndHex": "0xAE0822",
+          "targetHwnd": "8194040",
+          "targetHwndHex": "0x7D07F8",
+          "ignoreMouseTracked": false,
+          "electronGetter": {
+            "available": false,
+            "value": null
+          },
+          "overlayVisible": true,
+          "overlayFocused": true,
+          "targetVisible": true,
+          "targetFocused": false,
+          "overlayBounds": {
+            "x": 859,
+            "y": 20,
+            "width": 423,
+            "height": 323
+          },
+          "targetBounds": {
+            "x": 859,
+            "y": 20,
+            "width": 425,
+            "height": 323
+          },
+          "scaleFactor": 1.0499999523162842
+        },
+        "assertions": [
+          {
+            "name": "electron-tracked-ignore-mouse",
+            "pass": true,
+            "detail": {
+              "expected": false,
+              "tracked": false
+            }
+          },
+          {
+            "name": "electron-getter-ignore-mouse",
+            "pass": true,
+            "detail": {
+              "available": false,
+              "value": null
+            }
+          },
+          {
+            "name": "win32-gate-before-click",
+            "pass": true,
+            "detail": {
+              "elapsedMs": 357,
+              "action": "assertAndClick",
+              "state": {
+                "overlayHwnd": "0xAE0822",
+                "overlayTitle": "S4 protected overlay",
+                "overlayClass": "Chrome_WidgetWin_1",
+                "exStyle": "0x8",
+                "wsExTransparent": false,
+                "foregroundHwnd": "0xAE0822",
+                "foregroundTitle": "S4 protected overlay",
+                "foregroundClass": "Chrome_WidgetWin_1",
+                "foregroundMatches": true,
+                "hitHwnd": "0xAE0822",
+                "hitTitle": "S4 protected overlay",
+                "hitClass": "Chrome_WidgetWin_1",
+                "hitMatches": true
+              },
+              "ok": true,
+              "stateAtAssert": {
+                "overlayHwnd": "0xAE0822",
+                "overlayTitle": "S4 protected overlay",
+                "overlayClass": "Chrome_WidgetWin_1",
+                "exStyle": "0x8",
+                "wsExTransparent": false,
+                "foregroundHwnd": "0xAE0822",
+                "foregroundTitle": "S4 protected overlay",
+                "foregroundClass": "Chrome_WidgetWin_1",
+                "foregroundMatches": true,
+                "hitHwnd": "0xAE0822",
+                "hitTitle": "S4 protected overlay",
+                "hitClass": "Chrome_WidgetWin_1",
+                "hitMatches": true
+              },
+              "clicked": true,
+              "point": {
+                "y": 162,
+                "x": 1124
+              },
+              "attempts": 1
+            }
+          },
+          {
+            "name": "sendinput-only-after-assertions",
+            "pass": true,
+            "detail": true
+          },
+          {
+            "name": "win32-exstyle-transparent",
+            "pass": true,
+            "detail": false
+          },
+          {
+            "name": "win32-expected-foreground",
+            "pass": true,
+            "detail": {
+              "expected": "11405346",
+              "actual": "0xAE0822",
+              "title": "S4 protected overlay"
+            }
+          },
+          {
+            "name": "counter-delta",
+            "pass": true,
+            "detail": {
+              "ok": true,
+              "attempts": 1,
+              "elapsedMs": 4,
+              "counters": {
+                "overlayClicks": 1,
+                "targetClicks": 0
+              },
+              "expectations": {
+                "overlayDelta": 1,
+                "targetDelta": 0
+              }
+            }
+          },
+          {
+            "name": "overlay-control-received-click",
+            "pass": true,
+            "detail": {
+              "before": 0,
+              "after": 1
+            }
+          },
+          {
+            "name": "target-did-not-receive-click",
+            "pass": true,
+            "detail": {
+              "before": 0,
+              "after": 0
+            }
+          }
+        ],
+        "expectedForegroundHwnd": "11405346",
+        "forcedForeground": {
+          "action": "forceForeground",
+          "elapsedMs": 179,
           "ok": true,
-          "status": 0,
-          "stderr": "",
-          "foregroundBefore": "S4 click target",
-          "foregroundAfter": "S4 protected overlay"
+          "setForegroundWindow": true,
+          "state": {
+            "overlayHwnd": "0xAE0822",
+            "overlayTitle": "S4 protected overlay",
+            "overlayClass": "Chrome_WidgetWin_1",
+            "exStyle": "0x8",
+            "wsExTransparent": false,
+            "foregroundHwnd": "0xAE0822",
+            "foregroundTitle": "S4 protected overlay",
+            "foregroundClass": "Chrome_WidgetWin_1",
+            "foregroundMatches": true,
+            "hitHwnd": "0x2A070E",
+            "hitTitle": "*hireshade venice prompts for deepseek harness.txt - Notepad",
+            "hitClass": "Notepad",
+            "hitMatches": true
+          },
+          "attached": false
         },
-        "overlayClicks": 1,
-        "targetClicks": 1
-      },
-      "pass": true
+        "gate": {
+          "elapsedMs": 357,
+          "action": "assertAndClick",
+          "state": {
+            "overlayHwnd": "0xAE0822",
+            "overlayTitle": "S4 protected overlay",
+            "overlayClass": "Chrome_WidgetWin_1",
+            "exStyle": "0x8",
+            "wsExTransparent": false,
+            "foregroundHwnd": "0xAE0822",
+            "foregroundTitle": "S4 protected overlay",
+            "foregroundClass": "Chrome_WidgetWin_1",
+            "foregroundMatches": true,
+            "hitHwnd": "0xAE0822",
+            "hitTitle": "S4 protected overlay",
+            "hitClass": "Chrome_WidgetWin_1",
+            "hitMatches": true
+          },
+          "ok": true,
+          "stateAtAssert": {
+            "overlayHwnd": "0xAE0822",
+            "overlayTitle": "S4 protected overlay",
+            "overlayClass": "Chrome_WidgetWin_1",
+            "exStyle": "0x8",
+            "wsExTransparent": false,
+            "foregroundHwnd": "0xAE0822",
+            "foregroundTitle": "S4 protected overlay",
+            "foregroundClass": "Chrome_WidgetWin_1",
+            "foregroundMatches": true,
+            "hitHwnd": "0xAE0822",
+            "hitTitle": "S4 protected overlay",
+            "hitClass": "Chrome_WidgetWin_1",
+            "hitMatches": true
+          },
+          "clicked": true,
+          "point": {
+            "y": 162,
+            "x": 1124
+          },
+          "attempts": 1
+        },
+        "counters": {
+          "ok": true,
+          "attempts": 1,
+          "elapsedMs": 4,
+          "counters": {
+            "overlayClicks": 1,
+            "targetClicks": 0
+          },
+          "expectations": {
+            "overlayDelta": 1,
+            "targetDelta": 0
+          }
+        },
+        "pass": true
+      }
     },
     "displays": {
       "status": "UNTESTED-BLOCKED",
@@ -168,9 +944,9 @@
     "elevationQuick": {
       "integrity": {
         "command": "powershell -NoProfile -Command whoami /groups | Select-String -Pattern 'S-1-16-' | Out-String",
-        "status": 0,
-        "stdout": "Mandatory Label\\Medium Mandatory Level                        Label            S-1-16-8192",
-        "stderr": "",
+        "status": 1,
+        "stdout": "",
+        "stderr": "BusyBox v1.38.0.git-6075-g169694ebd (2026-10-11 18:54:31 UTC)\n\nUsage: whoami\n\nPrint the user name associated with the current effective user id",
         "error": null,
         "durationMs": 566
       },
@@ -183,10 +959,8 @@
       "name": "click-through-proof",
       "pass": true,
       "detail": {
-        "launchMs": 1084,
-        "clickOnMs": 1657,
-        "clickOffMs": 1621,
-        "totalMs": 6115
+        "launchMs": 2044,
+        "totalMs": 12830
       }
     },
     {
@@ -198,7 +972,7 @@
       "name": "quick-elevation-readable",
       "pass": true,
       "detail": {
-        "status": 0,
+        "status": 1,
         "elevated": false
       }
     }
@@ -209,6 +983,6 @@
     "displays": "PASS",
     "elevationQuick": "PASS"
   },
-  "durationMs": 7154,
+  "durationMs": 14022,
   "evidenceFile": "docs/evidence/capture-sprint/s4/s4-quick-results.json"
 }

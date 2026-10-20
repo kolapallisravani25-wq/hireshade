@@ -1,0 +1,6 @@
+{
+  "variant": "A-control",
+  "affinity": "none (0x00)",
+  "method": "fresh launch with HIRESHADE_AFFINITY_MODE=none + affinityMode=none seed; marker injection; topmost focus + retries",
+  "error": "Error: {\"code\":-32000,\"message\":\"Execution context was destroyed.\"}\n    at WebSocket.<anonymous> (file:///D:/hireshade/scripts/capture-matrix/v1-control-a.mjs:33:182)\n    at [nodejs.internal.kHybridDispatch] (node:internal/event_target:856:20)\n    at WebSocket.dispatchEvent (node:internal/event_target:789:26)\n    at fireEvent (node:internal/deps/undici/undici:14403:14)\n    at #onMessage (node:internal/deps/undici/undici:15726:9)\n    at Object.onMessage (node:internal/deps/undici/undici:15433:76)\n    at websocketMessageReceived (node:internal/deps/undici/undici:14407:15)\n    at node:internal/deps/undici/undici:15135:21\n    at node:internal/deps/undici/undici:14915:11\n    at afterWrite (node:internal/streams/writable:708:5)"
+}

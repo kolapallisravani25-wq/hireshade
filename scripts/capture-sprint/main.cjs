@@ -31,6 +31,20 @@ app.commandLine.appendSwitch("disable-features", "CalculateNativeWinOcclusion");
 if (USER_DATA_DIR) app.setPath("userData", USER_DATA_DIR);
 
 const OVERLAY_INSET = { x: 200, y: 110, width: 760, height: 460 };
+// V4 isolation: a harness run may claim its own small rect so concurrent UI
+// automation on the same desktop cannot overlap its windows/clicks. When
+// DSH_TARGET_FOLLOWS_OVERLAY=1 the click target is exactly the overlay rect
+// instead of the full screen (clicks outside the probe cannot hit it).
+let OVERLAY_RECT = OVERLAY_INSET;
+if (process.env.DSH_OVERLAY_RECT) {
+  try {
+    const parsed = JSON.parse(process.env.DSH_OVERLAY_RECT);
+    if (parsed && ["x", "y", "width", "height"].every(function (key) { return typeof parsed[key] === "number"; })) {
+      OVERLAY_RECT = parsed;
+    }
+  } catch (error) { console.error("[capture-sprint-main] bad DSH_OVERLAY_RECT: " + String(error)); }
+}
+const TARGET_FOLLOWS_OVERLAY = process.env.DSH_TARGET_FOLLOWS_OVERLAY === "1";
 
 function printInfo(info) {
   console.log("[capture-sprint-main] info " + JSON.stringify(info));
@@ -53,11 +67,14 @@ function dpiProbe() {
 function createClickWindows() {
   const display = screen.getPrimaryDisplay();
   const scaleFactor = display.scaleFactor;
+  const targetBounds = TARGET_FOLLOWS_OVERLAY
+    ? { x: display.bounds.x + OVERLAY_RECT.x, y: display.bounds.y + OVERLAY_RECT.y, width: OVERLAY_RECT.width, height: OVERLAY_RECT.height }
+    : { x: display.bounds.x, y: display.bounds.y, width: display.bounds.width, height: display.bounds.height };
   const target = new BrowserWindow({
-    x: display.bounds.x,
-    y: display.bounds.y,
-    width: display.bounds.width,
-    height: display.bounds.height,
+    x: targetBounds.x,
+    y: targetBounds.y,
+    width: targetBounds.width,
+    height: targetBounds.height,
     title: "S4 click target (behind overlay)",
     frame: false,
     backgroundColor: "#053b1f",
@@ -69,10 +86,10 @@ function createClickWindows() {
   target.setAlwaysOnTop(true, "screen-saver");
   target.loadURL(TARGET_URL);
   const overlay = new BrowserWindow({
-    x: display.bounds.x + OVERLAY_INSET.x,
-    y: display.bounds.y + OVERLAY_INSET.y,
-    width: OVERLAY_INSET.width,
-    height: OVERLAY_INSET.height,
+    x: display.bounds.x + OVERLAY_RECT.x,
+    y: display.bounds.y + OVERLAY_RECT.y,
+    width: OVERLAY_RECT.width,
+    height: OVERLAY_RECT.height,
     title: "S4 protected overlay (on top)",
     frame: false,
     transparent: true,
@@ -92,13 +109,94 @@ function createClickWindows() {
   });
   overlay.setAlwaysOnTop(true, "screen-saver");
   if (STEALTH) overlay.setContentProtection(true);
-  if (CLICK_THROUGH) overlay.setIgnoreMouseEvents(true, { forward: true });
+
+  // ── V4: authoritative window state + deterministic foreground preparation ──
+  // Electron has no reliable public getter for setIgnoreMouseEvents, so track the
+  // applied value here and expose it (plus the native HWNDs) to the harness. The
+  // harness ALSO verifies WS_EX_TRANSPARENT via Win32 before clicking.
+  let ignoreMouseState = CLICK_THROUGH;
+  function hwndDecimal(window) {
+    const buffer = window.getNativeWindowHandle();
+    return buffer.length >= 8 ? buffer.readBigUInt64LE(0).toString() : String(buffer.readUInt32LE(0));
+  }
+  const overlayHwnd = hwndDecimal(overlay);
+  const targetHwnd = hwndDecimal(target);
+
+  function applyIgnoreMouse(value) {
+    ignoreMouseState = Boolean(value);
+    // forward:true installs the forwarding behaviour; passing it when turning
+    // ignore OFF can leave clicks forwarding to the window below on this host.
+    // Only enable forwarding while ignoring.
+    if (ignoreMouseState) {
+      overlay.setIgnoreMouseEvents(true, { forward: true });
+    } else {
+      overlay.setIgnoreMouseEvents(false);
+    }
+  }
+  if (CLICK_THROUGH) applyIgnoreMouse(true);
+
+  function windowState() {
+    return {
+      overlayHwnd: overlayHwnd,
+      overlayHwndHex: "0x" + BigInt(overlayHwnd).toString(16).toUpperCase(),
+      targetHwnd: targetHwnd,
+      targetHwndHex: "0x" + BigInt(targetHwnd).toString(16).toUpperCase(),
+      ignoreMouseTracked: ignoreMouseState,
+      electronGetter: {
+        available: typeof overlay.isIgnoreMouseEvents === "function",
+        value: typeof overlay.isIgnoreMouseEvents === "function" ? overlay.isIgnoreMouseEvents() : null,
+      },
+      overlayVisible: overlay.isVisible(),
+      overlayFocused: overlay.isFocused(),
+      targetVisible: target.isVisible(),
+      targetFocused: target.isFocused(),
+      overlayBounds: overlay.getBounds(),
+      targetBounds: target.getBounds(),
+      scaleFactor: screen.getPrimaryDisplay().scaleFactor,
+    };
+  }
+
+  // "on": target must be foreground (click passes through the transparent
+  // overlay onto it). "off": overlay must be foreground (its control receives
+  // the click). The harness still polls GetForegroundWindow / WS_EX_TRANSPARENT
+  // with the Win32 helper before any SendInput.
+  function prepareForTest(mode) {
+    if (mode === "on") {
+      applyIgnoreMouse(true);
+      overlay.showInactive();
+      overlay.moveTop();
+      target.show();
+      target.moveTop();
+      target.focus();
+      overlay.showInactive();
+      overlay.moveTop();
+    } else {
+      applyIgnoreMouse(false);
+      overlay.show();
+      overlay.moveTop();
+      overlay.focus();
+    }
+    return windowState();
+  }
+
+  ipcMain.handle("sprint:window-state", function () { return windowState(); });
+  ipcMain.handle("sprint:prepare", function (_event, mode) { return prepareForTest(mode); });
   ipcMain.on("sprint:ignore-mouse", function (_event, value) {
-    overlay.setIgnoreMouseEvents(Boolean(value), { forward: true });
+    applyIgnoreMouse(value);
     console.log("[capture-sprint-main] click-through " + (value ? "ON" : "OFF"));
   });
+
+  // Electron-side foreground request: Win32 SetForegroundWindow alone loses to
+  // the OS foreground lock when another app is active. Showing/focusing from the
+  // owning process is the reliable path; the Win32 gate still verifies it.
+  ipcMain.on("sprint:focus-overlay", function () {
+    if (!overlay || overlay.isDestroyed()) return;
+    overlay.show();
+    overlay.moveTop();
+    overlay.focus();
+  });
   ipcMain.on("sprint:is-ignore-mouse", function (event) {
-    event.returnValue = overlay.isIgnoreMouseEvents ? overlay.isIgnoreMouseEvents() : null;
+    event.returnValue = ignoreMouseState;
   });
   overlay.loadURL(OVERLAY_URL);
 
@@ -128,6 +226,8 @@ function createClickWindows() {
       transparentPointDip: transparentPointDip,
       transparentPointPhysical: { x: Math.round(transparentPointDip.x * scaleFactor), y: Math.round(transparentPointDip.y * scaleFactor) },
       overlayCenterRelativeToDisplay: displayCenterRelative,
+      overlayHwnd: overlayHwnd,
+      targetHwnd: targetHwnd,
       foregroundTitleHint: which,
     });
   }
@@ -142,10 +242,10 @@ function createClickWindows() {
 function createOverlayOnly() {
   const display = screen.getPrimaryDisplay();
   const overlay = new BrowserWindow({
-    x: display.bounds.x + OVERLAY_INSET.x,
-    y: display.bounds.y + OVERLAY_INSET.y,
-    width: OVERLAY_INSET.width,
-    height: OVERLAY_INSET.height,
+    x: display.bounds.x + OVERLAY_RECT.x,
+    y: display.bounds.y + OVERLAY_RECT.y,
+    width: OVERLAY_RECT.width,
+    height: OVERLAY_RECT.height,
     title: "S4 protected overlay (capture probe)",
     frame: false,
     transparent: true,

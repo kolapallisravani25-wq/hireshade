@@ -482,3 +482,31 @@ ADR-001 (engineering workflow) lives at `docs/adr/ADR-001-engineering-workflow.m
 **Consequences:** Black box mode depends on koffi/user32 (fallback to setContentProtection with 0x11 if unavailable); it is not claimed to defeat kernel proctoring; macOS unaffected (no 0x01 path shipped there).
 
 **Evidence:** docs/CAPTURE_MATRIX.md section 1b, docs/evidence/capture-sprint/native-affinity-dxgi.json, UNDETECTABILITY_CLAIM.md.
+
+---
+
+## ADR-029 — Compatibility mode is demoted to cosmetic (V1)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** Compatibility mode recreated the overlay as an opaque surface to fix a black-bar/black-rectangle capture symptom. U2 showed PrintWindow black under both 0x11 and 0x01 and WS_EX_LAYERED persisted, so the opaque proof was invalid. V1 ran the definitive 2x5 test under 0x11: transparent vs opaque, GDI, desktopCapturer screen, desktopCapturer window, PrintWindow, DXGI, with a 0x00 positive control.
+
+**Result:** identical on all five paths; the 0x00 positive control captured the magenta marker, so the zero fractions are meaningful. Compatibility mode has no measured capture effect.
+
+**Decision:** demote compatibility mode to a cosmetic dark surface (contrast/readability). Remove it from pre-flight recommendations for capture risk; self-check copy says it does not change capture. Do not delete the surface implementation (it is still a readability option and the recreation path is fixed), but it is no longer a mitigation or a supported claim.
+
+**Consequences:** G-052 is retired as a capture mitigation (premise corrected), not closed as a success. G-058 records the demotion. DXGI remains host-dependent; use black box mode or routing.
+
+**Evidence:** docs/CAPTURE_MATRIX.md section 9, docs/evidence/capture-sprint/v1/v1-compat-ab.json.
+
+---
+
+## ADR-030 — Black box is concealment, not invisibility (V2 policy)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** 0x01 is uniformly black on GDI/PrintWindow/DXGI, whereas 0x11 is invisible on good paths and may leak (host-dependent) on DXGI. Offering 0x01 as a default would trade a working invisible path for a discoverable black band.
+
+**Decision:** 0x11 stays the default. Black box (0x01) is a targeted mitigation offered only for known-DXGI/high-risk single-display RED setups, with explicit cost copy. When enabled, recommend COMPACT (docked panel) and provide a switch-back-to-invisible undo. Claim language: **concealment, not invisibility** — a black rectangle hides that the overlay is AI and hides answer text that would otherwise sync with questions; it is discoverable and is not undetectable.
+
+**Evidence:** preflight-v2/v2-affinity-preflight.json, preflight suite 55 tests, docs/UNDETECTABILITY_CLAIM.md.

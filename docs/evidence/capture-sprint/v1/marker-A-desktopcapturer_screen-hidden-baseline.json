@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-20T23:33:58.3243367+05:30",
+    "label":  "A-desktopcapturer_screen-hidden-baseline",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-A-desktopcapturer_screen-hidden-baseline-screen-0.png",
+    "rect":  "54,42,1258,636",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  null,
+    "sampled_pixels":  null,
+    "fraction":  0,
+    "present":  false
+}

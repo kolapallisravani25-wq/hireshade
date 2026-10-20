@@ -1,0 +1,15 @@
+﻿{
+    "captured_at":  "2026-10-20T23:39:49.5914698+05:30",
+    "expect":  "0x11",
+    "note":  "V1 A-dxgi-before-state",
+    "electron_pids":  [
+                          14400
+                      ],
+    "windows":  [
+
+                ],
+    "matching":  [
+
+                 ],
+    "pass":  false
+}

@@ -1,0 +1,18 @@
+﻿{
+    "captured_at":  "2026-10-20T23:34:41.8651892+05:30",
+    "label":  "B-printwindow-hidden-baseline",
+    "method":  "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+    "title":  "Floating Mini-Screen",
+    "hwnd":  "0x810824",
+    "printwindow_ok":  true,
+    "flag_used":  2,
+    "path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\printwindow-B-printwindow-hidden-baseline.png",
+    "width":  1258,
+    "height":  635,
+    "stats":  {
+                  "mean_luma":  181,
+                  "std_luma":  0,
+                  "unique_colors_sampled":  1,
+                  "black_fraction":  0
+              }
+}

@@ -84,3 +84,17 @@ Consequence for the claim: on macOS we can prove legacy exclusion with `screenca
 - **What would close this:** a real macOS 13+ machine (Apple silicon or Intel) with a logged-in GUI session, Screen Recording and Microphone permissions granted, and one of: a second physical display, or a second machine to view the Zoom/Meet share. Then run the acceptance rig in §7. A self-hosted macOS runner with an interactive logged-in user and pre-approved TCC could substitute; a GitHub-hosted runner cannot.
 
 **Status remains DEFERRED (G-055)** with that exact hardware/access requirement. A CI run is not claimed as verification.
+### Observed CI attempt (V3, 2026-10-20) — BLOCKED, with output
+
+Artifacts authored: .github/workflows/macos-sck-probe.yml, scripts/macos/sck-probe.swift (ScreenCaptureKit SCScreenshotManager + rect sampler), scripts/macos/probe-window.cjs (magenta, content-protected Electron window). The workflow attempts a TCC.db seed (expected SIP failure), launches the probe window, runs the SCK probe, then the legacy screencapture A/B with Pillow sampling.
+
+Trigger attempts and exact results (docs/evidence/macos-probe-attempt.txt):
+
+- gh workflow run macos-sck-probe.yml --ref sprint-resolve -> HTTP 404: workflow not found on the default branch. The local branch has not been pushed; dispatch only sees the default branch.
+- gh workflow run desktop-build.yml -> HTTP 422: Workflow does not have 'workflow_dispatch' trigger (remote default-branch version differs).
+- gh api repos/.../actions/runners -> HTTP 403: must have repository read permissions or runners fine-grained permission, so self-hosted runners cannot even be enumerated.
+- git branch -r --contains HEAD -> empty: sprint-resolve exists only locally. Pushing was not performed (repository rules prohibit pushing from this session).
+
+Even if pushed and dispatched, a GitHub-hosted macOS runner cannot grant TCC Screen Recording: the TCC database is SIP-protected and there is no interactive user to approve the prompt. The workflow includes the seed attempt to prove that dead end rather than assume it.
+
+What would close V3: a self-hosted macOS 13+ runner (or physical Mac) with a logged-in GUI user, Screen Recording + Microphone granted, and a second display/viewer. Then run macos-sck-probe.yml and compare the SCK sample with the legacy screencapture sample of the same rect. Only the SCK row decides the macOS claim.

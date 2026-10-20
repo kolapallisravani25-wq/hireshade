@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-20T23:37:36.5607437+05:30",
+    "label":  "A-printwindow-visible",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\printwindow-A-printwindow-visible.png",
+    "rect":  "",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  0,
+    "sampled_pixels":  399415,
+    "fraction":  0,
+    "present":  false
+}

@@ -1,0 +1,45 @@
+{
+  "captured_at": "2026-10-20T18:10:24.478Z",
+  "label": "A-desktopcapturer_screen-control-0x00-1",
+  "method": "Electron desktopCapturer.getSources() thumbnails (Chromium Windows capture path; screen + window sources)",
+  "display": {
+    "id": 1125993197,
+    "size": {
+      "width": 1301,
+      "height": 732
+    },
+    "workArea": {
+      "x": 0,
+      "y": 0,
+      "width": 1301,
+      "height": 686
+    },
+    "scaleFactor": 1.0499999523162842,
+    "physical": {
+      "width": 1366,
+      "height": 769
+    }
+  },
+  "screen_sources": [
+    {
+      "id": "screen:0:0",
+      "name": "Entire screen",
+      "path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-A-desktopcapturer_screen-control-0x00-1-screen-0.png",
+      "thumbnail_size": {
+        "width": 1366,
+        "height": 768
+      }
+    }
+  ],
+  "window_sources": [
+    {
+      "id": "window:2754318:0",
+      "name": "*hireshade venice prompts for deepseek harness.txt - Notepad",
+      "path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\v1\\desktopcapturer-A-desktopcapturer_screen-control-0x00-1-window--hireshade-venice-prompts-for-deepseek-harness.txt---Notepad.png",
+      "thumbnail_size": {
+        "width": 1366,
+        "height": 727
+      }
+    }
+  ]
+}
