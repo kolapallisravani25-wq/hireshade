@@ -36,6 +36,11 @@ app.use(cors(buildCorsOptions(process.env["CORS_ORIGINS"], process.env["NODE_ENV
 // verification. Mounting express.raw() for this one path first makes the
 // downstream json parser skip it (body already parsed).
 app.use("/api/credits/webhook/razorpay", express.raw({ type: () => true }));
+// Stripe signs the RAW request bytes (Stripe-Signature = HMAC-SHA256 over
+// "<timestamp>.<body>") for the same reason as the Razorpay mount above: the
+// JSON parser would destroy byte-exact verification. Must stay before
+// express.json().
+app.use("/api/stripe/webhook", express.raw({ type: () => true }));
 // 1mb (default 100kb): /ai-answer and /save-message carry full live-session
 // transcripts — a long interview comfortably exceeds 100kb, which turned
 // into opaque 413s exactly at the point users need answers most (deep into a

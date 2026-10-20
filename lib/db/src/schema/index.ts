@@ -317,6 +317,10 @@ export const creditsPurchasesTable = pgTable(
     currency: text("currency").default("INR"),
     creditsPurchased: numeric("credits_purchased"),
     status: purchaseStatusEnum("status").notNull().default("pending"),
+    // metadata.provider records the processor ("stripe" for Stripe rows).
+    // Deliberately not a column: adding one to this shared table would force a
+    // push/migration of the dev database and break the existing Razorpay
+    // integration suite until that migration ran.
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -487,3 +491,68 @@ export const sessionFeedbackTable = pgTable(
 );
 
 export type SessionFeedback = typeof sessionFeedbackTable.$inferSelect;
+
+// ── Credits Ledger (append-only) ─────────────────────────────────────────────
+// Source of truth for every credit movement: purchase grants, refund
+// reversals, signup grants, session meter charges. Rows are INSERT-only —
+// application code must never UPDATE or DELETE them (enforced by convention +
+// code review; the DB user is shared, so no grants-level enforcement here).
+// credits_balance is a derived projection advanced ONLY inside the same
+// transaction that appends a ledger row, so the ledger can always rebuild it.
+// `idempotency_key` is UNIQUE: a replayed settlement (webhook retry, concurrent
+// duplicate, refund replay) conflicts on this key and cannot credit twice.
+export const creditsLedgerTable = pgTable(
+  "credits_ledger",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    // T-12 ledger vocabulary: purchase | spent | refunded | drift | signup_grant ...
+    entryType: text("entry_type").notNull(),
+    // stripe | razorpay | system — which processor/system moved the credits.
+    provider: text("provider").notNull().default("system"),
+    // Stripe event id / checkout session id / payment intent id / refund id.
+    providerRef: text("provider_ref"),
+    // Signed decimal: > 0 grant, < 0 reversal. Never zero.
+    deltaCredits: numeric("delta_credits").notNull(),
+    currency: text("currency"),
+    amountMinor: integer("amount_minor"),
+    idempotencyKey: text("idempotency_key").notNull(),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("credits_ledger_user_id_idx").on(t.userId),
+    uniqueIndex("credits_ledger_idempotency_key_idx").on(t.idempotencyKey),
+  ],
+);
+
+export type CreditsLedgerEntry = typeof creditsLedgerTable.$inferSelect;
+
+// ── Stripe Webhook Events (event-id idempotency) ─────────────────────────────
+// Stripe retries webhooks until it receives a 2xx, and can deliver the same
+// event more than once in parallel. The Stripe event id (`evt_...`) is a stable
+// natural key, so it is the PRIMARY KEY here: the first delivery claims the row
+// (status "processing") and only that claimer is allowed to settle credits.
+// Replays observe the existing row and short-circuit with a 200. A delivery
+// that failed mid-settlement is marked "failed" and may be retried once claimed
+// back by a later delivery — the ledger/purchase idempotency keys still make
+// that retry safe.
+export const stripeWebhookEventsTable = pgTable(
+  "stripe_webhook_events",
+  {
+    id: text("id").primaryKey(), // Stripe event id (evt_...) — idempotency key
+    type: text("type").notNull(),
+    // processing | processed | ignored | failed
+    status: text("status").notNull().default("processing"),
+    objectId: text("object_id"), // checkout session / charge / payment intent id
+    payload: jsonb("payload"),
+    error: text("error"),
+    receivedAt: timestamp("received_at").notNull().defaultNow(),
+    processedAt: timestamp("processed_at"),
+  },
+  (t) => [index("stripe_webhook_events_status_idx").on(t.status)],
+);
+
+export type StripeWebhookEvent = typeof stripeWebhookEventsTable.$inferSelect;
