@@ -1,0 +1,11 @@
+HTTP/1.1 302 Found
+Cache-Control: no-store, max-age=0
+Content-Type: text/plain
+Date: Tue, 20 Oct 2026 13:18:10 GMT
+Location: https://vercel.com/sso-api?url=https%3A%2F%2Fstaging.parakeet-ai.com%2F&nonce=f3073426508a325845e4fa52ce09845dfb7701bccbd4bf7e55e61fb66232fad8
+Server: Vercel
+Set-Cookie: _vercel_sso_nonce=d56f91182715a816d62bf5c9dcfe70432589651a9c112130; Max-Age=3600; Path=/; Secure; HttpOnly; SameSite=Lax
+Strict-Transport-Security: max-age=63072000
+X-Frame-Options: DENY
+X-Vercel-Id: bom1::nfjm6-1792502290146-856b5bf2648b
+

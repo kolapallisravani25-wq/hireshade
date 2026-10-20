@@ -20,6 +20,14 @@ const noopWindow = {
   listen: async () => () => {},
   once: async () => () => {},
   emit: async () => {},
+  outerPosition: async () => ({ x: 0, y: 0 }),
+  scaleFactor: async () => (typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1),
+  onMoved: async () => () => {},
+  onResized: async () => () => {},
+  onCloseRequested: async () => () => {},
+  onFocusChanged: async () => () => {},
+  onScaleChanged: async () => () => {},
+  onThemeChanged: async () => () => {},
 };
 export const getCurrentWindow = () => noopWindow;
 export const appWindow = noopWindow;

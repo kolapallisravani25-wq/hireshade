@@ -59,7 +59,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    ...(isTauri
+    ...(isTauri || process.env.ELECTRON_BUILD === "1"
       ? {
           rollupOptions: {
             input: {
@@ -77,7 +77,11 @@ export default defineConfig({
     host: "0.0.0.0",
     allowedHosts: true,
     watch: {
-      ignored: ["**/src-tauri/target/**"],
+      // Tauri's own dev watcher handles Rust rebuilds. Letting Vite watch
+      // src-tauri as well means any locked file there (editor, AV scan,
+      // half-written file) throws EBUSY from Node's FSWatcher and kills the
+      // whole dev server — that is exactly how the 2026-10-08 crash happened.
+      ignored: ["**/src-tauri/target/**", "**/src-tauri/src/**"],
     },
     fs: {
       strict: true,

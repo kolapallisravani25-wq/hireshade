@@ -39,3 +39,14 @@ diagnostics/
 *.opus
 *.mp3
 *.wav
+
+# Secret-bearing scratch left in the tree (never commit; rotate the token)
+artifacts/craft-vita/src-tauri/src/db access token.txt
+
+# Unrelated personal scratch files
+artifacts/craft-vita/src-tauri/src/algo 6.txt
+artifacts/craft-vita/temp-tauri-launch.png
+.claude/settings.local.json
+
+# External tool checkout (REA) with its own git history
+/rea/

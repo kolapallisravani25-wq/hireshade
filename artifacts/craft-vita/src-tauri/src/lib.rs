@@ -1,3 +1,6 @@
+mod screen_protect;
+mod focus_bypass;
+mod cursor;
 use tauri::{Manager, Emitter, WebviewWindowBuilder, WebviewUrl, AppHandle, Window, PhysicalPosition, LogicalPosition, LogicalSize, command};
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_opener::OpenerExt;
@@ -541,7 +544,7 @@ fn set_mini_size_instant(app: AppHandle, width: u32, height: u32) -> Result<(), 
 #[tauri::command]
 fn toggle_content_protection(app: AppHandle, protected: bool) -> Result<(), String> {
     let mut applied = 0u8;
-    for label in ["mini", "launcher", "main"] {
+    for label in ["mini", "launcher", "main", "floating"] {
         if let Some(win) = app.get_webview_window(label) {
             win.set_content_protected(protected)
                 .map_err(|e| format!("set_content_protected({label}): {e}"))?;

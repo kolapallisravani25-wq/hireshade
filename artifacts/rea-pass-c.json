@@ -1,0 +1,15 @@
+{
+  "browser": { "mode": "launch", "executable_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe", "headless": true },
+  "start_url": { "url": "https://www.parakeet-ai.com/pricing" },
+  "secrets": [],
+  "actions": [
+    { "step_id": "goto-start-c", "action": "goto", "destination": { "url": "https://www.parakeet-ai.com/pricing" }, "wait_until": "domcontentloaded" },
+    { "step_id": "settle-c", "action": "wait_for_timeout", "duration_ms": 5000 }
+  ],
+  "capture": {
+    "after_each_step": [],
+    "at_end": ["dom", "screenshot", "url"],
+    "events": ["console", "page-errors", "network"],
+    "network": { "request_body": false, "response_body": false, "header_values": false }
+  }
+}

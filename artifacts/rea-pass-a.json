@@ -1,0 +1,51 @@
+{
+  "browser": {
+    "mode": "launch",
+    "executable_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    "headless": true
+  },
+  "start_url": {
+    "url": "https://parakeet-ai.com/"
+  },
+  "actions": [
+    {
+      "step_id": "open-home",
+      "action": "goto",
+      "destination": { "url": "https://parakeet-ai.com/" },
+      "wait_until": "domcontentloaded"
+    },
+    { "step_id": "settle-home", "action": "wait_for_timeout", "duration_ms": 4000 },
+    {
+      "step_id": "open-pricing",
+      "action": "goto",
+      "destination": { "url": "https://parakeet-ai.com/pricing" },
+      "wait_until": "domcontentloaded"
+    },
+    { "step_id": "settle-pricing", "action": "wait_for_timeout", "duration_ms": 4000 },
+    {
+      "step_id": "open-faq",
+      "action": "goto",
+      "destination": { "url": "https://parakeet-ai.com/faq" },
+      "wait_until": "domcontentloaded"
+    },
+    { "step_id": "settle-faq", "action": "wait_for_timeout", "duration_ms": 3000 },
+    {
+      "step_id": "open-docs",
+      "action": "goto",
+      "destination": { "url": "https://parakeet-ai.com/docs" },
+      "wait_until": "domcontentloaded"
+    },
+    { "step_id": "settle-docs", "action": "wait_for_timeout", "duration_ms": 3000 }
+  ],
+  "capture": {
+    "after_each_step": [],
+    "at_end": ["url"],
+    "events": ["console", "page-errors", "network"],
+    "network": {
+      "request_body": false,
+      "response_body": false,
+      "header_values": false
+    }
+  },
+  "secrets": []
+}

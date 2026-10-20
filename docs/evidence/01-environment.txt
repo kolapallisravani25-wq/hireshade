@@ -1,0 +1,238 @@
+﻿=== date ===
+2026-10-20T18:46:02.3453083+05:30
+=== pwd ===
+D:\hireshade
+=== git branch --show-current ===
+fix/windows-reopen-compile
+=== git rev-parse HEAD ===
+491f4b65849c19fbc3a347ada09c1d9f669b46e5
+=== git log -8 --oneline ===
+491f4b6 Add OpenCode solo web SaaS skills
+9c1f769 fix(ux,auth,release): resume CTAs, auto-AI opt-in, login retry, build unblock
+1ed669e chore(session): stabilize transcript detection and overlay layout
+f1a923c fix: repair desktop runtime, button clicks, and dev workflow
+7224905 fix: stabilize live interview question detection and AI answer flow
+3da76ad fix: improve Hireshade desktop stability and interview flow
+adacb05 fix(session): preserve auto-scroll and manual browsing
+668cf07 docs: add comprehensive security and validation audit
+=== git status --short ===
+ M artifacts/craft-vita/src-tauri/Cargo.toml
+ M artifacts/craft-vita/src-tauri/src/lib.rs
+ M artifacts/craft-vita/src-tauri/tauri.conf.json
+ M artifacts/craft-vita/src/lib/overlaySettings.ts
+ M artifacts/craft-vita/src/pages/Launcher/WidgetApp.tsx
+ M artifacts/craft-vita/src/pages/Sessions/ActiveSession/FloatingApp.tsx
+ M artifacts/craft-vita/src/tauri-stubs/api-window.ts
+ M artifacts/craft-vita/vite.config.ts
+ M pnpm-lock.yaml
+ M pnpm-workspace.yaml
+?? .claude/
+?? AGENTS.md
+?? SPEC.md
+?? artifacts/api-server/run-server.cmd
+?? artifacts/craft-vita/run-tauri-dev.cmd
+?? artifacts/craft-vita/scripts/
+?? "artifacts/craft-vita/src-tauri/src/algo 6.txt"
+?? artifacts/craft-vita/src-tauri/src/cursor.rs
+?? "artifacts/craft-vita/src-tauri/src/db access token.txt"
+?? artifacts/craft-vita/src-tauri/src/focus_bypass.rs
+?? artifacts/craft-vita/src-tauri/src/screen_protect.rs
+?? artifacts/craft-vita/temp-tauri-launch.png
+?? artifacts/desktop-electron/
+?? artifacts/rea-pass-a.json
+?? artifacts/rea-pass-b.json
+?? artifacts/rea-pass-c.json
+?? artifacts/rea-pass-d.json
+?? docs/Admin-Panel-Audit.md
+?? docs/agents/
+?? docs/raw/
+?? rea/
+?? skills-lock.json
+=== git stash list ===
+stash@{0}: On fix/windows-reopen-compile: wip(auto-scroll): pending rendered coverage
+stash@{1}: On fix/overlay-containment-resizable: local Windows dependency changes before auto-scroll testing
+stash@{2}: WIP on fix/windows-desktop: 1060d46 fix(craft-vita): add emitTo event stub
+=== node -v ===
+v24.19.0
+=== pnpm -v ===
+12.4.2
+=== cargo --version ===
+cargo 1.99.0 (5f94df478 2026-08-27)
+=== rustc --version ===
+rustc 1.99.0 (b940084d7 2026-09-28)
+=== git worktree list ===
+D:/hireshade                               491f4b6 [fix/windows-reopen-compile]
+C:/Users/user/Desktop/hireshade-emitto-fix 4444913 [fix/craft-vita-emitto-stub] prunable
+=== repo root listing ===
+.agents
+.claude
+.github
+.gitignore
+.npmrc
+.opencode
+admin
+AGENTS.md
+artifacts
+CHANGELOG.md
+CONTRIBUTING.md
+diagnostics
+docs
+lib
+node_modules
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+rea
+README.md
+ROADMAP.md
+scripts
+SECURITY.md
+skills-lock.json
+SPEC.md
+tsconfig.base.json
+tsconfig.json
+=== pnpm-workspace.yaml ===
+packages:
+  - artifacts/*
+  - lib/*
+  - lib/integrations/*
+  - scripts
+
+# pnpm 11 runs a dependency-status check before every `pnpm run <script>`.
+# In this monorepo that pre-check re-runs install and aborts on an
+# ignored-build-scripts prompt, turning `pnpm --filter api-server build`
+# into a hard failure even though the build itself is fine. Disabling it
+# makes scripts run directly. Harmless on pnpm 9/10, which lack this check.
+# The real allowlist of packages permitted to run build scripts is
+# onlyBuiltDependencies below.
+verifyDepsBeforeRun: false
+
+autoInstallPeers: false
+
+catalog:
+  '@tailwindcss/vite': ^4.1.14
+  '@tanstack/react-query': ^5.90.21
+  '@types/node': ^25.3.3
+  '@types/react': ^19.2.0
+  '@types/react-dom': ^19.2.0
+  '@vitejs/plugin-react': ^5.0.4
+  class-variance-authority: ^0.7.1
+  clsx: ^2.1.1
+  drizzle-orm: ^0.45.2
+  framer-motion: 12.38.0
+  lucide-react: ^0.545.0
+  react: 19.1.0
+  react-dom: 19.1.0
+  tailwind-merge: ^3.3.1
+  tailwindcss: ^4.1.14
+  tsx: ^4.21.0
+  vite: ^7.3.2
+  wouter: ^3.3.5
+  zod: ^3.25.76
+
+minimumReleaseAge: 1440
+
+minimumReleaseAgeExclude: []
+
+overrides:
+  '@esbuild-kit/esm-loader': npm:tsx@^4.21.0
+  '@expo/ngrok-bin>@expo/ngrok-bin-darwin-arm64': '-'
+  '@expo/ngrok-bin>@expo/ngrok-bin-darwin-x64': '-'
+  '@expo/ngrok-bin>@expo/ngrok-bin-freebsd-ia32': '-'
+  '@expo/ngrok-bin>@expo/ngrok-bin-freebsd-x64': '-'
+  '@expo/ngrok-bin>@expo/ngrok-bin-linux-arm': '-'
+  '@expo/ngrok-bin>@expo/ngrok-bin-linux-arm64': '-'
+  '@expo/ngrok-bin>@expo/ngrok-bin-linux-ia32': '-'
+  '@expo/ngrok-bin>@expo/ngrok-bin-sunos-x64': '-'
+  '@expo/ngrok-bin>@expo/ngrok-bin-win32-ia32': '-'
+  '@expo/ngrok-bin>@expo/ngrok-bin-win32-x64': '-'
+  '@tailwindcss/oxide>@tailwindcss/oxide-android-arm64': '-'
+  '@tailwindcss/oxide>@tailwindcss/oxide-darwin-arm64': '-'
+  '@tailwindcss/oxide>@tailwindcss/oxide-darwin-x64': '-'
+  '@tailwindcss/oxide>@tailwindcss/oxide-freebsd-x64': '-'
+  '@tailwindcss/oxide>@tailwindcss/oxide-linux-arm-gnueabihf': '-'
+  '@tailwindcss/oxide>@tailwindcss/oxide-linux-arm64-gnu': '-'
+  '@tailwindcss/oxide>@tailwindcss/oxide-linux-arm64-musl': '-'
+  '@tailwindcss/oxide>@tailwindcss/oxide-linux-x64-musl': '-'
+  '@tailwindcss/oxide>@tailwindcss/oxide-win32-arm64-msvc': '-'
+  esbuild: 0.27.3
+  esbuild>@esbuild/aix-ppc64: '-'
+  esbuild>@esbuild/android-arm: '-'
+  esbuild>@esbuild/android-arm64: '-'
+  esbuild>@esbuild/android-x64: '-'
+  esbuild>@esbuild/darwin-arm64: '-'
+  esbuild>@esbuild/darwin-x64: '-'
+  esbuild>@esbuild/freebsd-arm64: '-'
+  esbuild>@esbuild/freebsd-x64: '-'
+  esbuild>@esbuild/linux-arm: '-'
+  esbuild>@esbuild/linux-arm64: '-'
+  esbuild>@esbuild/linux-ia32: '-'
+  esbuild>@esbuild/linux-loong64: '-'
+  esbuild>@esbuild/linux-mips64el: '-'
+  esbuild>@esbuild/linux-ppc64: '-'
+  esbuild>@esbuild/linux-riscv64: '-'
+  esbuild>@esbuild/linux-s390x: '-'
+  esbuild>@esbuild/netbsd-arm64: '-'
+  esbuild>@esbuild/netbsd-x64: '-'
+  esbuild>@esbuild/openbsd-arm64: '-'
+  esbuild>@esbuild/openbsd-x64: '-'
+  esbuild>@esbuild/openharmony-arm64: '-'
+  esbuild>@esbuild/sunos-x64: '-'
+  esbuild>@esbuild/win32-arm64: '-'
+  esbuild>@esbuild/win32-ia32: '-'
+  lightningcss>lightningcss-android-arm64: '-'
+  lightningcss>lightningcss-darwin-arm64: '-'
+  lightningcss>lightningcss-darwin-x64: '-'
+  lightningcss>lightningcss-freebsd-x64: '-'
+  lightningcss>lightningcss-linux-arm-gnueabihf: '-'
+  lightningcss>lightningcss-linux-arm64-gnu: '-'
+  lightningcss>lightningcss-linux-arm64-musl: '-'
+  lightningcss>lightningcss-linux-x64-musl: '-'
+  lightningcss>lightningcss-win32-arm64-msvc: '-'
+  rollup>@rollup/rollup-android-arm-eabi: '-'
+  rollup>@rollup/rollup-android-arm64: '-'
+  rollup>@rollup/rollup-darwin-arm64: '-'
+  rollup>@rollup/rollup-darwin-x64: '-'
+  rollup>@rollup/rollup-freebsd-arm64: '-'
+  rollup>@rollup/rollup-freebsd-x64: '-'
+  rollup>@rollup/rollup-linux-arm-gnueabihf: '-'
+  rollup>@rollup/rollup-linux-arm-musleabihf: '-'
+  rollup>@rollup/rollup-linux-arm64-gnu: '-'
+  rollup>@rollup/rollup-linux-arm64-musl: '-'
+  rollup>@rollup/rollup-linux-loong64-gnu: '-'
+  rollup>@rollup/rollup-linux-loong64-musl: '-'
+  rollup>@rollup/rollup-linux-ppc64-gnu: '-'
+  rollup>@rollup/rollup-linux-ppc64-musl: '-'
+  rollup>@rollup/rollup-linux-riscv64-gnu: '-'
+  rollup>@rollup/rollup-linux-riscv64-musl: '-'
+  rollup>@rollup/rollup-linux-s390x-gnu: '-'
+  rollup>@rollup/rollup-linux-x64-musl: '-'
+  rollup>@rollup/rollup-openbsd-x64: '-'
+  rollup>@rollup/rollup-openharmony-arm64: '-'
+  rollup>@rollup/rollup-win32-arm64-msvc: '-'
+  rollup>@rollup/rollup-win32-ia32-msvc: '-'
+  rollup>@rollup/rollup-win32-x64-gnu: '-'
+
+allowBuilds:
+  '@clerk/shared': true
+  core-js: true
+  electron: true
+  esbuild: true
+  msw: true
+=== root package.json ===
+{
+  "name": "workspace",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "preinstall": "node -e \"const fs=require('fs');['package-lock.json','yarn.lock'].forEach(f=>{try{fs.rmSync(f,{force:true})}catch(e){}});const ua=process.env.npm_config_user_agent||'';if(ua.indexOf('pnpm/')!==0){console.error('Use pnpm instead');process.exit(1)}\"",
+    "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "typecheck:libs": "tsc --build",
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+  },
+  "private": true,
+  "devDependencies": {
+    "prettier": "^3.8.3",
+    "typescript": "~5.9.3"
+  }
+}

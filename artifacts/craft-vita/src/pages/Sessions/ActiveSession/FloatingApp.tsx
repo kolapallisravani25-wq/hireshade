@@ -1117,6 +1117,17 @@ const FloatingApp: React.FC = () => {
   // Keep private-mode lock in sync with whether a session is active
   isPrivateLockedRef.current = !!session.sessionInfo;
 
+  // ── Auto-enable private mode while a live session is running ──────────────
+  // Product rule: entering a live session must never leave the overlay exposed
+  // to screen capture. If the user turned private mode off outside a session,
+  // re-enable it the moment a session goes live. Turning it back off stays a
+  // manual-only action (and is locked while the session is running).
+  useEffect(() => {
+    if (session.sessionInfo && !overlayPrivate) {
+      setOverlayPrivate(true);
+    }
+  }, [session.sessionInfo, overlayPrivate, setOverlayPrivate]);
+
   // ── Click-through passthrough (Layer 1 = fullscreen, Layer 2 = widget) ────
   // Identical pattern to the launcher window. Polls cursor position at ~30fps
   // and calls setIgnoreCursorEvents based on [data-interactive] hit-testing.

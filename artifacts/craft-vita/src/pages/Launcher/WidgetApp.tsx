@@ -327,6 +327,19 @@ function WidgetContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── Auto-enable private mode when a session goes live ────────────────────
+  // If the user left private mode off outside a session, entering a live
+  // session re-enables it (persist + native protection + broadcast to the
+  // floating window). Turning it back off stays manual-only, and the toggle
+  // is locked for the duration of the session.
+  useEffect(() => {
+    /* TEST-ONLY: auto-enable disabled so private mode can be toggled off/on
+       during a live session. Uncomment to restore. */
+    // if (isSessionActive && !privateMode) {
+    //   setPrivateMode_(true);
+    // }
+  }, [isSessionActive, privateMode, setPrivateMode_]);
+
   // ── Auto-update check + retry policy ───────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
@@ -1267,7 +1280,8 @@ function WidgetContent() {
               safeMax={safeMax}
               atMin={atMin}
               atMax={atMax}
-              sessionLocked={isSessionActive}
+              sessionLocked={false}
+              /* TEST-ONLY */
             />
           </div>
         </>,

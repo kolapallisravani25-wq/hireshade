@@ -1,0 +1,21 @@
+HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Length: 46733
+content-type: text/html; charset=utf-8
+server: openresty
+cache-control: public, max-age=0
+status: 200 OK
+via: 1.1 varnish, 1.1 varnish, 1.1 varnish
+etag: W/"b68d-CGV4XHCB7PTcLlpKEN3OeE+0PBE"
+Accept-Ranges: bytes
+Age: 9333
+Date: Tue, 20 Oct 2026 13:19:16 GMT
+X-Served-By: cache-ams-eham8680035-AMS, cache-ams-eham8680035-AMS, cache-ams-eham8680037-AMS, cache-hyd1500034-HYD
+X-Cache: MISS, HIT, HIT
+X-Cache-Hits: 0, 6, 0
+X-Timer: S1792502357.661671,VS0,VE2
+Vary: Cookie, Accept-Encoding
+x-request-id: 41865e1c-bdfd-4fef-8065-31b2dd5c319e
+Ghost-Fastly: true;production
+Alt-Svc: clear
+

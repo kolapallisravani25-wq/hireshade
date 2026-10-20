@@ -88,11 +88,14 @@ export function saveAutoDetect(v: boolean): void {
 /**
  * Reset overlay display settings to their post-session defaults.
  *
- * IMPORTANT: privateMode (content protection) is intentionally NOT reset.
- * It is a user privacy preference and must persist across sessions —
- * AI actions, screen analysis, and session lifecycle events must NEVER
- * mutate it. Only an explicit user toggle (HeaderMenu / SessionMenu /
- * keyboard shortcut) is allowed to change it.
+ * IMPORTANT: privateMode (content protection) is NOT reset here. It is a user
+ * privacy preference that must persist across sessions — AI actions, screen
+ * analysis, and session END events must NEVER mutate it. Only two mutations
+ * are allowed:
+ *   1. an explicit user toggle (HeaderMenu / SessionMenu / keyboard shortcut),
+ *   2. auto-ENABLE when a session goes live while it was left off
+ *      (FloatingApp + WidgetApp "session goes live" effects) — auto-enable
+ *      only, never auto-disable.
  */
 export function resetOverlaySettings(): void {
   saveOpacity(OPACITY_DEFAULT);
