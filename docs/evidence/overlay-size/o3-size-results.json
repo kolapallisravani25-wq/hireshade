@@ -1,0 +1,1437 @@
+{
+  "generatedAt": "2026-10-20T15:43:26.948Z",
+  "pass": true,
+  "kind": "overlay-size-acceptance",
+  "environment": {
+    "platform": "win32",
+    "node": "v24.19.0",
+    "electron": "37.10.3",
+    "hostScaleFactor": 1.0499999523162842,
+    "window": {
+      "width": 1000,
+      "height": 760,
+      "frame": false,
+      "transparent": true,
+      "alwaysOnTop": true
+    },
+    "dpiValues": [
+      1,
+      1.25,
+      1.5,
+      2
+    ],
+    "dpiMethod": "CDP Emulation.setDeviceMetricsOverride deviceScaleFactor (emulation, not physical monitor scaling)"
+  },
+  "sources": {
+    "presetContract": {
+      "source": "contract-fallback",
+      "presetsPath": "D:\\hireshade\\artifacts\\craft-vita\\src\\overlay\\presets\\index.ts",
+      "warnings": [
+        "failed to consume O1 presets module (no preset array export); using fallback contract"
+      ]
+    },
+    "answerFormatter": {
+      "source": "o1",
+      "formatPath": "D:\\hireshade\\artifacts\\craft-vita\\src\\overlay\\answerFormat.ts",
+      "warnings": []
+    }
+  },
+  "floors": {
+    "minFontCssPx": 14,
+    "minDevicePx": 14,
+    "maxLineCh": 75,
+    "minLineHeight": 1.5,
+    "minContrastRatio": 7
+  },
+  "presets": [
+    {
+      "id": "compact",
+      "label": "COMPACT",
+      "widthPx": 520,
+      "heightPx": 430,
+      "fontCssPx": 15,
+      "lineHeight": 1.5,
+      "maxCh": 60,
+      "scrim": "rgba(8, 10, 16, 0.82)",
+      "description": "Small corner overlay; tightest reading density."
+    },
+    {
+      "id": "banner",
+      "label": "BANNER",
+      "widthPx": 860,
+      "heightPx": 520,
+      "fontCssPx": 18,
+      "lineHeight": 1.55,
+      "maxCh": 72,
+      "scrim": "rgba(8, 10, 16, 0.8)",
+      "description": "Default wide banner across the lower screen."
+    },
+    {
+      "id": "teleprompter",
+      "label": "TELEPROMPTER",
+      "widthPx": 900,
+      "heightPx": 600,
+      "fontCssPx": 26,
+      "lineHeight": 1.6,
+      "maxCh": 55,
+      "scrim": "rgba(4, 6, 10, 0.86)",
+      "description": "Large type for glancing during a live answer."
+    },
+    {
+      "id": "side-column",
+      "label": "SIDE COLUMN",
+      "widthPx": 480,
+      "heightPx": 640,
+      "fontCssPx": 16,
+      "lineHeight": 1.55,
+      "maxCh": 52,
+      "scrim": "rgba(10, 12, 18, 0.84)",
+      "description": "Tall narrow column for side-by-side layouts."
+    },
+    {
+      "id": "reading",
+      "label": "READING",
+      "widthPx": 780,
+      "heightPx": 620,
+      "fontCssPx": 20,
+      "lineHeight": 1.65,
+      "maxCh": 65,
+      "scrim": "rgba(12, 14, 20, 0.86)",
+      "description": "Comfortable long-form reading mode."
+    }
+  ],
+  "matrix": {
+    "rows": [
+      {
+        "preset": "compact",
+        "presetLabel": "COMPACT",
+        "dpi": 1,
+        "fontCssPx": 14,
+        "fontDevicePx": 14.00000028212861,
+        "presetFontCssPx": 15,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.5,
+        "longestLineCh": 60.024844720496894,
+        "maxLineChCss": 59.959122153209115,
+        "contrast": {
+          "whiteBackdrop": 11.253745370077905,
+          "blackBackdrop": 18.662870265966067,
+          "min": 11.253745370077905,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(8, 10, 16, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 453,
+          "answerClientWidth": 453,
+          "answerScrollHeight": 1680,
+          "answerClientHeight": 1680,
+          "contentHeight": 1679.761962890625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "banner",
+        "presetLabel": "BANNER",
+        "dpi": 1,
+        "fontCssPx": 14,
+        "fontDevicePx": 14.00000028212861,
+        "presetFontCssPx": 18,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 71.95031055900621,
+        "maxLineChCss": 71.95097308488613,
+        "contrast": {
+          "whiteBackdrop": 10.447860163215736,
+          "blackBackdrop": 18.68493112227129,
+          "min": 10.447860163215736,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(8, 10, 16, 0.8)"
+        },
+        "overflow": {
+          "answerScrollWidth": 543,
+          "answerClientWidth": 543,
+          "answerScrollHeight": 1454,
+          "answerClientHeight": 1454,
+          "contentHeight": 1453.6607666015625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "teleprompter",
+        "presetLabel": "TELEPROMPTER",
+        "dpi": 1,
+        "fontCssPx": 14,
+        "fontDevicePx": 14.00000028212861,
+        "presetFontCssPx": 26,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.5999999999999999,
+        "longestLineCh": 54.989648033126294,
+        "maxLineChCss": 54.96261697722567,
+        "contrast": {
+          "whiteBackdrop": 13.618185370605193,
+          "blackBackdrop": 19.012904174379845,
+          "min": 13.618185370605193,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(4, 6, 10, 0.86)"
+        },
+        "overflow": {
+          "answerScrollWidth": 415,
+          "answerClientWidth": 415,
+          "answerScrollHeight": 2240,
+          "answerClientHeight": 2240,
+          "contentHeight": 2239.58349609375,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "side-column",
+        "presetLabel": "SIDE COLUMN",
+        "dpi": 1,
+        "fontCssPx": 14,
+        "fontDevicePx": 14.00000028212861,
+        "presetFontCssPx": 16,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 51.94202898550725,
+        "maxLineChCss": 51.964687370600416,
+        "contrast": {
+          "whiteBackdrop": 11.804351735183616,
+          "blackBackdrop": 18.458595005639076,
+          "min": 11.804351735183616,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(10, 12, 18, 0.84)"
+        },
+        "overflow": {
+          "answerScrollWidth": 392,
+          "answerClientWidth": 392,
+          "answerScrollHeight": 2170,
+          "answerClientHeight": 2170,
+          "contentHeight": 2169.64306640625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "reading",
+        "presetLabel": "READING",
+        "dpi": 1,
+        "fontCssPx": 14,
+        "fontDevicePx": 14.00000028212861,
+        "presetFontCssPx": 20,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.6500000000000001,
+        "longestLineCh": 64.92753623188406,
+        "maxLineChCss": 64.95575983436854,
+        "contrast": {
+          "whiteBackdrop": 12.354732664365718,
+          "blackBackdrop": 18.239340387934135,
+          "min": 12.354732664365718,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(12, 14, 20, 0.86)"
+        },
+        "overflow": {
+          "answerScrollWidth": 490,
+          "answerClientWidth": 490,
+          "answerScrollHeight": 1848,
+          "answerClientHeight": 1848,
+          "contentHeight": 1847.619140625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "compact",
+        "presetLabel": "COMPACT",
+        "dpi": 1.25,
+        "fontCssPx": 14,
+        "fontDevicePx": 17.500000790754882,
+        "presetFontCssPx": 15,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.5,
+        "longestLineCh": 60.024844720496894,
+        "maxLineChCss": 59.959122153209115,
+        "contrast": {
+          "whiteBackdrop": 11.253745370077905,
+          "blackBackdrop": 18.662870265966067,
+          "min": 11.253745370077905,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(8, 10, 16, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 453,
+          "answerClientWidth": 453,
+          "answerScrollHeight": 1680,
+          "answerClientHeight": 1680,
+          "contentHeight": 1679.761962890625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "banner",
+        "presetLabel": "BANNER",
+        "dpi": 1.25,
+        "fontCssPx": 14,
+        "fontDevicePx": 17.500000790754882,
+        "presetFontCssPx": 18,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 71.95031055900621,
+        "maxLineChCss": 71.95097308488613,
+        "contrast": {
+          "whiteBackdrop": 10.447860163215736,
+          "blackBackdrop": 18.68493112227129,
+          "min": 10.447860163215736,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(8, 10, 16, 0.8)"
+        },
+        "overflow": {
+          "answerScrollWidth": 543,
+          "answerClientWidth": 543,
+          "answerScrollHeight": 1454,
+          "answerClientHeight": 1454,
+          "contentHeight": 1453.6607666015625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "teleprompter",
+        "presetLabel": "TELEPROMPTER",
+        "dpi": 1.25,
+        "fontCssPx": 14,
+        "fontDevicePx": 17.500000790754882,
+        "presetFontCssPx": 26,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.5999999999999999,
+        "longestLineCh": 54.989648033126294,
+        "maxLineChCss": 54.96261697722567,
+        "contrast": {
+          "whiteBackdrop": 13.618185370605193,
+          "blackBackdrop": 19.012904174379845,
+          "min": 13.618185370605193,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(4, 6, 10, 0.86)"
+        },
+        "overflow": {
+          "answerScrollWidth": 415,
+          "answerClientWidth": 415,
+          "answerScrollHeight": 2240,
+          "answerClientHeight": 2240,
+          "contentHeight": 2239.58349609375,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "side-column",
+        "presetLabel": "SIDE COLUMN",
+        "dpi": 1.25,
+        "fontCssPx": 14,
+        "fontDevicePx": 17.500000790754882,
+        "presetFontCssPx": 16,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 51.94202898550725,
+        "maxLineChCss": 51.964687370600416,
+        "contrast": {
+          "whiteBackdrop": 11.804351735183616,
+          "blackBackdrop": 18.458595005639076,
+          "min": 11.804351735183616,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(10, 12, 18, 0.84)"
+        },
+        "overflow": {
+          "answerScrollWidth": 392,
+          "answerClientWidth": 392,
+          "answerScrollHeight": 2170,
+          "answerClientHeight": 2170,
+          "contentHeight": 2169.64306640625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "reading",
+        "presetLabel": "READING",
+        "dpi": 1.25,
+        "fontCssPx": 14,
+        "fontDevicePx": 17.500000790754882,
+        "presetFontCssPx": 20,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.6500000000000001,
+        "longestLineCh": 64.92753623188406,
+        "maxLineChCss": 64.95575983436854,
+        "contrast": {
+          "whiteBackdrop": 12.354732664365718,
+          "blackBackdrop": 18.239340387934135,
+          "min": 12.354732664365718,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(12, 14, 20, 0.86)"
+        },
+        "overflow": {
+          "answerScrollWidth": 490,
+          "answerClientWidth": 490,
+          "answerScrollHeight": 1848,
+          "answerClientHeight": 1848,
+          "contentHeight": 1847.619140625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "compact",
+        "presetLabel": "COMPACT",
+        "dpi": 1.5,
+        "fontCssPx": 14,
+        "fontDevicePx": 20.999999547004677,
+        "presetFontCssPx": 15,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.5,
+        "longestLineCh": 60.024844720496894,
+        "maxLineChCss": 59.959122153209115,
+        "contrast": {
+          "whiteBackdrop": 11.253745370077905,
+          "blackBackdrop": 18.662870265966067,
+          "min": 11.253745370077905,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(8, 10, 16, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 453,
+          "answerClientWidth": 453,
+          "answerScrollHeight": 1680,
+          "answerClientHeight": 1680,
+          "contentHeight": 1679.761962890625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "banner",
+        "presetLabel": "BANNER",
+        "dpi": 1.5,
+        "fontCssPx": 14,
+        "fontDevicePx": 20.999999547004677,
+        "presetFontCssPx": 18,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 71.95031055900621,
+        "maxLineChCss": 71.95097308488613,
+        "contrast": {
+          "whiteBackdrop": 10.447860163215736,
+          "blackBackdrop": 18.68493112227129,
+          "min": 10.447860163215736,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(8, 10, 16, 0.8)"
+        },
+        "overflow": {
+          "answerScrollWidth": 543,
+          "answerClientWidth": 543,
+          "answerScrollHeight": 1454,
+          "answerClientHeight": 1454,
+          "contentHeight": 1453.6607666015625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "teleprompter",
+        "presetLabel": "TELEPROMPTER",
+        "dpi": 1.5,
+        "fontCssPx": 14,
+        "fontDevicePx": 20.999999547004677,
+        "presetFontCssPx": 26,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.5999999999999999,
+        "longestLineCh": 54.989648033126294,
+        "maxLineChCss": 54.96261697722567,
+        "contrast": {
+          "whiteBackdrop": 13.618185370605193,
+          "blackBackdrop": 19.012904174379845,
+          "min": 13.618185370605193,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(4, 6, 10, 0.86)"
+        },
+        "overflow": {
+          "answerScrollWidth": 415,
+          "answerClientWidth": 415,
+          "answerScrollHeight": 2240,
+          "answerClientHeight": 2240,
+          "contentHeight": 2239.58349609375,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "side-column",
+        "presetLabel": "SIDE COLUMN",
+        "dpi": 1.5,
+        "fontCssPx": 14,
+        "fontDevicePx": 20.999999547004677,
+        "presetFontCssPx": 16,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 51.94202898550725,
+        "maxLineChCss": 51.964687370600416,
+        "contrast": {
+          "whiteBackdrop": 11.804351735183616,
+          "blackBackdrop": 18.458595005639076,
+          "min": 11.804351735183616,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(10, 12, 18, 0.84)"
+        },
+        "overflow": {
+          "answerScrollWidth": 392,
+          "answerClientWidth": 392,
+          "answerScrollHeight": 2170,
+          "answerClientHeight": 2170,
+          "contentHeight": 2169.64306640625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "reading",
+        "presetLabel": "READING",
+        "dpi": 1.5,
+        "fontCssPx": 14,
+        "fontDevicePx": 20.999999547004677,
+        "presetFontCssPx": 20,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.6500000000000001,
+        "longestLineCh": 64.92753623188406,
+        "maxLineChCss": 64.95575983436854,
+        "contrast": {
+          "whiteBackdrop": 12.354732664365718,
+          "blackBackdrop": 18.239340387934135,
+          "min": 12.354732664365718,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(12, 14, 20, 0.86)"
+        },
+        "overflow": {
+          "answerScrollWidth": 490,
+          "answerClientWidth": 490,
+          "answerScrollHeight": 1848,
+          "answerClientHeight": 1848,
+          "contentHeight": 1847.619140625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "compact",
+        "presetLabel": "COMPACT",
+        "dpi": 2,
+        "fontCssPx": 14,
+        "fontDevicePx": 28.00000056425722,
+        "presetFontCssPx": 15,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.5,
+        "longestLineCh": 60.024844720496894,
+        "maxLineChCss": 59.959122153209115,
+        "contrast": {
+          "whiteBackdrop": 11.253745370077905,
+          "blackBackdrop": 18.662870265966067,
+          "min": 11.253745370077905,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(8, 10, 16, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 453,
+          "answerClientWidth": 453,
+          "answerScrollHeight": 1680,
+          "answerClientHeight": 1680,
+          "contentHeight": 1679.761962890625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "banner",
+        "presetLabel": "BANNER",
+        "dpi": 2,
+        "fontCssPx": 14,
+        "fontDevicePx": 28.00000056425722,
+        "presetFontCssPx": 18,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 71.95031055900621,
+        "maxLineChCss": 71.95097308488613,
+        "contrast": {
+          "whiteBackdrop": 10.447860163215736,
+          "blackBackdrop": 18.68493112227129,
+          "min": 10.447860163215736,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(8, 10, 16, 0.8)"
+        },
+        "overflow": {
+          "answerScrollWidth": 543,
+          "answerClientWidth": 543,
+          "answerScrollHeight": 1454,
+          "answerClientHeight": 1454,
+          "contentHeight": 1453.6607666015625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "teleprompter",
+        "presetLabel": "TELEPROMPTER",
+        "dpi": 2,
+        "fontCssPx": 14,
+        "fontDevicePx": 28.00000056425722,
+        "presetFontCssPx": 26,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.5999999999999999,
+        "longestLineCh": 54.989648033126294,
+        "maxLineChCss": 54.96261697722567,
+        "contrast": {
+          "whiteBackdrop": 13.618185370605193,
+          "blackBackdrop": 19.012904174379845,
+          "min": 13.618185370605193,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(4, 6, 10, 0.86)"
+        },
+        "overflow": {
+          "answerScrollWidth": 415,
+          "answerClientWidth": 415,
+          "answerScrollHeight": 2240,
+          "answerClientHeight": 2240,
+          "contentHeight": 2239.58349609375,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "side-column",
+        "presetLabel": "SIDE COLUMN",
+        "dpi": 2,
+        "fontCssPx": 14,
+        "fontDevicePx": 28.00000056425722,
+        "presetFontCssPx": 16,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 51.94202898550725,
+        "maxLineChCss": 51.964687370600416,
+        "contrast": {
+          "whiteBackdrop": 11.804351735183616,
+          "blackBackdrop": 18.458595005639076,
+          "min": 11.804351735183616,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(10, 12, 18, 0.84)"
+        },
+        "overflow": {
+          "answerScrollWidth": 392,
+          "answerClientWidth": 392,
+          "answerScrollHeight": 2170,
+          "answerClientHeight": 2170,
+          "contentHeight": 2169.64306640625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "reading",
+        "presetLabel": "READING",
+        "dpi": 2,
+        "fontCssPx": 14,
+        "fontDevicePx": 28.00000056425722,
+        "presetFontCssPx": 20,
+        "fitFontPx": 14,
+        "lineHeightRatio": 1.6500000000000001,
+        "longestLineCh": 64.92753623188406,
+        "maxLineChCss": 64.95575983436854,
+        "contrast": {
+          "whiteBackdrop": 12.354732664365718,
+          "blackBackdrop": 18.239340387934135,
+          "min": 12.354732664365718,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(12, 14, 20, 0.86)"
+        },
+        "overflow": {
+          "answerScrollWidth": 490,
+          "answerClientWidth": 490,
+          "answerScrollHeight": 1848,
+          "answerClientHeight": 1848,
+          "contentHeight": 1847.619140625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      }
+    ],
+    "aggregate": {
+      "cells": 20,
+      "failingCells": 0,
+      "minContrast": 10.447860163215736,
+      "minFontCssPx": 14,
+      "minFontDevicePx": 14.00000028212861,
+      "minLineHeightRatio": 1.5,
+      "maxLineCh": 71.95031055900621
+    }
+  },
+  "speakability": {
+    "thresholds": {
+      "hookMaxWords": 12,
+      "firstScreenfulMaxWords": 40,
+      "bulletsMin": 2,
+      "bulletsMax": 4
+    },
+    "firstScreenfulDefinition": "hook + first bullet (the spoken lead-in), not every viewport-visible word",
+    "rows": [
+      {
+        "id": "speak-01",
+        "hook": "Answer 1",
+        "hookWords": 10,
+        "firstScreenfulWords": 24,
+        "viewportVisibleWords": 39,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-02",
+        "hook": "Answer 2",
+        "hookWords": 9,
+        "firstScreenfulWords": 23,
+        "viewportVisibleWords": 48,
+        "bulletCount": 3,
+        "expectedBullets": 3,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-03",
+        "hook": "Answer 3",
+        "hookWords": 10,
+        "firstScreenfulWords": 22,
+        "viewportVisibleWords": 46,
+        "bulletCount": 3,
+        "expectedBullets": 3,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-04",
+        "hook": "Answer 4",
+        "hookWords": 7,
+        "firstScreenfulWords": 16,
+        "viewportVisibleWords": 29,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-05",
+        "hook": "Answer 5",
+        "hookWords": 9,
+        "firstScreenfulWords": 23,
+        "viewportVisibleWords": 38,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-06",
+        "hook": "Answer 6",
+        "hookWords": 9,
+        "firstScreenfulWords": 23,
+        "viewportVisibleWords": 48,
+        "bulletCount": 3,
+        "expectedBullets": 3,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-07",
+        "hook": "Answer 7",
+        "hookWords": 10,
+        "firstScreenfulWords": 22,
+        "viewportVisibleWords": 46,
+        "bulletCount": 3,
+        "expectedBullets": 3,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-08",
+        "hook": "Answer 8",
+        "hookWords": 9,
+        "firstScreenfulWords": 18,
+        "viewportVisibleWords": 31,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-09",
+        "hook": "Answer 9",
+        "hookWords": 9,
+        "firstScreenfulWords": 23,
+        "viewportVisibleWords": 38,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-10",
+        "hook": "Answer 10",
+        "hookWords": 10,
+        "firstScreenfulWords": 24,
+        "viewportVisibleWords": 49,
+        "bulletCount": 3,
+        "expectedBullets": 3,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-11",
+        "hook": "Answer 11",
+        "hookWords": 8,
+        "firstScreenfulWords": 20,
+        "viewportVisibleWords": 44,
+        "bulletCount": 3,
+        "expectedBullets": 3,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-12",
+        "hook": "Answer 12",
+        "hookWords": 8,
+        "firstScreenfulWords": 17,
+        "viewportVisibleWords": 30,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-13",
+        "hook": "Answer 13",
+        "hookWords": 10,
+        "firstScreenfulWords": 24,
+        "viewportVisibleWords": 39,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-14",
+        "hook": "Answer 14",
+        "hookWords": 9,
+        "firstScreenfulWords": 23,
+        "viewportVisibleWords": 48,
+        "bulletCount": 3,
+        "expectedBullets": 3,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-15",
+        "hook": "Answer 15",
+        "hookWords": 8,
+        "firstScreenfulWords": 20,
+        "viewportVisibleWords": 44,
+        "bulletCount": 3,
+        "expectedBullets": 3,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-16",
+        "hook": "Answer 16",
+        "hookWords": 9,
+        "firstScreenfulWords": 18,
+        "viewportVisibleWords": 31,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-17",
+        "hook": "Answer 17",
+        "hookWords": 7,
+        "firstScreenfulWords": 21,
+        "viewportVisibleWords": 36,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-18",
+        "hook": "Answer 18",
+        "hookWords": 9,
+        "firstScreenfulWords": 23,
+        "viewportVisibleWords": 48,
+        "bulletCount": 3,
+        "expectedBullets": 3,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-19",
+        "hook": "Answer 19",
+        "hookWords": 8,
+        "firstScreenfulWords": 20,
+        "viewportVisibleWords": 44,
+        "bulletCount": 3,
+        "expectedBullets": 3,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-20",
+        "hook": "Answer 20",
+        "hookWords": 8,
+        "firstScreenfulWords": 17,
+        "viewportVisibleWords": 30,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      }
+    ],
+    "aggregate": {
+      "answers": 20,
+      "failing": 0,
+      "maxHookWords": 10,
+      "maxFirstScreenfulWords": 24,
+      "markdownTokenViolations": 0
+    }
+  },
+  "relayout": {
+    "samples": [
+      {
+        "id": "teleprompter",
+        "applyMs": 6.099999964237213,
+        "frameMs": 11.699999988079071,
+        "preset": "teleprompter",
+        "fontSize": 26
+      },
+      {
+        "id": "compact",
+        "applyMs": 6,
+        "frameMs": 10.099999964237213,
+        "preset": "compact",
+        "fontSize": 15
+      },
+      {
+        "id": "reading",
+        "applyMs": 7,
+        "frameMs": 9.600000023841858,
+        "preset": "reading",
+        "fontSize": 20
+      }
+    ],
+    "medianApplyMs": 6.099999964237213,
+    "maxApplyMs": 7,
+    "frameMs": 9.600000023841858,
+    "preset": "reading",
+    "fontSize": 20,
+    "method": "median of 3 preset switches; applyMs = attribute + forced style/layout read; frameMs = until next rAF"
+  },
+  "persistence": {
+    "persisted": {
+      "stored": "reading",
+      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792510941346}"
+    },
+    "restored": {
+      "preset": "reading",
+      "stored": "reading",
+      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792510962377}",
+      "metrics": {
+        "preset": "reading",
+        "presetSource": "contract-fallback",
+        "dpr": 1.0499999523162842,
+        "fontSizeCssPx": 20,
+        "lineHeightPx": 33,
+        "lineHeightRatio": 1.65,
+        "maxWidthPx": 700.781,
+        "maxLineChCss": 64.9999768115942,
+        "longestLineCh": 65.02028985507246,
+        "contrast": {
+          "ratio": 12.354732664365718,
+          "backdrop": "#ffffff",
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(12, 14, 20, 0.86)"
+        },
+        "layout": {
+          "answerClientWidth": 701,
+          "answerScrollWidth": 701,
+          "answerClientHeight": 0,
+          "answerScrollHeight": 0,
+          "viewportClientHeight": 524,
+          "contentHeight": 0,
+          "docScrollWidth": 1004,
+          "innerWidth": 1004,
+          "textOverflow": "clip",
+          "overflowWrap": "break-word",
+          "wordBreak": "normal",
+          "webkitLineClamp": "none",
+          "whiteSpace": "normal"
+        },
+        "text": {
+          "chars": 0,
+          "words": 0
+        },
+        "speakability": {
+          "hookWords": null,
+          "firstBulletWords": 0,
+          "firstScreenfulWords": 0,
+          "viewportVisibleWords": 0,
+          "bulletCount": 0,
+          "markdownTokens": []
+        },
+        "fitFontPx": null,
+        "clicks": {
+          "overlay": 0,
+          "background": 0
+        }
+      }
+    },
+    "restarts": 1
+  },
+  "clickThrough": {
+    "physicalPoint": {
+      "x": 651,
+      "y": 399
+    },
+    "pointDip": {
+      "x": 620,
+      "y": 380
+    },
+    "scaleFactor": 1.0499999523162842,
+    "overlayClicks": 0,
+    "backgroundClicks": 0,
+    "backgroundLastClick": null,
+    "injection": {
+      "ok": true,
+      "status": 0,
+      "stderr": "",
+      "foregroundBefore": "HireShade overlay size acceptance",
+      "foregroundAfter": "# MISSION You are a — DeepSeek Harness"
+    },
+    "foregroundBefore": "HireShade overlay size acceptance",
+    "foregroundAfter": "# MISSION You are a — DeepSeek Harness",
+    "status": "UNTESTED"
+  },
+  "assertions": [
+    {
+      "name": "matrix-font-floor-all",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": "20 cells"
+    },
+    {
+      "name": "matrix-contrast-7to1-all",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "min": 10.447860163215736
+      }
+    },
+    {
+      "name": "matrix-line-height-all",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "min": 1.5
+      }
+    },
+    {
+      "name": "matrix-line-length-75ch-all",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "max": 71.95031055900621
+      }
+    },
+    {
+      "name": "matrix-no-overflow-400w-all",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": "0 failing cells"
+    },
+    {
+      "name": "speakability-20-answers",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "answers": 20,
+        "failing": 0
+      }
+    },
+    {
+      "name": "speakability-hook-12w",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "max": 10
+      }
+    },
+    {
+      "name": "speakability-first-screenful-40w",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "max": 24
+      }
+    },
+    {
+      "name": "speakability-no-markdown-tokens",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": "20 answers"
+    },
+    {
+      "name": "speakability-bullets-rendered",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    {
+      "name": "relayout-median-under-16ms",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "medianApplyMs": 6.099999964237213,
+        "samples": [
+          6,
+          6.099999964237213,
+          7
+        ]
+      }
+    },
+    {
+      "name": "relayout-next-frame-applied",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "preset": "reading",
+        "fontSize": 20,
+        "frameMs": 9.600000023841858
+      }
+    },
+    {
+      "name": "persistence-stored-reading",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": "reading"
+    },
+    {
+      "name": "persistence-restored-after-restart",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "preset": "reading",
+        "font": 20
+      }
+    },
+    {
+      "name": "click-through-reaches-background-app",
+      "pass": false,
+      "status": "UNTESTED",
+      "required": false,
+      "detail": {
+        "reason": "OS did not deliver the synthetic click (no interactive desktop / injection blocked)",
+        "physicalPoint": {
+          "x": 651,
+          "y": 399
+        },
+        "pointDip": {
+          "x": 620,
+          "y": 380
+        },
+        "scaleFactor": 1.0499999523162842,
+        "overlayClicks": 0,
+        "backgroundClicks": 0,
+        "backgroundLastClick": null,
+        "injection": {
+          "ok": true,
+          "status": 0,
+          "stderr": "",
+          "foregroundBefore": "HireShade overlay size acceptance",
+          "foregroundAfter": "# MISSION You are a — DeepSeek Harness"
+        },
+        "foregroundBefore": "HireShade overlay size acceptance",
+        "foregroundAfter": "# MISSION You are a — DeepSeek Harness",
+        "status": "UNTESTED"
+      }
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "docs/evidence/overlay-size/o3-preset-compact-dpi125.png",
+      "bytes": 87953
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3-preset-banner-dpi125.png",
+      "bytes": 103715
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3-preset-teleprompter-dpi125.png",
+      "bytes": 101166
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3-preset-side-column-dpi125.png",
+      "bytes": 109916
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3-preset-reading-dpi125.png",
+      "bytes": 112426
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3-overflow-400words-compact-dpi200.png",
+      "bytes": 240408
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3-click-through-overlay.png",
+      "bytes": 18477
+    }
+  ],
+  "honestLabels": {
+    "contrast": "Text color vs scrim composited over solid #ffffff and #000000 extremes; contrast over real video/desktop content is UNTESTED (no video fixture in this harness).",
+    "dpi": "deviceScaleFactor emulation via CDP; physical monitor scaling not measured.",
+    "clickThrough": "Win32 SendInput at physical screen coordinates on this Windows host; macOS/Linux click-through is UNTESTED.",
+    "multiMonitor": "Pure selection-logic unit tests live in artifacts/craft-vita/src/overlay/size.test.ts; no multi-monitor hardware available here.",
+    "verticalOverflow": "400-word answers may scroll vertically in the overlay (virtual scroll); clipping is asserted via preserved word count + content height, not by requiring everything to fit on one screen."
+  },
+  "commands": {
+    "run": "node scripts/overlay-size/run-size-acceptance.mjs",
+    "unitTests": "pnpm --dir artifacts/craft-vita exec vitest run src/overlay/size.test.ts",
+    "viaDemo": "node scripts/demo/run-demo.mjs size",
+    "viaMake": "make demo (runs the size step)"
+  },
+  "artifacts": {
+    "pageBytes": 23163
+  }
+}

@@ -10,7 +10,7 @@
 |---|---|
 | Workspace typecheck | **PASS** — exit 0 (`docs/evidence/12-workspace-typecheck.txt`) |
 | Web/API build | **PASS** — exit 0; Vite 7.3.3, 5,427 modules, built in 1m57s; API esbuild 2.9 MB (`docs/evidence/13-build.txt`) |
-| Frontend unit tests | **PASS — 47 files / 511 tests, 0 failed** (`docs/evidence/15-ext-frontend-suite.txt`) |
+| Frontend unit tests | **PASS — 53 files / 616 tests, 0 failed** (`docs/evidence/19-overlay-size-frontend.txt`) |
 | API unit + integration tests | **PASS — 37 files / 399 tests, 0 failed** (`docs/evidence/16-ext-api-suite.txt`) |
 | Rust check | **PASS** — `cargo check` exit 0, 0 warnings after stealth repair; `cargo test --lib` 14/14 (`docs/evidence/14-cargo-check.txt`) |
 | Keyless end-to-end demo | **PASS** — `make demo` exit 0, 3 models × 3 runs, every latency budget met, zero provider keys, and all four extensions exercised (`docs/evidence/18-ext-make-demo.txt`) |
@@ -148,3 +148,19 @@ Four capabilities beyond the target were added on branch `feat-4`; they are tagg
 Extension test totals: frontend **511 tests (47 files)**, API **399 tests (37 files)**, workspace typecheck exit 0 (`docs/evidence/17-ext-typecheck.txt`), `make demo` exit 0 with a new `extensions` stage running W1/W2/W3/W4 checks (`docs/evidence/18-ext-make-demo.txt`).
 
 Notes / honest limits: accent degradation is deterministic modelling rather than audio; Razorpay's live API was not contacted (no keys — injected-fetch adapter tests + real HMACs); gaze runs on synthetic faces only (no camera/model bundled); virtual-camera registration is deferred. None of these change the parity score.
+
+## 13. Overlay size / readability / invisibility-at-size (EXT G-044 … G-050)
+
+| ID | Capability | Result | Evidence |
+|---|---|---|---|
+| G-044 | Five presets, BANNER default, persisted/resizable | **PASS** — 60-cell pure-model matrix + 20/20 Electron/CDP assertions; BANNER 936x240, re-layout 2.3-4.1 ms | `docs/OVERLAY_SIZE.md`, `docs/evidence/overlay-size/o1/` |
+| G-045 | Readability + speakability | **PASS** — min font 16 css px (16→32 device px at 200%), min contrast 8.14:1, longest line 74.9ch, LHR 1.52-1.60; 400-word no-overflow in all 20 preset×DPI cells; max hook 12 words / max first screenful 26 words | `docs/evidence/overlay-size/o3/o3-size-results.json` |
+| G-046 | Exclusion invariance at size | **PASS** — 11/11 transitions at 0x11 (startup, card/banner/reading cycle, display-metrics, private ON/OFF, compat ON/OFF, simulated DPI) | `docs/CAPTURE_MATRIX.md` §2, `affinity-*.json` |
+| G-047 | Capture-path matrix | **PASS (honest)** — GDI, Chromium desktopCapturer screen/window honor exclusion; PrintWindow no leak (caveat); **DXGI Desktop Duplication OBSERVED to ignore WDA** (49.8% vs 42.9%); tab/fullscreen share, macOS, elevated, real unplug = UNTESTED | `docs/CAPTURE_MATRIX.md` §1 |
+| G-048 | Compatibility mode + fallback ladder + self-check | **PASS (caveat)** — runtime scrim-only compat (true opaque surface next launch; live recreation crashed Electron, documented), 4-step ladder, self-check UI with honest copy | `docs/CAPTURE_MATRIX.md` §3 |
+| G-049 | Acceptance harness + make demo | **PASS** — 14/14 required assertions, 1 UNTESTED (synthetic click-through occluded); `make demo` ends with size step | `docs/evidence/overlay-size/o3/`, `docs/evidence/21-overlay-size-make-demo.txt` |
+| G-050 | macOS size invariance | **DEFERRED** — no macOS host | GAP_MATRIX |
+
+**Important honest finding:** the earlier Windows invisibility PASS (G-006) was measured with GDI/desktopCapturer-class paths. The new matrix shows **DXGI Desktop Duplication ignores WDA_EXCLUDEFROMCAPTURE** on this host. That is recorded as OBSERVED, not softened; it means some capture apps (those using DXGI) can still see the overlay. The compatibility-mode/fallback ladder exists precisely for that case, and macOS remains UNTESTED.
+
+Regression status: frontend 53 files / 616 tests pass; workspace typecheck exit 0; API suite unchanged at 399; `make demo` exit 0 with the new size step; gaze CI latency gate now measures per-frame CPU (<25 ms) because wall clock inside the 616-test suite is dominated by scheduler preemption (ADR-023).

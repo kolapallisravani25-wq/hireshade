@@ -1,0 +1,13 @@
+﻿{
+    "captured_at":  "2026-10-20T21:19:33.3065561+05:30",
+    "label":  "ddagrab-banner-on-vs-baseline",
+    "a":  "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-hidden-baseline-frame.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-on-frame.png",
+    "threshold":  16,
+    "width":  1366,
+    "height":  768,
+    "mean_abs_diff":  12.917,
+    "fraction_diff_gt_threshold":  0.49809,
+    "mean_diff_where_changed":  29.97,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\diff-ddagrab-banner-on-vs-baseline.png"
+}

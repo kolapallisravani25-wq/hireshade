@@ -1,0 +1,13 @@
+﻿{
+    "captured_at":  "2026-10-20T21:15:33.7207774+05:30",
+    "label":  "reading-printwindow-on-vs-off",
+    "a":  "D:\\hireshade\\docs\\evidence\\overlay-size\\printwindow-reading-stealth-on.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\overlay-size\\printwindow-reading-stealth-off.png",
+    "threshold":  16,
+    "width":  1257,
+    "height":  635,
+    "mean_abs_diff":  8.893,
+    "fraction_diff_gt_threshold":  0.27325,
+    "mean_diff_where_changed":  35.34,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\diff-reading-printwindow-on-vs-off.png"
+}

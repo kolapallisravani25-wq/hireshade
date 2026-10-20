@@ -1,0 +1,129 @@
+Scope: 4 of 9 workspace projects
+artifacts/api-server build$ node ./build.mjs
+artifacts/mockup-sandbox build$ vite build
+artifacts/craft-vita build$ vite build --config vite.config.ts
+artifacts/api-server build: 
+artifacts/api-server build:   dist\index.mjs                   3.0mb
+artifacts/api-server build:   dist\pino-worker.mjs           153.4kb
+artifacts/api-server build:   dist\pino-file.mjs             142.0kb
+artifacts/api-server build:   dist\pino-pretty.mjs           114.6kb
+artifacts/api-server build:   dist\thread-stream-worker.mjs    7.3kb
+artifacts/api-server build:   ...and 5 more output files...
+artifacts/api-server build: 
+artifacts/api-server build: Done in 1175ms
+artifacts/api-server build: Done
+artifacts/craft-vita build: vite v7.3.3 building client environment for production...
+artifacts/craft-vita build: transforming...
+artifacts/mockup-sandbox build: vite v7.3.3 building client environment for production...
+artifacts/mockup-sandbox build: transforming...
+artifacts/mockup-sandbox build: ✓ 30 modules transformed.
+artifacts/mockup-sandbox build: rendering chunks...
+artifacts/mockup-sandbox build: computing gzip size...
+artifacts/mockup-sandbox build: dist/index.html                   4.45 kB │ gzip:  1.24 kB
+artifacts/mockup-sandbox build: dist/assets/index-7-oOC3Pk.css   89.09 kB │ gzip: 14.77 kB
+artifacts/mockup-sandbox build: dist/assets/index-DLzyb8tu.js   187.72 kB │ gzip: 59.51 kB
+artifacts/mockup-sandbox build: ✓ built in 3.51s
+artifacts/mockup-sandbox build: Done
+artifacts/craft-vita build: ✓ 5434 modules transformed.
+artifacts/craft-vita build: rendering chunks...
+artifacts/craft-vita build: [plugin vite:reporter] 
+artifacts/craft-vita build: (!) D:/hireshade/artifacts/craft-vita/src/tauri-stubs/api-event.ts is dynamically imported by D:/hireshade/artifacts/craft-vita/src/lib/desktopSession.ts but also statically imported by D:/hireshade/artifacts/craft-vita/src/App.tsx, D:/hireshade/artifacts/craft-vita/src/components/GoogleOAuthButton.tsx, D:/hireshade/artifacts/craft-vita/src/features/session/slices/floatingSessionSlice.ts, D:/hireshade/artifacts/craft-vita/src/lib/desktopAuthSession.ts, D:/hireshade/artifacts/craft-vita/src/pages/Sessions/ActiveSession/page.tsx, dynamic import will not move module into another chunk.
+artifacts/craft-vita build: 
+artifacts/craft-vita build: [plugin vite:reporter] 
+artifacts/craft-vita build: (!) D:/hireshade/artifacts/craft-vita/src/pages/Auth/SignIn/page.tsx is dynamically imported by D:/hireshade/artifacts/craft-vita/src/App.tsx but also statically imported by D:/hireshade/artifacts/craft-vita/src/components/TauriReturnBanner.tsx, dynamic import will not move module into another chunk.
+artifacts/craft-vita build: 
+artifacts/craft-vita build: computing gzip size...
+artifacts/craft-vita build: dist/public/index.html                                                0.88 kB │ gzip:     0.49 kB
+artifacts/craft-vita build: dist/public/assets/geist-cyrillic-ext-wght-normal-DjL33-gN.woff2      7.42 kB
+artifacts/craft-vita build: dist/public/assets/geist-vietnamese-wght-normal-6IgcOCM7.woff2        8.00 kB
+artifacts/craft-vita build: dist/public/assets/geist-cyrillic-wght-normal-BEAKL7Jp.woff2         15.08 kB
+artifacts/craft-vita build: dist/public/assets/geist-latin-ext-wght-normal-DC-KSUi6.woff2        16.51 kB
+artifacts/craft-vita build: dist/public/assets/geist-latin-wght-normal-BgDaEnEv.woff2            29.40 kB
+artifacts/craft-vita build: dist/public/assets/index-ttKhySac.css                               281.06 kB │ gzip:    39.35 kB
+artifacts/craft-vita build: dist/public/assets/hooks-DBC-uKZm.js                                  0.10 kB │ gzip:     0.11 kB
+artifacts/craft-vita build: dist/public/assets/plugin-dialog-KbYHuLrP.js                          0.14 kB │ gzip:     0.11 kB
+artifacts/craft-vita build: dist/public/assets/cloud-DfRiYF6W.js                                  0.16 kB │ gzip:     0.17 kB
+artifacts/craft-vita build: dist/public/assets/arrow-left-BrizCI_Q.js                             0.17 kB │ gzip:     0.16 kB
+artifacts/craft-vita build: dist/public/assets/arrow-right-BDZm1wS3.js                            0.17 kB │ gzip:     0.16 kB
+artifacts/craft-vita build: dist/public/assets/skeleton-DUEGuiSe.js                               0.20 kB │ gzip:     0.17 kB
+artifacts/craft-vita build: dist/public/assets/undo-2-DCyPVQ7s.js                                 0.21 kB │ gzip:     0.18 kB
+artifacts/craft-vita build: dist/public/assets/plugin-fs-DEzOeFY6.js                              0.22 kB │ gzip:     0.15 kB
+artifacts/craft-vita build: dist/public/assets/mic-nVuCVXYw.js                                    0.23 kB │ gzip:     0.20 kB
+artifacts/craft-vita build: dist/public/assets/copy-qNZA98Us.js                                   0.23 kB │ gzip:     0.21 kB
+artifacts/craft-vita build: dist/public/assets/download-DDaan48e.js                               0.23 kB │ gzip:     0.19 kB
+artifacts/craft-vita build: dist/public/assets/message-square-Bw3f0M8A.js                         0.23 kB │ gzip:     0.20 kB
+artifacts/craft-vita build: dist/public/assets/activity-CyPwdkm7.js                               0.24 kB │ gzip:     0.20 kB
+artifacts/craft-vita build: dist/public/assets/minimize-2-BtoIVuLw.js                             0.24 kB │ gzip:     0.19 kB
+artifacts/craft-vita build: dist/public/assets/video-BaBeMPNU.js                                  0.25 kB │ gzip:     0.22 kB
+artifacts/craft-vita build: dist/public/assets/chart-column-BRvSdhhi.js                           0.25 kB │ gzip:     0.19 kB
+artifacts/craft-vita build: dist/public/assets/funnel-Bi31PEru.js                                 0.25 kB │ gzip:     0.21 kB
+artifacts/craft-vita build: dist/public/assets/calendar-DIkdtDhN.js                               0.26 kB │ gzip:     0.20 kB
+artifacts/craft-vita build: dist/public/assets/triangle-alert-v4Sm4gCS.js                         0.27 kB │ gzip:     0.22 kB
+artifacts/craft-vita build: dist/public/assets/lightbulb-BXSqfF1y.js                              0.28 kB │ gzip:     0.22 kB
+artifacts/craft-vita build: dist/public/assets/file-question-mark-CL1q1fFM.js                     0.28 kB │ gzip:     0.22 kB
+artifacts/craft-vita build: dist/public/assets/useCreditBrackets-CHPmfqIC.js                      0.29 kB │ gzip:     0.23 kB
+artifacts/craft-vita build: dist/public/assets/users-CuNyQ4NA.js                                  0.31 kB │ gzip:     0.23 kB
+artifacts/craft-vita build: dist/public/assets/file-search-DHBBjgqQ.js                            0.33 kB │ gzip:     0.24 kB
+artifacts/craft-vita build: dist/public/assets/trash-2-xjeUOtc1.js                                0.33 kB │ gzip:     0.22 kB
+artifacts/craft-vita build: dist/public/assets/share-2-Dn3sMKM6.js                                0.35 kB │ gzip:     0.23 kB
+artifacts/craft-vita build: dist/public/assets/building-2-BY2R3D5H.js                             0.38 kB │ gzip:     0.24 kB
+artifacts/craft-vita build: dist/public/assets/scan-text-jSxe6qqU.js                              0.40 kB │ gzip:     0.24 kB
+artifacts/craft-vita build: dist/public/assets/TranscriptCodeBlock-rGfB8v4q.js                    0.45 kB │ gzip:     0.33 kB
+artifacts/craft-vita build: dist/public/assets/settings-DI42IdcE.js                               0.48 kB │ gzip:     0.26 kB
+artifacts/craft-vita build: dist/public/assets/defineProperty-XzW2MX3t.js                         0.49 kB │ gzip:     0.33 kB
+artifacts/craft-vita build: dist/public/assets/folder-kanban-SRL_KWWx.js                          0.51 kB │ gzip:     0.32 kB
+artifacts/craft-vita build: dist/public/assets/wand-sparkles-DZSJmlvu.js                          0.51 kB │ gzip:     0.30 kB
+artifacts/craft-vita build: dist/public/assets/typeof-CqwBs4Og.js                                 0.66 kB │ gzip:     0.40 kB
+artifacts/craft-vita build: dist/public/assets/page-CcZ5tefu.js                                   0.68 kB │ gzip:     0.41 kB
+artifacts/craft-vita build: dist/public/assets/history-BIPiMuwk.js                                0.77 kB │ gzip:     0.39 kB
+artifacts/craft-vita build: dist/public/assets/card-QWjAQZHd.js                                   0.78 kB │ gzip:     0.32 kB
+artifacts/craft-vita build: dist/public/assets/creditedAi-DlwagR5-.js                             1.05 kB │ gzip:     0.61 kB
+artifacts/craft-vita build: dist/public/assets/page-C98YUdpU.js                                   1.25 kB │ gzip:     0.68 kB
+artifacts/craft-vita build: dist/public/assets/SessionReview-Bs3O0Xbv.js                          1.46 kB │ gzip:     0.81 kB
+artifacts/craft-vita build: dist/public/assets/page-BzDy5AYO.js                                   1.59 kB │ gzip:     0.77 kB
+artifacts/craft-vita build: dist/public/assets/page-BQI_qS8t.js                                   2.62 kB │ gzip:     1.19 kB
+artifacts/craft-vita build: dist/public/assets/DesktopAuthHandoff-Cgw75bWY.js                     2.85 kB │ gzip:     1.35 kB
+artifacts/craft-vita build: dist/public/assets/page-jGzMEr72.js                                   2.95 kB │ gzip:     1.28 kB
+artifacts/craft-vita build: dist/public/assets/QuestionBankUI-CWf3Hv43.js                         3.57 kB │ gzip:     1.54 kB
+artifacts/craft-vita build: dist/public/assets/QuestionDetailContent-D5yatwCP.js                  3.64 kB │ gzip:     1.09 kB
+artifacts/craft-vita build: dist/public/assets/page-DAaoyHaq.js                                   3.66 kB │ gzip:     1.65 kB
+artifacts/craft-vita build: dist/public/assets/alert-dialog-IU5XqhdT.js                           3.73 kB │ gzip:     1.20 kB
+artifacts/craft-vita build: dist/public/assets/tabs-CTNeEP3T.js                                   4.68 kB │ gzip:     1.77 kB
+artifacts/craft-vita build: dist/public/assets/page-SjKXxUwn.js                                   4.92 kB │ gzip:     1.56 kB
+artifacts/craft-vita build: dist/public/assets/page-DUERMBSP.js                                   5.17 kB │ gzip:     1.82 kB
+artifacts/craft-vita build: dist/public/assets/page-CCFZfG1M.js                                   5.48 kB │ gzip:     2.18 kB
+artifacts/craft-vita build: dist/public/assets/radio-group-Ck5b3hSR.js                            5.56 kB │ gzip:     2.18 kB
+artifacts/craft-vita build: dist/public/assets/page-Bvj0TmJJ.js                                   6.35 kB │ gzip:     2.57 kB
+artifacts/craft-vita build: dist/public/assets/page-C2VnWEw1.js                                   6.92 kB │ gzip:     2.50 kB
+artifacts/craft-vita build: dist/public/assets/QuestionDetailSheet-X5Spq6o5.js                    7.04 kB │ gzip:     2.49 kB
+artifacts/craft-vita build: dist/public/assets/page-B0vOQo2Q.js                                   7.80 kB │ gzip:     2.82 kB
+artifacts/craft-vita build: dist/public/assets/page-_mGe4tv5.js                                   9.16 kB │ gzip:     2.52 kB
+artifacts/craft-vita build: dist/public/assets/resumeTemplate-DZE2lq9s.js                        10.24 kB │ gzip:     3.56 kB
+artifacts/craft-vita build: dist/public/assets/page-5xK0q2CK.js                                  10.24 kB │ gzip:     3.11 kB
+artifacts/craft-vita build: dist/public/assets/one-dark-BiIZG4QM.js                              12.38 kB │ gzip:     1.81 kB
+artifacts/craft-vita build: dist/public/assets/page-jJuw8ouo.js                                  15.64 kB │ gzip:     5.52 kB
+artifacts/craft-vita build: dist/public/assets/page-ltj-u_kX.js                                  18.01 kB │ gzip:     6.32 kB
+artifacts/craft-vita build: dist/public/assets/ListOfResumes-BYJ9nWwj.js                         19.08 kB │ gzip:     6.41 kB
+artifacts/craft-vita build: dist/public/assets/page-DmyRbB8s.js                                  20.90 kB │ gzip:     6.64 kB
+artifacts/craft-vita build: dist/public/assets/page-CazPglGu.js                                  24.90 kB │ gzip:     7.80 kB
+artifacts/craft-vita build: dist/public/assets/purify.es-Ddytg4bZ.js                             27.88 kB │ gzip:    10.54 kB
+artifacts/craft-vita build: dist/public/assets/page-BhHbEMND.js                                  34.64 kB │ gzip:     9.34 kB
+artifacts/craft-vita build: dist/public/assets/page-D1bhywT8.js                                  53.95 kB │ gzip:    14.57 kB
+artifacts/craft-vita build: dist/public/assets/page-4qckzAjT.js                                  69.21 kB │ gzip:    18.48 kB
+artifacts/craft-vita build: dist/public/assets/TranscriptDialog-V9E3oixn.js                     116.85 kB │ gzip:    35.13 kB
+artifacts/craft-vita build: dist/public/assets/index.es-eocYzyi0.js                             158.43 kB │ gzip:    52.91 kB
+artifacts/craft-vita build: dist/public/assets/page-s7KatVbS.js                                 159.25 kB │ gzip:    37.27 kB
+artifacts/craft-vita build: dist/public/assets/html2canvas.esm-DXEQVQnt.js                      201.04 kB │ gzip:    47.43 kB
+artifacts/craft-vita build: dist/public/assets/AreaChart-EycEntWE.js                            392.33 kB │ gzip:   107.87 kB
+artifacts/craft-vita build: dist/public/assets/page-dGjqBZ50.js                                 394.11 kB │ gzip:   128.98 kB
+artifacts/craft-vita build: dist/public/assets/prism-BdCszJg_.js                                777.89 kB │ gzip:   269.63 kB
+artifacts/craft-vita build: dist/public/assets/index-DQSrgncz.js                                788.85 kB │ gzip:   236.63 kB
+artifacts/craft-vita build: dist/public/assets/data-table-BwuGIKT8.js                         1,161.82 kB │ gzip:   334.98 kB
+artifacts/craft-vita build: dist/public/assets/page-BpKqHgZ_.js                               4,082.84 kB │ gzip: 1,112.25 kB
+artifacts/craft-vita build: 
+artifacts/craft-vita build: (!) Some chunks are larger than 500 kB after minification. Consider:
+artifacts/craft-vita build: - Using dynamic import() to code-split the application
+artifacts/craft-vita build: - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+artifacts/craft-vita build: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+artifacts/craft-vita build: ✓ built in 46.04s
+artifacts/craft-vita build: Done

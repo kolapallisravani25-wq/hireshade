@@ -1,0 +1,13 @@
+﻿{
+    "captured_at":  "2026-10-20T21:14:32.0686216+05:30",
+    "label":  "banner-desktopcapturer-off-vs-baseline",
+    "a":  "D:\\hireshade\\docs\\evidence\\overlay-size\\desktopcapturer-banner-hidden-baseline-screen-0.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\overlay-size\\desktopcapturer-banner-stealth-off-screen-0.png",
+    "threshold":  16,
+    "width":  1366,
+    "height":  768,
+    "mean_abs_diff":  4.593,
+    "fraction_diff_gt_threshold":  0.05442,
+    "mean_diff_where_changed":  75.96,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\diff-banner-desktopcapturer-off-vs-baseline.png"
+}

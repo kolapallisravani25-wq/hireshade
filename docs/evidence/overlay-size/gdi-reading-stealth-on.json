@@ -1,0 +1,21 @@
+﻿{
+    "captured_at":  "2026-10-20T21:14:39.6327344+05:30",
+    "label":  "reading-stealth-on",
+    "note":  "stealth ON, reading",
+    "method":  "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+    "bounds":  {
+                   "y":  42,
+                   "width":  1258,
+                   "height":  636,
+                   "x":  54
+               },
+    "full_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-reading-stealth-on-full.png",
+    "crop_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-reading-stealth-on-crop.png",
+    "stats":  {
+                  "mean_luma":  37.28,
+                  "std_luma":  34.96,
+                  "unique_colors_sampled":  1634,
+                  "high_contrast_fraction":  0.633,
+                  "non_black_fraction":  0
+              }
+}

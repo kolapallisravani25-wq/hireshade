@@ -1,0 +1,21 @@
+﻿{
+    "captured_at":  "2026-10-20T21:14:03.3873870+05:30",
+    "label":  "banner-stealth-off",
+    "note":  "stealth OFF, banner",
+    "method":  "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+    "bounds":  {
+                   "y":  16,
+                   "width":  1366,
+                   "height":  253,
+                   "x":  0
+               },
+    "full_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-banner-stealth-off-full.png",
+    "crop_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-banner-stealth-off-crop.png",
+    "stats":  {
+                  "mean_luma":  34.78,
+                  "std_luma":  26.03,
+                  "unique_colors_sampled":  1599,
+                  "high_contrast_fraction":  0.8121,
+                  "non_black_fraction":  0.0162
+              }
+}

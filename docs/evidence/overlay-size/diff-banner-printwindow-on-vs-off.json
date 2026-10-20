@@ -1,0 +1,13 @@
+﻿{
+    "captured_at":  "2026-10-20T21:14:34.8144219+05:30",
+    "label":  "banner-printwindow-on-vs-off",
+    "a":  "D:\\hireshade\\docs\\evidence\\overlay-size\\printwindow-banner-stealth-on.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\overlay-size\\printwindow-banner-stealth-off.png",
+    "threshold":  16,
+    "width":  1367,
+    "height":  252,
+    "mean_abs_diff":  22.192,
+    "fraction_diff_gt_threshold":  0.68869,
+    "mean_diff_where_changed":  34.95,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\diff-banner-printwindow-on-vs-off.png"
+}

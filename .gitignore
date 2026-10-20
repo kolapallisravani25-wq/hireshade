@@ -59,6 +59,7 @@ artifacts/craft-vita/temp-tauri-launch.png
 
 # Electron user-data trees captured during stealth-wiring validation
 /docs/evidence/stealth-wiring/userdata/
+/docs/evidence/overlay-size/userdata*/
 
 # Large downloaded competitor artifacts (keep manifests, hashes, and scan output only)
 /docs/raw/desktop/mac-unpacked/

@@ -1,0 +1,21 @@
+﻿{
+    "captured_at":  "2026-10-20T21:14:53.5301842+05:30",
+    "label":  "reading-hidden-baseline",
+    "note":  "hidden baseline, reading",
+    "method":  "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+    "bounds":  {
+                   "y":  42,
+                   "width":  1258,
+                   "height":  636,
+                   "x":  54
+               },
+    "full_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-reading-hidden-baseline-full.png",
+    "crop_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-reading-hidden-baseline-crop.png",
+    "stats":  {
+                  "mean_luma":  37.36,
+                  "std_luma":  35.08,
+                  "unique_colors_sampled":  1653,
+                  "high_contrast_fraction":  0.6324,
+                  "non_black_fraction":  0
+              }
+}

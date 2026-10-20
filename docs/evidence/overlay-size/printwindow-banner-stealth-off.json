@@ -1,0 +1,18 @@
+﻿{
+    "captured_at":  "2026-10-20T21:14:07.8733039+05:30",
+    "label":  "banner-stealth-off",
+    "method":  "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+    "title":  "Floating Mini-Screen",
+    "hwnd":  "0x7076A",
+    "printwindow_ok":  true,
+    "flag_used":  2,
+    "path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\printwindow-banner-stealth-off.png",
+    "width":  1367,
+    "height":  252,
+    "stats":  {
+                  "mean_luma":  21.66,
+                  "std_luma":  20.4,
+                  "unique_colors_sampled":  709,
+                  "black_fraction":  0.3108
+              }
+}

@@ -1,0 +1,21 @@
+﻿{
+    "captured_at":  "2026-10-20T21:19:11.8118210+05:30",
+    "label":  "compat-mode-on-reading",
+    "note":  "compatibility mode ON at READING (opaque scrim, runtime)",
+    "method":  "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+    "bounds":  {
+                   "y":  43,
+                   "width":  1257,
+                   "height":  635,
+                   "x":  54
+               },
+    "full_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-compat-mode-on-reading-full.png",
+    "crop_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-compat-mode-on-reading-crop.png",
+    "stats":  {
+                  "mean_luma":  37.42,
+                  "std_luma":  35.12,
+                  "unique_colors_sampled":  1606,
+                  "high_contrast_fraction":  0.631,
+                  "non_black_fraction":  0
+              }
+}

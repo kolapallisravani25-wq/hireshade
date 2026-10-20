@@ -1,0 +1,199 @@
+node scripts/demo/run-demo.mjs demo
+[demo] target=demo node=v24.19.0 platform=win32
+[demo] DEMO_MODE=1 NODE_ENV=development
+[demo] provider keys removed for children: ELECTRON_RUN_AS_NODE
+
+[demo] == fixtures (ffmpeg) ==
+[demo] $ C:\Program Files\nodejs\node.exe D:\hireshade\scripts\demo\generate-fixtures.mjs
+{
+  "fixtureDir": "D:\\hireshade\\artifacts\\craft-vita\\src\\demo\\fixtures",
+  "sampleRate": 16000,
+  "results": [
+    {
+      "id": "demo-screen",
+      "wav": "demo-screen.wav",
+      "skipped": true,
+      "bytes": 147278
+    },
+    {
+      "id": "demo-mic",
+      "wav": "demo-mic.wav",
+      "skipped": true,
+      "bytes": 147278
+    },
+    {
+      "id": "vad-boundary",
+      "wav": "vad-boundary.wav",
+      "skipped": true,
+      "bytes": 128078
+    },
+    {
+      "id": "vad-short-burst",
+      "wav": "vad-short-burst.wav",
+      "skipped": true,
+      "bytes": 70478
+    }
+  ]
+}
+
+[demo] == unit tests - demo/VAD/overlay modules (craft-vita) ==
+[demo] $ C:\Program Files\nodejs\node.exe D:\hireshade\artifacts\craft-vita\node_modules\vitest\vitest.mjs run src/demo --reporter=dot
+
+ RUN  v4.1.9 D:/hireshade/artifacts/craft-vita
+
+····································
+
+ Test Files  7 passed (7)
+      Tests  36 passed (36)
+   Start at  21:24:29
+   Duration  2.19s (transform 2.61s, setup 0ms, import 3.70s, tests 1.31s, environment 2ms)
+
+
+[demo] == unit tests - provider/mock layer (api-server) ==
+[demo] $ C:\Program Files\nodejs\node.exe D:\hireshade\artifacts\api-server\node_modules\vitest\vitest.mjs run --root src/lib/mocks --reporter=dot
+
+ RUN  v4.1.9 D:/hireshade/artifacts/api-server/src/lib/mocks
+
+····························································
+
+ Test Files  11 passed (11)
+      Tests  60 passed (60)
+   Start at  21:24:32
+   Duration  2.67s (transform 2.24s, setup 0ms, import 5.62s, tests 997ms, environment 4ms)
+
+
+[demo] == pipeline + latency budget + evidence ==
+[demo] $ C:\Program Files\nodejs\node.exe D:\hireshade\artifacts\api-server\node_modules\tsx\dist\cli.mjs src\demo\run-demo.ts
+[demo] mode=mock nodeEnv=development models=gpt-5, gemini-3-1-flash-lite, gemini-3-6-flash runs/model=3
+[demo] provider keys present: none
+[demo] mock HTTP surface: health={"ok":true,"demo":true,"nodeEnv":"development"} sseFirstDelta=551.9ms pass=true
+[demo] run-01-gpt-5: 2 answer(s), session 5678 ms, first-token 508/516 ms, answer-visible 1643/1652 ms
+[demo] run-02-gpt-5: 2 answer(s), session 5679 ms, first-token 514/515 ms, answer-visible 1664/1649 ms
+[demo] run-03-gpt-5: 2 answer(s), session 5680 ms, first-token 514/517 ms, answer-visible 1648/1650 ms
+[demo] run-04-gemini-3-1-flash-lite: 2 answer(s), session 5565 ms, first-token 397/398 ms, answer-visible 1530/1531 ms
+[demo] run-05-gemini-3-1-flash-lite: 2 answer(s), session 5563 ms, first-token 400/400 ms, answer-visible 1535/1534 ms
+[demo] run-06-gemini-3-1-flash-lite: 2 answer(s), session 5552 ms, first-token 398/398 ms, answer-visible 1533/1531 ms
+[demo] run-07-gemini-3-6-flash: 2 answer(s), session 5933 ms, first-token 764/766 ms, answer-visible 1897/1900 ms
+[demo] run-08-gemini-3-6-flash: 2 answer(s), session 5932 ms, first-token 765/766 ms, answer-visible 1900/1899 ms
+[demo] run-09-gemini-3-6-flash: 2 answer(s), session 5915 ms, first-token 766/765 ms, answer-visible 1900/1900 ms
+[demo] extensions: gaze frames=3 applied=3 passthrough=0 mean=7.18 ms max=7.49 ms output=1280x720@30
+[demo] latency checks:
+[demo]   PASS partialLatencyMs p95 = 251.4 ms (budget 500 ms)
+[demo]   PASS silenceToQuestionMs p95 = 704.5 ms (budget 800 ms)
+[demo]   PASS questionToFirstTokenMs p95 = 766.2 ms (budget 1200 ms)
+[demo]   PASS answerVisibleMs p50 = 1649.5 ms (budget 3000 ms)
+[demo]   PASS answerVisibleMs p95 = 1899.8 ms (budget 5000 ms)
+[demo] answer-visible p50=1649.5 ms p95=1899.8 ms
+[demo] evidence written to D:\hireshade\docs\evidence\demo
+[demo] total 54.6 s
+
+[demo] == extensions - W1 pronunciation + W2 auto-scroll + W4 gaze tests (craft-vita) ==
+[demo] $ C:\Program Files\nodejs\node.exe D:\hireshade\artifacts\craft-vita\node_modules\vitest\vitest.mjs run src/features/pronunciation src/fixtures/pronunciation src/overlay/autoscroll src/gaze --reporter=dot
+
+ RUN  v4.1.9 D:/hireshade/artifacts/craft-vita
+
+····································································································································
+
+ Test Files  14 passed (14)
+      Tests  132 passed (132)
+   Start at  21:25:31
+   Duration  3.87s (transform 3.73s, setup 0ms, import 5.34s, tests 6.31s, environment 4ms)
+
+
+[demo] == extensions - W2 auto-scroll Electron/CDP proof ==
+[demo] $ C:\Program Files\nodejs\node.exe D:\hireshade\scripts\scroll\overlay-scroll-e2e.mjs
+[scroll-e2e] runtime 29740 B, page 70750 B
+[scroll-e2e] serving http://127.0.0.1:58734/scroll-demo.html
+[scroll-e2e] page ready {"width":1004,"height":644,"dpr":1.0499999523162842,"visibility":"visible","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.251 Electron/37.10.3 Safari/537.36"}
+[scroll-e2e]   PASS stream-200-tokens-sampled (200)
+[scroll-e2e]   PASS stream-pinned-within-2px ("0.00")
+[scroll-e2e]   PASS stream-pinned-final (true)
+[scroll-e2e]   PASS frame-update-work-under-16ms (0.5)
+[scroll-e2e]   PASS frame-updates-counted (148)
+[scroll-e2e]   PASS unlock-pinned-false (false)
+[scroll-e2e]   PASS unlock-pill-visible ({"pillVisible":true,"pillHidden":false})
+[scroll-e2e]   PASS unlock-offset-moved ({"before":573,"after":533})
+[scroll-e2e]   PASS no-snap-back-after-unlock ({"offset":533,"pinned":false})
+[scroll-e2e]   PASS pill-still-visible-after-growth (true)
+[scroll-e2e]   PASS pill-click-relocks (true)
+[scroll-e2e]   PASS pill-click-bottom-within-2px (0)
+[scroll-e2e]   PASS pill-hidden-after-relock (false)
+[scroll-e2e] capture {"ok":true,"frames":223,"durationSeconds":4.45,"fps":30,"bytes":783188}
+[scroll-e2e]   PASS question-version-incremented (2)
+[scroll-e2e]   PASS question-scrolled-into-view (32.3)
+[scroll-e2e]   PASS new-answer-start-visible (85.3)
+[scroll-e2e]   PASS question-follows-new-answer ({"pinned":true,"distance":0})
+[scroll-e2e]   PASS persisted-unlocked-position ({"offset":648,"pinned":false,"updatedAt":13198})
+[scroll-e2e]   PASS reopen-restores-offset ({"saved":648,"restored":648,"clampedExpected":648})
+[scroll-e2e]   PASS reopen-restores-unlocked ({"pinned":false,"pillHidden":false})
+[scroll-e2e]   PASS reduced-motion-detected (true)
+[scroll-e2e]   PASS reduced-motion-instant-relock ({"pinned":true,"distance":0})
+[scroll-e2e]   PASS short-answer-no-overflow ({"hasOverflow":false,"maxOffset":0})
+[scroll-e2e]   PASS short-answer-no-jump (0)
+[scroll-e2e]   PASS short-answer-no-pill (false)
+[scroll-e2e]   PASS keyboard-pageup-unlocks ({"pinned":false,"pillHidden":false})
+[scroll-e2e]   PASS keyboard-end-relocks ({"pinned":true,"distance":0})
+[scroll-e2e]   PASS keyboard-home-unlocks ({"offset":0,"pinned":false})
+[scroll-e2e]   PASS keyboard-space-pages-down (268)
+[scroll-e2e]   PASS keyboard-pagedown-moves ({"before":268,"after":536})
+[scroll-e2e]   PASS keyboard-does-not-steal-focus ({"tag":"BODY","text":"\n    \n    \n    \n      \n      \n      \n        \n          HireShade\n          zero","isBody":true})
+[scroll-e2e] results D:\hireshade\docs\evidence\overlay-scroll\scroll-results.json
+[scroll-e2e] capture D:\hireshade\docs\evidence\overlay-scroll\overlay-scroll-capture.mp4 (223 frames, 783188 B)
+
+[demo] == extensions - W3 Razorpay unit suite (no DB, mock adapter) ==
+[demo] $ C:\Program Files\nodejs\node.exe D:\hireshade\artifacts\api-server\node_modules\vitest\vitest.mjs run tests/razorpay.unit.test.ts --reporter=dot
+
+ RUN  v4.1.9 D:/hireshade/artifacts/api-server
+
+·············································
+
+ Test Files  1 passed (1)
+      Tests  45 passed (45)
+   Start at  21:26:24
+   Duration  491ms (transform 144ms, setup 43ms, import 147ms, tests 60ms, environment 0ms)
+
+
+[demo] == overlay e2e (Electron + CDP DOM) ==
+[demo] $ C:\Program Files\nodejs\node.exe D:\hireshade\scripts\demo\overlay-e2e.mjs
+[overlay-e2e] replay frames=85 generated=D:\hireshade\docs\evidence\demo\overlay.generated.html
+[overlay-e2e] page target file:///D:/hireshade/docs/evidence/demo/overlay.generated.html
+[overlay-e2e] answer chars=784 visibleMs=1652.4
+[overlay-e2e]   PASS overlay-done (true)
+[overlay-e2e]   PASS status-complete (Complete)
+[overlay-e2e]   PASS question-rendered (And how would you handle the case where Redis is unavailable?)
+[overlay-e2e]   PASS answer-length (784 chars)
+[overlay-e2e]   PASS answer-mentions-rate-limiter (regex /rate limiter/i)
+[overlay-e2e]   PASS answer-mentions-redis (regex /redis/i)
+[overlay-e2e]   PASS answer-visible-within-budget (1652.4 ms (budget 5000 ms))
+[overlay-e2e]   PASS frames-applied (85/85)
+[overlay-e2e]   PASS window-visible (visible)
+[overlay-e2e] screenshot D:\hireshade\docs\evidence\demo\overlay-answer.png
+[overlay-e2e] DOM assertions D:\hireshade\docs\evidence\demo\overlay-dom.json
+
+[demo] == overlay-size acceptance (5 presets x DPI 100/125/150/200 + readability/speakability) ==
+[demo] $ C:\Program Files\nodejs\node.exe D:\hireshade\scripts\overlay-size\run-size-acceptance.mjs
+[size] presets source=o1 (5) formatter=o1
+[size] serving http://127.0.0.1:51698 userData=C:\Users\user\AppData\Local\Temp\hireshade-size-23872
+[size] overlay ready
+[size]   PASS matrix-font-floor-all ("20 cells")
+[size]   PASS matrix-contrast-7to1-all ({"min":8.144664956166839})
+[size]   PASS matrix-line-height-all ({"min":1.5})
+[size]   PASS matrix-line-length-75ch-all ({"max":74.89855072463769})
+[size]   PASS matrix-no-overflow-400w-all ("0 failing cells")
+[size]   PASS speakability-20-answers ({"answers":20,"failing":0})
+[size]   PASS speakability-hook-12w ({"max":12})
+[size]   PASS speakability-first-screenful-40w ({"max":26})
+[size]   PASS speakability-no-markdown-tokens ("20 answers")
+[size]   PASS speakability-bullets-rendered ({"min":2,"max":2})
+[size]   PASS relayout-median-under-16ms ({"medianApplyMs":3.599999964237213,"samples":[0.800000011920929,3.599999964237213,4]})
+[size]   PASS relayout-next-frame-applied ({"preset":"reading","fontSize":20,"expectedFont":20,"frameMs":13.599999964237213})
+[size]   PASS persistence-stored-reading ("reading")
+[size]   PASS persistence-restored-after-restart ({"preset":"reading","font":20,"expectedFont":20})
+[size]   UNTESTED click-through-reaches-background-app ({"reason":"OS did not deliver the synthetic click (no interactive desktop / injection blocked)","physicalPoint":{"x":651,"y":399},"pointDip":{"x":620,"y":380},"scaleFactor":1.0499999523162842,"overlayClicks":0,"backgroundClicks":0,"backgroundLastClick":null,"injection":{"ok":true,"status":0,"stderr":"","foregroundBefore":"HireShade overlay size acceptance","foregroundAfter":"# MISSION You are a — DeepSeek Harness"},"foregroundBefore":"HireShade overlay size acceptance","foregroundAfter":"# MISSION You are a — DeepSeek Harness","status":"UNTESTED"})
+[size] results D:\hireshade\docs\evidence\overlay-size\o3\o3-size-results.json
+[size] matrix cells=20 failing=0 minContrast=8.14 minFontDevicePx=16.000000322432697 maxLineCh=74.9
+[size] speakability answers=20 maxHook=12 maxFirstScreenful=26
+[size] clickThrough=UNTESTED persistence=restored
+
+[demo] ALL GREEN - keyless demo + latency budget + extensions (W1-W4) + overlay DOM proof passed.
+[demo] evidence: docs/evidence/demo/*, docs/evidence/overlay-scroll/*, docs/evidence/overlay-size/*, docs/evidence/gaze/*, docs/evidence/pronunciation/*, docs/evidence/razorpay/*

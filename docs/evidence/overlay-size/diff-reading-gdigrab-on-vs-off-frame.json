@@ -1,0 +1,13 @@
+﻿{
+    "captured_at":  "2026-10-20T21:18:30.5484166+05:30",
+    "label":  "reading gdigrab ON vs OFF",
+    "a":  "docs/evidence/overlay-size/gdigrab-reading-stealth-on-frame.png",
+    "b":  "docs/evidence/overlay-size/gdigrab-reading-stealth-off-frame.png",
+    "threshold":  16,
+    "width":  1366,
+    "height":  768,
+    "mean_abs_diff":  5.278,
+    "fraction_diff_gt_threshold":  0.06405,
+    "mean_diff_where_changed":  74.13,
+    "diff_path":  "docs/evidence/overlay-size/diff-reading-gdigrab-on-vs-off-frame.png"
+}

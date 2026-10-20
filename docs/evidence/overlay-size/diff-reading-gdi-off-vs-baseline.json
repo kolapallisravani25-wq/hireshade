@@ -1,0 +1,13 @@
+﻿{
+    "captured_at":  "2026-10-20T21:15:22.6162657+05:30",
+    "label":  "reading-gdi-off-vs-baseline",
+    "a":  "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-reading-hidden-baseline-crop.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-reading-stealth-off-crop.png",
+    "threshold":  16,
+    "width":  1258,
+    "height":  636,
+    "mean_abs_diff":  6.616,
+    "fraction_diff_gt_threshold":  0.0732,
+    "mean_diff_where_changed":  85.97,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\overlay-size\\diff-reading-gdi-off-vs-baseline.png"
+}
