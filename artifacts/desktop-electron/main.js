@@ -30,6 +30,9 @@ const fs = require("fs");
 
 const hotkeys = require("./lib/hotkeys.js");
 const geometry = require("./lib/overlayGeometry.js");
+// O2 capture protection/compatibility logic. Single source of truth shared with
+// the vitest suite and the preload self-check UI (plain CJS, no build step).
+const captureLogic = require("../craft-vita/src/overlay/capture/captureLogic.cjs");
 
 const DESKTOP_IPC = hotkeys.DESKTOP_IPC;
 const HOTKEY_EVENT_CHANNEL = hotkeys.HOTKEY_EVENT_CHANNEL;
@@ -57,6 +60,22 @@ const setClickThrough = geometry.setClickThrough;
 const setPositionPreset = geometry.setPositionPreset;
 const setPrivateMode = geometry.setPrivateMode;
 
+const CAPTURE_CHANNELS = captureLogic.CAPTURE_CHANNELS;
+const CAPTURE_PROFILES = captureLogic.CAPTURE_PROFILES;
+const computeCaptureLayout = captureLogic.computeCaptureLayout;
+const computeCompatPlan = captureLogic.computeCompatPlan;
+const suggestCompatibilityMode = captureLogic.suggestCompatibilityMode;
+const parseCaptureState = captureLogic.parseCaptureState;
+const setCaptureCompatMode = captureLogic.setCompatMode;
+const setCaptureProfileState = captureLogic.setCaptureProfile;
+const recordCaptureSelfCheck = captureLogic.recordSelfCheck;
+const setKnownBadCapturePathState = captureLogic.setKnownBadCapturePath;
+const serializeCaptureState = captureLogic.serializeCaptureState;
+const isCaptureProfile = captureLogic.isCaptureProfile;
+const normalizeCaptureProfile = captureLogic.normalizeCaptureProfile;
+const describeReassert = captureLogic.describeReassert;
+const shouldReassertCapture = captureLogic.shouldReassert;
+
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
 // UI artifacts produced by artifacts/craft-vita (vite build with
@@ -75,8 +94,13 @@ const HIRESHADE_USER_DATA = process.env.HIRESHADE_USER_DATA;
 const NUDGE_STEP_PX = 24;
 const LIVE_WINDOW_ID = "floating";
 const SETTINGS_FILE = "overlay-settings.json";
+const CAPTURE_STATE_FILE = "capture-state.json";
 const BOUNDS_SAVE_DEBOUNCE_MS = 250;
 const ALWAYS_ON_TOP_INTERVAL_MS = 1000;
+// Optional diagnostic hint supplied by an evidence run, e.g.
+// HIRESHADE_CAPTURE_HINT="ffmpeg ddagrab (DXGI Desktop Duplication)". This is a
+// hint, not detection: the app never claims it can identify the capture API.
+const CAPTURE_HINT_ENV = process.env.HIRESHADE_CAPTURE_HINT || null;
 
 if (HIRESHADE_USER_DATA) {
   // Isolated profile for automated A/B tests (never used by the app itself).
@@ -122,6 +146,12 @@ if (IS_WINDOWS) {
   // overlay can still be flagged occluded by the OS; disabling the feature
   // keeps the webview painting during screen shares.
   app.commandLine.appendSwitch("disable-features", "CalculateNativeWinOcclusion");
+}
+
+if (process.env.HIRESHADE_FORCE_SCALE) {
+  // Evidence only: simulate a DPI/work-area change without a second monitor by
+  // forcing Chromium's device scale factor. The app itself never sets this.
+  app.commandLine.appendSwitch("force-device-scale-factor", String(process.env.HIRESHADE_FORCE_SCALE));
 }
 
 if (process.env.HIRESHADE_DEBUG_CDP) {
@@ -218,6 +248,13 @@ const boundsSaveTimers = new Map();
 let settings = geometry.DEFAULT_OVERLAY_SETTINGS;
 let settingsPath = "";
 let settingsSaveTimer = null;
+// ── O2 capture state ────────────────────────────────────────────────────────
+let captureState = captureLogic.DEFAULT_CAPTURE_STATE;
+let captureStatePath = "";
+let captureStateSaveTimer = null;
+let captureReassertCount = 0;
+const captureReassertLog = [];
+let lastCaptureSuggestion = null;
 let alwaysOnTopTimer = null;
 let resolvedHotkeys = [];
 let hotkeyIssues = [];
@@ -268,6 +305,54 @@ function scheduleSettingsSave() {
   }, BOUNDS_SAVE_DEBOUNCE_MS);
 }
 
+// ─── O2 capture state persistence ───────────────────────────────────────────
+
+function loadCaptureState() {
+  captureStatePath = path.join(app.getPath("userData"), CAPTURE_STATE_FILE);
+  let text = null;
+  try {
+    text = fs.readFileSync(captureStatePath, "utf8");
+  } catch {
+    text = null;
+  }
+  try {
+    captureState = parseCaptureState(text ? JSON.parse(text) : null);
+  } catch (error) {
+    console.warn("[capture] ignoring unreadable capture-state.json: " + error);
+    captureState = parseCaptureState(null);
+  }
+  if (CAPTURE_HINT_ENV) {
+    captureState = setKnownBadCapturePathState(captureState, CAPTURE_HINT_ENV);
+  }
+  console.log(
+    "[capture] loaded " + captureStatePath + " (compat=" + captureState.compatMode + ", profile=" + captureState.lastProfile + ", reportedVisible=" + captureState.reportedVisible + ")",
+  );
+}
+
+function saveCaptureStateNow() {
+  if (!captureStatePath) return;
+  if (captureStateSaveTimer) {
+    clearTimeout(captureStateSaveTimer);
+    captureStateSaveTimer = null;
+  }
+  try {
+    fs.mkdirSync(path.dirname(captureStatePath), { recursive: true });
+    const tmpPath = captureStatePath + ".tmp";
+    fs.writeFileSync(tmpPath, serializeCaptureState(captureState), "utf8");
+    fs.renameSync(tmpPath, captureStatePath);
+  } catch (error) {
+    console.error("[capture] save failed: " + (error && error.message ? error.message : error));
+  }
+}
+
+function scheduleCaptureStateSave() {
+  if (captureStateSaveTimer) clearTimeout(captureStateSaveTimer);
+  captureStateSaveTimer = setTimeout(function () {
+    captureStateSaveTimer = null;
+    saveCaptureStateNow();
+  }, BOUNDS_SAVE_DEBOUNCE_MS);
+}
+
 // ─── Stealth (T-04) ─────────────────────────────────────────────────────────
 
 function applyStealth(win) {
@@ -278,8 +363,103 @@ function applyStealth(win) {
   win.setContentProtection(settings.isPrivate);
 }
 
-function reassertStealth(win) {
-  applyStealth(win);
+function overlayAreaRatio(win) {
+  if (!win || win.isDestroyed()) return 0;
+  try {
+    const bounds = win.getBounds();
+    const display = screen.getDisplayMatching(bounds);
+    const area = Math.max(1, display.workArea.width * display.workArea.height);
+    return Math.min(1, Math.max(0, (bounds.width * bounds.height) / area));
+  } catch {
+    return 0;
+  }
+}
+
+function captureStateSnapshot() {
+  const win = getWindow(LIVE_WINDOW_ID);
+  return {
+    ...captureState,
+    transparent: !captureState.compatMode,
+    opaqueSurfaceOnRestart: captureState.compatMode,
+    runtimeSurfaceNote:
+      "Electron's transparent flag is creation-only. Runtime compatibility mode applies an opaque renderer scrim + solid background colour; a true transparent:false surface is created on the next launch.",
+    overlayAreaRatio: Number(overlayAreaRatio(win).toFixed(4)),
+    stealthEnabled: STEALTH_ENABLED,
+    reassertCount: captureReassertCount,
+    lastReassert: captureReassertLog.length > 0 ? captureReassertLog[captureReassertLog.length - 1] : null,
+    reassertLog: captureReassertLog.slice(-25),
+    lastSuggestion: lastCaptureSuggestion || captureState.lastSuggestion,
+    profiles: CAPTURE_PROFILES,
+    affinity: {
+      value: null,
+      note: "OS affinity is verified externally by scripts/capture-matrix/affinity.ps1 (GetWindowDisplayAffinity == 0x11).",
+    },
+    windows: windowStateSnapshot(),
+  };
+}
+
+function broadcastCaptureState() {
+  const payload = captureStateSnapshot();
+  for (const win of windows.values()) {
+    if (!win || win.isDestroyed()) continue;
+    try {
+      win.webContents.send(CAPTURE_CHANNELS.stateChanged, payload);
+    } catch (error) {
+      console.warn("[capture] state broadcast failed: " + error);
+    }
+  }
+  return payload;
+}
+
+function sendCaptureSuggestion(suggestion) {
+  lastCaptureSuggestion = suggestion;
+  for (const win of windows.values()) {
+    if (!win || win.isDestroyed()) continue;
+    try {
+      win.webContents.send(CAPTURE_CHANNELS.suggestion, suggestion);
+    } catch {
+      // Suggestion delivery is best-effort.
+    }
+  }
+}
+
+/**
+ * Re-assert capture exclusion after every transition that can silently drop the
+ * display affinity: resize, move, preset/profile change, display metrics
+ * change, re-show/restore/focus, window recreation, private/compat toggles.
+ *
+ * Electron exposes no getter for the content-protection flag, so this logs the
+ * request with a reason/counter; the actual OS value (WDA_EXCLUDEFROMCAPTURE ==
+ * 0x11) is asserted by scripts/capture-matrix/affinity.ps1 after each step.
+ */
+function reassertCaptureProtection(reason, win) {
+  if (!shouldReassertCapture(reason)) {
+    console.warn("[capture] unknown re-assert reason ignored: " + reason);
+    return null;
+  }
+  const targets = win ? [win] : Array.from(windows.values());
+  let applied = 0;
+  for (const target of targets) {
+    if (!target || target.isDestroyed()) continue;
+    applyStealth(target);
+    applied += 1;
+  }
+  captureReassertCount += 1;
+  const entry = {
+    at: Date.now(),
+    reason: reason,
+    description: describeReassert(reason),
+    count: captureReassertCount,
+    appliedWindows: applied,
+    windows: Array.from(windows.keys()),
+  };
+  captureReassertLog.push(entry);
+  if (captureReassertLog.length > 60) captureReassertLog.shift();
+  console.log(
+    "[capture] reassert #" + captureReassertCount + " reason=" + reason + " (" + entry.description + ") applied=" + applied,
+  );
+  broadcastCaptureState();
+  return entry;
 }
 
 // ─── Platform window behavior (T-03) ────────────────────────────────────────
@@ -382,7 +562,7 @@ function persistWindowBounds(win, windowId) {
 }
 
 function attachBoundsPersistence(win, windowId) {
-  const onChange = function () {
+  const scheduleWrite = function () {
     const existing = boundsSaveTimers.get(windowId);
     if (existing) clearTimeout(existing);
     boundsSaveTimers.set(
@@ -393,8 +573,16 @@ function attachBoundsPersistence(win, windowId) {
       }, BOUNDS_SAVE_DEBOUNCE_MS),
     );
   };
-  win.on("moved", onChange);
-  win.on("resized", onChange);
+  // O2: every user move/resize re-asserts capture exclusion immediately (not
+  // debounced like persistence), then persists bounds.
+  win.on("moved", function () {
+    scheduleWrite();
+    reassertCaptureProtection("move", win);
+  });
+  win.on("resized", function () {
+    scheduleWrite();
+    reassertCaptureProtection("resize", win);
+  });
 }
 
 // ─── Public state snapshots ─────────────────────────────────────────────────
@@ -455,6 +643,7 @@ function stateSnapshot() {
   return {
     windows: windowStateSnapshot(),
     settings: publicSettings(),
+    capture: captureStateSnapshot(),
     activeModel: activeModel,
     stealthEnabled: STEALTH_ENABLED,
     platform: PLATFORM,
@@ -634,6 +823,93 @@ function requireKnownSender(event) {
   return windowId;
 }
 
+// ─── O2 capture actions ────────────────────────────────────────────────────
+
+function maybeSuggestCaptureMode(reportedVisible) {
+  const win = getWindow(LIVE_WINDOW_ID);
+  const suggestion = suggestCompatibilityMode({
+    reportedVisible: Boolean(reportedVisible),
+    overlayAreaRatio: overlayAreaRatio(win),
+    transparent: !captureState.compatMode,
+    knownBadCapturePath: captureState.knownBadCapturePath,
+  });
+  if (suggestion.suggest) {
+    lastCaptureSuggestion = suggestion;
+    captureState = Object.assign({}, captureState, { lastSuggestion: suggestion });
+    scheduleCaptureStateSave();
+    sendCaptureSuggestion(suggestion);
+  }
+  return suggestion;
+}
+
+function applyCaptureCompatMode(enabled) {
+  const plan = computeCompatPlan(Boolean(enabled));
+  const changed = captureState.compatMode !== plan.enabled;
+  captureState = setCaptureCompatMode(captureState, plan.enabled);
+  saveCaptureStateNow();
+  const win = getWindow(LIVE_WINDOW_ID);
+  if (win) {
+    // Runtime compatibility mode is scrim + opaque renderer surface: the
+    // BrowserWindow transparent flag is creation-only in Electron. A true
+    // transparent:false surface is used on the NEXT launch (createWindow reads
+    // captureState.compatMode). Recreating the live window was attempted
+    // during evidence collection and crashed the surface on this host, so it is
+    // opt-in only for diagnostics.
+    try {
+      win.setBackgroundColor(plan.backgroundColor);
+    } catch (error) {
+      console.warn("[capture] setBackgroundColor failed: " + error);
+    }
+    if (changed && process.env.HIRESHADE_COMPAT_RECREATE === "1") {
+      recreateFloatingSurface("compat-mode-changed");
+    }
+  }
+  reassertCaptureProtection("compat-mode-changed");
+  if (!plan.enabled) maybeSuggestCaptureMode(captureState.reportedVisible);
+  broadcastCaptureState();
+  console.log(
+    "[capture] compatibility mode=" + plan.enabled + " transparent=" + plan.transparent + " background=" + plan.backgroundColor + " surfaceRecreated=" + changed,
+  );
+  return captureStateSnapshot();
+}
+
+function applyCaptureProfile(profile) {
+  const safe = normalizeCaptureProfile(profile);
+  if (!isCaptureProfile(profile)) {
+    console.warn("[capture] unknown profile " + JSON.stringify(profile) + "; using " + safe);
+  }
+  const win = getWindow(LIVE_WINDOW_ID);
+  if (!win) throw new Error("floating overlay is not open");
+  const display = screen.getDisplayMatching(win.getBounds());
+  const next = computeCaptureLayout(safe, display.workArea);
+  win.setBounds(next);
+  captureState = setCaptureProfileState(captureState, safe, next);
+  saveCaptureStateNow();
+  reassertCaptureProtection("profile-change", win);
+  const suggestion = maybeSuggestCaptureMode(false);
+  broadcastCaptureState();
+  console.log(
+    "[capture] profile=" + safe + " bounds=" + JSON.stringify(next) + " workArea=" + JSON.stringify(display.workArea) + " suggestion=" + (suggestion.suggest ? suggestion.confidence : "none"),
+  );
+  return captureStateSnapshot();
+}
+
+function reportCaptureVisible(visible) {
+  const win = getWindow(LIVE_WINDOW_ID);
+  captureState = recordCaptureSelfCheck(captureState, {
+    reportedVisible: Boolean(visible),
+    at: Date.now(),
+    overlayAreaRatio: overlayAreaRatio(win),
+    transparent: !captureState.compatMode,
+    knownBadCapturePath: captureState.knownBadCapturePath,
+  });
+  saveCaptureStateNow();
+  if (captureState.lastSuggestion) sendCaptureSuggestion(captureState.lastSuggestion);
+  broadcastCaptureState();
+  console.log("[capture] self-check reported visible=" + Boolean(visible) + " suggestion=" + (captureState.lastSuggestion ? captureState.lastSuggestion.confidence : "none"));
+  return captureStateSnapshot();
+}
+
 function registerIpc() {
   ipcMain.handle(DESKTOP_IPC.getSettings, function (event) {
     requireKnownSender(event);
@@ -685,10 +961,8 @@ function registerIpc() {
   ipcMain.handle(DESKTOP_IPC.setPrivateMode, function (event, enabled) {
     requireKnownSender(event);
     settings = setPrivateMode(settings, Boolean(enabled));
-    for (const win of windows.values()) {
-      applyStealth(win);
-    }
     saveSettingsNow();
+    reassertCaptureProtection("private-mode-changed");
     console.log("[overlay] private mode=" + settings.isPrivate);
     return publicSettings();
   });
@@ -708,10 +982,66 @@ function registerIpc() {
     settings = recordPresetBounds(settings, windowId, next);
     if (windowId === LIVE_WINDOW_ID) settings = setPositionPreset(settings, preset);
     saveSettingsNow();
+    reassertCaptureProtection("preset-change", win);
+    maybeSuggestCaptureMode(false);
     console.log(
       "[overlay] preset=" + preset + " window=" + windowId + " bounds=" + JSON.stringify(next) + " workArea=" + JSON.stringify(display.workArea),
     );
     return publicSettings();
+  });
+
+  // ── O2 capture protection / compatibility / self-check IPC ───────────────
+
+  ipcMain.handle(CAPTURE_CHANNELS.getState, function (event) {
+    requireKnownSender(event);
+    return captureStateSnapshot();
+  });
+
+  ipcMain.handle(CAPTURE_CHANNELS.setCompatMode, function (event, enabled) {
+    requireKnownSender(event);
+    return applyCaptureCompatMode(Boolean(enabled));
+  });
+
+  ipcMain.handle(CAPTURE_CHANNELS.applyProfile, function (event, profile) {
+    requireKnownSender(event);
+    return applyCaptureProfile(profile);
+  });
+
+  ipcMain.handle(CAPTURE_CHANNELS.reportVisible, function (event, visible) {
+    requireKnownSender(event);
+    return reportCaptureVisible(Boolean(visible));
+  });
+
+  ipcMain.handle(CAPTURE_CHANNELS.markSelfCheck, function (event) {
+    requireKnownSender(event);
+    captureState = Object.assign({}, captureState, { lastSelfCheckAt: Date.now() });
+    saveCaptureStateNow();
+    broadcastCaptureState();
+    return captureStateSnapshot();
+  });
+
+  ipcMain.handle(CAPTURE_CHANNELS.assertNow, function (event) {
+    requireKnownSender(event);
+    const entry = reassertCaptureProtection("manual-assert");
+    return Object.assign({}, captureStateSnapshot(), { assertEntry: entry });
+  });
+
+  ipcMain.handle(CAPTURE_CHANNELS.simulateDisplayChange, function (event) {
+    requireKnownSender(event);
+    if (!DEBUG_IPC) throw new Error("simulated display change is debug-only");
+    const entry = reassertCaptureProtection("display-metrics-changed");
+    console.log("[capture] simulated display change -> reassert #" + (entry ? entry.count : 0));
+    return Object.assign({}, captureStateSnapshot(), { simulated: true, assertEntry: entry });
+  });
+
+  ipcMain.handle(CAPTURE_CHANNELS.setHint, function (event, hint) {
+    requireKnownSender(event);
+    if (!DEBUG_IPC) throw new Error("capture hints are debug-only");
+    captureState = setKnownBadCapturePathState(captureState, hint);
+    saveCaptureStateNow();
+    maybeSuggestCaptureMode(captureState.reportedVisible);
+    broadcastCaptureState();
+    return captureStateSnapshot();
   });
 
   ipcMain.handle(DESKTOP_IPC.debugInvokeAction, function (event, action) {
@@ -741,33 +1071,50 @@ function registerIpc() {
 
 // ─── Window creation ────────────────────────────────────────────────────────
 
-function createWindow(spec) {
-  const win = new BrowserWindow({
-    ...spec.opts,
-    webPreferences: {
-      ...spec.opts.webPreferences,
-    },
-  });
+function createWindow(spec, runtime) {
+  const run = runtime || {};
+  const compatPlan = spec.id === LIVE_WINDOW_ID ? computeCompatPlan(captureState.compatMode) : null;
+  const windowOptions = Object.assign({}, spec.opts, run.windowOptions || {});
+  if (compatPlan && spec.id === LIVE_WINDOW_ID) {
+    // Compatibility mode creates a genuinely opaque surface (transparent:false)
+    // with a solid scrim colour; see recreateFloatingSurface for the runtime toggle.
+    windowOptions.transparent = compatPlan.transparent;
+    windowOptions.backgroundColor = compatPlan.backgroundColor;
+  }
+  windowOptions.webPreferences = Object.assign(
+    {},
+    spec.opts.webPreferences,
+    run.windowOptions && run.windowOptions.webPreferences ? run.windowOptions.webPreferences : {},
+  );
+  const win = new BrowserWindow(windowOptions);
   applyPlatformWindowBehavior(win, spec);
   applyWindowState(win, spec.id);
+  if (run.bounds) {
+    try {
+      win.setBounds(run.bounds);
+    } catch (error) {
+      console.warn("[capture] failed to restore bounds after recreate: " + error);
+    }
+  }
 
   // T-04: re-apply the persisted private mode on every transition that can
   // silently drop the exclusion (re-show, restore, focus).
   win.on("show", function () {
-    reassertStealth(win);
+    reassertCaptureProtection("show", win);
     if (spec.id === LIVE_WINDOW_ID) registerLiveCallHotkeys();
   });
   win.on("hide", function () {
     if (spec.id === LIVE_WINDOW_ID) unregisterLiveCallHotkeys();
   });
   win.on("restore", function () {
-    reassertStealth(win);
+    reassertCaptureProtection("restore", win);
   });
   win.on("focus", function () {
-    reassertStealth(win);
+    reassertCaptureProtection("focus", win);
   });
 
   win.once("ready-to-show", function () {
+    if (run.showOnReady === false) return;
     win.show();
   });
   win.on("closed", function () {
@@ -784,6 +1131,7 @@ function createWindow(spec) {
 
   windows.set(spec.id, win);
   windowIdByWebContents.set(win.webContents.id, spec.id);
+  reassertCaptureProtection("window-recreated", win);
   return win;
 }
 
@@ -791,6 +1139,53 @@ function createAll() {
   for (const spec of WINDOW_SPECS) {
     createWindow(spec);
   }
+}
+
+/**
+ * Runtime compatibility-mode toggle. Electron's transparent flag is creation
+ * only, so a true opaque surface needs the floating window to be recreated with
+ * transparent:false + a solid background colour. Bounds/visibility/focus are
+ * preserved and capture exclusion is re-asserted on the new HWND.
+ */
+function recreateFloatingSurface(reason) {
+  const old = windows.get(LIVE_WINDOW_ID);
+  if (!old || old.isDestroyed()) return null;
+  const bounds = old.getBounds();
+  const wasVisible = old.isVisible();
+  const wasFocused = old.isFocused();
+  const plan = computeCompatPlan(captureState.compatMode);
+  const baseSpec = WINDOW_SPECS.find(function (spec) {
+    return spec.id === LIVE_WINDOW_ID;
+  });
+  if (!baseSpec) return null;
+  windows.delete(LIVE_WINDOW_ID);
+  try {
+    windowIdByWebContents.delete(old.webContents.id);
+  } catch {
+    // WebContents may already be gone.
+  }
+  try {
+    old.destroy();
+  } catch (error) {
+    console.warn("[capture] failed to destroy old floating surface: " + error);
+  }
+  const spec = Object.assign({}, baseSpec, {
+    opts: Object.assign({}, baseSpec.opts, {
+      transparent: plan.transparent,
+      backgroundColor: plan.backgroundColor,
+    }),
+  });
+  const win = createWindow(spec, { bounds: bounds, showOnReady: wasVisible });
+  if (wasVisible) {
+    win.once("ready-to-show", function () {
+      if (wasFocused) win.focus();
+    });
+  }
+  console.log(
+    "[capture] floating surface recreated (" + reason + "): compat=" + captureState.compatMode + " transparent=" + plan.transparent + " bounds=" + JSON.stringify(bounds),
+  );
+  reassertCaptureProtection("window-recreated", win);
+  return win;
 }
 
 // The floating screen uses getUserMedia (Deepgram transcription) at runtime.
@@ -838,12 +1233,27 @@ if (!gotLock) {
 
   app.whenReady().then(function () {
     loadSettings();
+    loadCaptureState();
     allowMediaPermissions();
     registerIpc();
     installMacDockBehavior();
     createAll();
     registerAppHotkeys();
     startAlwaysOnTopWatchdog();
+
+    // O2: display changes can drop the affinity (DPI/scale/work-area or
+    // monitor add/remove). Re-assert on every real event. A real unplug/plug is
+    // UNTESTED here (single display); the evidence run simulates the same code
+    // path via the debug IPC.
+    screen.on("display-metrics-changed", function () {
+      reassertCaptureProtection("display-metrics-changed");
+    });
+    screen.on("display-added", function () {
+      reassertCaptureProtection("display-added");
+    });
+    screen.on("display-removed", function () {
+      reassertCaptureProtection("display-removed");
+    });
 
     app.on("activate", function () {
       if (windows.size === 0) createAll();
@@ -860,5 +1270,6 @@ if (!gotLock) {
     globalShortcut.unregisterAll();
     registeredAccelerators.clear();
     saveSettingsNow();
+    saveCaptureStateNow();
   });
 }

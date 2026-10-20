@@ -1,0 +1,111 @@
+{
+  "method": "second app instance with --force-device-scale-factor=1.5 (HIRESHADE_FORCE_SCALE); BANNER profile applied; affinity asserted",
+  "simulated": true,
+  "display": {
+    "width": 607,
+    "height": 341,
+    "dpr": 1.5
+  },
+  "bounds": {
+    "x": 0,
+    "y": 16,
+    "width": 912,
+    "height": 240
+  },
+  "affinity": {
+    "captured_at": "2026-10-20T21:19:44.6538334+05:30",
+    "expect": "0x11",
+    "note": "force-device-scale-factor=1.5 simulated DPI",
+    "electron_pids": [
+      6992
+    ],
+    "windows": [
+      {
+        "title": "Launcher",
+        "hwnd": "0x25079A",
+        "pid": 6992,
+        "visible": true,
+        "affinity": "0x11",
+        "bounds": {
+          "y": 0,
+          "width": 722,
+          "height": 720,
+          "x": 322
+        }
+      },
+      {
+        "title": "Floating Mini-Screen",
+        "hwnd": "0x170752",
+        "pid": 6992,
+        "visible": true,
+        "affinity": "0x11",
+        "bounds": {
+          "y": 24,
+          "width": 1367,
+          "height": 360,
+          "x": 0
+        }
+      },
+      {
+        "title": "MSCTFIME UI",
+        "hwnd": "0xE07FA",
+        "pid": 6992,
+        "visible": false,
+        "affinity": "0x0",
+        "bounds": {
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "x": 0
+        }
+      },
+      {
+        "title": "Default IME",
+        "hwnd": "0xF07F0",
+        "pid": 6992,
+        "visible": false,
+        "affinity": "0x0",
+        "bounds": {
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "x": 0
+        }
+      }
+    ],
+    "matching": [
+      {
+        "title": "Launcher",
+        "hwnd": "0x25079A",
+        "pid": 6992,
+        "visible": true,
+        "affinity": "0x11",
+        "bounds": {
+          "y": 0,
+          "width": 722,
+          "height": 720,
+          "x": 322
+        },
+        "expected": "0x11",
+        "pass": true
+      },
+      {
+        "title": "Floating Mini-Screen",
+        "hwnd": "0x170752",
+        "pid": 6992,
+        "visible": true,
+        "affinity": "0x11",
+        "bounds": {
+          "y": 24,
+          "width": 1367,
+          "height": 360,
+          "x": 0
+        },
+        "expected": "0x11",
+        "pass": true
+      }
+    ],
+    "pass": true
+  },
+  "note": "Simulated DPI/scale transition, not a real monitor hot-plug. A real display unplug/plug remains UNTESTED (single-display host)."
+}

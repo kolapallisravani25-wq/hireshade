@@ -1,0 +1,453 @@
+{
+  "generated_at": "2026-10-20T15:49:05.545Z",
+  "compatibility": {
+    "before": {
+      "compatMode": false,
+      "transparent": true,
+      "bounds": {
+        "x": 51,
+        "y": 40,
+        "width": 1198,
+        "height": 606
+      }
+    },
+    "on": {
+      "compatMode": true,
+      "transparent": false,
+      "runtimeSurfaceNote": "Electron's transparent flag is creation-only. Runtime compatibility mode applies an opaque renderer scrim + solid background colour; a true transparent:false surface is created on the next launch.",
+      "bounds": {
+        "x": 51,
+        "y": 40,
+        "width": 1198,
+        "height": 606
+      }
+    },
+    "off": {
+      "compatMode": false,
+      "transparent": true
+    },
+    "affinity_on": {
+      "captured_at": "2026-10-20T21:19:12.8104149+05:30",
+      "expect": "0x11",
+      "note": "compatibility mode ON at READING",
+      "electron_pids": [
+        2776
+      ],
+      "windows": [
+        {
+          "title": "Launcher",
+          "hwnd": "0xF0776",
+          "pid": 2776,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 3,
+            "width": 506,
+            "height": 716,
+            "x": 430
+          }
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1807B0",
+          "pid": 2776,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          }
+        },
+        {
+          "title": "MSCTFIME UI",
+          "hwnd": "0x110828",
+          "pid": 2776,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        },
+        {
+          "title": "Default IME",
+          "hwnd": "0x1307CC",
+          "pid": 2776,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        }
+      ],
+      "matching": [
+        {
+          "title": "Launcher",
+          "hwnd": "0xF0776",
+          "pid": 2776,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 3,
+            "width": 506,
+            "height": 716,
+            "x": 430
+          },
+          "expected": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1807B0",
+          "pid": 2776,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "expected": "0x11",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    "affinity_off": {
+      "captured_at": "2026-10-20T21:19:16.8132803+05:30",
+      "expect": "0x11",
+      "note": "compatibility mode OFF at READING",
+      "electron_pids": [
+        2776
+      ],
+      "windows": [
+        {
+          "title": "Launcher",
+          "hwnd": "0xF0776",
+          "pid": 2776,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 3,
+            "width": 506,
+            "height": 716,
+            "x": 430
+          }
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1807B0",
+          "pid": 2776,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          }
+        },
+        {
+          "title": "MSCTFIME UI",
+          "hwnd": "0x110828",
+          "pid": 2776,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        },
+        {
+          "title": "Default IME",
+          "hwnd": "0x1307CC",
+          "pid": 2776,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        }
+      ],
+      "matching": [
+        {
+          "title": "Launcher",
+          "hwnd": "0xF0776",
+          "pid": 2776,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 3,
+            "width": 506,
+            "height": 716,
+            "x": 430
+          },
+          "expected": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1807B0",
+          "pid": 2776,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "expected": "0x11",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    "gdi_on": {
+      "captured_at": "2026-10-20T21:19:11.8118210+05:30",
+      "label": "compat-mode-on-reading",
+      "note": "compatibility mode ON at READING (opaque scrim, runtime)",
+      "method": "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+      "bounds": {
+        "y": 43,
+        "width": 1257,
+        "height": 635,
+        "x": 54
+      },
+      "full_path": "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-compat-mode-on-reading-full.png",
+      "crop_path": "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-compat-mode-on-reading-crop.png",
+      "stats": {
+        "mean_luma": 37.42,
+        "std_luma": 35.12,
+        "unique_colors_sampled": 1606,
+        "high_contrast_fraction": 0.631,
+        "non_black_fraction": 0
+      }
+    },
+    "desktopcapturer_on": {
+      "captured_at": "2026-10-20T15:49:13.266Z",
+      "label": "compat-mode-on-reading",
+      "method": "Electron desktopCapturer.getSources() thumbnails (Chromium Windows capture path; screen + window sources)",
+      "display": {
+        "id": 1125993197,
+        "size": {
+          "width": 1301,
+          "height": 732
+        },
+        "workArea": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 686
+        },
+        "scaleFactor": 1.0499999523162842,
+        "physical": {
+          "width": 1366,
+          "height": 769
+        }
+      },
+      "screen_sources": [
+        {
+          "id": "screen:0:0",
+          "name": "Entire screen",
+          "path": "D:\\hireshade\\docs\\evidence\\overlay-size\\desktopcapturer-compat-mode-on-reading-screen-0.png",
+          "thumbnail_size": {
+            "width": 1366,
+            "height": 768
+          }
+        }
+      ],
+      "window_sources": [
+        {
+          "id": "window:984950:0",
+          "name": "Launcher",
+          "path": "D:\\hireshade\\docs\\evidence\\overlay-size\\desktopcapturer-compat-mode-on-reading-window-Launcher.png",
+          "thumbnail_size": {
+            "width": 0,
+            "height": 0
+          }
+        },
+        {
+          "id": "window:1574832:0",
+          "name": "Floating Mini-Screen",
+          "path": "D:\\hireshade\\docs\\evidence\\overlay-size\\desktopcapturer-compat-mode-on-reading-window-Floating-Mini-Screen.png",
+          "thumbnail_size": {
+            "width": 0,
+            "height": 0
+          }
+        }
+      ]
+    },
+    "note": "Runtime compatibility mode applies an opaque #0b0d12 renderer scrim + setBackgroundColor and disables blur/rounded compositing; transparent:false is only creation-time in Electron, so the next launch creates the truly opaque surface. Window recreation at runtime was attempted and crashed on this host (see docs/CAPTURE_MATRIX.md)."
+  },
+  "dxgi": {
+    "method": "ffmpeg -f lavfi -i ddagrab=0:framerate=10 (Desktop Duplication API) 2 s recordings; frames diffed against a hidden-window baseline recorded through the same API",
+    "supported": true,
+    "baseline": {
+      "ok": true,
+      "mp4": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-hidden-baseline.mp4",
+      "frame": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-hidden-baseline-frame.png"
+    },
+    "stealth_on": {
+      "ok": true,
+      "mp4": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-on.mp4",
+      "frame": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-on-frame.png"
+    },
+    "stealth_off": {
+      "ok": true,
+      "mp4": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-off.mp4",
+      "frame": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-off-frame.png"
+    },
+    "on_vs_baseline": {
+      "captured_at": "2026-10-20T21:19:33.3065561+05:30",
+      "label": "ddagrab-banner-on-vs-baseline",
+      "a": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-hidden-baseline-frame.png",
+      "b": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-on-frame.png",
+      "threshold": 16,
+      "width": 1366,
+      "height": 768,
+      "mean_abs_diff": 12.917,
+      "fraction_diff_gt_threshold": 0.49809,
+      "mean_diff_where_changed": 29.97,
+      "diff_path": "D:\\hireshade\\docs\\evidence\\overlay-size\\diff-ddagrab-banner-on-vs-baseline.png"
+    },
+    "off_vs_baseline": {
+      "captured_at": "2026-10-20T21:19:38.8951303+05:30",
+      "label": "ddagrab-banner-off-vs-baseline",
+      "a": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-hidden-baseline-frame.png",
+      "b": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-off-frame.png",
+      "threshold": 16,
+      "width": 1366,
+      "height": 768,
+      "mean_abs_diff": 11.718,
+      "fraction_diff_gt_threshold": 0.42857,
+      "mean_diff_where_changed": 28.62,
+      "diff_path": "D:\\hireshade\\docs\\evidence\\overlay-size\\diff-ddagrab-banner-off-vs-baseline.png"
+    },
+    "verdict": "OBSERVED: DXGI Desktop Duplication IGNORES WDA_EXCLUDEFROMCAPTURE (overlay present in ON and OFF frames; ON/OFF differ from hidden baseline)"
+  },
+  "dpi": {
+    "method": "second app instance with --force-device-scale-factor=1.5 (HIRESHADE_FORCE_SCALE); BANNER profile applied; affinity asserted",
+    "simulated": true,
+    "display": {
+      "width": 607,
+      "height": 341,
+      "dpr": 1.5
+    },
+    "bounds": {
+      "x": 0,
+      "y": 16,
+      "width": 912,
+      "height": 240
+    },
+    "affinity": {
+      "captured_at": "2026-10-20T21:19:44.6538334+05:30",
+      "expect": "0x11",
+      "note": "force-device-scale-factor=1.5 simulated DPI",
+      "electron_pids": [
+        6992
+      ],
+      "windows": [
+        {
+          "title": "Launcher",
+          "hwnd": "0x25079A",
+          "pid": 6992,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 0,
+            "width": 722,
+            "height": 720,
+            "x": 322
+          }
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x170752",
+          "pid": 6992,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 24,
+            "width": 1367,
+            "height": 360,
+            "x": 0
+          }
+        },
+        {
+          "title": "MSCTFIME UI",
+          "hwnd": "0xE07FA",
+          "pid": 6992,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        },
+        {
+          "title": "Default IME",
+          "hwnd": "0xF07F0",
+          "pid": 6992,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        }
+      ],
+      "matching": [
+        {
+          "title": "Launcher",
+          "hwnd": "0x25079A",
+          "pid": 6992,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 0,
+            "width": 722,
+            "height": 720,
+            "x": 322
+          },
+          "expected": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x170752",
+          "pid": 6992,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 24,
+            "width": 1367,
+            "height": 360,
+            "x": 0
+          },
+          "expected": "0x11",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    "note": "Simulated DPI/scale transition, not a real monitor hot-plug. A real display unplug/plug remains UNTESTED (single-display host)."
+  }
+}

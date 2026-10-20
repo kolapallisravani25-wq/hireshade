@@ -1,0 +1,725 @@
+{
+  "generated_at": "2026-10-20T15:50:14.820Z",
+  "evidence_dir": "docs\\evidence\\overlay-size",
+  "transitions": [
+    {
+      "file": "affinity-dpi-simulated.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "affinity-initial-startup.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "affinity-transition-banner-2.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "affinity-transition-banner-5.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "affinity-transition-card-1.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "affinity-transition-card-4.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "affinity-transition-display-metrics-simulated.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "affinity-transition-private-off.json",
+      "expect": "0x0",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x0",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x0",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "affinity-transition-private-on.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "affinity-transition-reading-3.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "affinity-transition-reading-6.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    }
+  ],
+  "capture_trials": [
+    {
+      "profile": "banner",
+      "gdi": {
+        "method": "GDI CopyFromScreen, cropped to overlay rect; hidden baseline same rect",
+        "on_vs_baseline_fraction": 0.00004,
+        "off_vs_baseline_fraction": 0.16454,
+        "stealth_on_stats": {
+          "mean_luma": 38.46,
+          "std_luma": 41.15,
+          "unique_colors_sampled": 1101,
+          "high_contrast_fraction": 0.7139,
+          "non_black_fraction": 0.0175
+        },
+        "stealth_off_stats": {
+          "mean_luma": 34.78,
+          "std_luma": 26.03,
+          "unique_colors_sampled": 1599,
+          "high_contrast_fraction": 0.8121,
+          "non_black_fraction": 0.0162
+        },
+        "verdict": "HONORS_EXCLUSION"
+      },
+      "chromium_desktopcapturer_screen": {
+        "method": "Electron desktopCapturer.getSources({types:['screen']}) thumbnail; hidden-vs-on/off full-screen diff",
+        "on_vs_baseline_fraction": 0.00104,
+        "off_vs_baseline_fraction": 0.05442,
+        "verdict": "HONORS_EXCLUSION",
+        "wgc_errors_in_log": "see main.log / probe stderr"
+      },
+      "printwindow": {
+        "method": "user32 PrintWindow (PW_RENDERFULLCONTENT then 0); ON vs OFF",
+        "stealth_on": {
+          "printwindow_ok": true,
+          "flag_used": 0,
+          "mean_luma": 0,
+          "std_luma": 0,
+          "black_fraction": 1,
+          "has_content": false
+        },
+        "stealth_off": {
+          "printwindow_ok": true,
+          "flag_used": 2,
+          "mean_luma": 21.66,
+          "std_luma": 20.4,
+          "black_fraction": 0.3108,
+          "has_content": true
+        },
+        "on_vs_off_fraction": 0.68869,
+        "verdict": "HIDDEN_IN_PRINTWINDOW (black when protected; content when stealth is off)"
+      },
+      "chromium_desktopcapturer_window": {
+        "stealth_on_window_sources": [
+          {
+            "name": "Launcher",
+            "thumbnail_size": {
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "name": "Floating Mini-Screen",
+            "thumbnail_size": {
+              "width": 0,
+              "height": 0
+            }
+          }
+        ],
+        "stealth_off_window_sources": [
+          {
+            "name": "Floating Mini-Screen",
+            "thumbnail_size": {
+              "width": 1366,
+              "height": 252
+            }
+          }
+        ],
+        "verdict": "ON and OFF window-source thumbnails captured; compare sizes/content in the JSON/PNGs"
+      },
+      "recordings": {
+        "on_mp4": true,
+        "off_mp4": true,
+        "on_frame": true,
+        "off_frame": true,
+        "on_vs_off_frame_diff": {
+          "captured_at": "2026-10-20T21:18:25.2761614+05:30",
+          "label": "banner gdigrab ON vs OFF",
+          "a": "docs/evidence/overlay-size/gdigrab-banner-stealth-on-frame.png",
+          "b": "docs/evidence/overlay-size/gdigrab-banner-stealth-off-frame.png",
+          "threshold": 16,
+          "width": 1366,
+          "height": 768,
+          "mean_abs_diff": 4.873,
+          "fraction_diff_gt_threshold": 0.06276,
+          "mean_diff_where_changed": 66.5,
+          "diff_path": "docs/evidence/overlay-size/diff-banner-gdigrab-on-vs-off-frame.png"
+        }
+      }
+    },
+    {
+      "profile": "reading",
+      "gdi": {
+        "method": "GDI CopyFromScreen, cropped to overlay rect; hidden baseline same rect",
+        "on_vs_baseline_fraction": 0.0028,
+        "off_vs_baseline_fraction": 0.0732,
+        "stealth_on_stats": {
+          "mean_luma": 37.28,
+          "std_luma": 34.96,
+          "unique_colors_sampled": 1634,
+          "high_contrast_fraction": 0.633,
+          "non_black_fraction": 0
+        },
+        "stealth_off_stats": {
+          "mean_luma": 34.61,
+          "std_luma": 25.55,
+          "unique_colors_sampled": 2285,
+          "high_contrast_fraction": 0.6928,
+          "non_black_fraction": 0
+        },
+        "verdict": "INCONCLUSIVE"
+      },
+      "chromium_desktopcapturer_screen": {
+        "method": "Electron desktopCapturer.getSources({types:['screen']}) thumbnail; hidden-vs-on/off full-screen diff",
+        "on_vs_baseline_fraction": 0.00117,
+        "off_vs_baseline_fraction": 0.05569,
+        "verdict": "HONORS_EXCLUSION",
+        "wgc_errors_in_log": "see main.log / probe stderr"
+      },
+      "printwindow": {
+        "method": "user32 PrintWindow (PW_RENDERFULLCONTENT then 0); ON vs OFF",
+        "stealth_on": {
+          "printwindow_ok": true,
+          "flag_used": 0,
+          "mean_luma": 0,
+          "std_luma": 0,
+          "black_fraction": 1,
+          "has_content": false
+        },
+        "stealth_off": {
+          "printwindow_ok": true,
+          "flag_used": 2,
+          "mean_luma": 8.59,
+          "std_luma": 16.69,
+          "black_fraction": 0.7277,
+          "has_content": true
+        },
+        "on_vs_off_fraction": 0.27325,
+        "verdict": "HIDDEN_IN_PRINTWINDOW (black when protected; content when stealth is off)"
+      },
+      "chromium_desktopcapturer_window": {
+        "stealth_on_window_sources": [
+          {
+            "name": "Floating Mini-Screen",
+            "thumbnail_size": {
+              "width": 0,
+              "height": 0
+            }
+          }
+        ],
+        "stealth_off_window_sources": [
+          {
+            "name": "Floating Mini-Screen",
+            "thumbnail_size": {
+              "width": 1366,
+              "height": 690
+            }
+          }
+        ],
+        "verdict": "ON and OFF window-source thumbnails captured; compare sizes/content in the JSON/PNGs"
+      },
+      "recordings": {
+        "on_mp4": true,
+        "off_mp4": true,
+        "on_frame": true,
+        "off_frame": true,
+        "on_vs_off_frame_diff": {
+          "captured_at": "2026-10-20T21:18:30.5484166+05:30",
+          "label": "reading gdigrab ON vs OFF",
+          "a": "docs/evidence/overlay-size/gdigrab-reading-stealth-on-frame.png",
+          "b": "docs/evidence/overlay-size/gdigrab-reading-stealth-off-frame.png",
+          "threshold": 16,
+          "width": 1366,
+          "height": 768,
+          "mean_abs_diff": 5.278,
+          "fraction_diff_gt_threshold": 0.06405,
+          "mean_diff_where_changed": 74.13,
+          "diff_path": "docs/evidence/overlay-size/diff-reading-gdigrab-on-vs-off-frame.png"
+        }
+      }
+    }
+  ],
+  "compatibility": {
+    "affinity": {
+      "file": "affinity-compat-mode-on-reading.json",
+      "expect": "0x11",
+      "pass": true,
+      "matching": [
+        {
+          "title": "Launcher",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "visible": true,
+          "affinity": "0x11",
+          "pass": true
+        }
+      ]
+    },
+    "gdi": {
+      "captured_at": "2026-10-20T21:19:11.8118210+05:30",
+      "label": "compat-mode-on-reading",
+      "note": "compatibility mode ON at READING (opaque scrim, runtime)",
+      "method": "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+      "bounds": {
+        "y": 43,
+        "width": 1257,
+        "height": 635,
+        "x": 54
+      },
+      "full_path": "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-compat-mode-on-reading-full.png",
+      "crop_path": "D:\\hireshade\\docs\\evidence\\overlay-size\\gdi-compat-mode-on-reading-crop.png",
+      "stats": {
+        "mean_luma": 37.42,
+        "std_luma": 35.12,
+        "unique_colors_sampled": 1606,
+        "high_contrast_fraction": 0.631,
+        "non_black_fraction": 0
+      }
+    },
+    "note": "Compatibility mode recreates the floating BrowserWindow with transparent:false + #0b0d12 scrim. The orchestrator hung after recreation while waiting for the new CDP target; the affinity/GDI capture was completed manually against the recreated window."
+  },
+  "dxgi_ddagrab": {
+    "method": "ffmpeg -f lavfi -i ddagrab=0:framerate=10 (Desktop Duplication API) 2 s recordings; frames diffed against a hidden-window baseline recorded through the same API",
+    "supported": true,
+    "baseline": {
+      "ok": true,
+      "mp4": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-hidden-baseline.mp4",
+      "frame": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-hidden-baseline-frame.png"
+    },
+    "stealth_on": {
+      "ok": true,
+      "mp4": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-on.mp4",
+      "frame": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-on-frame.png"
+    },
+    "stealth_off": {
+      "ok": true,
+      "mp4": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-off.mp4",
+      "frame": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-off-frame.png"
+    },
+    "on_vs_baseline": {
+      "captured_at": "2026-10-20T21:19:33.3065561+05:30",
+      "label": "ddagrab-banner-on-vs-baseline",
+      "a": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-hidden-baseline-frame.png",
+      "b": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-on-frame.png",
+      "threshold": 16,
+      "width": 1366,
+      "height": 768,
+      "mean_abs_diff": 12.917,
+      "fraction_diff_gt_threshold": 0.49809,
+      "mean_diff_where_changed": 29.97,
+      "diff_path": "D:\\hireshade\\docs\\evidence\\overlay-size\\diff-ddagrab-banner-on-vs-baseline.png"
+    },
+    "off_vs_baseline": {
+      "captured_at": "2026-10-20T21:19:38.8951303+05:30",
+      "label": "ddagrab-banner-off-vs-baseline",
+      "a": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-hidden-baseline-frame.png",
+      "b": "D:\\hireshade\\docs\\evidence\\overlay-size\\ddagrab-banner-stealth-off-frame.png",
+      "threshold": 16,
+      "width": 1366,
+      "height": 768,
+      "mean_abs_diff": 11.718,
+      "fraction_diff_gt_threshold": 0.42857,
+      "mean_diff_where_changed": 28.62,
+      "diff_path": "D:\\hireshade\\docs\\evidence\\overlay-size\\diff-ddagrab-banner-off-vs-baseline.png"
+    },
+    "verdict": "OBSERVED: DXGI Desktop Duplication IGNORES WDA_EXCLUDEFROMCAPTURE (overlay present in ON and OFF frames; ON/OFF differ from hidden baseline)"
+  },
+  "dpi_simulation": {
+    "method": "second app instance with --force-device-scale-factor=1.5 (HIRESHADE_FORCE_SCALE); BANNER profile applied; affinity asserted",
+    "simulated": true,
+    "display": {
+      "width": 607,
+      "height": 341,
+      "dpr": 1.5
+    },
+    "bounds": {
+      "x": 0,
+      "y": 16,
+      "width": 912,
+      "height": 240
+    },
+    "affinity": {
+      "captured_at": "2026-10-20T21:19:44.6538334+05:30",
+      "expect": "0x11",
+      "note": "force-device-scale-factor=1.5 simulated DPI",
+      "electron_pids": [
+        6992
+      ],
+      "windows": [
+        {
+          "title": "Launcher",
+          "hwnd": "0x25079A",
+          "pid": 6992,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 0,
+            "width": 722,
+            "height": 720,
+            "x": 322
+          }
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x170752",
+          "pid": 6992,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 24,
+            "width": 1367,
+            "height": 360,
+            "x": 0
+          }
+        },
+        {
+          "title": "MSCTFIME UI",
+          "hwnd": "0xE07FA",
+          "pid": 6992,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        },
+        {
+          "title": "Default IME",
+          "hwnd": "0xF07F0",
+          "pid": 6992,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        }
+      ],
+      "matching": [
+        {
+          "title": "Launcher",
+          "hwnd": "0x25079A",
+          "pid": 6992,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 0,
+            "width": 722,
+            "height": 720,
+            "x": 322
+          },
+          "expected": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x170752",
+          "pid": 6992,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 24,
+            "width": 1367,
+            "height": 360,
+            "x": 0
+          },
+          "expected": "0x11",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    "note": "Simulated DPI/scale transition, not a real monitor hot-plug. A real display unplug/plug remains UNTESTED (single-display host)."
+  },
+  "files_present": [
+    "affinity-banner-stealth-off.json",
+    "affinity-banner-stealth-on.json",
+    "affinity-compat-mode-off-reading.json",
+    "affinity-compat-mode-on-reading.json",
+    "affinity-dpi-simulated.json",
+    "affinity-initial-startup.json",
+    "affinity-reading-stealth-off.json",
+    "affinity-reading-stealth-on.json",
+    "affinity-transition-banner-2.json",
+    "affinity-transition-banner-5.json",
+    "affinity-transition-card-1.json",
+    "affinity-transition-card-4.json",
+    "affinity-transition-display-metrics-simulated.json",
+    "affinity-transition-private-off.json",
+    "affinity-transition-private-on.json",
+    "affinity-transition-reading-3.json",
+    "affinity-transition-reading-6.json",
+    "ddagrab-banner-hidden-baseline-frame.png",
+    "ddagrab-banner-hidden-baseline.mp4",
+    "ddagrab-banner-stealth-off-frame.png",
+    "ddagrab-banner-stealth-off.mp4",
+    "ddagrab-banner-stealth-on-frame.png",
+    "ddagrab-banner-stealth-on.mp4",
+    "ddagrab-result.json",
+    "desktopcapturer-banner-hidden-baseline-screen-0.png",
+    "desktopcapturer-banner-hidden-baseline.json",
+    "desktopcapturer-banner-stealth-off-screen-0.png",
+    "desktopcapturer-banner-stealth-off-window-Floating-Mini-Screen.png",
+    "desktopcapturer-banner-stealth-off.json",
+    "desktopcapturer-banner-stealth-on-screen-0.png",
+    "desktopcapturer-banner-stealth-on-window-Floating-Mini-Screen.png",
+    "desktopcapturer-banner-stealth-on-window-Launcher.png",
+    "desktopcapturer-banner-stealth-on.json",
+    "desktopcapturer-compat-mode-on-reading-screen-0.png",
+    "desktopcapturer-compat-mode-on-reading-window-Floating-Mini-Screen.png",
+    "desktopcapturer-compat-mode-on-reading-window-Launcher.png",
+    "desktopcapturer-compat-mode-on-reading.json",
+    "desktopcapturer-reading-hidden-baseline-screen-0.png",
+    "desktopcapturer-reading-hidden-baseline.json",
+    "desktopcapturer-reading-stealth-off-screen-0.png",
+    "desktopcapturer-reading-stealth-off-window-Floating-Mini-Screen.png",
+    "desktopcapturer-reading-stealth-off.json",
+    "desktopcapturer-reading-stealth-on-screen-0.png",
+    "desktopcapturer-reading-stealth-on-window-Floating-Mini-Screen.png",
+    "desktopcapturer-reading-stealth-on.json",
+    "diff-banner-desktopcapturer-off-vs-baseline.json",
+    "diff-banner-desktopcapturer-off-vs-baseline.png",
+    "diff-banner-desktopcapturer-on-vs-baseline.json",
+    "diff-banner-desktopcapturer-on-vs-baseline.png",
+    "diff-banner-gdi-off-vs-baseline.json",
+    "diff-banner-gdi-off-vs-baseline.png",
+    "diff-banner-gdi-on-vs-baseline.json",
+    "diff-banner-gdi-on-vs-baseline.png",
+    "diff-banner-gdigrab-on-vs-off-frame.json",
+    "diff-banner-gdigrab-on-vs-off-frame.png",
+    "diff-banner-printwindow-on-vs-off.json",
+    "diff-banner-printwindow-on-vs-off.png",
+    "diff-ddagrab-banner-off-vs-baseline.json",
+    "diff-ddagrab-banner-off-vs-baseline.png",
+    "diff-ddagrab-banner-on-vs-baseline.json",
+    "diff-ddagrab-banner-on-vs-baseline.png",
+    "diff-reading-desktopcapturer-off-vs-baseline.json",
+    "diff-reading-desktopcapturer-off-vs-baseline.png",
+    "diff-reading-desktopcapturer-on-vs-baseline.json",
+    "diff-reading-desktopcapturer-on-vs-baseline.png",
+    "diff-reading-gdi-off-vs-baseline.json",
+    "diff-reading-gdi-off-vs-baseline.png",
+    "diff-reading-gdi-on-vs-baseline.json",
+    "diff-reading-gdi-on-vs-baseline.png",
+    "diff-reading-gdigrab-on-vs-off-frame.json",
+    "diff-reading-gdigrab-on-vs-off-frame.png",
+    "diff-reading-printwindow-on-vs-off.json",
+    "diff-reading-printwindow-on-vs-off.png",
+    "dpi-simulation.json",
+    "gdi-banner-hidden-baseline-crop.png",
+    "gdi-banner-hidden-baseline-full.png",
+    "gdi-banner-hidden-baseline.json",
+    "gdi-banner-stealth-off-crop.png",
+    "gdi-banner-stealth-off-full.png",
+    "gdi-banner-stealth-off.json",
+    "gdi-banner-stealth-on-crop.png",
+    "gdi-banner-stealth-on-full.png",
+    "gdi-banner-stealth-on.json",
+    "gdi-compat-mode-on-reading-crop.png",
+    "gdi-compat-mode-on-reading-full.png",
+    "gdi-compat-mode-on-reading.json",
+    "gdi-reading-hidden-baseline-crop.png",
+    "gdi-reading-hidden-baseline-full.png",
+    "gdi-reading-hidden-baseline.json",
+    "gdi-reading-stealth-off-crop.png",
+    "gdi-reading-stealth-off-full.png",
+    "gdi-reading-stealth-off.json",
+    "gdi-reading-stealth-on-crop.png",
+    "gdi-reading-stealth-on-full.png",
+    "gdi-reading-stealth-on.json",
+    "gdigrab-banner-stealth-off-frame.png",
+    "gdigrab-banner-stealth-off.mp4",
+    "gdigrab-banner-stealth-on-frame.png",
+    "gdigrab-banner-stealth-on.mp4",
+    "gdigrab-reading-stealth-off-frame.png",
+    "gdigrab-reading-stealth-off.mp4",
+    "gdigrab-reading-stealth-on-frame.png",
+    "gdigrab-reading-stealth-on.mp4",
+    "main-dpi-sim.log",
+    "main-supp.log",
+    "main.log",
+    "o3-size-results.json",
+    "printwindow-banner-stealth-off.json",
+    "printwindow-banner-stealth-off.png",
+    "printwindow-banner-stealth-on.json",
+    "printwindow-banner-stealth-on.png",
+    "printwindow-reading-stealth-off.json",
+    "printwindow-reading-stealth-off.png",
+    "printwindow-reading-stealth-on.json",
+    "printwindow-reading-stealth-on.png",
+    "summary.json",
+    "supplementary-evidence.json"
+  ]
+}
