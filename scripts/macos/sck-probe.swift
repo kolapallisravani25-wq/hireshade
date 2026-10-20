@@ -61,20 +61,50 @@ if #available(macOS 14.0, *) {
             print("{\"ok\":false,\"stage\":\"SCShareableContent\",\"error\":\"\(error.localizedDescription)\"}")
             sem.signal(); return
         }
-        guard let content = content, let display = content.displays.first else {
-            print("{\"ok\":false,\"stage\":\"displays\",\"error\":\"no display\"}")
+        guard let content = content else {
+            print("{\"ok\":false,\"stage\":\"content\",\"error\":\"no content\"}")
             sem.signal(); return
         }
-        let filter = SCContentFilter(display: display, excludingWindows: [])
+        let useWindow = CommandLine.arguments.contains("--window")
+        var filter: SCContentFilter
+        var captureW = 0
+        var captureH = 0
+        var targetDescription = ""
+        if useWindow {
+            // Window-scoped SCContentFilter: capturing our own window may need a
+            // weaker permission than whole-display capture and is the X2 fallback.
+            guard let win = content.windows.first(where: {
+                let app = $0.owningApplication?.applicationName ?? ""
+                return app.contains("Electron") || $0.title.contains("HireShade") || $0.title.contains("PROTECTED")
+            }) else {
+                print("{\"ok\":false,\"stage\":\"window\",\"error\":\"no matching window\"}")
+                sem.signal(); return
+            }
+            filter = SCContentFilter(desktopIndependentWindow: win)
+            captureW = max(1, Int(win.frame.width))
+            captureH = max(1, Int(win.frame.height))
+            targetDescription = "window:" + win.title
+        } else {
+            guard let display = content.displays.first else {
+                print("{\"ok\":false,\"stage\":\"displays\",\"error\":\"no display\"}")
+                sem.signal(); return
+            }
+            filter = SCContentFilter(display: display, excludingWindows: [])
+            captureW = display.width
+            captureH = display.height
+            targetDescription = "display:" + String(display.displayID)
+        }
         let cfg = SCStreamConfiguration()
-        cfg.width = display.width; cfg.height = display.height
+        cfg.width = captureW
+        cfg.height = captureH
         cfg.pixelFormat = kCVPixelFormatType_32BGRA
         cfg.showsCursor = false
         Task {
             do {
                 let image = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: cfg)
-                let (r,g,b,n) = sample(image, CGRect(x: args.x, y: args.y, width: args.w, height: args.h))
-                var json = "{\"ok\":true,\"api\":\"ScreenCaptureKit\",\"width\":\(image.width),\"height\":\(image.height),\"sample\":{\"r\":\(r),\"g\":\(g),\"b\":\(b),\"n\":\(n)}}"
+                let sampleRect = useWindow ? CGRect(x: 0, y: 0, width: image.width, height: image.height) : CGRect(x: args.x, y: args.y, width: args.w, height: args.h)
+                let (r,g,b,n) = sample(image, sampleRect)
+                var json = "{\"ok\":true,\"api\":\"ScreenCaptureKit\",\"target\":\"\(targetDescription)\",\"mode\":\"\(useWindow ? "window" : "display")\",\"width\":\(image.width),\"height\":\(image.height),\"sample\":{\"r\":\(r),\"g\":\(g),\"b\":\(b),\"n\":\(n)}}"
                 if let out = args.out, let dest = CGImageDestinationCreateWithURL(URL(fileURLWithPath: out) as CFURL, UTType.png.identifier as CFString, 1, nil) {
                     CGImageDestinationAddImage(dest, image, nil); CGImageDestinationFinalize(dest)
                     json = json.dropLast() + ",\"file\":\"\(out)\"}"

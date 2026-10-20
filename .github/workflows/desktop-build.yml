@@ -184,6 +184,8 @@ jobs:
           H=$(python3 -c "import json;d=json.load(open('bounds.json'));print(d['height'])")
           echo "=== SCK display probe ==="
           ./sck-probe "$X" "$Y" "$W" "$H" sck-display.png 2>&1 | tee sck-display.json
+          echo "=== SCK WINDOW-scoped probe (weaker-permission fallback) ==="
+          ./sck-probe --window "$X" "$Y" "$W" "$H" sck-window.png 2>&1 | tee sck-window.json
       - name: Legacy screencapture A/B
         continue-on-error: true
         working-directory: scripts/macos
