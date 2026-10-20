@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-10-20T17:38:06.209Z",
+  "scope": "U2 opaque-capture measurement after compatibility-mode recreation (branch sprint-unblock). U1 koffi code untouched.",
+  "harness_fix": {
+    "old_blocker": "after the compat surface swap the harness kept using/awaiting the stale CDP target and hung",
+    "fix": "re-query http://127.0.0.1:9241/json after detach/destroy, re-attach by floating.html URL, 20 s bounded timeout failing loudly with the target list, dead-socket guard, never await a closed WebSocket; if the renderer target does not come back, fall back to main-process evidence (persisted capture-state + HWND/affinity probes + external captures)",
+    "runtime_cdp_reattach": {
+      "ok": true,
+      "target_list_count": 6,
+      "page_title": "Floating Mini-Screen",
+      "page_url": "file:///D:/hireshade/artifacts/craft-vita/dist/public/floating.html"
+    },
+    "after_swap_error": "CDP_REATTACH_FAILED (target list became null after the swap) - fallback used; app main process still logged the new HWND"
+  },
+  "runtime_recreation": {
+    "recreated_per_log": true,
+    "log_lines": [
+      "reassert #11 reason=window-recreated (window surface recreated) applied=1",
+      "floating surface recreated (compat-mode-changed): compat=true transparent=false bounds={\"x\":51,\"y\":40,\"width\":1198,\"height\":606}",
+      "native affinity mode=0x11 hwnd=5113150 applied=true readback=0x11",
+      "reassert #12 reason=window-recreated (window surface recreated) applied=1"
+    ],
+    "persisted_state_after": {
+      "compatMode": true,
+      "transparent": false
+    },
+    "window_after": {
+      "title": "HireShade Floating Screen",
+      "visible": false,
+      "exstyle": "0x80128",
+      "WS_EX_LAYERED": true,
+      "affinity": "0x11"
+    },
+    "affinity_windows": [
+      {
+        "title": "Floating Mini-Screen",
+        "visible": true,
+        "affinity": "0x11",
+        "pass": true
+      },
+      {
+        "title": "Launcher",
+        "visible": false,
+        "affinity": "0x0",
+        "pass": false
+      }
+    ],
+    "printwindow_after": {
+      "ok": true,
+      "mean_luma": 0,
+      "std_luma": 0,
+      "unique_colors_sampled": 1,
+      "black_fraction": 1
+    },
+    "gdi_opaque_vs_hidden": 0,
+    "dxgi_opaque_vs_hidden": 0.00948,
+    "blocker": "the recreated surface is created and gets affinity 0x11, but it is not shown (visible=false) and its renderer/CDP target disappears after the swap; PrintWindow is all-black and GDI/DXGI match the hidden baseline, so no opaque content could be measured in the runtime-recreation run. No main.js edits were made for U2; this is the exact blocker."
+  },
+  "seeded_opaque_startup": {
+    "method": "capture-state.json compatMode=true written before launch so createWindow builds transparent:false at startup (no runtime surface swap)",
+    "state_after": {
+      "compatMode": true,
+      "transparent": false,
+      "opaqueSurfaceOnRestart": true
+    },
+    "dom_background": {
+      "html": "rgb(11, 13, 18)",
+      "body": "rgb(11, 13, 18)"
+    },
+    "window_after": {
+      "title": "Floating Mini-Screen",
+      "visible": true,
+      "exstyle": "0x80128",
+      "WS_EX_LAYERED": true,
+      "affinity": "0x11"
+    },
+    "affinity_windows": [
+      {
+        "title": "Floating Mini-Screen",
+        "visible": true,
+        "affinity": "0x11",
+        "pass": true
+      }
+    ],
+    "printwindow_after": {
+      "ok": true,
+      "mean_luma": 0,
+      "std_luma": 0,
+      "unique_colors_sampled": 1,
+      "black_fraction": 1
+    },
+    "gdi_opaque_vs_hidden": 0.03739,
+    "dxgi_opaque_vs_hidden": 0.00021,
+    "notes": [
+      "WS_EX_LAYERED remained set (0x80128) for the frameless Electron window in both transparent and compat runs, so it is NOT a valid transparent:false discriminator.",
+      "PrintWindow stayed all-black (mean 0, 100% black) with compatMode=true, so the expected 'opaque shows its own colour instead of black' was NOT observed on this build. Possible reasons: WDA_EXCLUDEFROMCAPTURE also blocks PrintWindow here, or the layered DWM surface prints black regardless of the Electron transparent flag; not distinguishable with the current probes.",
+      "DXGI Desktop Duplication measured near the hidden baseline (0.00021 seeded / 0.00948 runtime) in these runs, while the earlier banner O2 run measured 0.498. DXGI behaviour is therefore INCONSISTENT across runs/builds here; do not claim a confirmed 'always ignores' and do not claim compat fixes it."
+    ]
+  },
+  "files": {
+    "runtime_measurement": "docs/evidence/capture-sprint/opaque-recreate-runtime.json",
+    "seeded_measurement": "docs/evidence/capture-sprint/opaque-recreate-measurement.json",
+    "main_log": "docs/evidence/capture-sprint/main-u2.log",
+    "window_style_before": "docs/evidence/capture-sprint/u2-window-style-before.json",
+    "window_style_after": "docs/evidence/capture-sprint/u2-window-style-after.json",
+    "affinity_before": "docs/evidence/capture-sprint/u2-affinity-before.json",
+    "affinity_after": "docs/evidence/capture-sprint/u2-affinity-after.json",
+    "printwindow_transparent_before": "docs/evidence/capture-sprint/printwindow-transparent-before.png",
+    "printwindow_opaque_after": "docs/evidence/capture-sprint/printwindow-opaque-after-recreate.png",
+    "gdi_diffs": "docs/evidence/capture-sprint/u2-diff-gdi-opaque-vs-hidden.json",
+    "dxgi_diffs": "docs/evidence/capture-sprint/u2-diff-dxgi-opaque-vs-hidden.json",
+    "ddagrab": "docs/evidence/capture-sprint/u2-ddagrab-opaque-after-recreate.mp4"
+  }
+}

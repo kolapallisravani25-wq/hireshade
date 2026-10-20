@@ -198,4 +198,20 @@ Sources: `docs/evidence/capture-sprint/native-affinity-dxgi.json`, `affinity-nat
 
 Tests: frontend **57 files / 658 tests pass** (`docs/evidence/26-unblock-u1-frontend.txt`), workspace typecheck exit 0 (`27-unblock-u1-typecheck.txt`), new preflight test for the black-box action. Residual analysis unchanged: 0 changed edge pixels.
 
-U2 (opaque capture), U3 (real OS scaling) and U4 (tab-share artifact) are being closed in this same sprint; their results are appended below when measured.
+### U2 — opaque-capture measurement (G-052)
+
+CDP harness fixed: on detach it re-queries `/json`, re-attaches to `floating.html` by URL with a 20 s bound and 5 s per-call bounds, and fails loudly instead of awaiting a dead socket (`measure-opaque-recreate.mjs`). Re-attach found 6 targets and the new floating page.
+
+Measured: startup-opaque (`capture-state.json` compatMode=true so `createWindow` builds `transparent:false`) reports `transparent:false`, affinity **0x11 PASS**, DOM scrim `rgb(11,13,18)`; **PrintWindow remains all-black (mean 0, 100 % black)** and GDI vs hidden baseline is 3.74 %. Runtime recreation survives and logs `compat=true transparent=false` + native affinity 0x11, but the recreated window probes `visible=false` and its renderer/CDP target disappears, so only hidden-baseline captures are available (GDI 0.00 %, DXGI 0.95 %). `WS_EX_LAYERED` stays set in both modes, so it is not a valid opacity discriminator. **Result: G-052 PARTIAL** — harness fixed, opaque PrintWindow expectation not confirmed; no claim that the black bar is fixed.
+
+Evidence: `docs/evidence/capture-sprint/{opaque-recreate-runtime.json,opaque-recreate-measurement.json,u2-opaque-summary.json,main-u2.log,u2-window-style-*.json,u2-diff-*.json}`.
+
+### U3 — real OS scaling (G-054)
+
+150 % is not offered on this 1366×768 source: the Settings UI lists only **100 %** (UIAutomation returns `scale-item-not-found`), and the CCD API reports `maxRelativeScale=1`. Setting relative +2 returned success but Windows clamped it; the **live Electron scale factor changed 1.05 → 1.3125 (125 %, ratio 1.25)** and was restored to 1.05. Registry `LogPixels` + broadcast did not change the live scale (applies at sign-in). **Result: PARTIAL** — real live-scaling channel exercised at the host's maximum (125 %), 150 % impossible without different display hardware; commands/output in `u3-live-scaling-results.json`.
+
+### U4 — tab-share picker artifact (G-054)
+
+Fixed by capturing a dedicated app tab in a separate window over CDP with `getDisplayMedia({ video: { displaySurface: 'browser' }, selfBrowserSurface: 'exclude', preferCurrentTab: false, surfaceSwitching: 'exclude' })` and no fake-UI flag. Chrome 155 + Edge: `displaySurface=browser`, app-tab DOM pixel **rgb 30,78,217**, control **59,7,100**, overlay sample equals app-tab pixels, **0 magenta pixels** — the overlay never appears in a tab capture. **Result: OBSERVED PASS**, tab share is the recommended share mode. Evidence: `u4-tab-share-results.json`, `u4-tab-{chrome,edge}-{captured,app-tab}.png`.
+
+All three were attempted; only U4 fully closed. U2 and U3 remain PARTIAL with the exact technical impediment recorded, not an unexplained blocker.

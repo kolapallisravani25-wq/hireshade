@@ -28,10 +28,10 @@ This page states exactly what is proven, where, on which capture path. It is del
 ## Not verified — UNTESTED / UNTESTED-BLOCKED
 
 - macOS: ScreenCaptureKit, QuickTime, `screencapture`, NSWindowSharingNone behaviour, TCC flow. Plan: [MACOS_PLAN.md](MACOS_PLAN.md). **No macOS host.**
-- Real OS display scaling at 150 %: registry `LogPixels` set 144 and read back 144, but the live session scale factor stayed 1.05 before/after; Windows applies it at sign-in. **UNTESTED-BLOCKED**, requires sign-out/in.
+- Real OS display scaling: live change **1.05 → 1.3125 (125 %)** via `DisplayConfigSetDeviceInfo` then restored; **150 % is not offered on this 1366×768 display** (Settings lists only 100 %, CCD `maxRelativeScale=1`). Registry `LogPixels` needs sign-in. **PARTIAL** — real path exercised at the host's maximum, 150 % requires different display hardware.
 - Real second-monitor hot-plug: `screen.getAllDisplays()=1`; PnP/VideoController/DriverStore/pnputil found no virtual-display driver; `DisplaySwitch /extend` no-op; installing a driver needs admin. **UNTESTED-BLOCKED.** The second-monitor recommendation remains the default product advice but is unverified on real hardware here.
 - Elevated vs non-elevated capture: agent is Medium integrity; `schtasks /RL HIGHEST` denied; interactive UAC cannot be approved unattended. **UNTESTED-BLOCKED.**
-- Exact app-tab selection for Chrome/Edge tab share: the auto-select tab flag selected the capture page's own tab on this build; tab capture is structurally source-scope-safe (no other app window can appear in a tab), but the app-tab DOM confirmation is **UNTESTED-BLOCKED**.
+- Chrome/Edge tab share: **OBSERVED PASS** with `selfBrowserSurface=exclude` + a dedicated app-tab window (`displaySurface=browser`, app-tab DOM pixel 30,78,217, overlay magenta pixels 0). Tab share is the recommended share mode.
 - Zoom/Teams/Meet/Webex/Lark/Chime native apps (not installed; represented only by API-level DXGI/WGC rows).
 - Anti-cheat / kernel-level proctoring, process enumeration, network inspection, VM detection: **out of scope and unclaimed**. The overlay is an ordinary Electron window with a normal process name; a kernel driver can see it.
 

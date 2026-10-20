@@ -1,0 +1,338 @@
+{
+  "generatedAt": "2026-10-20T17:32:54.347Z",
+  "kind": "u4-tab-share-fixed",
+  "constraints": {
+    "video": {
+      "displaySurface": "browser"
+    },
+    "audio": false,
+    "selfBrowserSurface": "exclude",
+    "preferCurrentTab": false,
+    "surfaceSwitching": "exclude"
+  },
+  "method": "dedicated app-tab window (auto-select-tab-capture-source-by-title) + capture page in a separate window over CDP; NO --use-fake-ui-for-media-stream; displaySurface=browser hint + selfBrowserSurface=exclude + preferCurrentTab=false + surfaceSwitching=exclude",
+  "browsers": [
+    {
+      "browser": "Chrome",
+      "exe": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "url": "http://127.0.0.1:53020",
+      "assertions": [
+        {
+          "name": "tab-capture-display-surface",
+          "pass": true,
+          "detail": "browser"
+        },
+        {
+          "name": "tab-capture-app-tab-dom-pixel",
+          "pass": true,
+          "detail": [
+            30,
+            78,
+            217
+          ]
+        },
+        {
+          "name": "tab-capture-app-tab-background",
+          "pass": true,
+          "detail": [
+            59,
+            7,
+            100
+          ]
+        },
+        {
+          "name": "tab-capture-zero-overlay-pixels",
+          "pass": true,
+          "detail": {
+            "overlayRgb": [
+              30,
+              78,
+              217
+            ],
+            "magenta": false
+          }
+        }
+      ],
+      "screenshots": [
+        {
+          "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\u4-tab-chrome-captured.png",
+          "bytes": 38143
+        },
+        {
+          "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\u4-tab-chrome-app-tab.png",
+          "bytes": 13174
+        }
+      ],
+      "result": {
+        "ok": true,
+        "displaySurface": "browser",
+        "canvas": [
+          930,
+          532
+        ],
+        "settings": {
+          "aspectRatio": 1.7481203007518797,
+          "cursor": "motion",
+          "deviceId": "web-contents-media-stream://6:1",
+          "displaySurface": "browser",
+          "frameRate": 30,
+          "height": 532,
+          "logicalSurface": true,
+          "resizeMode": "crop-and-scale",
+          "screenPixelRatio": 1.0499999523162842,
+          "width": 930
+        },
+        "trackLabel": "web-contents-media-stream://1EB9F21191EBB0662F50289528E91AF1",
+        "requestedConstraints": {
+          "video": {
+            "displaySurface": "browser"
+          },
+          "audio": false,
+          "selfBrowserSurface": "exclude",
+          "preferCurrentTab": false,
+          "surfaceSwitching": "exclude"
+        },
+        "samples": [
+          {
+            "name": "overlay",
+            "xRel": 0.44619523443504994,
+            "yRel": 0.46653005464480873,
+            "x": 415,
+            "y": 248,
+            "rgb": [
+              30,
+              78,
+              217
+            ],
+            "alpha": 255
+          },
+          {
+            "name": "control",
+            "xRel": 0.9,
+            "yRel": 0.92,
+            "x": 837,
+            "y": 489,
+            "rgb": [
+              59,
+              7,
+              100
+            ],
+            "alpha": 255
+          }
+        ]
+      },
+      "displaySurface": "browser",
+      "trackLabel": "web-contents-media-stream://1EB9F21191EBB0662F50289528E91AF1",
+      "canvas": [
+        930,
+        532
+      ],
+      "requestedConstraints": {
+        "video": {
+          "displaySurface": "browser"
+        },
+        "audio": false,
+        "selfBrowserSurface": "exclude",
+        "preferCurrentTab": false,
+        "surfaceSwitching": "exclude"
+      },
+      "samples": [
+        {
+          "name": "overlay",
+          "xRel": 0.44619523443504994,
+          "yRel": 0.46653005464480873,
+          "x": 415,
+          "y": 248,
+          "rgb": [
+            30,
+            78,
+            217
+          ],
+          "alpha": 255
+        },
+        {
+          "name": "control",
+          "xRel": 0.9,
+          "yRel": 0.92,
+          "x": 837,
+          "y": 489,
+          "rgb": [
+            59,
+            7,
+            100
+          ],
+          "alpha": 255
+        }
+      ],
+      "classification": {
+        "overlayIsBlue": true,
+        "overlayIsMagenta": false,
+        "controlIsAppTabPurple": true
+      },
+      "status": "OBSERVED",
+      "durationMs": 6499
+    },
+    {
+      "browser": "Edge",
+      "exe": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      "url": "http://127.0.0.1:53020",
+      "assertions": [
+        {
+          "name": "tab-capture-display-surface",
+          "pass": true,
+          "detail": "browser"
+        },
+        {
+          "name": "tab-capture-app-tab-dom-pixel",
+          "pass": true,
+          "detail": [
+            30,
+            78,
+            217
+          ]
+        },
+        {
+          "name": "tab-capture-app-tab-background",
+          "pass": true,
+          "detail": [
+            59,
+            7,
+            100
+          ]
+        },
+        {
+          "name": "tab-capture-zero-overlay-pixels",
+          "pass": true,
+          "detail": {
+            "overlayRgb": [
+              30,
+              78,
+              217
+            ],
+            "magenta": false
+          }
+        }
+      ],
+      "screenshots": [
+        {
+          "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\u4-tab-edge-captured.png",
+          "bytes": 37861
+        },
+        {
+          "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\u4-tab-edge-app-tab.png",
+          "bytes": 13170
+        }
+      ],
+      "result": {
+        "ok": true,
+        "displaySurface": "browser",
+        "canvas": [
+          920,
+          534
+        ],
+        "settings": {
+          "aspectRatio": 1.7228464419475655,
+          "cursor": "motion",
+          "deviceId": "web-contents-media-stream://5:1",
+          "displaySurface": "browser",
+          "frameRate": 30,
+          "height": 534,
+          "logicalSurface": true,
+          "resizeMode": "crop-and-scale",
+          "screenPixelRatio": 1.0499999523162842,
+          "width": 920
+        },
+        "trackLabel": "web-contents-media-stream://3B3B232D7A766AC6A139A778E10A01D8",
+        "requestedConstraints": {
+          "video": {
+            "displaySurface": "browser"
+          },
+          "audio": false,
+          "selfBrowserSurface": "exclude",
+          "preferCurrentTab": false,
+          "surfaceSwitching": "exclude"
+        },
+        "samples": [
+          {
+            "name": "overlay",
+            "xRel": 0.44619523443504994,
+            "yRel": 0.46653005464480873,
+            "x": 410,
+            "y": 249,
+            "rgb": [
+              30,
+              78,
+              217
+            ],
+            "alpha": 255
+          },
+          {
+            "name": "control",
+            "xRel": 0.9,
+            "yRel": 0.92,
+            "x": 828,
+            "y": 491,
+            "rgb": [
+              59,
+              7,
+              100
+            ],
+            "alpha": 255
+          }
+        ]
+      },
+      "displaySurface": "browser",
+      "trackLabel": "web-contents-media-stream://3B3B232D7A766AC6A139A778E10A01D8",
+      "canvas": [
+        920,
+        534
+      ],
+      "requestedConstraints": {
+        "video": {
+          "displaySurface": "browser"
+        },
+        "audio": false,
+        "selfBrowserSurface": "exclude",
+        "preferCurrentTab": false,
+        "surfaceSwitching": "exclude"
+      },
+      "samples": [
+        {
+          "name": "overlay",
+          "xRel": 0.44619523443504994,
+          "yRel": 0.46653005464480873,
+          "x": 410,
+          "y": 249,
+          "rgb": [
+            30,
+            78,
+            217
+          ],
+          "alpha": 255
+        },
+        {
+          "name": "control",
+          "xRel": 0.9,
+          "yRel": 0.92,
+          "x": 828,
+          "y": 491,
+          "rgb": [
+            59,
+            7,
+            100
+          ],
+          "alpha": 255
+        }
+      ],
+      "classification": {
+        "overlayIsBlue": true,
+        "overlayIsMagenta": false,
+        "controlIsAppTabPurple": true
+      },
+      "status": "OBSERVED",
+      "durationMs": 10908
+    }
+  ],
+  "pass": true,
+  "status": "OBSERVED"
+}

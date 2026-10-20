@@ -1,0 +1,25 @@
+﻿{
+    "captured_at":  "2026-10-20T23:06:47.5567524+05:30",
+    "method":  "user32 GetWindowLongPtr(GWL_EXSTYLE) + GetWindowDisplayAffinity + DwmGetWindowAttribute",
+    "layered_means_transparent_surface":  true,
+    "windows":  [
+                    {
+                        "title":  "HireShade Floating Screen",
+                        "hwnd":  "0x1F07D8",
+                        "pid":  1668,
+                        "visible":  false,
+                        "style":  "0x4C50000",
+                        "exstyle":  "0x80128",
+                        "WS_EX_LAYERED":  true,
+                        "affinity":  "0x11",
+                        "bounds":  {
+                                       "y":  42,
+                                       "width":  1259,
+                                       "height":  637,
+                                       "x":  53
+                                   },
+                        "DWM_cloaked":  0,
+                        "DWM_composition":  true
+                    }
+                ]
+}

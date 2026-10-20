@@ -23,10 +23,10 @@ the capture and a hidden-window baseline captured through the SAME path.
 | Chromium WINDOW capture via desktopCapturer.getSources({types:['window']}) | HireShade Electron / Windows | **OBSERVED — protected window yields NO pixels (0-byte thumbnail)** | ON: thumbnail 0x0 (0-byte PNG) for Launcher + Floating; OFF: **1366x252** / **1366x690** | desktopcapturer-*-window-Floating-Mini-Screen.png (0 vs 1366x252/690) |
 | PrintWindow (user32, PW_RENDERFULLCONTENT=2 first, fallback 0) | HireShade Electron / Windows | **OBSERVED — no content leak; caveat below** | ON: mean luma **0.00**, **100% black**, flag 2 rejected -> fallback 0; OFF: mean luma **21.66 / 8.59**, black **31.1% / 72.8%** (content) | printwindow.ps1 + image-diff; printwindow-*-stealth-{on,off}.png |
 | DXGI Desktop Duplication (ffmpeg ddagrab=0, D3D11) | HireShade Electron / Windows | **OBSERVED — IGNORES WDA_EXCLUDEFROMCAPTURE** | ON vs hidden ddagrab baseline **49.8%** of pixels differ; OFF **42.9%** — overlay visible in BOTH ON and OFF recordings | ddagrab banner hidden/on/off mp4s + frames; diff-ddagrab-banner-*.json |
-| Chrome/Edge tab share (real getDisplayMedia tab capture) | Chrome/Edge / Windows | **OBSERVED — structurally safe; recommended mode** | Chrome + Edge: displaySurface=browser, canvas 1367x769, overlay-screen sample rgb **6,46,23** (tab content) — overlay magenta **0/2** runs. Exact app-tab selection **UNTESTED-BLOCKED**: --auto-select-tab-capture-source-by-title selected the capture page's own tab on this Chrome 155/Edge build, so the app-tab DOM pixel was not confirmed; the overlay window still never appears in ANY tab capture (source-scoped). | scripts/capture-sprint browser-share; docs/evidence/capture-sprint/s4/ s4-share-*-tab-protected.png + s4-capture-sprint-results.json |
+| Chrome/Edge tab share (real getDisplayMedia tab capture) | Chrome/Edge / Windows | **OBSERVED — structurally safe; recommended mode** | Chrome 155 + Edge: `displaySurface=browser`, `selfBrowserSurface=exclude`, `preferCurrentTab=false`; app-tab DOM pixel sampled **rgb 30,78,217** (blue app tab) and control **59,7,100**; overlay sample equals app-tab pixels, **magenta 0/2**, so the overlay window never appears in any tab capture. Dedicated app-tab window + separate capture window over CDP, no fake-UI. | scripts/capture-sprint/u4-tab-share.mjs; docs/evidence/capture-sprint/s4/u4-tab-share-results.json + u4-tab-{chrome,edge}-{captured,app-tab}.png |
 | Chrome/Edge full-screen share (real getDisplayMedia) | Chrome/Edge / Windows | **OBSERVED — HONORS exclusion** | Protected overlay region rgb **19,22,21** (Chrome) / **19,22,21** (Edge) = NOT magenta; same-path positive control with protection OFF = **254,2,253** magenta. displaySurface=monitor, canvas 1367x769. | scripts/capture-sprint browser-share (auto-select-desktop-capture-source + --use-fake-ui-for-media-stream + CDP pixel sampling); s4-share-{chrome,edge}-full-{protected,control}.png |
 | OS click-through: dedicated target window behind a protected overlay | HireShade Electron harness / Windows | **OBSERVED — passes through to the app behind; overlay controls receive clicks when disabled** | Click-through ON at overlay transparent point: target clicks **0 -> 1**, overlay clicks **0**; click-through OFF on overlay control: overlay clicks **0 -> 1**, target unchanged **1**. Foregrounded by the test itself (target.moveTop/focus + overlay moveTop/showInactive), physical Win32 SendInput click. | scripts/capture-sprint click-through.mjs; s4-clickthrough-{on-overlay,on-target,off-overlay}.png |
-| Real OS display scaling 150% | Windows / HireShade | **UNTESTED-BLOCKED** | LogPixels written 144 and read back 144, but live session Electron scale factor stayed **1.05 before and after**; value restored to previous 120. Blocker: Windows applies write at sign-in; in-session change requires sign-out/in (or Settings UI), which would end the harness desktop session. | registry commands + Electron dpi_probe scale readings in s4-capture-sprint-results.json |
+| Real OS display scaling | Windows / HireShade | **PARTIAL — 125% live OBSERVED, 150% unavailable on this host** | Settings UI offers only **100%** at 1366x768 (UIAutomation `scale-item-not-found` for 150/125); `DisplayConfigSetDeviceInfo` relative +2 returned success but Windows clamped to relative +1 and the live Electron scale factor changed **1.05 -> 1.3125 (125% ratio 1.25)**, then restored to 1.05. Registry LogPixels+broadcast did NOT change live scale (applies at sign-in). 150% is not offered by this display source (CCD maxRelativeScale=1). | scripts/capture-sprint/u3-ccd-dpi.ps1 / u3-settings-scale.ps1; docs/evidence/capture-sprint/s4/u3-live-scaling-results.json + u3-settings-scale-options.png |
 | Second monitor (real hardware) | Windows / HireShade | **UNTESTED-BLOCKED** | screen.getAllDisplays() = **1** (work area 1301x732). Attempts: Get-PnpDevice displays, Win32_VideoController, DriverStore search for idd/usbmmidd/virtualdisplay (none), pnputil /enum-drivers (none), DisplaySwitch.exe /extend (no-op). Installing a virtual display driver needs an admin driver package, unavailable. | enumeration + commands in s4-capture-sprint-results.json (attemptSecondMonitor) |
 | Elevated vs non-elevated capture app | any / Windows | **UNTESTED-BLOCKED** | Agent integrity = **Medium** (S-1-16-8192). schtasks /RL HIGHEST creation **denied** (admin required); interactive UAC deliberately not triggered (an unattended consent prompt cannot be approved and would block the desktop); EnableLUA/prompt policy captured. Only the non-elevated capture path is covered by the other rows. | whoami /groups + denied schtasks + UAC policy in s4-capture-sprint-results.json (attemptElevation) |
 | macOS ScreenCaptureKit / NSWindowSharingNone | HireShade Electron / macOS | **UNTESTED** | — | No macOS host. NSWindowSharingNone is reported unreliable by external sources; no verification here. |
@@ -91,18 +91,49 @@ display/show/restore/focus/private/compat/recreate (#1..#32 in the evidence run)
   transparent:false window is created on the NEXT launch (createWindow reads the
   persisted compat flag). Runtime recreation is opt-in (HIRESHADE_COMPAT_RECREATE=1).
 
-### S2: recreation crash root cause + fix (code shipped), opaque-capture verification BLOCKED
+### U2 (sprint-unblock): CDP re-attach fixed; opaque-capture measurement = OBSERVED rows + one exact BLOCKED row
 
-Root cause class (found by reproducing with `scripts/capture-matrix/repro-recreate.mjs`): the compat toggle used to synchronously destroy a **protected** surface inside the IPC handler the renderer was awaiting; the old window's late `closed` handler then deleted the new replacement's map entries, and the new HWND could race the GPU surface swap. Symptoms: CDP target never appeared / process exit.
+Harness fix (scripts only; U1 koffi code untouched):
+- `scripts/capture-matrix/measure-opaque-recreate.mjs` no longer polls or awaits the pre-swap CDP target.
+  On target detach it re-queries `http://127.0.0.1:<port>/json`, re-attaches to the `floating.html` target
+  by URL, bounds the re-attach at 20 s and fails loudly with the current target list; every CDP call is
+  bounded (5 s) and a dead socket is never awaited. If the renderer target does not come back it falls
+  back to main-process evidence (persisted `capture-state.json`, `window-style.ps1` EXSTYLE/affinity,
+  and external PrintWindow/GDI/DXGI captures) instead of hanging.
+- New `scripts/capture-matrix/window-style.ps1`: GetWindowLongPtr(GWL_EXSTYLE), WS_EX_LAYERED,
+  GetWindowDisplayAffinity + bounds for PID-scoped windows.
 
-Fix shipped in `artifacts/desktop-electron/main.js` (`git diff` shows exact lines):
-1. Clear `setContentProtection(false)` before teardown (no protected surface racing the new HWND).
-2. Recreate after `old.once('closed')` + 30 ms, never synchronously inside the IPC handler (60 ms defer), with a 750 ms fallback build.
-3. `closed` handler now deletes map entries only if they still point at THIS window (identity guard), so a late close cannot unregister the replacement.
-4. `did-finish-load` force-show fallback for recreated opaque surfaces that miss `ready-to-show`.
-5. Pre-flight move/self-check handlers added (see §6).
+OBSERVED rows (this Windows host, Electron 37.10.3, single display):
+1. Runtime recreation (HIRESHADE_COMPAT_RECREATE=1): main process survives and logs
+   `floating surface recreated (compat-mode-changed): compat=true transparent=false`; the new HWND gets
+   `native affinity mode=0x11 ... readback=0x11` (main-u2.log). CDP re-attach found 6 targets and the new
+   floating page once, but the target list became null right after the swap and the recreated window is
+   **visible=false** in the HWND probe.
+2. Startup-opaque (capture-state.json compatMode=true, so createWindow builds transparent:false):
+   state compat=true / transparent=false; renderer scrim DOM background = rgb(11,13,18);
+   HWND affinity 0x11 PASS; window visible=true.
+3. PrintWindow: **all-black in every mode** - transparent-before mean luma 0 / 100% black; opaque-after
+   mean luma 0 / 100% black. The expected "opaque shows its own colour instead of black" was NOT observed.
+   Possible cause: WDA_EXCLUDEFROMCAPTURE also blocks PrintWindow on this build, or the layered DWM surface
+   prints black regardless of the Electron transparent flag; the current probes cannot distinguish these.
+4. WS_EX_LAYERED stayed set (exstyle 0x80128) for the frameless window in BOTH transparent and compat runs,
+   so EXSTYLE is not a valid proxy for Electron's transparent:false. Do not use it as proof.
+5. GDI (same-run hidden baseline): runtime recreation 0.00% pixels differ; startup-opaque 3.74%.
+   DXGI ddagrab vs hidden baseline: runtime 0.95%, startup-opaque 0.02% - i.e. DXGI did NOT show the
+   overlay in these runs, while the earlier banner run measured 49.8%. DXGI behaviour is therefore
+   INCONSISTENT on this host/build: do not claim a confirmed "always ignores" here, and do not claim
+   compatibility mode fixes DXGI (it cannot by design).
 
-**Verification status:** the crash root cause is fixed in code, but the opaque-capture **measurement** is BLOCKED in this environment: the repro harness (`repro-recreate.mjs`) hangs waiting for the recreated page target, and unattended UAC/desktop constraints prevent a clean end-to-end run. No OBSERVED row claims "opaque removes the PrintWindow black bar". This is recorded as G-052 PARTIAL, not PASS.
+**Exact blocker (one row):** runtime-recreated surface is created transparent:false and receives affinity
+0x11, but it is not shown and its renderer/CDP target disappears after the swap; PrintWindow/GDI/DXGI then
+measure the hidden baseline, so no opaque content can be asserted for the runtime-recreation path.
+Startup-opaque runs are measurable but still PrintWindow-black. Result: G-052 PARTIAL - harness fixed,
+opaque PrintWindow expectation NOT confirmed.
+
+Evidence: docs/evidence/capture-sprint/{opaque-recreate-runtime.json, opaque-recreate-measurement.json
+(seeded opaque), u2-opaque-summary.json, main-u2.log, u2-window-style-before/after.json,
+u2-affinity-before/after.json, printwindow-transparent-before.png, printwindow-opaque-after-recreate.png,
+u2-diff-gdi-opaque-vs-hidden.json, u2-diff-dxgi-opaque-vs-hidden.json, u2-ddagrab-opaque-after-recreate.mp4}
 
 - Fallback ladder (plain language, in src/overlay/capture/captureLogic.cjs and the
   in-app self-check panel), now failure-specific:
@@ -174,7 +205,7 @@ The matrix is now an in-app pre-flight shown before a session (Connect dialog), 
 | Click-through (dedicated target window) | **OBSERVED PASS** — ON: target click 0->1, overlay 0; OFF: overlay control 0->1, target unchanged |
 | Chrome 155 full-screen share | **OBSERVED excluded** — protected rgb 19,22,21; OFF control 254,2,253 magenta |
 | Edge full-screen share | **OBSERVED excluded** — same method/result |
-| Chrome/Edge tab share | **OBSERVED structurally safe** (`displaySurface=browser`, no overlay pixels); exact app-tab selection **UNTESTED-BLOCKED** (picker chose the capture page's own tab) |
-| Real 150 % OS scaling | **UNTESTED-BLOCKED** — LogPixels 144 written/read back, live scale stays 1.05 until sign-out |
+| Chrome/Edge tab share | **OBSERVED PASS** — app-tab DOM pixel confirmed in Chrome 155 + Edge; zero overlay pixels (`u4-tab-share-results.json`) |
+| Real OS scaling | **PARTIAL** — live change **1.05 -> 1.3125 (125%)** via CCD, restored; 150% not offered on this 1366x768 source (Settings only 100%, CCD max relative 1) |
 | Second monitor | **UNTESTED-BLOCKED** — single display; no virtual-display driver installable without admin |
 | Elevated vs non-elevated | **UNTESTED-BLOCKED** — Medium integrity; schtasks HIGHEST denied; unattended UAC impossible |

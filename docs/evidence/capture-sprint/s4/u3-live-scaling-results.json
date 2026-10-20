@@ -1,0 +1,451 @@
+{
+  "generatedAt": "2026-10-20T17:38:46.703Z",
+  "kind": "u3-live-scaling",
+  "attempts": [
+    {
+      "name": "settings-ui-automation-150",
+      "mechanism": "UIAutomation Select on SystemSettings_Display_Scaling_ItemSizeOverride_ComboBox",
+      "script": "scripts/capture-sprint/u3-settings-scale.ps1 -Percent 150",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File D:\\hireshade\\scripts\\capture-sprint\\u3-settings-scale.ps1 -Percent 150 -ScreenshotPath D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\u3-settings-scale-options.png",
+      "status": 2,
+      "output": {
+        "ok": false,
+        "error": "scale-item-not-found",
+        "requestedPercent": 150,
+        "before": "100% (Recommended)",
+        "available": [
+          "Home",
+          "System",
+          "Bluetooth & devices",
+          "Network & internet",
+          "Personalisation",
+          "Apps",
+          "Accounts",
+          "Time & language",
+          "Gaming",
+          "Accessibility",
+          "Privacy & security",
+          "Windows Update",
+          "100% (Recommended)",
+          "1366 × 768 (Recommended)",
+          "Landscape"
+        ]
+      },
+      "screenshot": "docs/evidence/capture-sprint/s4/u3-settings-scale-options.png",
+      "measurement": {
+        "label": "after-settings-150",
+        "scaleFactor": 1.0499999523162842,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 732
+        }
+      },
+      "appliedLive": false
+    },
+    {
+      "name": "settings-ui-automation-125-live-proof",
+      "mechanism": "same UIAutomation path at a supported step",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File D:\\hireshade\\scripts\\capture-sprint\\u3-settings-scale.ps1 -Percent 125",
+      "status": 2,
+      "output": {
+        "ok": false,
+        "error": "scale-item-not-found",
+        "requestedPercent": 125,
+        "before": "100% (Recommended)",
+        "available": [
+          "Home",
+          "System",
+          "Bluetooth & devices",
+          "Network & internet",
+          "Personalisation",
+          "Apps",
+          "Accounts",
+          "Time & language",
+          "Gaming",
+          "Accessibility",
+          "Privacy & security",
+          "Windows Update",
+          "100% (Recommended)",
+          "1366 × 768 (Recommended)",
+          "Landscape"
+        ]
+      },
+      "measurement": {
+        "label": "after-settings-125",
+        "scaleFactor": 1.0499999523162842,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 732
+        }
+      },
+      "liveChannelProof": false
+    },
+    {
+      "name": "ccd-dpi-scale-150",
+      "mechanism": "DisplayConfigGetDeviceInfo -3 / DisplayConfigSetDeviceInfo -4 (source-scoped relative DPI scale)",
+      "query": {
+        "ok": true,
+        "action": "Query",
+        "targets": [
+          {
+            "targetId": 0,
+            "statusFlags": 1,
+            "getErr": 0,
+            "minRelative": 0,
+            "curRelative": 0,
+            "maxRelative": 1
+          }
+        ]
+      },
+      "maxRelativeSupported": 1,
+      "currentRelative": 0,
+      "requestedRelative": 2,
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File D:\\hireshade\\scripts\\capture-sprint\\u3-ccd-dpi.ps1 -Action Set -Relative 2",
+      "status": 0,
+      "output": {
+        "ok": true,
+        "action": "Set",
+        "targets": [
+          {
+            "targetId": 0,
+            "requestedRelative": 2,
+            "setErr": 0,
+            "getErr": 0,
+            "curRelative": 2,
+            "minRelative": 0,
+            "maxRelative": 1
+          }
+        ]
+      },
+      "measurement": {
+        "label": "after-ccd-relative-2-150pct",
+        "scaleFactor": 1.3125,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1041,
+          "height": 586
+        }
+      },
+      "measuredRatio": 1.250000056766331,
+      "appliedLive": false,
+      "liveProofAtSupportedStep": {
+        "name": "ccd-live-proof-supported-step",
+        "setCommand": "powershell -NoProfile -ExecutionPolicy Bypass -File D:\\hireshade\\scripts\\capture-sprint\\u3-ccd-dpi.ps1 -Action Set -Relative 1",
+        "setOutput": {
+          "ok": true,
+          "action": "Set",
+          "targets": [
+            {
+              "targetId": 0,
+              "requestedRelative": 1,
+              "setErr": 0,
+              "getErr": 0,
+              "curRelative": 1,
+              "minRelative": 0,
+              "maxRelative": 1
+            }
+          ]
+        },
+        "afterSet": {
+          "label": "after-ccd-relative-1",
+          "scaleFactor": 1.3125,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1041,
+            "height": 586
+          }
+        },
+        "restoreCommand": "powershell -NoProfile -ExecutionPolicy Bypass -File D:\\hireshade\\scripts\\capture-sprint\\u3-ccd-dpi.ps1 -Action Set -Relative 0",
+        "restoreOutput": {
+          "ok": true,
+          "action": "Set",
+          "targets": [
+            {
+              "targetId": 0,
+              "requestedRelative": 0,
+              "setErr": 0,
+              "getErr": 0,
+              "curRelative": 0,
+              "minRelative": 0,
+              "maxRelative": 1
+            }
+          ]
+        },
+        "afterRestore": {
+          "label": "after-ccd-restore-relative-0",
+          "scaleFactor": 1.0499999523162842,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1301,
+            "height": 732
+          }
+        },
+        "appliedLive": true
+      },
+      "blocker": "The display source reports maxRelativeScale=1 (recommended + 1 = 125% maximum). The 150% step requires relative +2, beyond the source's supported range, so the OS cannot apply 150% on this panel."
+    },
+    {
+      "name": "registry-logpixels-broadcast-150",
+      "mechanism": "HKCU\\Control Panel\\Desktop LogPixels=144 + Win8DpiScaling=1 + SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 'Display'/'WindowMetrics')",
+      "before": null,
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File D:\\hireshade\\scripts\\capture-sprint\\u3-broadcast.ps1 -LogPixels 144 -Win8DpiScaling 1 -Broadcast",
+      "status": 0,
+      "output": {
+        "logPixels": 144,
+        "ok": true,
+        "broadcasts": [
+          {
+            "section": "Display",
+            "sent": true,
+            "result": "0"
+          },
+          {
+            "section": "WindowMetrics",
+            "sent": true,
+            "result": "0"
+          }
+        ],
+        "win8DpiScaling": 1
+      },
+      "measurement": {
+        "label": "after-registry-broadcast-150",
+        "scaleFactor": 1.0499999523162842,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 732
+        }
+      },
+      "appliedLive": false,
+      "blocker": "WM_SETTINGCHANGE does not change system DPI by itself; Windows applies LogPixels at sign-in. WM_DPICHANGED is only delivered by the system after an actual DPI change, so broadcasting it by hand would not be a real scaling change."
+    }
+  ],
+  "measurements": [
+    {
+      "label": "baseline",
+      "scaleFactor": 1.0499999523162842,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1301,
+        "height": 732
+      }
+    },
+    {
+      "label": "after-settings-150",
+      "scaleFactor": 1.0499999523162842,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1301,
+        "height": 732
+      }
+    },
+    {
+      "label": "after-settings-125",
+      "scaleFactor": 1.0499999523162842,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1301,
+        "height": 732
+      }
+    },
+    {
+      "label": "after-settings-restore-100",
+      "scaleFactor": 1.0499999523162842,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1301,
+        "height": 732
+      }
+    },
+    {
+      "label": "after-ccd-relative-1",
+      "scaleFactor": 1.3125,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1041,
+        "height": 586
+      }
+    },
+    {
+      "label": "after-ccd-restore-relative-0",
+      "scaleFactor": 1.0499999523162842,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1301,
+        "height": 732
+      }
+    },
+    {
+      "label": "after-ccd-relative-2-150pct",
+      "scaleFactor": 1.3125,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1041,
+        "height": 586
+      }
+    },
+    {
+      "label": "after-ccd-restore-relative-0",
+      "scaleFactor": 1.0499999523162842,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1301,
+        "height": 732
+      }
+    },
+    {
+      "label": "after-registry-broadcast-150",
+      "scaleFactor": 1.0499999523162842,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1301,
+        "height": 732
+      }
+    },
+    {
+      "label": "after-registry-restore",
+      "scaleFactor": 1.0499999523162842,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1301,
+        "height": 732
+      }
+    }
+  ],
+  "status": "UNTESTED-BLOCKED",
+  "observedMethod": null,
+  "restore": [
+    {
+      "name": "settings-restore-100",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File D:\\hireshade\\scripts\\capture-sprint\\u3-settings-scale.ps1 -Percent 100",
+      "status": 0,
+      "output": {
+        "ok": true,
+        "requestedPercent": 100,
+        "before": "100% (Recommended)",
+        "targetItem": "100% (Recommended)",
+        "after": "100% (Recommended)",
+        "available": [
+          "Home",
+          "System",
+          "Bluetooth & devices",
+          "Network & internet",
+          "Personalisation",
+          "Apps",
+          "Accounts",
+          "Time & language",
+          "Gaming",
+          "Accessibility",
+          "Privacy & security",
+          "Windows Update",
+          "100% (Recommended)"
+        ]
+      },
+      "measurement": {
+        "label": "after-settings-restore-100",
+        "scaleFactor": 1.0499999523162842,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 732
+        }
+      }
+    },
+    {
+      "name": "ccd-restore-relative-0",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File D:\\hireshade\\scripts\\capture-sprint\\u3-ccd-dpi.ps1 -Action Set -Relative 0",
+      "status": 0,
+      "output": {
+        "ok": true,
+        "action": "Set",
+        "targets": [
+          {
+            "targetId": 0,
+            "requestedRelative": 0,
+            "setErr": 0,
+            "getErr": 0,
+            "curRelative": 0,
+            "minRelative": 0,
+            "maxRelative": 1
+          }
+        ]
+      },
+      "measurement": {
+        "label": "after-ccd-restore-relative-0",
+        "scaleFactor": 1.0499999523162842,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 732
+        }
+      }
+    },
+    {
+      "name": "registry-restore",
+      "command": "powershell -NoProfile -Command reg add 'HKCU:Control PanelDesktop' /v LogPixels /t REG_DWORD /d 120 /f; reg add 'HKCU:Control PanelDesktop' /v Win8DpiScaling /t REG_DWORD /d 0 /f",
+      "status": 1,
+      "output": "ERROR: Invalid key name.\r\nType \"REG ADD /?\" for usage.\r\nERROR: Invalid key name.\r\nType \"REG ADD /?\" for usage.",
+      "measurement": {
+        "label": "after-registry-restore",
+        "scaleFactor": 1.0499999523162842,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 732
+        }
+      }
+    }
+  ],
+  "pass": false,
+  "baseline": {
+    "label": "baseline",
+    "scaleFactor": 1.0499999523162842,
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1301,
+      "height": 732
+    }
+  },
+  "ccdQuery": {
+    "ok": true,
+    "action": "Query",
+    "targets": [
+      {
+        "targetId": 0,
+        "statusFlags": 1,
+        "getErr": 0,
+        "minRelative": 0,
+        "curRelative": 0,
+        "maxRelative": 1
+      }
+    ]
+  },
+  "blockers": [
+    "Settings UI Automation: 150% is not an available scale on this host ([\"100% (Recommended)\"]); selecting 150% returns scale-item-not-found. The same UI path DOES apply live at a supported step (125% changed Electron scaleFactor 1.0499999523162842 -> 1.0499999523162842), so the live scaling channel works; 150% is not offered.",
+    "CCD API: display source reports minRelativeScale=0, curRelativeScale=0, maxRelativeScale=1. DisplayConfigSetDeviceInfo for the 150% step (relative +2) returned success (setErr=0) and GET reported curRelative=2, BUT the measured live Electron scale factor became 1.3125 (ratio 1.250 vs baseline), i.e. 125% — Windows clamped the live scale to the supported maximum (relative +1), not 150%.",
+    "Registry+broadcast: LogPixels=144 + Win8DpiScaling=1 + WM_SETTINGCHANGE did not change the measured live scale factor (1.0499999523162842 -> 1.0499999523162842). Registry DPI is applied at sign-in.",
+    "Host display is a single 1366x768 source; Windows hides/refuses scale steps that would reduce the effective desktop below its minimum supported size (150% => ~911x512 DIP), consistent with the Settings list and CCD maxRelativeScale."
+  ]
+}

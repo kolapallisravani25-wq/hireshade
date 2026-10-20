@@ -1,0 +1,568 @@
+{
+  "generated_at": "2026-10-20T17:36:07.127Z",
+  "method": "Runtime compat-mode toggle (HIRESHADE_COMPAT_RECREATE=1) -> window recreated transparent:false; CDP re-attach by fresh /json polling (20s bound); captures compared with same-run hidden-window baselines.",
+  "cdp_reattach": {
+    "ok": true,
+    "target_list_count": 6,
+    "page_title": "Floating Mini-Screen",
+    "page_url": "file:///D:/hireshade/artifacts/craft-vita/dist/public/floating.html",
+    "after_evaluate_error": "CDP_REATTACH_FAILED {\n  \"label\": \"eval-retry\",\n  \"error\": \"floating page not found\",\n  \"targets\": null\n}"
+  },
+  "before": {
+    "capture": {
+      "version": 1,
+      "compatMode": false,
+      "lastProfile": "reading",
+      "lastProfileBounds": {
+        "x": 52,
+        "y": 41,
+        "width": 1197,
+        "height": 604
+      },
+      "reportedVisible": false,
+      "lastSelfCheckAt": null,
+      "lastSuggestion": {
+        "suggest": true,
+        "reasons": [
+          "large transparent overlay (heuristic: 81% of the work area)"
+        ],
+        "confidence": "heuristic",
+        "honestNote": "Capture visibility cannot be reliably detected automatically. This check is manual on purpose.",
+        "canAutoDetect": false
+      },
+      "knownBadCapturePath": null,
+      "affinityMode": "exclude",
+      "transparent": true,
+      "opaqueSurfaceOnRestart": false,
+      "runtimeSurfaceNote": "Electron's transparent flag is creation-only. Runtime compatibility mode applies an opaque renderer scrim + solid background colour; a true transparent:false surface is created on the next launch.",
+      "overlayAreaRatio": 0.8134,
+      "stealthEnabled": true,
+      "reassertCount": 6,
+      "lastReassert": {
+        "at": 1792517770045,
+        "reason": "show",
+        "description": "show",
+        "count": 6,
+        "appliedWindows": 1,
+        "windows": [
+          "floating",
+          "launcher"
+        ]
+      },
+      "reassertLog": [
+        {
+          "at": 1792517767444,
+          "reason": "window-recreated",
+          "description": "window surface recreated",
+          "count": 1,
+          "appliedWindows": 1,
+          "windows": [
+            "floating"
+          ]
+        },
+        {
+          "at": 1792517767461,
+          "reason": "window-recreated",
+          "description": "window surface recreated",
+          "count": 2,
+          "appliedWindows": 1,
+          "windows": [
+            "floating",
+            "launcher"
+          ]
+        },
+        {
+          "at": 1792517768892,
+          "reason": "profile-change",
+          "description": "profile-change",
+          "count": 3,
+          "appliedWindows": 1,
+          "windows": [
+            "floating",
+            "launcher"
+          ]
+        },
+        {
+          "at": 1792517769009,
+          "reason": "show",
+          "description": "show",
+          "count": 4,
+          "appliedWindows": 1,
+          "windows": [
+            "floating",
+            "launcher"
+          ]
+        },
+        {
+          "at": 1792517769013,
+          "reason": "focus",
+          "description": "focus",
+          "count": 5,
+          "appliedWindows": 1,
+          "windows": [
+            "floating",
+            "launcher"
+          ]
+        },
+        {
+          "at": 1792517770045,
+          "reason": "show",
+          "description": "show",
+          "count": 6,
+          "appliedWindows": 1,
+          "windows": [
+            "floating",
+            "launcher"
+          ]
+        }
+      ],
+      "profiles": [
+        "card",
+        "banner",
+        "reading"
+      ],
+      "affinity": {
+        "value": null,
+        "note": "OS affinity is verified externally by scripts/capture-matrix/affinity.ps1 (GetWindowDisplayAffinity == 0x11)."
+      },
+      "windows": {
+        "floating": {
+          "exists": true,
+          "visible": true,
+          "focused": true,
+          "alwaysOnTop": true,
+          "opacity": 1,
+          "bounds": {
+            "x": 51,
+            "y": 40,
+            "width": 1198,
+            "height": 606
+          }
+        },
+        "launcher": {
+          "exists": true,
+          "visible": true,
+          "focused": false,
+          "alwaysOnTop": true,
+          "opacity": 1,
+          "bounds": {
+            "x": 409,
+            "y": 2,
+            "width": 483,
+            "height": 683
+          }
+        }
+      }
+    },
+    "bounds": {
+      "x": 51,
+      "y": 40,
+      "width": 1198,
+      "height": 606
+    },
+    "physical": "54,42,1258,636",
+    "window_style": {
+      "captured_at": "2026-10-20T23:06:11.5139905+05:30",
+      "method": "user32 GetWindowLongPtr(GWL_EXSTYLE) + GetWindowDisplayAffinity + DwmGetWindowAttribute",
+      "layered_means_transparent_surface": true,
+      "windows": [
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1E07D8",
+          "pid": 1668,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false
+        }
+      ]
+    },
+    "affinity": {
+      "captured_at": "2026-10-20T23:06:12.8583781+05:30",
+      "expect": "0x11",
+      "note": "U2 opaque recreation",
+      "electron_pids": [
+        1668
+      ],
+      "windows": [
+        {
+          "title": "Launcher",
+          "hwnd": "0x330562",
+          "pid": 1668,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 3,
+            "width": 506,
+            "height": 716,
+            "x": 430
+          }
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1E07D8",
+          "pid": 1668,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          }
+        },
+        {
+          "title": "MSCTFIME UI",
+          "hwnd": "0x2207F6",
+          "pid": 1668,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        },
+        {
+          "title": "Default IME",
+          "hwnd": "0x45019A",
+          "pid": 1668,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        }
+      ],
+      "matching": [
+        {
+          "title": "Launcher",
+          "hwnd": "0x330562",
+          "pid": 1668,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 3,
+            "width": 506,
+            "height": 716,
+            "x": 430
+          },
+          "expected": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1E07D8",
+          "pid": 1668,
+          "visible": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "expected": "0x11",
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    "printwindow": {
+      "captured_at": "2026-10-20T23:06:14.4074485+05:30",
+      "label": "transparent-before",
+      "method": "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+      "title": "Floating Mini-Screen",
+      "hwnd": "0x1E07D8",
+      "printwindow_ok": true,
+      "flag_used": 0,
+      "path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\printwindow-transparent-before.png",
+      "width": 1257,
+      "height": 635,
+      "stats": {
+        "mean_luma": 0,
+        "std_luma": 0,
+        "unique_colors_sampled": 1,
+        "black_fraction": 1
+      }
+    },
+    "compat_toggle_dispatched": true
+  },
+  "after": {
+    "capture": {
+      "version": 1,
+      "compatMode": true,
+      "lastProfile": "reading",
+      "lastProfileBounds": {
+        "x": 52,
+        "y": 41,
+        "width": 1197,
+        "height": 604
+      },
+      "reportedVisible": false,
+      "lastSelfCheckAt": null,
+      "lastSuggestion": {
+        "suggest": true,
+        "reasons": [
+          "large transparent overlay (heuristic: 81% of the work area)"
+        ],
+        "confidence": "heuristic",
+        "honestNote": "Capture visibility cannot be reliably detected automatically. This check is manual on purpose.",
+        "canAutoDetect": false
+      },
+      "knownBadCapturePath": null,
+      "affinityMode": "exclude"
+    },
+    "bounds": {
+      "x": 51,
+      "y": 40,
+      "width": 1198,
+      "height": 606
+    },
+    "physical": "54,42,1258,636",
+    "dom": null,
+    "window_style": {
+      "captured_at": "2026-10-20T23:06:47.5567524+05:30",
+      "method": "user32 GetWindowLongPtr(GWL_EXSTYLE) + GetWindowDisplayAffinity + DwmGetWindowAttribute",
+      "layered_means_transparent_surface": true,
+      "windows": [
+        {
+          "title": "HireShade Floating Screen",
+          "hwnd": "0x1F07D8",
+          "pid": 1668,
+          "visible": false,
+          "style": "0x4C50000",
+          "exstyle": "0x80128",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 42,
+            "width": 1259,
+            "height": 637,
+            "x": 53
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": true
+        }
+      ]
+    },
+    "affinity": {
+      "captured_at": "2026-10-20T23:06:48.2993473+05:30",
+      "expect": "0x11",
+      "note": "U2 opaque recreation",
+      "electron_pids": [
+        1668
+      ],
+      "windows": [
+        {
+          "title": "HireShade Floating Screen",
+          "hwnd": "0x1F07D8",
+          "pid": 1668,
+          "visible": false,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 42,
+            "width": 1259,
+            "height": 637,
+            "x": 53
+          }
+        },
+        {
+          "title": "Launcher",
+          "hwnd": "0x330562",
+          "pid": 1668,
+          "visible": false,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 3,
+            "width": 506,
+            "height": 716,
+            "x": 430
+          }
+        },
+        {
+          "title": "Error",
+          "hwnd": "0xA5055E",
+          "pid": 1668,
+          "visible": true,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 191,
+            "width": 572,
+            "height": 276,
+            "x": 389
+          }
+        },
+        {
+          "title": "Default IME",
+          "hwnd": "0x45019A",
+          "pid": 1668,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        },
+        {
+          "title": "MSCTFIME UI",
+          "hwnd": "0x2207F6",
+          "pid": 1668,
+          "visible": false,
+          "affinity": "0x0",
+          "bounds": {
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "x": 0
+          }
+        }
+      ],
+      "matching": [
+        {
+          "title": "HireShade Floating Screen",
+          "hwnd": "0x1F07D8",
+          "pid": 1668,
+          "visible": false,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 42,
+            "width": 1259,
+            "height": 637,
+            "x": 53
+          },
+          "expected": "0x11",
+          "pass": true
+        },
+        {
+          "title": "Launcher",
+          "hwnd": "0x330562",
+          "pid": 1668,
+          "visible": false,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 3,
+            "width": 506,
+            "height": 716,
+            "x": 430
+          },
+          "expected": "0x11",
+          "pass": true
+        }
+      ],
+      "pass": false
+    },
+    "log_tail": "2026-10-20T17:36:18.760Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T17:36:18.761Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T17:36:18.761Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T17:36:18.761Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T17:36:18.761Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T17:36:18.762Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T17:36:18.762Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T17:36:18.762Z [info] [capture] native affinity mode=0x11 hwnd=1968088 applied=true readback=0x11\n2026-10-20T17:36:18.763Z [info] [capture] native affinity mode=0x11 hwnd=1968088 applied=true readback=0x11\n2026-10-20T17:36:18.764Z [info] [capture] reassert #9 reason=focus (focus) applied=1\n2026-10-20T17:36:19.575Z [info] [capture] native affinity mode=0x11 hwnd=1968088 applied=true readback=0x11\n2026-10-20T17:36:19.576Z [info] [capture] native affinity mode=0x11 hwnd=3343714 applied=true readback=0x11\n2026-10-20T17:36:19.577Z [info] [capture] reassert #10 reason=compat-mode-changed (compatibility mode changed) applied=2\n2026-10-20T17:36:19.578Z [info] [capture] compatibility mode=true transparent=false background=#0b0d12 surfaceRecreated=true\n2026-10-20T17:36:20.457Z [info] [capture] native affinity mode=0x11 hwnd=2033624 applied=true readback=0x11\n2026-10-20T17:36:20.477Z [info] [capture] native affinity mode=0x11 hwnd=2033624 applied=true readback=0x11\n2026-10-20T17:36:20.477Z [info] [capture] reassert #11 reason=window-recreated (window surface recreated) applied=1\n2026-10-20T17:36:20.478Z [info] [capture] floating surface recreated (compat-mode-changed): compat=true transparent=false bounds={\"x\":51,\"y\":40,\"width\":1198,\"height\":606}\n2026-10-20T17:36:20.479Z [info] [capture] native affinity mode=0x11 hwnd=2033624 applied=true readback=0x11\n2026-10-20T17:36:20.479Z [info] [capture] reassert #12 reason=window-recreated (window surface recreated) applied=1"
+  },
+  "captures": {
+    "printwindow_opaque": {
+      "captured_at": "2026-10-20T23:06:49.2440336+05:30",
+      "label": "opaque-after-recreate",
+      "method": "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+      "title": "HireShade Floating Screen",
+      "hwnd": "0x1F07D8",
+      "printwindow_ok": true,
+      "flag_used": 0,
+      "path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\printwindow-opaque-after-recreate.png",
+      "width": 1259,
+      "height": 637,
+      "stats": {
+        "mean_luma": 0,
+        "std_luma": 0,
+        "unique_colors_sampled": 1,
+        "black_fraction": 1
+      }
+    },
+    "gdi_opaque": {
+      "captured_at": "2026-10-20T23:06:50.3080514+05:30",
+      "label": "opaque-after-recreate",
+      "note": "opaque-after-recreate",
+      "method": "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+      "bounds": {
+        "y": 42,
+        "width": 1258,
+        "height": 636,
+        "x": 54
+      },
+      "full_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-opaque-after-recreate-full.png",
+      "crop_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-opaque-after-recreate-crop.png",
+      "stats": {
+        "mean_luma": 41.88,
+        "std_luma": 28.72,
+        "unique_colors_sampled": 1344,
+        "high_contrast_fraction": 0.4369,
+        "non_black_fraction": 0
+      }
+    },
+    "dxgi_opaque": {
+      "ok": true,
+      "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\u2-ddagrab-opaque-after-recreate.mp4",
+      "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\u2-ddagrab-opaque-after-recreate-frame.png"
+    }
+  },
+  "diffs": {
+    "gdi_opaque_vs_hidden": {
+      "captured_at": "2026-10-20T23:06:54.0548772+05:30",
+      "label": "gdi-opaque-vs-hidden",
+      "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-hidden-baseline-crop.png",
+      "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-opaque-after-recreate-crop.png",
+      "threshold": 16,
+      "width": 1258,
+      "height": 636,
+      "rect": "",
+      "mean_abs_diff": 0,
+      "fraction_diff_gt_threshold": 0,
+      "mean_diff_where_changed": 0,
+      "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\u2-diff-gdi-opaque-vs-hidden.png"
+    },
+    "dxgi_opaque_vs_hidden": {
+      "captured_at": "2026-10-20T23:06:56.7484703+05:30",
+      "label": "dxgi-opaque-vs-hidden",
+      "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\u2-ddagrab-hidden-baseline-frame.png",
+      "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\u2-ddagrab-opaque-after-recreate-frame.png",
+      "threshold": 16,
+      "width": 1366,
+      "height": 768,
+      "rect": "",
+      "mean_abs_diff": 0.779,
+      "fraction_diff_gt_threshold": 0.00948,
+      "mean_diff_where_changed": 113.54,
+      "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\u2-diff-dxgi-opaque-vs-hidden.png"
+    }
+  },
+  "verdict": {
+    "recreated_survived": true,
+    "compat_mode_after": true,
+    "transparent_flag_before": true,
+    "transparent_flag_after": null,
+    "transparent_false_confirmed": false,
+    "affinity_after": [
+      "0x11",
+      "0x11"
+    ],
+    "printwindow_before_black_fraction": 1,
+    "printwindow_after_black_fraction": 1,
+    "printwindow_has_content_after": false,
+    "gdi_opaque_vs_hidden_fraction": 0,
+    "dxgi_opaque_vs_hidden_fraction": 0.00948,
+    "dxgi_ignores_affinity": false,
+    "note": "DXGI Desktop Duplication is known to ignore WDA_EXCLUDEFROMCAPTURE; compatibility mode changes the surface (opaque scrim / no blur) but cannot fix DXGI. Monitor placement or window/tab sharing are the only reliable mitigations for DXGI-based capture."
+  },
+  "app_pid": 1668,
+  "after_capture_source": "userData/capture-state.json (main-process persisted state; renderer CDP unavailable)"
+}

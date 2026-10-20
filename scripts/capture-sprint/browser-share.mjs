@@ -67,16 +67,20 @@ function browserArgs(options) {
     "--no-default-browser-check",
     "--disable-sync",
     "--disable-extensions",
-    "--use-fake-ui-for-media-stream",
     "--autoplay-policy=no-user-gesture-required",
     "--window-size=480,320",
     "--window-position=820,420",
   ];
   if (options.mode === "tab") {
+    // U4 fix: --use-fake-ui-for-media-stream makes the fake picker accept the
+    // CURRENT tab before the title match is honoured (capture page captures
+    // itself). Tab share therefore runs WITHOUT fake UI, with the app tab as the
+    // only tab in a dedicated window; the capture page opens later in a
+    // separate window over CDP.
     args.push("--auto-select-tab-capture-source-by-title=" + TAB_TITLE);
     args.push(options.origin + "/app-tab");
-    if (options.tabStrategy !== "new-window") args.push(options.origin + "/share");
   } else {
+    args.push("--use-fake-ui-for-media-stream");
     args.push("--auto-select-desktop-capture-source=" + options.sourceVariant);
     args.push("--app=" + options.origin + "/share");
   }
@@ -88,12 +92,23 @@ async function captureOnce(browser, options, points) {
   const instance = spawnProcess(browser.exe, browserArgs(options), { cwd: options.root });
   let page = null;
   try {
-    if (options.mode === "tab" && options.tabStrategy === "new-window") {
-      // Keep the app tab in the initial window, open the share probe in a NEW
-      // window over CDP so the tab picker has exactly one titled app tab.
+    if (options.mode === "tab") {
+      // Wait for the dedicated app-tab window to finish loading its TITLE (the
+      // picker matches by title), then open the capture page in a NEW window so
+      // the picker can never pick the capture page itself.
       const version = await waitForCdpVersion(options.port, 15000);
       const browserCdp = await connectCdp(version.webSocketDebuggerUrl);
       try {
+        const appTabDeadline = Date.now() + 20000;
+        let appTabReady = false;
+        while (Date.now() < appTabDeadline && !appTabReady) {
+          const targets = await fetch("http://127.0.0.1:" + options.port + "/json/list").then(function (response) { return response.json(); });
+          appTabReady = targets.some(function (entry) {
+            return entry.type === "page" && String(entry.url).includes("/app-tab") && entry.title === TAB_TITLE;
+          });
+          if (!appTabReady) await sleep(150);
+        }
+        if (!appTabReady) throw new Error("app tab title never became \"" + TAB_TITLE + "\"");
         await browserCdp.send("Target.createTarget", { url: options.origin + "/share", newWindow: true });
       } finally {
         browserCdp.close();
@@ -171,6 +186,7 @@ async function runOnce(browser, options, points) {
     // be part of a tab capture. The purple control sample also proves the picker
     // selected the app tab rather than the share page.
     const controlRgb = classified.controlSample && classified.controlSample.rgb;
+    assertion("tab-capture-display-surface", capture.result.displaySurface === "browser", capture.result.displaySurface);
     const targetedAppTab = classified.overlayIsBlue === true && isAppTabPurple(controlRgb);
     // Structural claim: tab capture is source-scoped to a tab; the overlay is a
     // separate OS window and can never appear in it. This is observable even
@@ -246,30 +262,26 @@ export async function runProtectedShares(root, server, evidenceDir, overlayInfo,
       protectedRow = row;
       if (row.status !== "UNTESTED-BLOCKED") break;
     }
-    // Tab share: try same-window tabs first, then a dedicated app-tab window
-    // with the share probe opened in a new window over CDP.
+    // Tab share (U4): dedicated app-tab window + capture page in a separate
+    // window opened over CDP, WITHOUT --use-fake-ui-for-media-stream.
     if (modes.indexOf("tab") < 0) continue;
-    for (const strategy of ["multi-tab", "new-window"]) {
-      sequence += 1;
-      const tabRow = await runOnce(
-        browser,
-        {
-          root: root,
-          origin: server.origin,
-          port: takePort(),
-          userDataDir: path.join(evidenceDir, "browser-profile-" + browser.name.toLowerCase() + "-tab-" + sequence),
-          mode: "tab",
-          tabStrategy: strategy,
-          protectedOverlay: true,
-          evidenceDir: evidenceDir,
-        },
-        points,
-      );
-      tabRow.tabStrategy = strategy;
-      tabRow.screenshotError = tabRow.screenshotError || null;
-      result.runs.push(tabRow);
-      if (tabRow.status === "OBSERVED") break;
-    }
+    sequence += 1;
+    const tabRow = await runOnce(
+      browser,
+      {
+        root: root,
+        origin: server.origin,
+        port: takePort(),
+        userDataDir: path.join(evidenceDir, "browser-profile-" + browser.name.toLowerCase() + "-tab-" + sequence),
+        mode: "tab",
+        tabStrategy: "new-window",
+        protectedOverlay: true,
+        evidenceDir: evidenceDir,
+      },
+      points,
+    );
+    tabRow.tabStrategy = "new-window";
+    result.runs.push(tabRow);
   }
   for (const row of result.runs) {
     if (row.status === "FAIL") result.failures.push(row.browser + " " + row.mode + ": " + JSON.stringify(row.assertions.filter(function (entry) { return !entry.pass; })));
