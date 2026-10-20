@@ -1,0 +1,18 @@
+﻿{
+    "captured_at":  "2026-10-20T22:58:44.9911367+05:30",
+    "label":  "native-0x01",
+    "method":  "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+    "title":  "Floating Mini-Screen",
+    "hwnd":  "0x300284",
+    "printwindow_ok":  true,
+    "flag_used":  0,
+    "path":  "docs\\evidence\\capture-sprint\\printwindow-native-0x01.png",
+    "width":  737,
+    "height":  380,
+    "stats":  {
+                  "mean_luma":  0,
+                  "std_luma":  0,
+                  "unique_colors_sampled":  1,
+                  "black_fraction":  1
+              }
+}

@@ -190,9 +190,12 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
       actionIds = ['move-to-monitor-2', 'window-share-guidance'];
       why.push('A second display is available but the overlay is not on it yet.');
     } else {
-      message =
-        'Exclusion cannot be relied on for this setup. Share only the meeting window or browser tab, and run the self-check before you rely on it.';
-      actionIds = ['window-share-guidance', 'run-self-check'];
+      message = knownIgnoringCapturePath
+        ? 'This capture path ignores normal window exclusion. Turn on black box mode (the interviewer sees a black rectangle, not your answers) or share only a window/tab, then run the self-check.'
+        : 'Exclusion cannot be relied on for this setup. Share only the meeting window or browser tab, and run the self-check before you rely on it.';
+      actionIds = knownIgnoringCapturePath
+        ? ['enable-black-box-mode', 'window-share-guidance']
+        : ['window-share-guidance', 'run-self-check'];
     }
     if (report === 'visible' && compatMode) {
       why.push('The overlay was still visible with compatibility mode ON, so compatibility mode alone will not fix this setup.');
@@ -202,8 +205,8 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
     status = 'RED';
     headline = 'This setup cannot rely on window exclusion';
     message =
-      'This app likely uses a hardware capture path that can ignore window exclusion, and there is only one display. Share a window/tab and run the self-check.';
-    actionIds = ['window-share-guidance', 'run-self-check'];
+      'This app likely uses a hardware capture path that ignores normal exclusion, and there is only one display. Turn on black box mode (a black rectangle in their capture instead of your answers) or share a window/tab, then run the self-check.';
+    actionIds = ['enable-black-box-mode', 'window-share-guidance'];
   } else if (hasSecondDisplay && !overlayOnRecommendedDisplay) {
     // Requirement: putting the overlay on the second display is the DEFAULT
     // recommendation whenever one exists - never a fallback.

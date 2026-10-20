@@ -464,3 +464,21 @@ ADR-001 (engineering workflow) lives at `docs/adr/ADR-001-engineering-workflow.m
 **Claim status:** the root-cause fix is code-complete, but the opaque-capture measurement is BLOCKED (repro harness hangs waiting for the recreated page target). G-052 is PARTIAL; the PrintWindow black-bar limitation stays in CAPTURE_MATRIX and the claim doc.
 
 **Evidence:** `artifacts/desktop-electron/main.js` diff, `docs/CAPTURE_MATRIX.md` §3, `scripts/capture-matrix/repro-recreate.mjs`.
+
+---
+
+## ADR-028 — Ship black box mode (WDA_MONITOR 0x01) as the DXGI fallback (EXT G-057)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** DXGI Desktop Duplication ignores WDA_EXCLUDEFROMCAPTURE (0x11). U1 asked whether WDA_MONITOR (0x01) is honoured where 0x11 is not. In-process koffi on the app's own HWND (readback 0x1) measured: DXGI overlay region mean luma 0.01, 100 percent black, versus 0x11 27.39 luma with content visible; GDI and PrintWindow also all-black under 0x01.
+
+**Options:** (a) leave DXGI as an unavoidable leak and rely only on monitor/window-share routing; (b) ship a hidden debug-only mode; (c) ship a user-selectable, persisted black box mode offered by the pre-flight for DXGI-risk setups.
+
+**Decision:** (c). One native code path (applyStealth -> koffi SetWindowDisplayAffinity) supports 0x00/0x01/0x11; the mode is persisted in captureState.affinityMode and re-asserted on the same triggers. The pre-flight offers Turn on black box mode for known-ignoring/high-risk single-display setups. Copy states the trade-off plainly: a black rectangle is discoverable, but answer text does not leak.
+
+**Why:** For DXGI capture, visible answers are worse than a black rectangle. The alternative routing (monitor 2/window share) remains the default recommendation where available.
+
+**Consequences:** Black box mode depends on koffi/user32 (fallback to setContentProtection with 0x11 if unavailable); it is not claimed to defeat kernel proctoring; macOS unaffected (no 0x01 path shipped there).
+
+**Evidence:** docs/CAPTURE_MATRIX.md section 1b, docs/evidence/capture-sprint/native-affinity-dxgi.json, UNDETECTABILITY_CLAIM.md.

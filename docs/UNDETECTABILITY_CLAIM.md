@@ -21,10 +21,9 @@ This page states exactly what is proven, where, on which capture path. It is del
 
 ## Known failure — OBSERVED
 
-- **DXGI Desktop Duplication ignores WDA_EXCLUDEFROMCAPTURE.** ffmpeg `ddagrab` (D3D11/Desktop Duplication) shows the overlay in BOTH ON and OFF states: ON vs hidden baseline **49.8 %** pixels differ, OFF **42.9 %**. This is a real leak for capture apps that use Desktop Duplication; opacity and compatibility mode cannot fix it. Only monitor placement or window/tab sharing avoids it.
-- **WDA_MONITOR (0x01) is not reachable for the product surface**: Electron exposes only `setContentProtection(bool)` (0x00/0x11), and an out-of-process `SetWindowDisplayAffinity(0x01)` fails with ERROR_ACCESS_DENIED because the window belongs to another process. Recorded UNTESTED-BLOCKED, not claimed as ineffective; the "black box beats visible answers" hypothesis is **UNRESOLVED**.
+- **DXGI Desktop Duplication ignores WDA_EXCLUDEFROMCAPTURE (0x11).** ffmpeg `ddagrab` shows the overlay in BOTH ON and OFF states: ON vs hidden baseline **49.8 %** pixels differ, OFF **42.9 %**. Mitigations: **black box mode** (next bullet), monitor 2, or window/tab sharing. Compatibility mode does not help DXGI.
+- **Black box mode (WDA_MONITOR 0x01) fixes the DXGI leak into a discoverable black rectangle, not a live answer.** U1 established 0x01 in-process via koffi on the app's own HWND (readback 0x1). Measured: DXGI frame over the overlay region = **mean luma 0.01, 100 % black** (vs 0x11: 27.39 luma / content visible); GDI and PrintWindow also all-black under 0x01. It is shipped as a persisted toggle (`captureState.affinityMode`), re-asserted on the same triggers, and offered by the pre-flight for DXGI-risk setups. Trade-off: a black rectangle is discoverable, but no answer text leaks.
 - **PrintWindow black rectangle**: a protected transparent window prints black, which is discoverable. The S2 root-cause fix for the runtime opaque-window recreation crash shipped (guarded teardown, deferred recreate, map identity guard, force-show fallback) but the **opaque-capture measurement is BLOCKED** in this environment (repro harness hangs; no OBSERVED row). Do not claim the black bar is fixed.
-- **No affinity mode tested helps DXGI**: 0x00 shows content; 0x01 is unreachable; 0x11 is ignored. Mitigation is routing (monitor 2 / window/tab share), not affinity.
 
 ## Not verified — UNTESTED / UNTESTED-BLOCKED
 
@@ -38,6 +37,6 @@ This page states exactly what is proven, where, on which capture path. It is del
 
 ## What HireShade may say today (defensible)
 
-> On Windows 10/11, with capture protection on, HireShade's overlay is excluded from GDI/screenshot capture, Chromium screen and window capture, Chrome/Edge full-screen sharing, and PrintWindow content capture at every shipped overlay size — tab sharing is structurally safe — and the app warns you when your setup may use a capture path it cannot protect (DXGI Desktop Duplication), recommending a second monitor or window/tab sharing instead. macOS and elevated capture paths are not yet verified, and HireShade does not claim to defeat kernel-level proctoring or anti-cheat.
+> On Windows 10/11, with capture protection on, HireShade's overlay is excluded from GDI/screenshot capture, Chromium screen and window capture, Chrome/Edge full-screen sharing, and PrintWindow content capture at every shipped overlay size — tab sharing is structurally safe — and if your meeting app captures with DXGI Desktop Duplication (which ignores normal exclusion), black box mode turns the overlay into a black rectangle in that capture, so your answers are not readable; the app recommends a second monitor or window/tab sharing before that. macOS and elevated capture paths are not yet verified, and HireShade does not claim to defeat kernel-level proctoring or anti-cheat.
 
 That is the sentence we can defend with this evidence. We do **not** claim "100 % undetectable on every platform and every capture path".

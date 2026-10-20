@@ -145,6 +145,7 @@ function installPointerPassThrough() {
 const CAPTURE_CHANNELS = {
   getState: "desktop:capture:get-state",
   setCompatMode: "desktop:capture:set-compat-mode",
+  setAffinityMode: "desktop:capture:set-affinity-mode",
   applyProfile: "desktop:capture:apply-profile",
   reportVisible: "desktop:capture:report-visible",
   markSelfCheck: "desktop:capture:mark-self-check",
@@ -546,6 +547,9 @@ contextBridge.exposeInMainWorld("hireshadeCapture", {
   },
   setCompatMode: function (enabled) {
     return ipcRenderer.invoke(CAPTURE_CHANNELS.setCompatMode, Boolean(enabled));
+  },
+  setAffinityMode: function (mode) {
+    return ipcRenderer.invoke(CAPTURE_CHANNELS.setAffinityMode, mode === "monitor" ? "monitor" : "exclude");
   },
   applyProfile: function (profile) {
     return ipcRenderer.invoke(CAPTURE_CHANNELS.applyProfile, profile);

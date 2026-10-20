@@ -1,0 +1,112 @@
+﻿{
+    "captured_at":  "2026-10-20T22:58:41.6502917+05:30",
+    "expect":  "0x1",
+    "note":  "runtime toggle",
+    "electron_pids":  [
+                          1332,
+                          7652,
+                          9168,
+                          10892,
+                          11680
+                      ],
+    "windows":  [
+                    {
+                        "title":  "Launcher",
+                        "hwnd":  "0x4F0820",
+                        "pid":  9168,
+                        "visible":  true,
+                        "affinity":  "0x1",
+                        "bounds":  {
+                                       "y":  3,
+                                       "width":  506,
+                                       "height":  716,
+                                       "x":  430
+                                   }
+                    },
+                    {
+                        "title":  "Floating Mini-Screen",
+                        "hwnd":  "0x300284",
+                        "pid":  9168,
+                        "visible":  true,
+                        "affinity":  "0x1",
+                        "bounds":  {
+                                       "y":  16,
+                                       "width":  737,
+                                       "height":  380,
+                                       "x":  315
+                                   }
+                    },
+                    {
+                        "title":  "MSCTFIME UI",
+                        "hwnd":  "0x190610",
+                        "pid":  9168,
+                        "visible":  false,
+                        "affinity":  "0x0",
+                        "bounds":  {
+                                       "y":  0,
+                                       "width":  0,
+                                       "height":  0,
+                                       "x":  0
+                                   }
+                    },
+                    {
+                        "title":  "Default IME",
+                        "hwnd":  "0x160572",
+                        "pid":  9168,
+                        "visible":  false,
+                        "affinity":  "0x0",
+                        "bounds":  {
+                                       "y":  0,
+                                       "width":  0,
+                                       "height":  0,
+                                       "x":  0
+                                   }
+                    },
+                    {
+                        "title":  "Default IME",
+                        "hwnd":  "0x2E054E",
+                        "pid":  1332,
+                        "visible":  false,
+                        "affinity":  "0x0",
+                        "bounds":  {
+                                       "y":  0,
+                                       "width":  0,
+                                       "height":  0,
+                                       "x":  0
+                                   }
+                    }
+                ],
+    "matching":  [
+                     {
+                         "title":  "Launcher",
+                         "hwnd":  "0x4F0820",
+                         "pid":  9168,
+                         "visible":  true,
+                         "affinity":  "0x1",
+                         "bounds":  {
+                                        "y":  3,
+                                        "width":  506,
+                                        "height":  716,
+                                        "x":  430
+                                    },
+                         "expected":  "0x1",
+                         "pass":  true
+                     },
+                     {
+                         "title":  "Floating Mini-Screen",
+                         "hwnd":  "0x300284",
+                         "pid":  9168,
+                         "visible":  true,
+                         "affinity":  "0x1",
+                         "bounds":  {
+                                        "y":  16,
+                                        "width":  737,
+                                        "height":  380,
+                                        "x":  315
+                                    },
+                         "expected":  "0x1",
+                         "pass":  true
+                     }
+                 ],
+    "pass":  true
+}

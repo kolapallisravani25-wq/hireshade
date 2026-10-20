@@ -34,6 +34,72 @@ const geometry = require("./lib/overlayGeometry.js");
 // the vitest suite and the preload self-check UI (plain CJS, no build step).
 const captureLogic = require("../craft-vita/src/overlay/capture/captureLogic.cjs");
 
+// U1: in-process affinity control. Electron's setContentProtection(bool) only
+// reaches WDA_NONE (0x00) and WDA_EXCLUDEFROMCAPTURE (0x11); WDA_MONITOR (0x01)
+// must be set from the process that owns the HWND. koffi is an N-API FFI with
+// prebuilt binaries (no node-gyp) and lets us call user32 directly in main.
+// When unavailable we fall back to setContentProtection - never both paths at once.
+let nativeAffinity = null;
+try {
+  const koffi = require("koffi");
+  const user32 = koffi.load("user32.dll");
+  nativeAffinity = {
+    set: user32.func("bool __stdcall SetWindowDisplayAffinity(uint64 hwnd, uint32 affinity)"),
+    get: user32.func("bool __stdcall GetWindowDisplayAffinity(uint64 hwnd, void* affinity)"),
+  };
+  console.log("[capture] in-process affinity via koffi available");
+} catch (error) {
+  console.warn("[capture] koffi/user32 unavailable; using setContentProtection only: " + error);
+}
+
+/** Requested affinity for the current state: private off => 0x00. */
+function requestedAffinityMode() {
+  if (!settings.isPrivate) return 0x00;
+  // Explicit env override is for the capture rig; the product toggle lives in
+  // captureState.affinityMode ("exclude" default, "monitor" = black-box mode).
+  const override = process.env.HIRESHADE_AFFINITY_MODE;
+  if (override) {
+    const raw = String(override).trim().toLowerCase();
+    const parsed = raw.startsWith("0x") ? parseInt(raw, 16) : Number(raw);
+    if (parsed === 0) return 0x00;
+    if (parsed === 1) return 0x01;
+    return 0x11;
+  }
+  return captureState.affinityMode === "monitor" ? 0x01 : 0x11;
+}
+
+function hwndToBigInt(win) {
+  const buffer = win.getNativeWindowHandle();
+  return buffer.length >= 8 ? buffer.readBigUInt64LE(0) : BigInt(buffer.readUInt32LE(0));
+}
+
+function applyNativeAffinity(win) {
+  const mode = requestedAffinityMode();
+  const hwnd = hwndToBigInt(win);
+  let applied = false;
+  let readback = null;
+  try {
+    applied = nativeAffinity.set(hwnd, mode);
+    const out = Buffer.alloc(4);
+    if (nativeAffinity.get(hwnd, out)) readback = out.readUInt32LE(0);
+  } catch (error) {
+    console.warn("[capture] native affinity call failed: " + error);
+  }
+  console.log("[capture] native affinity mode=0x" + mode.toString(16) + " hwnd=" + hwnd.toString() + " applied=" + applied + " readback=" + (readback === null ? "null" : "0x" + readback.toString(16)));
+  if (!applied) {
+    console.warn(
+      "[capture] SetWindowDisplayAffinity(0x" + mode.toString(16) + ") failed for hwnd=" + hwnd.toString() + "; falling back to setContentProtection",
+    );
+    try {
+      win.setContentProtection(settings.isPrivate);
+    } catch (error) {
+      console.warn("[capture] setContentProtection fallback failed: " + error);
+    }
+    return { mode: mode, applied: false, readback: readback };
+  }
+  return { mode: mode, applied: true, readback: readback };
+}
+
 const DESKTOP_IPC = hotkeys.DESKTOP_IPC;
 const HOTKEY_EVENT_CHANNEL = hotkeys.HOTKEY_EVENT_CHANNEL;
 const POINTER_PASS_THROUGH_CHANNEL = hotkeys.POINTER_PASS_THROUGH_CHANNEL;
@@ -365,9 +431,18 @@ function scheduleCaptureStateSave() {
 
 function applyStealth(win) {
   if (!STEALTH_ENABLED || !win || win.isDestroyed()) return;
+  // Windows: one code path only. Prefer the in-process native call (supports
+  // 0x00/0x01/0x11). macOS/Linux or missing koffi: Electron's bool mapping.
+  if (process.platform === "win32" && nativeAffinity) {
+    const result = applyNativeAffinity(win);
+    if (result.applied) {
+      win.__hireshadeAffinity = { mode: result.mode, readback: result.readback, at: Date.now() };
+      return;
+    }
+  }
   if (typeof win.setContentProtection !== "function") return;
-  // Only primitive: Electron maps this to WDA_EXCLUDEFROMCAPTURE on Windows and
-  // NSWindowSharingNone on macOS. Re-applied on every show/restore/focus below.
+  // Fallback primitive: Electron maps this to WDA_EXCLUDEFROMCAPTURE on Windows
+  // and NSWindowSharingNone on macOS. Re-applied on every show/restore/focus.
   win.setContentProtection(settings.isPrivate);
 }
 
@@ -1071,6 +1146,16 @@ function registerIpc() {
   ipcMain.handle(CAPTURE_CHANNELS.setCompatMode, function (event, enabled) {
     requireKnownSender(event);
     return applyCaptureCompatMode(Boolean(enabled));
+  });
+
+  ipcMain.handle(CAPTURE_CHANNELS.setAffinityMode, function (event, mode) {
+    requireKnownSender(event);
+    captureState = captureLogic.setAffinityMode(captureState, mode);
+    saveCaptureStateNow();
+    reassertCaptureProtection("affinity-mode-changed");
+    broadcastCaptureState();
+    console.log("[capture] affinity mode=" + captureState.affinityMode);
+    return captureStateSnapshot();
   });
 
   ipcMain.handle(CAPTURE_CHANNELS.applyProfile, function (event, profile) {

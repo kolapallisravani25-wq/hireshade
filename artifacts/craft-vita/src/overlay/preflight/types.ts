@@ -49,6 +49,7 @@ export type PreflightActionId =
   | "move-to-monitor-2"
   | "window-share-guidance"
   | "enable-compatibility-mode"
+  | "enable-black-box-mode"
   | "run-self-check";
 
 export interface PreflightAction {
@@ -98,5 +99,6 @@ export interface PreflightHostActions {
   readonly moveOverlayToDisplay?: (displayId: number) => Promise<unknown> | unknown;
   readonly showWindowShareGuidance?: () => Promise<unknown> | unknown;
   readonly setCompatibilityMode?: (enabled: boolean) => Promise<unknown> | unknown;
+  readonly setBlackBoxMode?: (enabled: boolean) => Promise<unknown> | unknown;
   readonly runSelfCheck?: (patternKind: "content-leak" | "black-bar-leak") => Promise<unknown> | unknown;
 }

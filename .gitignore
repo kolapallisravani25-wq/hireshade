@@ -60,6 +60,10 @@ artifacts/craft-vita/temp-tauri-launch.png
 # Generated Electron helper bundles (prestart/predev regenerate them)
 /artifacts/desktop-electron/lib/
 
+# Chrome/Edge profiles and scratch from capture-sprint probes
+/docs/evidence/capture-sprint/s4/_u4-profile*/
+/scripts/capture-sprint/_u4_*/
+
 # Electron user-data trees captured during stealth-wiring validation
 /docs/evidence/stealth-wiring/userdata/
 /docs/evidence/overlay-size/userdata*/

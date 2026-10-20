@@ -64,3 +64,23 @@ Evidence rig to mirror on macOS (same as Windows): hidden-window baseline, pixel
 6. `docs/UNDETECTABILITY_CLAIM.md` updated with the macOS rows and date.
 
 Owner: unassigned until a macOS runner is available. This is tracked as GAP G-055 (DEFERRED).
+## 8. SCK vs legacy capture, and what actually works on macOS (U6)
+
+The macOS capture-exclusion claim depends on the capture API, not just the window flag:
+
+| Capture API | Hears NSWindowSharingNone? | Notes |
+|---|---|---|
+| `screencapture` CLI (legacy) | **Yes (expected)** — uses `CGWindowListCreateImage` | Honours the sharing state; good CI/smoke check, but only proves the legacy path. |
+| QuickTime screen recording | **Yes (expected)** — legacy CG window capture | Same class as `screencapture`. |
+| ScreenCaptureKit (macOS 13+) | **Reported NOT to honour it** — SCK captures at the display/stream level and is widely reported to include windows marked `NSWindowSharingNone` | This is the path Zoom/Meet/Teams on macOS 13+ are moving to. **Must be measured on real hardware; a green legacy run is necessary but not sufficient.** |
+| Window/tab share | Structurally safe (capture is scoped to a chosen surface) | **This is the fallback that definitely works on macOS today**, together with a second monitor. |
+
+Consequence for the claim: on macOS we can prove legacy exclusion with `screencapture`, but **cannot** claim invisibility to ScreenCaptureKit-based shares until an A/B test on a real Mac proves it. The product's fallback on macOS is therefore: put HireShade on a second display, or share a window/tab instead of the full screen.
+
+### CI runner feasibility (attempted reasoning, no claim)
+
+- The repo has `.github/workflows/desktop-build.yml` with a `macos-latest` build job (`workflow_dispatch`). It **builds** the app; it does not run the app or grant Screen Recording TCC.
+- GitHub-hosted macOS runners have no logged-in interactive session and cannot pre-grant TCC Screen Recording/Microphone permissions non-interactively. `screencapture`/`SCK` in CI therefore cannot be treated as a valid A/B environment for exclusion.
+- **What would close this:** a real macOS 13+ machine (Apple silicon or Intel) with a logged-in GUI session, Screen Recording and Microphone permissions granted, and one of: a second physical display, or a second machine to view the Zoom/Meet share. Then run the acceptance rig in §7. A self-hosted macOS runner with an interactive logged-in user and pre-approved TCC could substitute; a GitHub-hosted runner cannot.
+
+**Status remains DEFERRED (G-055)** with that exact hardware/access requirement. A CI run is not claimed as verification.

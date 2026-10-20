@@ -98,6 +98,10 @@ const DEFAULT_CAPTURE_STATE = {
   lastSelfCheckAt: null,
   lastSuggestion: null,
   knownBadCapturePath: null,
+  // U1: "exclude" = WDA_EXCLUDEFROMCAPTURE (0x11, invisible), "monitor" =
+  // WDA_MONITOR (0x01, black box in capture). Monitor is the fallback for
+  // DXGI Desktop Duplication, which ignores 0x11 but honours 0x01.
+  affinityMode: "exclude",
 };
 
 function isFiniteNumber(value) {
@@ -327,6 +331,7 @@ function parseCaptureState(raw) {
       typeof raw.knownBadCapturePath === "string" && raw.knownBadCapturePath.trim()
         ? raw.knownBadCapturePath.trim()
         : null,
+    affinityMode: raw.affinityMode === "monitor" ? "monitor" : "exclude",
   };
 }
 
@@ -336,6 +341,12 @@ function serializeCaptureState(state) {
 
 function setCompatMode(state, enabled) {
   return Object.assign({}, parseCaptureState(state), { compatMode: enabled === true });
+}
+
+function setAffinityMode(state, mode) {
+  return Object.assign({}, parseCaptureState(state), {
+    affinityMode: mode === "monitor" ? "monitor" : "exclude",
+  });
 }
 
 function setCaptureProfile(state, profile, bounds) {
@@ -386,6 +397,7 @@ function setKnownBadCapturePath(state, hint) {
 const CAPTURE_CHANNELS = {
   getState: "desktop:capture:get-state",
   setCompatMode: "desktop:capture:set-compat-mode",
+  setAffinityMode: "desktop:capture:set-affinity-mode",
   applyProfile: "desktop:capture:apply-profile",
   reportVisible: "desktop:capture:report-visible",
   markSelfCheck: "desktop:capture:mark-self-check",
@@ -420,6 +432,7 @@ module.exports = {
   parseCaptureState,
   recordSelfCheck,
   serializeCaptureState,
+  setAffinityMode,
   setCaptureProfile,
   setCompatMode,
   setKnownBadCapturePath,

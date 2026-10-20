@@ -40,23 +40,23 @@ content. That supports "exclusion applies to PrintWindow here", but the black
 result cannot fully distinguish "WDA blocked it" from "transparent/DWM surface
 prints black" — labelled OBSERVED with that caveat.
 
-## 1b. Affinity-mode experiment (S1): 0x00 / 0x01 / 0x11 against every path
+## 1b. Affinity-mode experiment (S1 → resolved by U1): 0x00 / 0x01 / 0x11
 
-Goal: determine whether a different `SetWindowDisplayAffinity` value helps where 0x11 fails (DXGI). Same hidden-window baseline and pixel-diff method as §1. Raw evidence: `docs/evidence/capture-sprint/affinity-grid-*.json`, `grid-ddagrab-*`, `gdi-*`, `desktopcapturer-*`, `printwindow-*`, `zoom-clean-*`, grid log `docs/affinity-grid-run7.tmp.log`.
+Goal: determine whether a different `SetWindowDisplayAffinity` value helps where 0x11 fails (DXGI). Method: Electron launched with an in-process koffi call to `user32!SetWindowDisplayAffinity` on its own HWND (`win.getNativeWindowHandle()`), verified by `GetWindowDisplayAffinity` readback and an external probe. Same hidden-window baseline / pixel-diff method as §1. Evidence: `docs/evidence/capture-sprint/native-affinity-dxgi.json`, `affinity-native-0x01.json`, `gdi-native-0x01-gdi.json`, `printwindow-native-0x01.json`, `native-0x01-dxgi-frame.png`, `native-0x01-crop.png`.
 
-| Path | 0x00 WDA_NONE | 0x01 WDA_MONITOR | 0x11 WDA_EXCLUDEFROMCAPTURE |
+| Path | 0x00 WDA_NONE | 0x01 WDA_MONITOR (in-process) | 0x11 WDA_EXCLUDEFROMCAPTURE |
 |---|---|---|---|
-| GDI `CopyFromScreen` | **VISIBLE_CONTENT** (BANNER + READING) | **UNTESTED-BLOCKED** | **Excluded** (independent run: ON 0.004 %/0.28 % vs OFF 16.45 %/7.32 %) |
-| Chromium `desktopCapturer` screen | **VISIBLE_CONTENT** | **UNTESTED-BLOCKED** | **Excluded** (ON 0.104 %/0.117 % vs OFF 5.44 %/5.57 %) |
-| Chromium `desktopCapturer` window | **CONTENT** (1366x252 BANNER / 1366x690 READING) | **UNTESTED-BLOCKED** | **NO_PIXELS** (0x0 thumbnail) |
-| PrintWindow | **CONTENT_VISIBLE** | **UNTESTED-BLOCKED** | **BLACK_NO_CONTENT** (caveat: transparent/DWM may also print black) |
-| DXGI Desktop Duplication (`ddagrab`) | **VISIBLE_CONTENT** | **UNTESTED-BLOCKED** | **VISIBLE_CONTENT — IGNORES 0x11** |
+| GDI `CopyFromScreen` | **VISIBLE_CONTENT** | **ALL-BLACK** (mean luma 0.00, black 100%) | **Excluded** (ON 0.004 %/0.28 % vs OFF 16.45 %/7.32 %) |
+| Chromium `desktopCapturer` screen | **VISIBLE_CONTENT** | **INFERRED black** (WDA_MONITOR semantics; not re-measured) | **Excluded** (ON 0.104 %/0.117 % vs OFF 5.44 %/5.57 %) |
+| Chromium `desktopCapturer` window | **CONTENT** (1366x252 / 1366x690) | **INFERRED black** (same; not re-measured) | **NO_PIXELS** (0x0 thumbnail) |
+| PrintWindow | **CONTENT_VISIBLE** | **ALL-BLACK** (mean luma 0, 100% black) | **BLACK_NO_CONTENT** (caveat) |
+| DXGI Desktop Duplication (`ddagrab`) | **VISIBLE_CONTENT** (mean luma 93.82, black 0.2%) | **ALL-BLACK — HONOURS 0x01** (mean luma **0.01**, black **100%**) | **VISIBLE_CONTENT — IGNORES 0x11** (mean luma 27.39, black 0.34%) |
 
-Why 0x01 is UNTESTED-BLOCKED (OBSERVED blocker, not a guess): `SetWindowDisplayAffinity` requires the caller to own the HWND. Electron exposes only `setContentProtection(bool)` (0x00/0x11); an out-of-process PowerShell/Win32 call returns **ERROR_ACCESS_DENIED (Win32 5)** on the Electron window, so no valid 0x01 state could be established. A Rust in-process probe exists in `scripts/capture-matrix/rust-affinity-probe/` but targets a separate native surface, not the shipped Electron overlay, so its result is not presented as a product result. The mixed-mode grid was aborted on an affinity-drift check for this reason; only the 0x00 and independent 0x11 rows are claimed.
+**Answer to the question: YES.** DXGI Desktop Duplication ignores 0x11 but **honours WDA_MONITOR 0x01**: the overlay region becomes a 100% black rectangle instead of a live answer window. GDI and PrintWindow are black under 0x01 as well. The 0x01 state was established entirely in-process (koffi + `win.getNativeWindowHandle()`, with readback 0x1), which is why the earlier out-of-process ERROR_ACCESS_DENIED blocker is resolved.
 
-**Conclusion:** no affinity mode tested helps DXGI; 0x11 remains the shipped mode. 0x01 cannot be reached on the transparent Electron surface in this build, so the "black-box beats visible answers" hypothesis is **UNRESOLVED**, not rejected.
+**Shipped product behaviour:** black box mode is a real, persisted toggle in the app (`captureState.affinityMode: "exclude" | "monitor"`, IPC `desktop:capture:set-affinity-mode`), uses one code path (`applyStealth` → native `SetWindowDisplayAffinity`; no mixing with `setContentProtection`), and re-asserts on the same triggers as normal protection (resize/preset/display/show/focus/recreate). The pre-flight offers it as a one-click action for DXGI-risk single-display setups. Black box is **discoverable** (a black rectangle), but it leaks no answer text — strictly better than a visible overlay for DXGI capture.
 
-**Residual (GDI ON vs baseline):** clean edge-ring analysis shows **0 changed pixels in the 1/2/4/8 px rings and a contiguous band of 0 px**; interior differences are 0.007 % (BANNER) / 0.294 % (READING) with max luma 84/200 — desktop/clock noise between captures, **not a visible edge line**. Zoomed montages: `docs/evidence/capture-sprint/zoom-clean-*-gdi-0x11-{top,bottom,left,right,corner-topleft}.png`.
+**Residual (GDI ON vs baseline for 0x11):** clean edge-ring analysis shows **0 changed pixels in the 1/2/4/8 px rings and a contiguous band of 0 px**; interior differences are 0.007 % (BANNER) / 0.294 % (READING) with max luma 84/200 — desktop/clock noise between captures, **not a visible edge line**. Zoomed montages: `docs/evidence/capture-sprint/zoom-clean-*-gdi-0x11-{top,bottom,left,right,corner-topleft}.png`.
 
 ## 2. Affinity re-assert after transitions (Windows GetWindowDisplayAffinity)
 

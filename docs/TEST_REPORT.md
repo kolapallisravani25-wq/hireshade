@@ -179,3 +179,23 @@ Regression status: frontend 53 files / 616 tests pass; workspace typecheck exit 
 Verification: frontend **57 files / 657 tests pass** (`docs/evidence/23-capture-sprint-frontend.txt`), workspace typecheck exit 0 (`24-capture-sprint-typecheck.txt`), capture/preflight unit tests 58/58, keyless capture-sprint quick check PASS (`25-capture-sprint-demo.txt`). No prior test regressed; latency pipeline unchanged.
 
 Honest headline: on this Windows host the overlay is excluded from GDI, Chromium screen/window capture, Chrome/Edge full-screen sharing and PrintWindow content, but **DXGI Desktop Duplication still sees it**; 0x01 could not be established; macOS/elevated/real-DPI/second-monitor remain blocked or deferred. The app now tells the user that in plain language before the session.
+
+## 15. Sprint-unblock — U1 WDA_MONITOR resolved (EXT G-051/G-057)
+
+**Question:** does DXGI Desktop Duplication honour WDA_MONITOR (0x01) where it ignores WDA_EXCLUDEFROMCAPTURE (0x11)? **Answer: OBSERVED YES.**
+
+Method: Electron main calls `user32!SetWindowDisplayAffinity` in-process through koffi on its own HWND (`win.getNativeWindowHandle()`); readback via `GetWindowDisplayAffinity` is 0x1. Three modes were launched with `HIRESHADE_AFFINITY_MODE`, and DXGI was captured with ffmpeg `ddagrab`; the overlay rect was cropped from the frame and sampled (mean luma / black fraction).
+
+| Mode | Affinity readback | DXGI crop (mean luma / black %) | GDI crop | PrintWindow |
+|---|---|---|---|---|
+| 0x00 WDA_NONE | 0x0 | 93.82 / 0.2% (content visible) | — (control) | — (control) |
+| **0x01 WDA_MONITOR** | **0x1** | **0.01 / 100% black** | **0.00 / 100% black** | **0.00 / 100% black** |
+| 0x11 WDA_EXCLUDEFROMCAPTURE | 0x11 | 27.39 / 0.34% (content visible) | excluded (existing rows) | black (existing rows) |
+
+Sources: `docs/evidence/capture-sprint/native-affinity-dxgi.json`, `affinity-native-0x01.json`, `gdi-native-0x01-gdi.json`, `printwindow-native-0x01.json`, `native-0x01-crop.png`, `native-0x11-crop.png`; script `scripts/capture-matrix/native-affinity-capture.ps1`.
+
+**Productised:** black box mode is a persisted toggle (`captureState.affinityMode: exclude|monitor`), IPC `desktop:capture:set-affinity-mode`, preload `hireshadeCapture.setAffinityMode`, one native code path in `applyStealth`, re-asserted on the same triggers (verified runtime toggle → affinity 0x1). The pre-flight offers it as the first action for DXGI-risk/high-risk single-display setups (copy: black rectangle is discoverable, answer text does not leak).
+
+Tests: frontend **57 files / 658 tests pass** (`docs/evidence/26-unblock-u1-frontend.txt`), workspace typecheck exit 0 (`27-unblock-u1-typecheck.txt`), new preflight test for the black-box action. Residual analysis unchanged: 0 changed edge pixels.
+
+U2 (opaque capture), U3 (real OS scaling) and U4 (tab-share artifact) are being closed in this same sprint; their results are appended below when measured.

@@ -1,0 +1,57 @@
+﻿{
+    "generatedAt":  "2026-10-20T22:55:02.9680087+05:30",
+    "method":  "native HIRESHADE_AFFINITY_MODE per launch; ddagrab DXGI frame cropped to the Floating window rect; mean luma / black fraction",
+    "results":  [
+                    {
+                        "mode":  "0x00",
+                        "affinity":  "0x0",
+                        "bounds":  {
+                                       "y":  16,
+                                       "width":  737,
+                                       "height":  380,
+                                       "x":  315
+                                   },
+                        "dxgiCrop":  {
+                                         "meanLuma":  93.82,
+                                         "blackFraction":  0.002,
+                                         "sampled":  17575,
+                                         "width":  737,
+                                         "height":  380
+                                     }
+                    },
+                    {
+                        "mode":  "0x01",
+                        "affinity":  "0x1",
+                        "bounds":  {
+                                       "y":  16,
+                                       "width":  737,
+                                       "height":  380,
+                                       "x":  315
+                                   },
+                        "dxgiCrop":  {
+                                         "meanLuma":  0.01,
+                                         "blackFraction":  1,
+                                         "sampled":  17575,
+                                         "width":  737,
+                                         "height":  380
+                                     }
+                    },
+                    {
+                        "mode":  "0x11",
+                        "affinity":  "0x11",
+                        "bounds":  {
+                                       "y":  16,
+                                       "width":  737,
+                                       "height":  380,
+                                       "x":  315
+                                   },
+                        "dxgiCrop":  {
+                                         "meanLuma":  27.39,
+                                         "blackFraction":  0.0034,
+                                         "sampled":  17575,
+                                         "width":  737,
+                                         "height":  380
+                                     }
+                    }
+                ]
+}

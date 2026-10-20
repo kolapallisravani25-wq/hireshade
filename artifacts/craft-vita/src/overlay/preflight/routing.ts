@@ -155,6 +155,21 @@ export async function routePreflightAction(
           message: 'Share only the meeting window or browser tab, not the entire screen.',
         };
       }
+      case 'enable-black-box-mode': {
+        if (!safeHost.setBlackBoxMode) {
+          return {
+            actionId: action.id,
+            handled: false,
+            message: 'Black box mode is not wired to this shell yet.',
+          };
+        }
+        await safeHost.setBlackBoxMode(true);
+        return {
+          actionId: action.id,
+          handled: true,
+          message: 'Black box mode enabled: capture paths that ignore exclusion will see a black rectangle instead of your answers.',
+        };
+      }
       case 'enable-compatibility-mode': {
         if (!safeHost.setCompatibilityMode) {
           return {
@@ -203,6 +218,7 @@ export interface RendererBridgeLike {
   };
   readonly hireshadeCapture?: {
     setCompatMode?: (enabled: boolean) => Promise<unknown>;
+    setAffinityMode?: (mode: 'monitor' | 'exclude') => Promise<unknown>;
     markSelfCheck?: () => Promise<unknown>;
     reportVisible?: (visible: boolean) => Promise<unknown>;
   };
@@ -220,6 +236,9 @@ export function createRendererPreflightHost(
     showWindowShareGuidance: () => undefined,
     setCompatibilityMode: capture?.setCompatMode
       ? (enabled) => capture.setCompatMode!(enabled)
+      : undefined,
+    setBlackBoxMode: capture?.setAffinityMode
+      ? (enabled) => capture.setAffinityMode!(enabled ? 'monitor' : 'exclude')
       : undefined,
     runSelfCheck: preflight?.showSelfCheck
       ? (pattern) => preflight.showSelfCheck!(pattern)

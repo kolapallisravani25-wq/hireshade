@@ -13,6 +13,7 @@
     "start": "electron ."
   },
   "devDependencies": {
-    "electron": "^37.2.4"
+    "electron": "^37.2.4",
+    "koffi": "^3.3.3"
   }
 }

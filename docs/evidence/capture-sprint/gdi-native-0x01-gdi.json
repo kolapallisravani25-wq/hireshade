@@ -1,0 +1,21 @@
+﻿{
+    "captured_at":  "2026-10-20T22:58:43.8056265+05:30",
+    "label":  "native-0x01-gdi",
+    "note":  "WDA_MONITOR runtime",
+    "method":  "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+    "bounds":  {
+                   "y":  16,
+                   "width":  737,
+                   "height":  380,
+                   "x":  315
+               },
+    "full_path":  "docs\\evidence\\capture-sprint\\gdi-native-0x01-gdi-full.png",
+    "crop_path":  "docs\\evidence\\capture-sprint\\gdi-native-0x01-gdi-crop.png",
+    "stats":  {
+                  "mean_luma":  0,
+                  "std_luma":  0,
+                  "unique_colors_sampled":  1,
+                  "high_contrast_fraction":  1,
+                  "non_black_fraction":  1
+              }
+}

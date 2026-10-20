@@ -30,6 +30,13 @@ export const PREFLIGHT_ACTION_CATALOG: Readonly<Record<PreflightActionId, Prefli
       'Opaque surface with a solid scrim (no transparency/blur/rounded compositing). More reliable in some capture paths; not a guarantee.',
     kind: 'one-click',
   },
+  'enable-black-box-mode': {
+    id: 'enable-black-box-mode',
+    label: 'Turn on black box mode',
+    description:
+      'Switch exclusion to WDA_MONITOR: capture apps that ignore normal exclusion (DXGI Desktop Duplication) then see a black rectangle instead of your answers. The rectangle is discoverable, but the answer text does not leak.',
+    kind: 'one-click',
+  },
   'run-self-check': {
     id: 'run-self-check',
     label: 'Run the screen-share self-check',

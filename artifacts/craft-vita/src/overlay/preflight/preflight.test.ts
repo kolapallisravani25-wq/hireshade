@@ -191,6 +191,21 @@ describe('pre-flight verdict states (exactly three)', () => {
     expect(verdict.status).toBe('AMBER');
     expect(verdict.actions[0]!.id).toBe('run-self-check');
   });
+
+  it('offers black box mode for DXGI-risk single-display setups (U1)', () => {
+    const knownPath = evaluatePreflight(base({ capturePathHint: 'DXGI Desktop Duplication' }));
+    expect(knownPath.status).toBe('RED');
+    expect(knownPath.actions[0]!.id).toBe('enable-black-box-mode');
+
+    const highRiskApp = evaluatePreflight(base({ detectedApps: detected('zoom') }));
+    expect(highRiskApp.status).toBe('RED');
+    expect(highRiskApp.actions.map((action) => action.id)).toContain('enable-black-box-mode');
+
+    // A generic visible report without a known-ignoring path keeps the original
+    // guidance (black box is offered only where 0x01 is known to help).
+    const generic = evaluatePreflight(base({ userReport: 'visible' }));
+    expect(generic.actions.map((action) => action.id)).not.toContain('enable-black-box-mode');
+  });
 });
 
 describe('curated app detection -> risk', () => {
