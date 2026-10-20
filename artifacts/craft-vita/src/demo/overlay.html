@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HireShade Overlay Demo</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: rgba(13, 16, 23, 0.94);
+        --card: rgba(255, 255, 255, 0.06);
+        --line: rgba(255, 255, 255, 0.11);
+        --text: #eef2fb;
+        --muted: #9aa6bd;
+        --accent: #7c5cff;
+        --accent-2: #22d3a7;
+        --warn: #ffb545;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: transparent;
+        font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+        color: var(--text);
+      }
+      body {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 20px;
+        overflow: hidden;
+      }
+      .card {
+        width: min(900px, calc(100vw - 40px));
+        background: linear-gradient(180deg, rgba(24, 29, 41, 0.96), var(--bg));
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(124, 92, 255, 0.08) inset;
+        backdrop-filter: blur(18px) saturate(140%);
+        overflow: hidden;
+      }
+      .accent-bar {
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), #38bdf8 55%, var(--accent-2));
+      }
+      .inner { padding: 18px 22px 16px; }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .brand { display: flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: 0.2px; }
+      .logo {
+        width: 24px; height: 24px; border-radius: 8px;
+        background: linear-gradient(135deg, var(--accent), #38bdf8);
+        box-shadow: 0 0 16px rgba(124, 92, 255, 0.55);
+      }
+      .badge {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--accent-2);
+        border: 1px solid rgba(34, 211, 167, 0.4);
+        background: rgba(34, 211, 167, 0.08);
+        padding: 3px 7px; border-radius: 999px;
+      }
+      .spacer { flex: 1; }
+      .model {
+        font-size: 11px; color: var(--muted);
+        border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px;
+        font-variant-numeric: tabular-nums;
+      }
+      .status {
+        font-size: 11px; font-weight: 600;
+        padding: 4px 10px; border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--muted);
+        min-width: 120px; text-align: center;
+      }
+      .status[data-state="listening"] { color: #9ad7ff; border-color: rgba(56, 189, 248, 0.4); }
+      .status[data-state="question"] { color: var(--warn); border-color: rgba(255, 181, 69, 0.4); }
+      .status[data-state="streaming"] { color: #c9b8ff; border-color: rgba(124, 92, 255, 0.5); }
+      .status[data-state="complete"] { color: var(--accent-2); border-color: rgba(34, 211, 167, 0.5); }
+      .streams { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+      .stream {
+        display: flex; align-items: center; gap: 7px;
+        font-size: 11px; color: var(--muted);
+        background: var(--card); border: 1px solid var(--line);
+        border-radius: 999px; padding: 4px 10px;
+      }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: #4b5568; }
+      .stream[data-active="true"] .dot { background: var(--accent-2); box-shadow: 0 0 8px var(--accent-2); }
+      .partial {
+        min-height: 20px;
+        font-size: 13px; color: var(--muted); font-style: italic;
+        margin-bottom: 10px;
+        white-space: pre-wrap;
+      }
+      .panel {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+      }
+      .panel-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+        color: var(--muted); margin-bottom: 6px;
+      }
+      .question { font-size: 15px; font-weight: 600; line-height: 1.45; }
+      .question:empty::after { content: "Waiting for a question…"; color: var(--muted); font-weight: 400; }
+      .answer {
+        font-size: 14px; line-height: 1.62; color: #e4e9f4;
+        max-height: 218px; overflow-y: auto;
+        white-space: pre-wrap;
+      }
+      .answer:empty::after { content: "Answer will stream here."; color: var(--muted); }
+      .answer strong { color: #fff; }
+      .answer code {
+        font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px;
+        background: rgba(124, 92, 255, 0.16); border: 1px solid rgba(124, 92, 255, 0.25);
+        border-radius: 5px; padding: 1px 5px;
+      }
+      .answer .li { display: block; padding-left: 16px; position: relative; }
+      .answer .li::before { content: "•"; position: absolute; left: 2px; color: var(--accent); }
+      footer {
+        display: flex; align-items: center; gap: 14px;
+        border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px;
+        font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums;
+      }
+      .timings { margin-left: auto; }
+      .cursor {
+        display: inline-block; width: 7px; height: 15px; margin-left: 2px;
+        background: var(--accent); border-radius: 2px; vertical-align: -2px;
+        animation: blink 1s steps(2, start) infinite;
+      }
+      @keyframes blink { to { visibility: hidden; } }
+      .hidden { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <div class="card" data-testid="overlay-card">
+      <div class="accent-bar"></div>
+      <div class="inner">
+        <header>
+          <div class="brand"><span class="logo"></span>HireShade</div>
+          <span class="badge">zero-key demo</span>
+          <div class="spacer"></div>
+          <span class="model" data-testid="model"></span>
+          <span class="status" data-testid="status" data-state="listening">Listening</span>
+        </header>
+
+        <div class="streams">
+          <span class="stream" data-testid="stream-screen" data-active="true"><span class="dot"></span>Screen share · interviewer</span>
+          <span class="stream" data-testid="stream-mic" data-active="false"><span class="dot"></span>Microphone · candidate</span>
+        </div>
+
+        <div class="partial" data-testid="partial"></div>
+        <div class="partial hidden" data-testid="mic-partial"></div>
+
+        <div class="panel">
+          <div class="panel-label">Detected question</div>
+          <div class="question" data-testid="question"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-label">Answer</div>
+          <div class="answer" data-testid="answer-text"></div>
+        </div>
+
+        <footer>
+          <span>ASR: WebSocket · pcm_f32le · 16 kHz</span>
+          <span class="timings" data-testid="timings">waiting for stream…</span>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      // Injected by scripts/demo/overlay-e2e.mjs (a JSON {frames, meta} replay).
+      window.__OVERLAY_DATA__ = /*__OVERLAY_DATA__*/null;
+      window.__OVERLAY_DONE__ = false;
+      window.__OVERLAY_FRAMES_APPLIED__ = 0;
+      window.__OVERLAY_TIMINGS__ = { startedAt: performance.now() };
+
+      (function () {
+        const data = window.__OVERLAY_DATA__;
+        const answerEl = document.querySelector('[data-testid="answer-text"]');
+        const questionEl = document.querySelector('[data-testid="question"]');
+        const partialEl = document.querySelector('[data-testid="partial"]');
+        const micEl = document.querySelector('[data-testid="mic-partial"]');
+        const statusEl = document.querySelector('[data-testid="status"]');
+        const modelEl = document.querySelector('[data-testid="model"]');
+        const timingsEl = document.querySelector('[data-testid="timings"]');
+        const streamScreen = document.querySelector('[data-testid="stream-screen"]');
+        const streamMic = document.querySelector('[data-testid="stream-mic"]');
+
+        if (!data || !Array.isArray(data.frames) || !data.frames.length) {
+          questionEl.textContent = "No overlay replay data injected.";
+          return;
+        }
+
+        function escapeHtml(value) {
+          return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+
+        function renderMarkdown(text) {
+          const lines = escapeHtml(text).split("\n");
+          return lines
+            .map(function (line) {
+              const bullet = line.match(/^\s*[-*]\s+(.*)$/);
+              const body = bullet ? bullet[1] : line;
+              const formatted = body
+                .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+                .replace(/`([^`]+)`/g, "<code>$1</code>");
+              return bullet ? '<span class="li">' + formatted + "</span>" : formatted;
+            })
+            .join("\n");
+        }
+
+        const statusLabels = {
+          listening: "Listening",
+          question: "Question detected",
+          streaming: "Answering",
+          complete: "Complete",
+        };
+
+        let previousAnswer = "";
+        function render(frame) {
+          partialEl.textContent = frame.partial || "";
+          if (frame.micPartial) {
+            micEl.textContent = "mic: " + frame.micPartial;
+            micEl.classList.remove("hidden");
+          } else {
+            micEl.textContent = "";
+            micEl.classList.add("hidden");
+          }
+          questionEl.textContent = frame.question || "";
+          if (frame.answer !== previousAnswer) {
+            answerEl.innerHTML = renderMarkdown(frame.answer || "");
+            previousAnswer = frame.answer;
+          }
+          const label = statusLabels[frame.status] || frame.status;
+          statusEl.textContent = label;
+          statusEl.setAttribute("data-state", frame.status);
+          if (frame.model) modelEl.textContent = frame.model;
+          // The screen-share socket is the interviewer channel and stays active
+          // for the whole session; the mic chip lights up while the candidate talks.
+          streamScreen.setAttribute("data-active", "true");
+          streamMic.setAttribute("data-active", frame.micPartial ? "true" : "false");
+          const timingParts = [];
+          timingParts.push("question at " + (frame.questionAtMs != null ? Math.round(frame.questionAtMs) + " ms" : "—"));
+          timingParts.push("first token " + (frame.firstTokenAtMs != null ? Math.round(frame.firstTokenAtMs - (frame.questionAtMs || 0)) + " ms" : "—"));
+          timingParts.push("answer visible " + (frame.completeAtMs != null ? Math.round(frame.completeAtMs - (frame.questionAtMs || 0)) + " ms" : "—"));
+          timingsEl.textContent = timingParts.join("  ·  ");
+          window.__OVERLAY_FRAMES_APPLIED__ += 1;
+        }
+
+        const startedAt = performance.now();
+        window.__OVERLAY_TIMINGS__.startedAt = startedAt;
+        const frames = data.frames;
+        let index = 0;
+
+        function step() {
+          if (index >= frames.length) {
+            const last = frames[frames.length - 1];
+            window.__OVERLAY_TIMINGS__.frames = frames.length;
+            window.__OVERLAY_TIMINGS__.questionAtMs = last.questionAtMs;
+            window.__OVERLAY_TIMINGS__.firstTokenAtMs = last.firstTokenAtMs;
+            window.__OVERLAY_TIMINGS__.completeAtMs = last.completeAtMs;
+            window.__OVERLAY_TIMINGS__.replayElapsedMs = performance.now() - startedAt;
+            window.__OVERLAY_DONE__ = true;
+            return;
+          }
+          const frame = frames[index++];
+          render(frame);
+          const next = frames[index];
+          if (!next) {
+            setTimeout(step, 0);
+            return;
+          }
+          const delay = Math.max(0, next.atMs - frame.atMs);
+          setTimeout(step, delay);
+        }
+
+        step();
+      })();
+    </script>
+  </body>
+</html>

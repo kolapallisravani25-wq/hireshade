@@ -1,0 +1,68 @@
+{
+  "sampleRate": 16000,
+  "description": "Deterministic 16 kHz mono PCM fixtures generated with ffmpeg (scripts/demo/generate-fixtures.mjs). WAVs are gitignored; this manifest is the committed source of truth for expected boundaries and scripted transcripts.",
+  "fixtures": [
+    {
+      "id": "demo-screen",
+      "wav": "demo-screen.wav",
+      "durationMs": 4600,
+      "role": "interviewer",
+      "segments": [
+        {
+          "startMs": 600,
+          "endMs": 1600,
+          "amplitude": 0.45,
+          "text": "Can you explain how you would design a rate limiter using Redis?",
+          "partials": [
+            { "atMs": 250, "text": "Can you explain how" },
+            { "atMs": 500, "text": "Can you explain how you would design" }
+          ]
+        },
+        {
+          "startMs": 2300,
+          "endMs": 3300,
+          "amplitude": 0.45,
+          "text": "And how would you handle the case where Redis is unavailable?",
+          "partials": [
+            { "atMs": 250, "text": "And how would you handle" },
+            { "atMs": 500, "text": "And how would you handle the case" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "demo-mic",
+      "wav": "demo-mic.wav",
+      "durationMs": 4600,
+      "role": "candidate",
+      "segments": [
+        {
+          "startMs": 3500,
+          "endMs": 3750,
+          "amplitude": 0.25,
+          "text": "Okay, got it.",
+          "partials": [{ "atMs": 100, "text": "Okay" }]
+        }
+      ]
+    },
+    {
+      "id": "vad-boundary",
+      "wav": "vad-boundary.wav",
+      "durationMs": 4000,
+      "role": "test",
+      "segments": [
+        { "startMs": 400, "endMs": 1400, "amplitude": 0.45, "text": "First exact boundary utterance." },
+        { "startMs": 2100, "endMs": 3200, "amplitude": 0.45, "text": "Second exact boundary utterance." }
+      ]
+    },
+    {
+      "id": "vad-short-burst",
+      "wav": "vad-short-burst.wav",
+      "durationMs": 2200,
+      "role": "test",
+      "segments": [
+        { "startMs": 1000, "endMs": 1080, "amplitude": 0.45, "text": "burst" }
+      ]
+    }
+  ]
+}
