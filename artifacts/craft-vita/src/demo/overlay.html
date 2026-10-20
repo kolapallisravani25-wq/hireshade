@@ -110,9 +110,44 @@
       }
       .question { font-size: 15px; font-weight: 600; line-height: 1.45; }
       .question:empty::after { content: "Waiting for a question…"; color: var(--muted); font-weight: 400; }
+      /* Virtual scroll host: the adapter translates .scroll-content with a
+         transform, so the browser scrollbar is never shown or fought over. */
+      .scroll-viewport {
+        position: relative;
+        height: 300px;
+        max-height: 300px;
+        overflow: hidden;
+        padding: 0;
+      }
+      .scroll-content { padding: 12px 14px; }
+      .scroll-content .panel-label.answer-label { margin-top: 12px; }
+      .jump-pill {
+        position: absolute;
+        right: 12px;
+        bottom: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font: 600 11px/1 "Segoe UI", Inter, system-ui, sans-serif;
+        color: #eef2fb;
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.95), rgba(56, 189, 248, 0.9));
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+        padding: 7px 12px;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 120ms ease, transform 120ms ease;
+        pointer-events: none;
+      }
+      .jump-pill:not([hidden]) { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      .jump-pill[hidden] { display: none !important; }
+      @media (prefers-reduced-motion: reduce) {
+        .jump-pill { transition: none; }
+      }
       .answer {
         font-size: 14px; line-height: 1.62; color: #e4e9f4;
-        max-height: 218px; overflow-y: auto;
         white-space: pre-wrap;
       }
       .answer:empty::after { content: "Answer will stream here."; color: var(--muted); }
@@ -159,14 +194,14 @@
         <div class="partial" data-testid="partial"></div>
         <div class="partial hidden" data-testid="mic-partial"></div>
 
-        <div class="panel">
-          <div class="panel-label">Detected question</div>
-          <div class="question" data-testid="question"></div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-label">Answer</div>
-          <div class="answer" data-testid="answer-text"></div>
+        <div class="panel scroll-viewport" data-testid="scroll-viewport">
+          <div class="scroll-content" data-testid="scroll-content">
+            <div class="panel-label">Detected question</div>
+            <div class="question" data-testid="question"></div>
+            <div class="panel-label answer-label">Answer</div>
+            <div class="answer" data-testid="answer-text" role="log" aria-live="polite" aria-atomic="false"></div>
+          </div>
+          <button class="jump-pill" data-testid="jump-pill" type="button" aria-label="Jump to latest answer" hidden>Jump to latest ↓</button>
         </div>
 
         <footer>
@@ -176,6 +211,9 @@
       </div>
     </div>
 
+    <!-- Framework-free auto-scroll runtime (built from src/overlay/autoscroll by
+         node scripts/scroll/build-runtime.mjs). Classic script: file:// blocks ESM. -->
+    <script src="../overlay/autoscroll/overlay-autoscroll.iife.js"></script>
     <script>
       // Injected by scripts/demo/overlay-e2e.mjs (a JSON {frames, meta} replay).
       window.__OVERLAY_DATA__ = /*__OVERLAY_DATA__*/null;
@@ -194,6 +232,49 @@
         const timingsEl = document.querySelector('[data-testid="timings"]');
         const streamScreen = document.querySelector('[data-testid="stream-screen"]');
         const streamMic = document.querySelector('[data-testid="stream-mic"]');
+
+        // ── Auto-scroll integration (framework-free runtime) ──────────────────
+        // The controller owns sticky-bottom streaming, the 24px unlock, the
+        // jump-to-latest pill, keyboard scrolling, persistence and ARIA. The
+        // page only mutates DOM and tells it content changed.
+        const scrollViewport = document.querySelector('[data-testid="scroll-viewport"]');
+        const scrollContent = document.querySelector('[data-testid="scroll-content"]');
+        const jumpPill = document.querySelector('[data-testid="jump-pill"]');
+        const MAX_SCROLL_VIEWPORT_PX = 300;
+        const sessionId = (data && data.meta && data.meta.sessionId) || "demo-session";
+        function syncScrollViewportHeight() {
+          // Short answers shrink the pane (no empty gap, no scrollbar); long
+          // answers are clipped at the max height and scrolled by the adapter.
+          // The pane uses box-sizing: border-box, so add the border back to keep
+          // clientHeight >= scrollHeight for the short-answer case (exactly 0
+          // maxOffset, no phantom 1-2px overflow).
+          const border = Math.max(0, scrollViewport.offsetHeight - scrollViewport.clientHeight);
+          const height = Math.min(
+            MAX_SCROLL_VIEWPORT_PX,
+            Math.max(120, scrollContent.scrollHeight),
+          );
+          scrollViewport.style.height = height + border + "px";
+        }
+        const autoScroll =
+          window.HireShadeAutoScroll && window.HireShadeAutoScroll.createOverlayAutoScroll
+            ? window.HireShadeAutoScroll.createOverlayAutoScroll({
+                sessionId,
+                elements: {
+                  viewport: scrollViewport,
+                  content: scrollContent,
+                  question: questionEl,
+                  answer: answerEl,
+                  pill: jumpPill,
+                },
+              })
+            : null;
+        window.__overlayAutoScroll = autoScroll;
+        window.__overlayDemo = {
+          sessionId,
+          autoScroll,
+          syncScrollViewportHeight,
+          elements: { answerEl, questionEl, scrollViewport, scrollContent, jumpPill, statusEl },
+        };
 
         if (!data || !Array.isArray(data.frames) || !data.frames.length) {
           questionEl.textContent = "No overlay replay data injected.";
@@ -230,6 +311,9 @@
         };
 
         let previousAnswer = "";
+        let previousQuestion = null;
+        let answerBaseline = "";
+
         function render(frame) {
           partialEl.textContent = frame.partial || "";
           if (frame.micPartial) {
@@ -239,9 +323,34 @@
             micEl.textContent = "";
             micEl.classList.add("hidden");
           }
-          questionEl.textContent = frame.question || "";
+
+          const question = frame.question || "";
+          const questionChanged = question !== previousQuestion;
+          if (questionChanged) {
+            previousQuestion = question;
+            // The replay stream is cumulative across questions; remember the
+            // old answer length so the pane can be reset for the new question.
+            answerBaseline = frame.answer || "";
+            answerEl.innerHTML = "";
+            if (autoScroll) autoScroll.notifyQuestionChanged();
+          }
+          questionEl.textContent = question;
+
           if (frame.answer !== previousAnswer) {
-            answerEl.innerHTML = renderMarkdown(frame.answer || "");
+            let display;
+            if (frame.answerComplete === true && frame.answer === answerBaseline) {
+              // The new answer finished with the same text as the previous one
+              // (mock provider): treat the completion as a fresh full answer.
+              answerBaseline = "";
+              display = frame.answer;
+            } else if (frame.answer.startsWith(answerBaseline)) {
+              display = frame.answer.slice(answerBaseline.length);
+            } else {
+              // The stream reset the answer (new question): render it whole.
+              answerBaseline = "";
+              display = frame.answer;
+            }
+            answerEl.innerHTML = renderMarkdown(display || "");
             previousAnswer = frame.answer;
           }
           const label = statusLabels[frame.status] || frame.status;
@@ -257,6 +366,8 @@
           timingParts.push("first token " + (frame.firstTokenAtMs != null ? Math.round(frame.firstTokenAtMs - (frame.questionAtMs || 0)) + " ms" : "—"));
           timingParts.push("answer visible " + (frame.completeAtMs != null ? Math.round(frame.completeAtMs - (frame.questionAtMs || 0)) + " ms" : "—"));
           timingsEl.textContent = timingParts.join("  ·  ");
+          syncScrollViewportHeight();
+          if (autoScroll) autoScroll.notifyContentChanged();
           window.__OVERLAY_FRAMES_APPLIED__ += 1;
         }
 

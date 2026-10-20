@@ -1,0 +1,1453 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HireShade Overlay Demo</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: rgba(13, 16, 23, 0.94);
+        --card: rgba(255, 255, 255, 0.06);
+        --line: rgba(255, 255, 255, 0.11);
+        --text: #eef2fb;
+        --muted: #9aa6bd;
+        --accent: #7c5cff;
+        --accent-2: #22d3a7;
+        --warn: #ffb545;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: transparent;
+        font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+        color: var(--text);
+      }
+      body {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 20px;
+        overflow: hidden;
+      }
+      .card {
+        width: min(900px, calc(100vw - 40px));
+        background: linear-gradient(180deg, rgba(24, 29, 41, 0.96), var(--bg));
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(124, 92, 255, 0.08) inset;
+        backdrop-filter: blur(18px) saturate(140%);
+        overflow: hidden;
+      }
+      .accent-bar {
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), #38bdf8 55%, var(--accent-2));
+      }
+      .inner { padding: 18px 22px 16px; }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .brand { display: flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: 0.2px; }
+      .logo {
+        width: 24px; height: 24px; border-radius: 8px;
+        background: linear-gradient(135deg, var(--accent), #38bdf8);
+        box-shadow: 0 0 16px rgba(124, 92, 255, 0.55);
+      }
+      .badge {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--accent-2);
+        border: 1px solid rgba(34, 211, 167, 0.4);
+        background: rgba(34, 211, 167, 0.08);
+        padding: 3px 7px; border-radius: 999px;
+      }
+      .spacer { flex: 1; }
+      .model {
+        font-size: 11px; color: var(--muted);
+        border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px;
+        font-variant-numeric: tabular-nums;
+      }
+      .status {
+        font-size: 11px; font-weight: 600;
+        padding: 4px 10px; border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--muted);
+        min-width: 120px; text-align: center;
+      }
+      .status[data-state="listening"] { color: #9ad7ff; border-color: rgba(56, 189, 248, 0.4); }
+      .status[data-state="question"] { color: var(--warn); border-color: rgba(255, 181, 69, 0.4); }
+      .status[data-state="streaming"] { color: #c9b8ff; border-color: rgba(124, 92, 255, 0.5); }
+      .status[data-state="complete"] { color: var(--accent-2); border-color: rgba(34, 211, 167, 0.5); }
+      .streams { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+      .stream {
+        display: flex; align-items: center; gap: 7px;
+        font-size: 11px; color: var(--muted);
+        background: var(--card); border: 1px solid var(--line);
+        border-radius: 999px; padding: 4px 10px;
+      }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: #4b5568; }
+      .stream[data-active="true"] .dot { background: var(--accent-2); box-shadow: 0 0 8px var(--accent-2); }
+      .partial {
+        min-height: 20px;
+        font-size: 13px; color: var(--muted); font-style: italic;
+        margin-bottom: 10px;
+        white-space: pre-wrap;
+      }
+      .panel {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+      }
+      .panel-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+        color: var(--muted); margin-bottom: 6px;
+      }
+      .question { font-size: 15px; font-weight: 600; line-height: 1.45; }
+      .question:empty::after { content: "Waiting for a question…"; color: var(--muted); font-weight: 400; }
+      /* Virtual scroll host: the adapter translates .scroll-content with a
+         transform, so the browser scrollbar is never shown or fought over. */
+      .scroll-viewport {
+        position: relative;
+        height: 300px;
+        max-height: 300px;
+        overflow: hidden;
+        padding: 0;
+      }
+      .scroll-content { padding: 12px 14px; }
+      .scroll-content .panel-label.answer-label { margin-top: 12px; }
+      .jump-pill {
+        position: absolute;
+        right: 12px;
+        bottom: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font: 600 11px/1 "Segoe UI", Inter, system-ui, sans-serif;
+        color: #eef2fb;
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.95), rgba(56, 189, 248, 0.9));
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+        padding: 7px 12px;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 120ms ease, transform 120ms ease;
+        pointer-events: none;
+      }
+      .jump-pill:not([hidden]) { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      .jump-pill[hidden] { display: none !important; }
+      @media (prefers-reduced-motion: reduce) {
+        .jump-pill { transition: none; }
+      }
+      .answer {
+        font-size: 14px; line-height: 1.62; color: #e4e9f4;
+        white-space: pre-wrap;
+      }
+      .answer:empty::after { content: "Answer will stream here."; color: var(--muted); }
+      .answer strong { color: #fff; }
+      .answer code {
+        font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px;
+        background: rgba(124, 92, 255, 0.16); border: 1px solid rgba(124, 92, 255, 0.25);
+        border-radius: 5px; padding: 1px 5px;
+      }
+      .answer .li { display: block; padding-left: 16px; position: relative; }
+      .answer .li::before { content: "•"; position: absolute; left: 2px; color: var(--accent); }
+      footer {
+        display: flex; align-items: center; gap: 14px;
+        border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px;
+        font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums;
+      }
+      .timings { margin-left: auto; }
+      .cursor {
+        display: inline-block; width: 7px; height: 15px; margin-left: 2px;
+        background: var(--accent); border-radius: 2px; vertical-align: -2px;
+        animation: blink 1s steps(2, start) infinite;
+      }
+      @keyframes blink { to { visibility: hidden; } }
+      .hidden { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <div class="card" data-testid="overlay-card">
+      <div class="accent-bar"></div>
+      <div class="inner">
+        <header>
+          <div class="brand"><span class="logo"></span>HireShade</div>
+          <span class="badge">zero-key demo</span>
+          <div class="spacer"></div>
+          <span class="model" data-testid="model"></span>
+          <span class="status" data-testid="status" data-state="listening">Listening</span>
+        </header>
+
+        <div class="streams">
+          <span class="stream" data-testid="stream-screen" data-active="true"><span class="dot"></span>Screen share · interviewer</span>
+          <span class="stream" data-testid="stream-mic" data-active="false"><span class="dot"></span>Microphone · candidate</span>
+        </div>
+
+        <div class="partial" data-testid="partial"></div>
+        <div class="partial hidden" data-testid="mic-partial"></div>
+
+        <div class="panel scroll-viewport" data-testid="scroll-viewport">
+          <div class="scroll-content" data-testid="scroll-content">
+            <div class="panel-label">Detected question</div>
+            <div class="question" data-testid="question"></div>
+            <div class="panel-label answer-label">Answer</div>
+            <div class="answer" data-testid="answer-text" role="log" aria-live="polite" aria-atomic="false"></div>
+          </div>
+          <button class="jump-pill" data-testid="jump-pill" type="button" aria-label="Jump to latest answer" hidden>Jump to latest ↓</button>
+        </div>
+
+        <footer>
+          <span>ASR: WebSocket · pcm_f32le · 16 kHz</span>
+          <span class="timings" data-testid="timings">waiting for stream…</span>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Framework-free auto-scroll runtime (built from src/overlay/autoscroll by
+         node scripts/scroll/build-runtime.mjs). Classic script: file:// blocks ESM. -->
+    <script>
+/* GENERATED by scripts/scroll/build-runtime.mjs — do not edit by hand. Source: src/overlay/autoscroll/*.ts */
+"use strict";
+var HireShadeAutoScroll = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // artifacts/craft-vita/src/overlay/autoscroll/index.ts
+  var index_exports = {};
+  __export(index_exports, {
+    PAGE_SCROLL_FRACTION: () => PAGE_SCROLL_FRACTION,
+    QUESTION_TOP_GAP_PX: () => QUESTION_TOP_GAP_PX,
+    RELOCK_DISTANCE_PX: () => RELOCK_DISTANCE_PX,
+    SCROLL_STORAGE_PREFIX: () => SCROLL_STORAGE_PREFIX,
+    UNLOCK_DISTANCE_PX: () => UNLOCK_DISTANCE_PX,
+    createAutoScrollState: () => createAutoScrollState,
+    createOverlayAutoScroll: () => createOverlayAutoScroll,
+    distanceFromBottom: () => distanceFromBottom,
+    geometryFrom: () => geometryFrom,
+    hasOverflow: () => hasOverflow,
+    keyboardTarget: () => keyboardTarget,
+    parseSavedScrollPosition: () => parseSavedScrollPosition,
+    reduceAutoScroll: () => reduceAutoScroll,
+    scrollStorageKey: () => scrollStorageKey,
+    serializeScrollPosition: () => serializeScrollPosition
+  });
+
+  // artifacts/craft-vita/src/overlay/autoscroll/autoScrollMachine.ts
+  var UNLOCK_DISTANCE_PX = 24;
+  var RELOCK_DISTANCE_PX = 2;
+  var PAGE_SCROLL_FRACTION = 0.9;
+  var QUESTION_TOP_GAP_PX = 10;
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+  function normalizeGeometry(geometry) {
+    const maxOffset = Math.max(0, geometry.maxOffset);
+    const offset = clamp(geometry.offset, 0, maxOffset);
+    return {
+      offset,
+      maxOffset,
+      viewportHeight: Math.max(0, geometry.viewportHeight),
+      contentHeight: Math.max(0, geometry.contentHeight)
+    };
+  }
+  function distanceFromBottom(geometry) {
+    const normalized = normalizeGeometry(geometry);
+    return Math.max(0, normalized.maxOffset - normalized.offset);
+  }
+  function hasOverflow(geometry) {
+    return normalizeGeometry(geometry).maxOffset > 0;
+  }
+  function geometryFrom(input) {
+    return {
+      offset: input.offset,
+      maxOffset: Math.max(0, input.contentHeight - input.viewportHeight),
+      viewportHeight: input.viewportHeight,
+      contentHeight: input.contentHeight
+    };
+  }
+  function createAutoScrollState(init = {}) {
+    return {
+      sessionId: init.sessionId ?? null,
+      pinned: init.pinned ?? true,
+      pillVisible: false,
+      hasOverflow: false,
+      distanceFromBottom: 0,
+      offset: 0,
+      maxOffset: 0,
+      viewportHeight: 0,
+      contentHeight: 0,
+      dragging: false,
+      reducedMotion: init.reducedMotion ?? false,
+      questionVersion: 0,
+      lastCommand: null
+    };
+  }
+  function withGeometry(state, geometry) {
+    const normalized = normalizeGeometry(geometry);
+    return {
+      ...state,
+      offset: normalized.offset,
+      maxOffset: normalized.maxOffset,
+      viewportHeight: normalized.viewportHeight,
+      contentHeight: normalized.contentHeight,
+      hasOverflow: normalized.maxOffset > 0,
+      distanceFromBottom: Math.max(0, normalized.maxOffset - normalized.offset)
+    };
+  }
+  function pinnedPillState(state) {
+    const pinned = state.pinned;
+    return { pinned, pillVisible: !pinned && state.hasOverflow };
+  }
+  function applyCommandTarget(state, command) {
+    switch (command.type) {
+      case "snap-bottom":
+      case "animate-to-bottom":
+        return { ...state, offset: state.maxOffset, distanceFromBottom: 0 };
+      case "animate-to-offset": {
+        const offset = clamp(command.offset, 0, state.maxOffset);
+        return {
+          ...state,
+          offset,
+          distanceFromBottom: Math.max(0, state.maxOffset - offset)
+        };
+      }
+      case "restore": {
+        const offset = command.position.pinned ? state.maxOffset : clamp(command.position.offset, 0, state.maxOffset);
+        return {
+          ...state,
+          offset,
+          distanceFromBottom: Math.max(0, state.maxOffset - offset)
+        };
+      }
+      default:
+        return state;
+    }
+  }
+  function transition(state, next, commands = []) {
+    let finalState = { ...next };
+    for (const command of commands) finalState = applyCommandTarget(finalState, command);
+    finalState.lastCommand = commands.length ? commands[commands.length - 1].type : state.lastCommand ?? null;
+    return { state: finalState, commands };
+  }
+  function targetForPage(geometry, direction, fraction = PAGE_SCROLL_FRACTION) {
+    const normalized = normalizeGeometry(geometry);
+    const delta = Math.max(1, Math.round(normalized.viewportHeight * fraction));
+    return clamp(normalized.offset + delta * direction, 0, normalized.maxOffset);
+  }
+  function keyboardTarget(key, geometry) {
+    switch (key) {
+      case "PageUp":
+        return { handled: true, offset: targetForPage(geometry, -1) };
+      case "PageDown":
+      case "Space":
+        return { handled: true, offset: targetForPage(geometry, 1) };
+      case "Shift+Space":
+        return { handled: true, offset: targetForPage(geometry, -1) };
+      case "Home":
+        return { handled: true, offset: 0 };
+      case "End":
+        return { handled: true, offset: Math.max(0, normalizeGeometry(geometry).maxOffset) };
+      default:
+        return { handled: false, offset: normalizeGeometry(geometry).offset };
+    }
+  }
+  function reduceAutoScroll(state, event) {
+    switch (event.type) {
+      case "content-grew":
+      case "content-shrank": {
+        const next = withGeometry(state, event.geometry);
+        if (event.type === "content-shrank") {
+          if (!next.hasOverflow) {
+            return transition(next, { ...next, offset: 0, distanceFromBottom: 0, pillVisible: false }, [
+              { type: "cancel-animation" },
+              { type: "hide-pill" }
+            ]);
+          }
+          if (next.pinned) {
+            return transition(next, { ...next }, [{ type: "snap-bottom" }]);
+          }
+          const { pillVisible: pillVisible2 } = pinnedPillState(next);
+          return transition(next, { ...next, pillVisible: pillVisible2 }, pillVisible2 ? [{ type: "show-pill" }] : []);
+        }
+        if (!next.hasOverflow) {
+          return transition(
+            next,
+            {
+              ...next,
+              offset: 0,
+              distanceFromBottom: 0,
+              pillVisible: false,
+              pinned: state.pinned
+            },
+            next.pillVisible ? [{ type: "hide-pill" }] : []
+          );
+        }
+        if (next.dragging) {
+          return transition(next, { ...next, pillVisible: !next.pinned });
+        }
+        if (next.pinned) {
+          return transition(next, { ...next, pillVisible: false }, [{ type: "snap-bottom" }]);
+        }
+        const pillVisible = next.hasOverflow;
+        return transition(
+          next,
+          { ...next, pillVisible },
+          pillVisible && !state.pillVisible ? [{ type: "show-pill" }] : []
+        );
+      }
+      case "user-scroll": {
+        const next = withGeometry(state, event.geometry);
+        const distance = next.distanceFromBottom;
+        if (distance > UNLOCK_DISTANCE_PX) {
+          return transition(
+            next,
+            { ...next, pinned: false, pillVisible: next.hasOverflow },
+            [{ type: "cancel-animation" }, ...next.hasOverflow ? [{ type: "show-pill" }] : []]
+          );
+        }
+        if (distance <= RELOCK_DISTANCE_PX) {
+          return transition(
+            next,
+            { ...next, pinned: true, pillVisible: false },
+            [{ type: "snap-bottom" }, { type: "hide-pill" }]
+          );
+        }
+        const pillVisible = !next.pinned && next.hasOverflow;
+        return transition(next, { ...next, pillVisible });
+      }
+      case "programmatic-scroll": {
+        const next = withGeometry(state, event.geometry);
+        return transition(next, next, []);
+      }
+      case "question-changed": {
+        const base = event.geometry ? withGeometry(state, event.geometry) : state;
+        const next = {
+          ...base,
+          pinned: true,
+          pillVisible: false,
+          questionVersion: state.questionVersion + 1
+        };
+        return transition(next, next, [
+          { type: "cancel-animation" },
+          { type: "scroll-question-into-view" },
+          { type: "reset-answer-viewport" },
+          { type: "hide-pill" }
+        ]);
+      }
+      case "jump-to-latest": {
+        const next = withGeometry(state, event.geometry);
+        return transition(
+          { ...next, pinned: true, pillVisible: false },
+          { ...next, pinned: true, pillVisible: false },
+          [{ type: "animate-to-bottom" }, { type: "hide-pill" }]
+        );
+      }
+      case "keyboard": {
+        const next = withGeometry(state, event.geometry);
+        const target = keyboardTarget(event.key, event.geometry);
+        if (!target.handled) return transition(next, next, []);
+        const distance = Math.max(0, next.maxOffset - target.offset);
+        const atBottom = distance <= RELOCK_DISTANCE_PX;
+        const unlock = distance > UNLOCK_DISTANCE_PX;
+        const pinned = atBottom ? true : unlock ? false : next.pinned;
+        const pillVisible = !pinned && next.hasOverflow;
+        const commands = [
+          { type: "cancel-animation" },
+          { type: "animate-to-offset", offset: target.offset },
+          ...atBottom ? [{ type: "hide-pill" }] : [],
+          ...pillVisible ? [{ type: "show-pill" }] : []
+        ];
+        return transition(next, { ...next, pinned, pillVisible }, commands);
+      }
+      case "resize": {
+        const next = withGeometry(state, event.geometry);
+        if (!next.hasOverflow) {
+          return transition(
+            next,
+            { ...next, offset: 0, distanceFromBottom: 0, pinned: true, pillVisible: false },
+            [{ type: "cancel-animation" }, { type: "hide-pill" }]
+          );
+        }
+        if (next.dragging) {
+          return transition(next, { ...next, pillVisible: !next.pinned });
+        }
+        if (next.pinned) {
+          return transition(next, { ...next, pillVisible: false }, [{ type: "snap-bottom" }]);
+        }
+        return transition(
+          next,
+          { ...next, pillVisible: true },
+          next.pillVisible ? [] : [{ type: "show-pill" }]
+        );
+      }
+      case "drag-start":
+        return transition({ ...state, dragging: true }, { ...state, dragging: true }, [
+          { type: "cancel-animation" }
+        ]);
+      case "drag-end": {
+        const next = withGeometry(state, event.geometry);
+        const pinned = next.pinned;
+        const pillVisible = !pinned && next.hasOverflow;
+        return transition(
+          { ...next, dragging: false, pillVisible },
+          { ...next, dragging: false, pillVisible },
+          next.pinned && next.hasOverflow ? [{ type: "snap-bottom" }] : []
+        );
+      }
+      case "reduced-motion":
+        return transition({ ...state, reducedMotion: event.reduced }, { ...state, reducedMotion: event.reduced }, []);
+      case "session-opened": {
+        const next = withGeometry(state, event.geometry);
+        const saved = event.saved;
+        if (!saved) {
+          return transition(
+            { ...next, sessionId: state.sessionId, pinned: true, pillVisible: false },
+            { ...next, sessionId: state.sessionId, pinned: true, pillVisible: false },
+            next.hasOverflow ? [{ type: "snap-bottom" }] : []
+          );
+        }
+        if (saved.pinned) {
+          return transition(
+            { ...next, pinned: true, pillVisible: false },
+            { ...next, pinned: true, pillVisible: false },
+            next.hasOverflow ? [{ type: "snap-bottom" }] : []
+          );
+        }
+        const restoredOffset = clamp(saved.offset, 0, next.maxOffset);
+        const distance = Math.max(0, next.maxOffset - restoredOffset);
+        const laidOut = next.maxOffset > 0;
+        const pinned = laidOut ? distance <= RELOCK_DISTANCE_PX : false;
+        const pillVisible = !pinned && next.hasOverflow;
+        return transition(next, { ...next, offset: restoredOffset, pinned, pillVisible }, [
+          { type: "restore", position: saved },
+          ...pillVisible ? [{ type: "show-pill" }] : [{ type: "hide-pill" }]
+        ]);
+      }
+      default:
+        return transition(state, state, []);
+    }
+  }
+  function serializeScrollPosition(state, now) {
+    return {
+      offset: Math.round(state.offset),
+      pinned: state.pinned,
+      updatedAt: now
+    };
+  }
+  var SCROLL_STORAGE_PREFIX = "hireshade.overlay.scroll.v1";
+  function scrollStorageKey(sessionId) {
+    return SCROLL_STORAGE_PREFIX + ":" + sessionId;
+  }
+  function parseSavedScrollPosition(raw) {
+    if (!raw) return null;
+    try {
+      const value = JSON.parse(raw);
+      if (typeof value.offset !== "number" || !Number.isFinite(value.offset) || typeof value.pinned !== "boolean") {
+        return null;
+      }
+      return {
+        offset: Math.max(0, value.offset),
+        pinned: value.pinned,
+        updatedAt: typeof value.updatedAt === "number" ? value.updatedAt : 0
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  // artifacts/craft-vita/src/overlay/autoscroll/overlayAutoScroll.ts
+  var DEFAULT_ANIMATION_MS = 140;
+  var EDITABLE_TAGS = /* @__PURE__ */ new Set(["INPUT", "TEXTAREA", "SELECT"]);
+  var KEY_MAP = {
+    PageUp: "PageUp",
+    PageDown: "PageDown",
+    Home: "Home",
+    End: "End"
+  };
+  function clamp2(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+  function easeOutCubic(t) {
+    const p = clamp2(t, 0, 1);
+    return 1 - Math.pow(1 - p, 3);
+  }
+  function isEditableTarget(target) {
+    const element = target;
+    if (!element || typeof element !== "object") return false;
+    if (element.isContentEditable) return true;
+    const tag = (element.tagName ?? "").toUpperCase();
+    if (EDITABLE_TAGS.has(tag)) return true;
+    const role = element.getAttribute?.("role");
+    return role === "textbox" || role === "searchbox" || role === "combobox";
+  }
+  function defaultReducedMotion(win) {
+    try {
+      return Boolean(win?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);
+    } catch {
+      return false;
+    }
+  }
+  function createOverlayAutoScroll(options) {
+    const { viewport, content, question, answer, pill } = options.elements;
+    const doc = options.document ?? viewport.ownerDocument;
+    const win = options.window ?? doc?.defaultView ?? void 0;
+    const now = options.now ?? (() => (win?.performance ?? performance).now());
+    const raf = options.raf ?? ((callback) => (win?.requestAnimationFrame ?? requestAnimationFrame)(callback));
+    const caf = options.caf ?? ((handle) => (win?.cancelAnimationFrame ?? cancelAnimationFrame)(handle));
+    const animationMs = options.animationMs ?? DEFAULT_ANIMATION_MS;
+    const questionTopGapPx = options.questionTopGapPx ?? QUESTION_TOP_GAP_PX;
+    const storage = options.storage !== void 0 ? options.storage : (() => {
+      try {
+        return win?.localStorage ?? null;
+      } catch {
+        return null;
+      }
+    })();
+    const storageKey = scrollStorageKey(options.sessionId);
+    const frameStats = {
+      frames: 0,
+      maxUpdateMs: 0,
+      maxFrameIntervalMs: 0,
+      lastUpdateMs: 0,
+      lastFrameIntervalMs: 0
+    };
+    let destroyed = false;
+    let state = createAutoScrollState({
+      sessionId: options.sessionId,
+      reducedMotion: options.reducedMotion ?? defaultReducedMotion(win)
+    });
+    let offset = 0;
+    let contentHeight = 0;
+    let viewportHeight = 0;
+    let savedPosition = readSaved();
+    let opened = false;
+    let pendingRestoreOffset = null;
+    let animationHandle = null;
+    let animationStart = 0;
+    let animationFrom = 0;
+    let animationTo = 0;
+    let animationActive = false;
+    let lastFrameAt = 0;
+    let saveCount = 0;
+    let lastSavedAt = Number.NEGATIVE_INFINITY;
+    let pendingSave = false;
+    viewport.setAttribute("data-autoscroll-viewport", "");
+    content.setAttribute("data-autoscroll-content", "");
+    viewport.style.overflow = "hidden";
+    viewport.style.position = viewport.style.position || "relative";
+    content.style.willChange = "transform";
+    content.style.transformOrigin = "top left";
+    if (answer) {
+      answer.setAttribute("role", "log");
+      answer.setAttribute("aria-live", "polite");
+      answer.setAttribute("aria-atomic", "false");
+      answer.setAttribute("aria-relevant", "additions text");
+    }
+    pill.setAttribute("role", "button");
+    pill.setAttribute("aria-label", "Jump to latest answer");
+    pill.setAttribute("tabindex", "0");
+    setPillVisible(false);
+    function readSaved() {
+      try {
+        return parseSavedScrollPosition(storage?.getItem(storageKey) ?? null);
+      } catch {
+        return null;
+      }
+    }
+    function maxOffset() {
+      return Math.max(0, contentHeight - viewportHeight);
+    }
+    function geometry() {
+      return geometryFrom({ offset, contentHeight, viewportHeight });
+    }
+    function snapshotGeometry() {
+      return { ...geometry(), offset: clamp2(offset, 0, maxOffset()) };
+    }
+    function measure() {
+      const previousContent = contentHeight;
+      const previousViewport = viewportHeight;
+      viewportHeight = Math.max(
+        0,
+        viewport.clientHeight || viewport.getBoundingClientRect?.().height || 0
+      );
+      contentHeight = Math.max(
+        0,
+        content.scrollHeight || content.getBoundingClientRect?.().height || content.offsetHeight || 0
+      );
+      return {
+        contentChanged: contentHeight !== previousContent,
+        viewportChanged: viewportHeight !== previousViewport,
+        geometry: geometry()
+      };
+    }
+    function recordFrame(updateStartedAt) {
+      const at = now();
+      const updateMs = at - updateStartedAt;
+      const frameInterval = lastFrameAt > 0 ? at - lastFrameAt : updateMs;
+      lastFrameAt = at;
+      frameStats.frames += 1;
+      frameStats.lastUpdateMs = updateMs;
+      frameStats.lastFrameIntervalMs = frameInterval;
+      if (updateMs > frameStats.maxUpdateMs) frameStats.maxUpdateMs = updateMs;
+      if (frameInterval > frameStats.maxFrameIntervalMs) frameStats.maxFrameIntervalMs = frameInterval;
+      options.onFrame?.(frameStats);
+    }
+    function writeTransform(nextOffset, countFrame) {
+      const startedAt = now();
+      offset = clamp2(nextOffset, 0, maxOffset());
+      content.style.transform = "translate3d(0px, " + -offset + "px, 0px)";
+      if (countFrame) recordFrame(startedAt);
+    }
+    function dispatchEvent(event) {
+      if (destroyed) return;
+      const transition2 = reduceAutoScroll(state, event);
+      state = transition2.state;
+      executeCommands(transition2.commands);
+      switch (event.type) {
+        case "user-scroll":
+        case "jump-to-latest":
+        case "question-changed":
+        case "drag-end":
+        case "session-opened":
+          forcePersist();
+          break;
+        case "content-grew":
+        case "content-shrank":
+          if (state.pinned && state.hasOverflow) schedulePersist();
+          break;
+        default:
+          break;
+      }
+    }
+    function schedulePersist() {
+      if (!storage || pendingSave) return;
+      const at = now();
+      if (at - lastSavedAt < 150) return;
+      lastSavedAt = at;
+      pendingSave = true;
+      raf(() => {
+        pendingSave = false;
+        if (destroyed) return;
+        try {
+          storage.setItem(storageKey, JSON.stringify(serializeScrollPosition(state, now())));
+          saveCount += 1;
+        } catch {
+        }
+      });
+    }
+    function forcePersist() {
+      if (!storage) return;
+      try {
+        storage.setItem(storageKey, JSON.stringify(serializeScrollPosition(state, now())));
+        saveCount += 1;
+        lastSavedAt = now();
+      } catch {
+      }
+    }
+    function setPillVisible(visible) {
+      pill.hidden = !visible;
+      pill.setAttribute("aria-hidden", visible ? "false" : "true");
+      pill.setAttribute("data-visible", visible ? "true" : "false");
+    }
+    function cancelAnimation() {
+      animationActive = false;
+      if (animationHandle !== null) {
+        caf(animationHandle);
+        animationHandle = null;
+      }
+    }
+    function animateTo(target) {
+      const clamped = clamp2(target, 0, maxOffset());
+      if (!state.hasOverflow && maxOffset() === 0) {
+        writeTransform(0, true);
+        return;
+      }
+      if (state.reducedMotion || animationMs <= 0 || Math.abs(clamped - offset) < 0.5) {
+        cancelAnimation();
+        writeTransform(clamped, true);
+        return;
+      }
+      cancelAnimation();
+      animationActive = true;
+      animationFrom = offset;
+      animationTo = clamped;
+      animationStart = now();
+      const step = () => {
+        if (!animationActive || destroyed) return;
+        const elapsed = now() - animationStart;
+        const t = animationMs <= 0 ? 1 : elapsed / animationMs;
+        const next = animationFrom + (animationTo - animationFrom) * easeOutCubic(t);
+        writeTransform(next, true);
+        if (t >= 1) {
+          animationActive = false;
+          animationHandle = null;
+          writeTransform(animationTo, false);
+          forcePersist();
+          return;
+        }
+        animationHandle = raf(step);
+      };
+      animationHandle = raf(step);
+    }
+    function scrollByUser(delta) {
+      if (!Number.isFinite(delta) || delta === 0) return;
+      pendingRestoreOffset = null;
+      cancelAnimation();
+      writeTransform(offset + delta, true);
+      dispatchEvent({ type: "user-scroll", geometry: geometry() });
+    }
+    function scrollQuestionIntoView() {
+      if (!question) return;
+      try {
+        const viewportRect = viewport.getBoundingClientRect();
+        const questionRect = question.getBoundingClientRect();
+        const delta = questionRect.top - viewportRect.top - questionTopGapPx;
+        if (Math.abs(delta) < 1) return;
+        animateTo(offset + delta);
+      } catch {
+      }
+    }
+    function resetAnswerViewport() {
+      if (!answer) return;
+      try {
+        const viewportRect = viewport.getBoundingClientRect();
+        const answerRect = answer.getBoundingClientRect();
+        if (answerRect.top > viewportRect.top + viewportRect.height) {
+          const target = offset + (answerRect.top - viewportRect.top) - viewportRect.height * 0.55;
+          writeTransform(target, true);
+        }
+      } catch {
+      }
+    }
+    function applyPendingRestore() {
+      if (pendingRestoreOffset === null) return;
+      const target = pendingRestoreOffset;
+      if (maxOffset() <= 0) return;
+      writeTransform(target, true);
+      if (maxOffset() >= target - 0.5) {
+        pendingRestoreOffset = null;
+      }
+    }
+    function restorePosition(position) {
+      cancelAnimation();
+      if (position.pinned) {
+        pendingRestoreOffset = null;
+        writeTransform(maxOffset(), true);
+        return;
+      }
+      pendingRestoreOffset = position.offset > 0 ? position.offset : null;
+      writeTransform(position.offset, true);
+      if (pendingRestoreOffset !== null && maxOffset() > 0 && Math.abs(offset - pendingRestoreOffset) <= 0.5) {
+        pendingRestoreOffset = null;
+      }
+    }
+    function executeCommands(commands) {
+      for (const command of commands) {
+        switch (command.type) {
+          case "snap-bottom":
+            cancelAnimation();
+            writeTransform(maxOffset(), true);
+            break;
+          case "animate-to-bottom":
+            animateTo(maxOffset());
+            break;
+          case "animate-to-offset":
+            animateTo(command.offset);
+            break;
+          case "scroll-question-into-view":
+            scrollQuestionIntoView();
+            break;
+          case "reset-answer-viewport":
+            resetAnswerViewport();
+            break;
+          case "cancel-animation":
+            cancelAnimation();
+            break;
+          case "show-pill":
+            setPillVisible(true);
+            break;
+          case "hide-pill":
+            setPillVisible(false);
+            break;
+          case "restore":
+            restorePosition(command.position);
+            break;
+          default:
+            break;
+        }
+      }
+      applyPendingRestore();
+    }
+    function handleResize() {
+      if (destroyed) return;
+      const measured = measure();
+      if (!opened) {
+        opened = true;
+        dispatchEvent({ type: "session-opened", geometry: measured.geometry, saved: savedPosition });
+        return;
+      }
+      if (measured.contentChanged) {
+        const event = measured.geometry.contentHeight >= (state.contentHeight || 0) ? { type: "content-grew", geometry: measured.geometry } : { type: "content-shrank", geometry: measured.geometry };
+        dispatchEvent(event);
+      }
+      if (measured.viewportChanged) {
+        dispatchEvent({ type: "resize", geometry: geometry() });
+      }
+    }
+    function notifyContentChanged() {
+      if (destroyed) return;
+      const measured = measure();
+      dispatchEvent({
+        type: measured.geometry.contentHeight >= (state.contentHeight || 0) ? "content-grew" : "content-shrank",
+        geometry: measured.geometry
+      });
+    }
+    function notifyQuestionChanged() {
+      if (destroyed) return;
+      pendingRestoreOffset = null;
+      measure();
+      dispatchEvent({ type: "question-changed", geometry: geometry() });
+      forcePersist();
+    }
+    function jumpToLatest() {
+      if (destroyed) return;
+      pendingRestoreOffset = null;
+      measure();
+      dispatchEvent({ type: "jump-to-latest", geometry: geometry() });
+      forcePersist();
+    }
+    function setDragging(dragging) {
+      if (destroyed) return;
+      if (dragging) dispatchEvent({ type: "drag-start" });
+      else {
+        measure();
+        dispatchEvent({ type: "drag-end", geometry: geometry() });
+        forcePersist();
+      }
+    }
+    function handleKey(key) {
+      if (destroyed) return false;
+      pendingRestoreOffset = null;
+      measure();
+      dispatchEvent({ type: "keyboard", key, geometry: geometry() });
+      forcePersist();
+      return true;
+    }
+    const onWheel = (event) => {
+      const deltaMode = event.deltaMode ?? 0;
+      const delta = deltaMode === 1 ? event.deltaY * 16 : deltaMode === 2 ? event.deltaY * viewportHeight : event.deltaY;
+      if (!delta) return;
+      scrollByUser(delta);
+    };
+    const onKeyDown = (event) => {
+      if (event.defaultPrevented) return;
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      if (isEditableTarget(event.target)) return;
+      let key = null;
+      if (event.key === " " || event.key === "Spacebar") {
+        key = event.shiftKey ? "Shift+Space" : "Space";
+      } else if (KEY_MAP[event.key]) {
+        key = KEY_MAP[event.key];
+      }
+      if (!key) return;
+      event.preventDefault();
+      handleKey(key);
+    };
+    const onPillClick = (event) => {
+      event.preventDefault();
+      jumpToLatest();
+    };
+    const onDragStart = () => setDragging(true);
+    const onDragEnd = () => setDragging(false);
+    viewport.addEventListener("wheel", onWheel, { passive: true });
+    pill.addEventListener("click", onPillClick);
+    if (doc) doc.addEventListener("keydown", onKeyDown, true);
+    win?.addEventListener?.("overlay:drag-start", onDragStart);
+    win?.addEventListener?.("overlay:drag-end", onDragEnd);
+    let resizeObserver = null;
+    if (options.resizeObserverFactory || typeof ResizeObserver !== "undefined") {
+      const factory = options.resizeObserverFactory ?? ((callback) => new ResizeObserver(callback));
+      resizeObserver = factory(() => handleResize());
+      resizeObserver.observe(viewport);
+      resizeObserver.observe(content);
+    }
+    if (typeof viewport.clientHeight === "number" && viewport.clientHeight > 0) {
+      handleResize();
+    }
+    const api = {
+      sessionId: options.sessionId,
+      notifyContentChanged,
+      notifyQuestionChanged,
+      jumpToLatest,
+      scrollBy: scrollByUser,
+      scrollTo: (nextOffset) => {
+        cancelAnimation();
+        writeTransform(nextOffset, true);
+        dispatchEvent({ type: "user-scroll", geometry: geometry() });
+      },
+      setDragging,
+      handleKey,
+      getSnapshot: () => ({
+        ...state,
+        offset,
+        maxOffset: maxOffset(),
+        distanceFromBottom: distanceFromBottom(geometry())
+      }),
+      getFrameStats: () => ({ ...frameStats }),
+      getOffset: () => offset,
+      getSaveCount: () => saveCount,
+      destroy: () => {
+        if (destroyed) return;
+        destroyed = true;
+        cancelAnimation();
+        resizeObserver?.disconnect();
+        viewport.removeEventListener("wheel", onWheel);
+        pill.removeEventListener("click", onPillClick);
+        if (doc) doc.removeEventListener("keydown", onKeyDown, true);
+        win?.removeEventListener?.("overlay:drag-start", onDragStart);
+        win?.removeEventListener?.("overlay:drag-end", onDragEnd);
+      }
+    };
+    return api;
+  }
+  return __toCommonJS(index_exports);
+})();
+
+</script>
+    <script>
+      // Injected by scripts/demo/overlay-e2e.mjs (a JSON {frames, meta} replay).
+      window.__OVERLAY_DATA__ = {"frames":[],"meta":{"sessionId":"overlay-scroll-demo"}};
+      window.__OVERLAY_DONE__ = false;
+      window.__OVERLAY_FRAMES_APPLIED__ = 0;
+      window.__OVERLAY_TIMINGS__ = { startedAt: performance.now() };
+
+      (function () {
+        const data = window.__OVERLAY_DATA__;
+        const answerEl = document.querySelector('[data-testid="answer-text"]');
+        const questionEl = document.querySelector('[data-testid="question"]');
+        const partialEl = document.querySelector('[data-testid="partial"]');
+        const micEl = document.querySelector('[data-testid="mic-partial"]');
+        const statusEl = document.querySelector('[data-testid="status"]');
+        const modelEl = document.querySelector('[data-testid="model"]');
+        const timingsEl = document.querySelector('[data-testid="timings"]');
+        const streamScreen = document.querySelector('[data-testid="stream-screen"]');
+        const streamMic = document.querySelector('[data-testid="stream-mic"]');
+
+        // ── Auto-scroll integration (framework-free runtime) ──────────────────
+        // The controller owns sticky-bottom streaming, the 24px unlock, the
+        // jump-to-latest pill, keyboard scrolling, persistence and ARIA. The
+        // page only mutates DOM and tells it content changed.
+        const scrollViewport = document.querySelector('[data-testid="scroll-viewport"]');
+        const scrollContent = document.querySelector('[data-testid="scroll-content"]');
+        const jumpPill = document.querySelector('[data-testid="jump-pill"]');
+        const MAX_SCROLL_VIEWPORT_PX = 300;
+        const sessionId = (data && data.meta && data.meta.sessionId) || "demo-session";
+        function syncScrollViewportHeight() {
+          // Short answers shrink the pane (no empty gap, no scrollbar); long
+          // answers are clipped at the max height and scrolled by the adapter.
+          // The pane uses box-sizing: border-box, so add the border back to keep
+          // clientHeight >= scrollHeight for the short-answer case (exactly 0
+          // maxOffset, no phantom 1-2px overflow).
+          const border = Math.max(0, scrollViewport.offsetHeight - scrollViewport.clientHeight);
+          const height = Math.min(
+            MAX_SCROLL_VIEWPORT_PX,
+            Math.max(120, scrollContent.scrollHeight),
+          );
+          scrollViewport.style.height = height + border + "px";
+        }
+        const autoScroll =
+          window.HireShadeAutoScroll && window.HireShadeAutoScroll.createOverlayAutoScroll
+            ? window.HireShadeAutoScroll.createOverlayAutoScroll({
+                sessionId,
+                elements: {
+                  viewport: scrollViewport,
+                  content: scrollContent,
+                  question: questionEl,
+                  answer: answerEl,
+                  pill: jumpPill,
+                },
+              })
+            : null;
+        window.__overlayAutoScroll = autoScroll;
+        window.__overlayDemo = {
+          sessionId,
+          autoScroll,
+          syncScrollViewportHeight,
+          elements: { answerEl, questionEl, scrollViewport, scrollContent, jumpPill, statusEl },
+        };
+
+        if (!data || !Array.isArray(data.frames) || !data.frames.length) {
+          questionEl.textContent = "No overlay replay data injected.";
+          return;
+        }
+
+        function escapeHtml(value) {
+          return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+
+        function renderMarkdown(text) {
+          const lines = escapeHtml(text).split("\n");
+          return lines
+            .map(function (line) {
+              const bullet = line.match(/^\s*[-*]\s+(.*)$/);
+              const body = bullet ? bullet[1] : line;
+              const formatted = body
+                .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+                .replace(/`([^`]+)`/g, "<code>$1</code>");
+              return bullet ? '<span class="li">' + formatted + "</span>" : formatted;
+            })
+            .join("\n");
+        }
+
+        const statusLabels = {
+          listening: "Listening",
+          question: "Question detected",
+          streaming: "Answering",
+          complete: "Complete",
+        };
+
+        let previousAnswer = "";
+        let previousQuestion = null;
+        let answerBaseline = "";
+
+        function render(frame) {
+          partialEl.textContent = frame.partial || "";
+          if (frame.micPartial) {
+            micEl.textContent = "mic: " + frame.micPartial;
+            micEl.classList.remove("hidden");
+          } else {
+            micEl.textContent = "";
+            micEl.classList.add("hidden");
+          }
+
+          const question = frame.question || "";
+          const questionChanged = question !== previousQuestion;
+          if (questionChanged) {
+            previousQuestion = question;
+            // The replay stream is cumulative across questions; remember the
+            // old answer length so the pane can be reset for the new question.
+            answerBaseline = frame.answer || "";
+            answerEl.innerHTML = "";
+            if (autoScroll) autoScroll.notifyQuestionChanged();
+          }
+          questionEl.textContent = question;
+
+          if (frame.answer !== previousAnswer) {
+            let display;
+            if (frame.answerComplete === true && frame.answer === answerBaseline) {
+              // The new answer finished with the same text as the previous one
+              // (mock provider): treat the completion as a fresh full answer.
+              answerBaseline = "";
+              display = frame.answer;
+            } else if (frame.answer.startsWith(answerBaseline)) {
+              display = frame.answer.slice(answerBaseline.length);
+            } else {
+              // The stream reset the answer (new question): render it whole.
+              answerBaseline = "";
+              display = frame.answer;
+            }
+            answerEl.innerHTML = renderMarkdown(display || "");
+            previousAnswer = frame.answer;
+          }
+          const label = statusLabels[frame.status] || frame.status;
+          statusEl.textContent = label;
+          statusEl.setAttribute("data-state", frame.status);
+          if (frame.model) modelEl.textContent = frame.model;
+          // The screen-share socket is the interviewer channel and stays active
+          // for the whole session; the mic chip lights up while the candidate talks.
+          streamScreen.setAttribute("data-active", "true");
+          streamMic.setAttribute("data-active", frame.micPartial ? "true" : "false");
+          const timingParts = [];
+          timingParts.push("question at " + (frame.questionAtMs != null ? Math.round(frame.questionAtMs) + " ms" : "—"));
+          timingParts.push("first token " + (frame.firstTokenAtMs != null ? Math.round(frame.firstTokenAtMs - (frame.questionAtMs || 0)) + " ms" : "—"));
+          timingParts.push("answer visible " + (frame.completeAtMs != null ? Math.round(frame.completeAtMs - (frame.questionAtMs || 0)) + " ms" : "—"));
+          timingsEl.textContent = timingParts.join("  ·  ");
+          syncScrollViewportHeight();
+          if (autoScroll) autoScroll.notifyContentChanged();
+          window.__OVERLAY_FRAMES_APPLIED__ += 1;
+        }
+
+        const startedAt = performance.now();
+        window.__OVERLAY_TIMINGS__.startedAt = startedAt;
+        const frames = data.frames;
+        let index = 0;
+
+        function step() {
+          if (index >= frames.length) {
+            const last = frames[frames.length - 1];
+            window.__OVERLAY_TIMINGS__.frames = frames.length;
+            window.__OVERLAY_TIMINGS__.questionAtMs = last.questionAtMs;
+            window.__OVERLAY_TIMINGS__.firstTokenAtMs = last.firstTokenAtMs;
+            window.__OVERLAY_TIMINGS__.completeAtMs = last.completeAtMs;
+            window.__OVERLAY_TIMINGS__.replayElapsedMs = performance.now() - startedAt;
+            window.__OVERLAY_DONE__ = true;
+            return;
+          }
+          const frame = frames[index++];
+          render(frame);
+          const next = frames[index];
+          if (!next) {
+            setTimeout(step, 0);
+            return;
+          }
+          const delay = Math.max(0, next.atMs - frame.atMs);
+          setTimeout(step, delay);
+        }
+
+        step();
+      })();
+    </script>
+  <script>
+/* Injected into the generated overlay page for the Electron/CDP scenario suite.
+   Drives the REAL page DOM + real auto-scroll controller (no mocks). */
+(function () {
+  "use strict";
+  var demo = window.__overlayDemo;
+  if (!demo || !demo.autoScroll) {
+    window.__scrollHarness = { error: "auto-scroll controller missing" };
+    return;
+  }
+  var controller = demo.autoScroll;
+  var elements = demo.elements;
+  var answerEl = elements.answerEl;
+  var questionEl = elements.questionEl;
+  var scrollViewport = elements.scrollViewport;
+  var jumpPill = elements.jumpPill;
+  var STORAGE_KEY = "hireshade.overlay.scroll.v1:" + demo.sessionId;
+  var WORDS = [
+    "rate", "limiter", "Redis", "token", "bucket", "fixed", "window", "sliding",
+    "counter", "fallback", "latency", "metric", "observability", "queue", "retry",
+    "idempotent", "shard", "partition", "replica", "consensus", "throughput",
+    "tail", "p99", "alert", "dashboard", "incident", "runbook", "rollback",
+  ];
+
+  function nextFrame() {
+    return new Promise(function (resolve) {
+      requestAnimationFrame(function () {
+        resolve();
+      });
+    });
+  }
+
+  function snapshot() {
+    var state = controller.getSnapshot();
+    return {
+      pinned: state.pinned,
+      pillVisible: state.pillVisible,
+      offset: state.offset,
+      maxOffset: state.maxOffset,
+      distanceFromBottom: state.distanceFromBottom,
+      hasOverflow: state.hasOverflow,
+      questionVersion: state.questionVersion,
+      reducedMotion: state.reducedMotion,
+      frameStats: controller.getFrameStats(),
+      saveCount: controller.getSaveCount(),
+      pillHidden: jumpPill.hidden,
+      pillAriaHidden: jumpPill.getAttribute("aria-hidden"),
+    };
+  }
+
+  function growAnswer(word) {
+    answerEl.textContent += word + " ";
+    demo.syncScrollViewportHeight();
+    controller.notifyContentChanged();
+  }
+
+  function resetQuestion(text) {
+    answerEl.textContent = "";
+    questionEl.textContent = text;
+    demo.syncScrollViewportHeight();
+    controller.notifyQuestionChanged();
+    controller.notifyContentChanged();
+  }
+
+  window.__scrollHarness = {
+    snapshot: snapshot,
+
+    async reset(options) {
+      var clearStorage = !options || options.clearStorage !== false;
+      if (clearStorage) {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+          /* ignore */
+        }
+      }
+      resetQuestion("Can you explain how you would design a rate limiter using Redis?");
+      await nextFrame();
+      await nextFrame();
+      return snapshot();
+    },
+
+    /** Streams N content-growth frames and records distance-from-bottom each frame. */
+    async streamAndSample(tokenCount) {
+      var samples = [];
+      for (var i = 0; i < tokenCount; i++) {
+        growAnswer(WORDS[i % WORDS.length] + i);
+        await nextFrame();
+        samples.push(controller.getSnapshot().distanceFromBottom);
+      }
+      var maxDistance = samples.reduce(function (max, value) {
+        return Math.max(max, value);
+      }, 0);
+      return { samples: samples, maxDistance: maxDistance, snapshot: snapshot() };
+    },
+
+    /** Streams tokens without sampling (used between scenarios). */
+    async appendTokens(tokenCount) {
+      for (var i = 0; i < tokenCount; i++) {
+        growAnswer(WORDS[i % WORDS.length] + i);
+        await nextFrame();
+      }
+      return snapshot();
+    },
+
+    /** Synthetic user scroll-up (wheel event, as a trackpad/mouse would send). */
+    async scrollUp(pixels) {
+      scrollViewport.dispatchEvent(
+        new WheelEvent("wheel", {
+          deltaY: -(pixels || 40),
+          deltaMode: 0,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      await nextFrame();
+      return snapshot();
+    },
+
+    /** Click the jump-to-latest pill and wait for the animation to settle. */
+    async clickPill() {
+      jumpPill.click();
+      await new Promise(function (resolve) {
+        setTimeout(resolve, 320);
+      });
+      await nextFrame();
+      return snapshot();
+    },
+
+    /** Click the pill and snapshot in the same task (reduced-motion proof). */
+    clickPillImmediate() {
+      jumpPill.click();
+      return snapshot();
+    },
+
+    /** New question: reset answer pane, scroll question into view, report rects. */
+    async newQuestion(text) {
+      resetQuestion(text);
+      await new Promise(function (resolve) {
+        setTimeout(resolve, 260);
+      });
+      await nextFrame();
+      var viewportRect = scrollViewport.getBoundingClientRect();
+      var questionRect = questionEl.getBoundingClientRect();
+      var answerRect = answerEl.getBoundingClientRect();
+      return {
+        snapshot: snapshot(),
+        questionTopInViewport: questionRect.top - viewportRect.top,
+        answerTopInViewport: answerRect.top - viewportRect.top,
+        viewportHeight: viewportRect.height,
+      };
+    },
+
+    /** Short answer: no overflow, no pill, no jump. */
+    async shortAnswer(text) {
+      questionEl.textContent = "Quick question about your last project?";
+      answerEl.textContent = text || "Short answer.";
+      demo.syncScrollViewportHeight();
+      controller.notifyQuestionChanged();
+      controller.notifyContentChanged();
+      await nextFrame();
+      await nextFrame();
+      return snapshot();
+    },
+
+    /** Persist the current position (the controller throttles writes). */
+    async persistState() {
+      await new Promise(function (resolve) {
+        setTimeout(resolve, 320);
+      });
+      var raw = null;
+      try {
+        raw = localStorage.getItem(STORAGE_KEY);
+      } catch (error) {
+        raw = null;
+      }
+      return { raw: raw, parsed: raw ? JSON.parse(raw) : null, snapshot: snapshot() };
+    },
+
+    storageRaw() {
+      try {
+        return localStorage.getItem(STORAGE_KEY);
+      } catch (error) {
+        return null;
+      }
+    },
+
+    /** Dispatch a document keydown (real event path used by the adapter). */
+    dispatchKey(key) {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: key, bubbles: true, cancelable: true }),
+      );
+      return snapshot();
+    },
+
+    async wait(ms) {
+      await new Promise(function (resolve) {
+        setTimeout(resolve, ms);
+      });
+      await nextFrame();
+      return snapshot();
+    },
+
+    activeElement() {
+      var active = document.activeElement;
+      return {
+        tag: active ? active.tagName : null,
+        text: active && active.textContent ? active.textContent.slice(0, 80) : null,
+        isBody: active === document.body,
+      };
+    },
+
+    rects() {
+      return {
+        viewport: scrollViewport.getBoundingClientRect().toJSON(),
+        question: questionEl.getBoundingClientRect().toJSON(),
+        answer: answerEl.getBoundingClientRect().toJSON(),
+        contentHeight: elements.scrollContent.scrollHeight,
+        answerText: answerEl.textContent,
+      };
+    },
+  };
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+{
+  "generatedAt": "2026-10-20T15:32:40.882Z",
+  "pass": true,
+  "environment": {
+    "platform": "win32",
+    "node": "v24.19.0",
+    "electron": "37.10.3",
+    "page": {
+      "width": 1004,
+      "height": 644,
+      "dpr": 1.0499999523162842,
+      "visibility": "visible",
+      "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.251 Electron/37.10.3 Safari/537.36"
+    },
+    "window": {
+      "width": 1000,
+      "height": 640,
+      "frame": false,
+      "transparent": true,
+      "alwaysOnTop": true
+    }
+  },
+  "commands": {
+    "run": "node scripts/scroll/overlay-scroll-e2e.mjs",
+    "buildRuntime": "node scripts/scroll/build-runtime.mjs",
+    "tests": "pnpm --dir artifacts/craft-vita exec vitest run src/overlay/autoscroll",
+    "captureToMp4": "ffmpeg -framerate <fps> -i frame-%05d.jpg -c:v libx264 -pix_fmt yuv420p overlay-scroll-capture.mp4"
+  },
+  "scenarios": {
+    "longStream": {
+      "tokens": 200,
+      "maxDistanceFromBottomPx": 0,
+      "finalDistanceFromBottomPx": 0,
+      "frameStats": {
+        "frames": 99,
+        "maxUpdateMs": 0.19999998807907104,
+        "maxFrameIntervalMs": 2297,
+        "lastUpdateMs": 0,
+        "lastFrameIntervalMs": 16.600000023841858
+      }
+    },
+    "unlock": {
+      "beforeOffset": 184,
+      "afterOffset": 144,
+      "unlockedWithinFrames": 1,
+      "noSnapBackOffset": 144
+    },
+    "relock": {
+      "offset": 229,
+      "distanceFromBottom": 0
+    },
+    "newQuestion": {
+      "questionTopInViewport": 32.3,
+      "answerTopInViewport": 85.3,
+      "followedDistanceFromBottom": 0
+    },
+    "reopen": {
+      "saved": {
+        "offset": 172,
+        "pinned": false,
+        "updatedAt": 12526
+      },
+      "restoredOffset": 172,
+      "maxOffsetAfterRender": 320
+    },
+    "reducedMotion": {
+      "instantOffset": 0,
+      "distanceFromBottom": 0
+    },
+    "shortAnswer": {
+      "maxOffset": 0,
+      "offset": 0,
+      "pillVisible": false
+    },
+    "keyboard": {
+      "pageUpOffset": 229,
+      "endOffset": 229,
+      "homeOffset": 0,
+      "spaceOffset": 229,
+      "pageDownOffset": 229,
+      "activeElement": {
+        "tag": "BODY",
+        "text": "\n    \n      \n      \n        \n          HireShade\n          zero-key demo\n       ",
+        "isBody": true
+      }
+    }
+  },
+  "assertions": [
+    {
+      "name": "stream-200-tokens-sampled",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "stream-pinned-within-2px",
+      "pass": true,
+      "detail": "0.00"
+    },
+    {
+      "name": "stream-pinned-final",
+      "pass": true,
+      "detail": true
+    },
+    {
+      "name": "frame-update-work-under-16ms",
+      "pass": true,
+      "detail": 0.2
+    },
+    {
+      "name": "frame-updates-counted",
+      "pass": true,
+      "detail": 99
+    },
+    {
+      "name": "unlock-pinned-false",
+      "pass": true,
+      "detail": false
+    },
+    {
+      "name": "unlock-pill-visible",
+      "pass": true,
+      "detail": {
+        "pillVisible": true,
+        "pillHidden": false
+      }
+    },
+    {
+      "name": "unlock-offset-moved",
+      "pass": true,
+      "detail": {
+        "before": 184,
+        "after": 144
+      }
+    },
+    {
+      "name": "no-snap-back-after-unlock",
+      "pass": true,
+      "detail": {
+        "offset": 144,
+        "pinned": false
+      }
+    },
+    {
+      "name": "pill-still-visible-after-growth",
+      "pass": true,
+      "detail": true
+    },
+    {
+      "name": "pill-click-relocks",
+      "pass": true,
+      "detail": true
+    },
+    {
+      "name": "pill-click-bottom-within-2px",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "name": "pill-hidden-after-relock",
+      "pass": true,
+      "detail": false
+    },
+    {
+      "name": "question-version-incremented",
+      "pass": true,
+      "detail": 2
+    },
+    {
+      "name": "question-scrolled-into-view",
+      "pass": true,
+      "detail": 32.3
+    },
+    {
+      "name": "new-answer-start-visible",
+      "pass": true,
+      "detail": 85.3
+    },
+    {
+      "name": "question-follows-new-answer",
+      "pass": true,
+      "detail": {
+        "pinned": true,
+        "distance": 0
+      }
+    },
+    {
+      "name": "persisted-unlocked-position",
+      "pass": true,
+      "detail": {
+        "offset": 172,
+        "pinned": false,
+        "updatedAt": 12526
+      }
+    },
+    {
+      "name": "reopen-restores-offset",
+      "pass": true,
+      "detail": {
+        "saved": 172,
+        "restored": 172,
+        "clampedExpected": 172
+      }
+    },
+    {
+      "name": "reopen-restores-unlocked",
+      "pass": true,
+      "detail": {
+        "pinned": false,
+        "pillHidden": false
+      }
+    },
+    {
+      "name": "reduced-motion-detected",
+      "pass": true,
+      "detail": true
+    },
+    {
+      "name": "reduced-motion-instant-relock",
+      "pass": true,
+      "detail": {
+        "pinned": true,
+        "distance": 0
+      }
+    },
+    {
+      "name": "short-answer-no-overflow",
+      "pass": true,
+      "detail": {
+        "hasOverflow": false,
+        "maxOffset": 0
+      }
+    },
+    {
+      "name": "short-answer-no-jump",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "name": "short-answer-no-pill",
+      "pass": true,
+      "detail": false
+    },
+    {
+      "name": "keyboard-pageup-unlocks",
+      "pass": true,
+      "detail": {
+        "pinned": false,
+        "pillHidden": false
+      }
+    },
+    {
+      "name": "keyboard-end-relocks",
+      "pass": true,
+      "detail": {
+        "pinned": true,
+        "distance": 0
+      }
+    },
+    {
+      "name": "keyboard-home-unlocks",
+      "pass": true,
+      "detail": {
+        "offset": 0,
+        "pinned": false
+      }
+    },
+    {
+      "name": "keyboard-space-pages-down",
+      "pass": true,
+      "detail": 229
+    },
+    {
+      "name": "keyboard-pagedown-moves",
+      "pass": true,
+      "detail": {
+        "before": 229,
+        "after": 229
+      }
+    },
+    {
+      "name": "keyboard-does-not-steal-focus",
+      "pass": true,
+      "detail": {
+        "tag": "BODY",
+        "text": "\n    \n      \n      \n        \n          HireShade\n          zero-key demo\n       ",
+        "isBody": true
+      }
+    }
+  ],
+  "capture": {
+    "ok": true,
+    "frames": 234,
+    "durationSeconds": 4.52,
+    "fps": 30,
+    "bytes": 661850,
+    "file": "docs/evidence/overlay-scroll/overlay-scroll-capture.mp4",
+    "screenshots": [
+      "docs/evidence/overlay-scroll/overlay-scroll-pinned.png",
+      "docs/evidence/overlay-scroll/overlay-scroll-unlocked-pill.png"
+    ],
+    "screenshotBytes": [
+      242927,
+      260675
+    ]
+  },
+  "electronLogs": {
+    "stdout": "\r\n[overlay-scroll-main] loaded http://127.0.0.1:56004/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:56004/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:56004/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:56004/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:56004/scroll-demo.html (cdp port 9333)\n",
+    "stderr": "\r\nDevTools listening on ws://127.0.0.1:9333/devtools/browser/e0b9a7de-3501-427e-bc39-fcbb45ca7e86\r\n"
+  }
+}
