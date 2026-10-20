@@ -1,0 +1,28 @@
+﻿=== date ===
+2026-10-20T18:51:23.7597856+05:30
+=== git reflog -8 (with dates) ===
+627eb98 HEAD@{2026-10-20 18:50:15 +0530}: commit: baseline: snapshot working tree before complete-build (pre-existing WIP, docs, Electron shell, raw RE captures)
+491f4b6 HEAD@{2026-10-20 18:49:33 +0530}: checkout: moving from fix/windows-reopen-compile to complete-build
+491f4b6 HEAD@{2026-10-19 20:12:20 +0530}: commit: Add OpenCode solo web SaaS skills
+9c1f769 HEAD@{2026-10-08 13:07:30 +0530}: commit: fix(ux,auth,release): resume CTAs, auto-AI opt-in, login retry, build unblock
+1ed669e HEAD@{2026-10-08 00:39:07 +0530}: commit: chore(session): stabilize transcript detection and overlay layout
+f1a923c HEAD@{2026-10-08 00:35:57 +0530}: commit: fix: repair desktop runtime, button clicks, and dev workflow
+7224905 HEAD@{2026-08-09 20:01:58 +0530}: reset: moving to HEAD
+7224905 HEAD@{2026-08-09 19:58:31 +0530}: commit: fix: stabilize live interview question detection and AI answer flow
+=== git branch --show-current ===
+complete-build
+=== git rev-parse HEAD ===
+627eb98c31e02e59dabb55f5e17326870dd3f3af
+=== git status --short ===
+?? docs/raw/_scripts/download-assets.ps1
+?? docs/raw/_scripts/grep-assets.mjs
+?? docs/raw/assets/
+?? docs/raw/probes/asset-download-log.txt
+?? docs/raw/probes/grep-results.json
+?? docs/raw/probes/static-asset-urls.txt
+=== git stash list ===
+stash@{0}: On fix/windows-reopen-compile: wip(auto-scroll): pending rendered coverage
+stash@{1}: On fix/overlay-containment-resizable: local Windows dependency changes before auto-scroll testing
+stash@{2}: WIP on fix/windows-desktop: 1060d46 fix(craft-vita): add emitTo event stub
+=== node -v / pnpm -v ===
+v24.19.0 / 12.4.2

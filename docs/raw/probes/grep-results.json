@@ -1,0 +1,1668 @@
+[
+ {
+  "file": "chunks_000vuvvdf4ams.js",
+  "term": "subscription",
+  "byteOffset": 137749,
+  "line": 2,
+  "snippet": "3887),t.s([\"SubscriptionManager\",0,class{constructor(){this.subscriptions=[]}add(t){return e(this.subscriptions,t),()=>i(this.subscriptions,t)}notify(t,e,i){let s=this.subs"
+ },
+ {
+  "file": "chunks_000vuvvdf4ams.js",
+  "term": "subscription",
+  "byteOffset": 137787,
+  "line": 2,
+  "snippet": "ss{constructor(){this.subscriptions=[]}add(t){return e(this.subscriptions,t),()=>i(this.subscriptions,t)}notify(t,e,i){let s=this.subscriptions.length;if(s)if(1===s)this.su"
+ },
+ {
+  "file": "chunks_000vuvvdf4ams.js",
+  "term": "subscription",
+  "byteOffset": 137815,
+  "line": 2,
+  "snippet": "iptions=[]}add(t){return e(this.subscriptions,t),()=>i(this.subscriptions,t)}notify(t,e,i){let s=this.subscriptions.length;if(s)if(1===s)this.subscriptions[0](t,e,i);else f"
+ },
+ {
+  "file": "chunks_000vuvvdf4ams.js",
+  "term": "subscription",
+  "byteOffset": 137857,
+  "line": 2,
+  "snippet": "ons,t),()=>i(this.subscriptions,t)}notify(t,e,i){let s=this.subscriptions.length;if(s)if(1===s)this.subscriptions[0](t,e,i);else for(let n=0;n<s;n++){let s=this.subscriptio"
+ },
+ {
+  "file": "chunks_000vuvvdf4ams.js",
+  "term": "subscription",
+  "byteOffset": 137897,
+  "line": 2,
+  "snippet": "y(t,e,i){let s=this.subscriptions.length;if(s)if(1===s)this.subscriptions[0](t,e,i);else for(let n=0;n<s;n++){let s=this.subscriptions[n];s&&s(t,e,i)}}getSize(){return this"
+ },
+ {
+  "file": "chunks_000vuvvdf4ams.js",
+  "term": "subscription",
+  "byteOffset": 137958,
+  "line": 2,
+  "snippet": "ubscriptions[0](t,e,i);else for(let n=0;n<s;n++){let s=this.subscriptions[n];s&&s(t,e,i)}}getSize(){return this.subscriptions.length}clear(){this.subscriptions.length=0}}],"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "next-auth",
+  "byteOffset": 10898,
+  "line": 2,
+  "snippet": "}return e}var c={error:function(e,t){t=l(t),console.error(\"[next-auth][error][\".concat(e,\"]\"),\"\\nhttps://next-auth.js.org/errors#\".concat(e.toLowerCase()),t.message,t)},"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "next-auth",
+  "byteOffset": 10943,
+  "line": 2,
+  "snippet": "onsole.error(\"[next-auth][error][\".concat(e,\"]\"),\"\\nhttps://next-auth.js.org/errors#\".concat(e.toLowerCase()),t.message,t)},warn:function(e){console.warn(\"[next-auth][wa"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "next-auth",
+  "byteOffset": 11039,
+  "line": 2,
+  "snippet": "oLowerCase()),t.message,t)},warn:function(e){console.warn(\"[next-auth][warn][\".concat(e,\"]\"),\"\\nhttps://next-auth.js.org/warnings#\".concat(e.toLowerCase()))},debug:funct"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "next-auth",
+  "byteOffset": 11083,
+  "line": 2,
+  "snippet": "{console.warn(\"[next-auth][warn][\".concat(e,\"]\"),\"\\nhttps://next-auth.js.org/warnings#\".concat(e.toLowerCase()))},debug:function(e,t){console.log(\"[next-auth][debug][\".c"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "next-auth",
+  "byteOffset": 11171,
+  "line": 2,
+  "snippet": "concat(e.toLowerCase()))},debug:function(e,t){console.log(\"[next-auth][debug][\".concat(e,\"]\"),t)}};r.default=c},498520,(e,t,r)=>{\"use strict\";Object.defineProperty(r,\"__"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "nextauth",
+  "byteOffset": 11790,
+  "line": 2,
+  "snippet": "r e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:\"nextauth.message\";return{receive:function(t){var r=function(r){if(r.key===e){var n,o=JSON.parse(null!=(n=r.n"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "/api/",
+  "byteOffset": 11366,
+  "line": 2,
+  "snippet": "fault=function(e){var t;let r=new URL(\"http://localhost:3000/api/auth\");e&&!e.startsWith(\"http\")&&(e=`https://${e}`);let n=new URL(null!=(t=e)?t:r),o=(\"/\"===n.pathna"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "/api/",
+  "byteOffset": 31598,
+  "line": 10,
+  "snippet": "ated\"===t.status;return(g.useEffect(function(){if(a){var e=\"/api/auth/signin?\".concat(new URLSearchParams({error:\"SessionRequired\",callbackUrl:window.location.href})"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "fetch(",
+  "byteOffset": 9872,
+  "line": 2,
+  "snippet": "\"return\",navigator.sendBeacon(u,f));case 8:return r.next=10,fetch(u,{method:\"POST\",body:f,keepalive:!0});case 10:return r.abrupt(\"return\",r.sent);case 11:case\"end\":re"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "fetch(",
+  "byteOffset": 13428,
+  "line": 2,
+  "snippet": "y&&(p.body=JSON.stringify(l.body),p.method=\"POST\"),e.next=7,fetch(f,p);case 7:return h=e.sent,e.next=10,h.json();case 10:if(v=e.sent,h.ok){e.next=13;break}throw v;cas"
+ },
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "term": "fetch(",
+  "byteOffset": 37162,
+  "line": 10,
+  "snippet": "t1(e.t4),i={method:\"post\",headers:e.t0,body:e.t5},e.next=13,fetch(\"\".concat(a,\"/signout\"),i);case 13:return u=e.sent,e.next=16,u.json();case 16:if(s=e.sent,j.post({ev"
+ },
+ {
+  "file": "chunks_01gwe1qm--8c1.js",
+  "term": "credits",
+  "byteOffset": 8728,
+  "line": 2,
+  "snippet": "n only be refunded for a technical issue on our side.\";case\"credits_used\":return\"Credits from this purchase have already been used, so it can only be refunded for a te"
+ },
+ {
+  "file": "chunks_01gwe1qm--8c1.js",
+  "term": "credits",
+  "byteOffset": 9089,
+  "line": 2,
+  "snippet": " refunded for a technical issue on our side.\";case\"referral_credits_used\":return\"Bought with a referral code, and the person who shared the code has used credits since"
+ },
+ {
+  "file": "chunks_01gwe1qm--8c1.js",
+  "term": "credits",
+  "byteOffset": 9183,
+  "line": 2,
+  "snippet": " referral code, and the person who shared the code has used credits since, so the bonus it earned them counts as used, and this purchase with it, and it can't be refun"
+ },
+ {
+  "file": "chunks_01gwe1qm--8c1.js",
+  "term": "subscription",
+  "byteOffset": 8540,
+  "line": 2,
+  "snippet": "cal_issue\":return\"Bought too long ago to be refunded.\";case\"subscription_used\":return\"Already used — a call session, a resume download, a headshot or a Question Bank compan"
+ },
+ {
+  "file": "chunks_07n6jmg7t2sqq.js",
+  "term": "mixpanel",
+  "byteOffset": 6441,
+  "line": 2,
+  "snippet": ",e):(a.preventDefault(),E.push(e))}(0,p.trackClientEvent)(m.mixpanelEvents.i18n.language_selected,{language:t,from:A,placement:r});let o=()=>E.refresh();s?T.mutate({lan"
+ },
+ {
+  "file": "chunks_07n6jmg7t2sqq.js",
+  "term": "mixpanel",
+  "byteOffset": 13422,
+  "line": 2,
+  "snippet": "tabIndex:V?0:-1,onClick:()=>{U(!1),(0,p.trackClientEvent)(m.mixpanelEvents.prepareLanding.product_link_clicked,{product:r,from:\"nav\",signedIn:R})},className:(0,b.cn)(\"h"
+ },
+ {
+  "file": "chunks_07n6jmg7t2sqq.js",
+  "term": "fetch(",
+  "byteOffset": 39642,
+  "line": 2,
+  "snippet": "[4]);let m=(0,a.useRouter)();p[5]!==i||p[6]!==m?(c=()=>m.prefetch(i),p[5]=i,p[6]=m,p[7]=c):c=p[7];let f=c;return p[8]!==s||p[9]!==f?(u=e=>{f(),s?.(e)},p[8]=s,p[9]=f,p"
+ },
+ {
+  "file": "chunks_07n6jmg7t2sqq.js",
+  "term": "credits",
+  "byteOffset": 38580,
+  "line": 2,
+  "snippet": "le for a refund. We do not issue partial refunds for unused credits.\"}),(0,t.jsx)(\"p\",{children:\"Where a purchase was made with a referral code, the bonus credits it e"
+ },
+ {
+  "file": "chunks_07n6jmg7t2sqq.js",
+  "term": "credits",
+  "byteOffset": 38675,
+  "line": 2,
+  "snippet": ":\"Where a purchase was made with a referral code, the bonus credits it earned for whoever shared that code count as part of it. If they've used credits since your purc"
+ },
+ {
+  "file": "chunks_07n6jmg7t2sqq.js",
+  "term": "credits",
+  "byteOffset": 38759,
+  "line": 2,
+  "snippet": "oever shared that code count as part of it. If they've used credits since your purchase and you haven't used the purchase yourself, it counts as used and can't be refu"
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "term": "resend",
+  "byteOffset": 37234,
+  "line": 21,
+  "snippet": "`${t%60}`.padStart(2,\"0\");return`Too many requests. You can resend in ${n}:${r}.`}])},520658,e=>{\"use strict\";e.s([\"buildCompanyLogoUrl\",0,function(e,t=\"\",n){let r=e?"
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "term": "/api/",
+  "byteOffset": 11814,
+  "line": 2,
+  "snippet": " strict\";function t(e){return e.trim().toLowerCase()}let n=\"/api/auth/session\";async function r({email:e,token:a,readLockedUntil:i}){let o,l,s=new URLSearchParams({e"
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "term": "/api/",
+  "byteOffset": 11972,
+  "line": 2,
+  "snippet": "rams({email:t(e),token:a,callbackUrl:n});try{o=await fetch(`/api/auth/callback/email?${s.toString()}`,{method:\"GET\",credentials:\"same-origin\",redirect:\"follow\"})}cat"
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "term": "/api/",
+  "byteOffset": 37411,
+  "line": 21,
+  "snippet": "owerCase();if(!r)return;let a=n?`&theme=${n}`:\"\";return`${t}/api/company-logo?domain=${encodeURIComponent(r)}${a}`}])}]); //# debugId=fc0ec4fc-56cd-ab7b-81e1-7d030f"
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "term": "fetch(",
+  "byteOffset": 11965,
+  "line": 2,
+  "snippet": "earchParams({email:t(e),token:a,callbackUrl:n});try{o=await fetch(`/api/auth/callback/email?${s.toString()}`,{method:\"GET\",credentials:\"same-origin\",redirect:\"follow\""
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "term": "credits",
+  "byteOffset": 3986,
+  "line": 2,
+  "snippet": "533200,e=>{\"use strict\";e.s([\"PLAN_TABS\",0,[\"subscription\",\"credits\",\"prepare\"],\"PLAN_TAB_LABELS\",0,{subscription:\"Unlimited\",prepare:\"Custom\",credits:\"Credits\"},\"cust"
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "term": "credits",
+  "byteOffset": 4069,
+  "line": 2,
+  "snippet": "AN_TAB_LABELS\",0,{subscription:\"Unlimited\",prepare:\"Custom\",credits:\"Credits\"},\"customPlanHref\",0,function(e,t){return`${e}${e.includes(\"?\")?\"&\":\"?\"}tool=${t}`}])},264"
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "term": "subscription",
+  "byteOffset": 3971,
+  "line": 2,
+  "snippet": "(i,e),null}])},533200,e=>{\"use strict\";e.s([\"PLAN_TABS\",0,[\"subscription\",\"credits\",\"prepare\"],\"PLAN_TAB_LABELS\",0,{subscription:\"Unlimited\",prepare:\"Custom\",credits:\"Credi"
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "term": "subscription",
+  "byteOffset": 4027,
+  "line": 2,
+  "snippet": "0,[\"subscription\",\"credits\",\"prepare\"],\"PLAN_TAB_LABELS\",0,{subscription:\"Unlimited\",prepare:\"Custom\",credits:\"Credits\"},\"customPlanHref\",0,function(e,t){return`${e}${e.inc"
+ },
+ {
+  "file": "chunks_0qbffxmrmvqia.js",
+  "term": "credits",
+  "byteOffset": 4424,
+  "line": 2,
+  "snippet": "le for a refund. We do not issue partial refunds for unused credits.\"}),(0,t.jsx)(\"p\",{children:\"Where a purchase was made with a referral code, the bonus credits it e"
+ },
+ {
+  "file": "chunks_0qbffxmrmvqia.js",
+  "term": "credits",
+  "byteOffset": 4519,
+  "line": 2,
+  "snippet": ":\"Where a purchase was made with a referral code, the bonus credits it earned for whoever shared that code count as part of it. If they've used credits since your purc"
+ },
+ {
+  "file": "chunks_0qbffxmrmvqia.js",
+  "term": "credits",
+  "byteOffset": 4603,
+  "line": 2,
+  "snippet": "oever shared that code count as part of it. If they've used credits since your purchase and you haven't used the purchase yourself, it counts as used and can't be refu"
+ },
+ {
+  "file": "chunks_0qbffxmrmvqia.js",
+  "term": "credits",
+  "byteOffset": 8953,
+  "line": 2,
+  "snippet": "n only be refunded for a technical issue on our side.\";case\"credits_used\":return\"Credits from this purchase have already been used, so it can only be refunded for a te"
+ },
+ {
+  "file": "chunks_0qbffxmrmvqia.js",
+  "term": "credits",
+  "byteOffset": 9314,
+  "line": 2,
+  "snippet": " refunded for a technical issue on our side.\";case\"referral_credits_used\":return\"Bought with a referral code, and the person who shared the code has used credits since"
+ },
+ {
+  "file": "chunks_0qbffxmrmvqia.js",
+  "term": "credits",
+  "byteOffset": 9408,
+  "line": 2,
+  "snippet": " referral code, and the person who shared the code has used credits since, so the bonus it earned them counts as used, and this purchase with it, and it can't be refun"
+ },
+ {
+  "file": "chunks_0qbffxmrmvqia.js",
+  "term": "subscription",
+  "byteOffset": 8765,
+  "line": 2,
+  "snippet": "cal_issue\":return\"Bought too long ago to be refunded.\";case\"subscription_used\":return\"Already used — a call session, a resume download, a headshot or a Question Bank compan"
+ },
+ {
+  "file": "chunks_0ti22034ure69.js",
+  "term": "mixpanel",
+  "byteOffset": 7123,
+  "line": 2,
+  "snippet": "ARE_CHROME);return C[0]!==R?(h=()=>(0,c.trackClientEvent)(d.mixpanelEvents.prepareLanding.product_link_clicked,{product:\"callAssistant\",from:\"toolkit_featured\",signedIn"
+ },
+ {
+  "file": "chunks_0ti22034ure69.js",
+  "term": "mixpanel",
+  "byteOffset": 11143,
+  "line": 2,
+  "snippet": "[3]!==E||S[4]!==M||S[5]!==C?(h=()=>(0,i.trackClientEvent)(l.mixpanelEvents.prepareLanding.product_link_clicked,{product:E,from:C,signedIn:M}),S[3]=E,S[4]=M,S[5]=C,S[6]="
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "openai",
+  "byteOffset": 28072,
+  "line": 2,
+  "snippet": "ee=e.i(576081),et=e.i(248961),en=e.i(657688);let er=[\"model-openai.svg\",\"model-claude.svg\",\"model-gemini.svg\"];function ei(){let e,r=(0,n.c)(1);return r[0]===Symbol.f"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "gemini",
+  "byteOffset": 28110,
+  "line": 2,
+  "snippet": "57688);let er=[\"model-openai.svg\",\"model-claude.svg\",\"model-gemini.svg\"];function ei(){let e,r=(0,n.c)(1);return r[0]===Symbol.for(\"react.memo_cache_sentinel\")?(e=(0,"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "mixpanel",
+  "byteOffset": 3304,
+  "line": 2,
+  "snippet": "8]!==ed||G[9]!==en?(m=()=>{ed&&en&&(0,l.trackClientEvent)(o.mixpanelEvents.discountCode.gate_exposed,{code:ed,mobileCodeGateGroup:en})},_=[ed,en],G[8]=ed,G[9]=en,G[10]="
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "mixpanel",
+  "byteOffset": 3613,
+  "line": 2,
+  "snippet": "tor.clipboard.writeText(ep),es(!0),(0,l.trackClientEvent)(o.mixpanelEvents.discountCode.code_copied,{code:ep,surface:\"top_bar\"}),setTimeout(()=>es(!1),2e3)}catch(e){con"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "mixpanel",
+  "byteOffset": 47331,
+  "line": 2,
+  "snippet": "L[11];let tb=s;eL[12]!==tb?(m=()=>{(0,l.trackClientEvent)(o.mixpanelEvents.pricing.exposed,tb)},eL[12]=tb,eL[13]=m):m=eL[13],eL[14]!==eY?(k={enabled:eY},eL[14]=eY,eL[15"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "mixpanel",
+  "byteOffset": 48103,
+  "line": 2,
+  "snippet": "!==tb?(S=(e,t,n)=>r=>{r!==t&&(n(r),(0,l.trackClientEvent)(o.mixpanelEvents.pricing.unit_changed,{...tb,panel:e,to:r}))},eL[16]=tb,eL[17]=S):S=eL[17];let tj=S;eL[18]!==t"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "mixpanel",
+  "byteOffset": 48268,
+  "line": 2,
+  "snippet": "==tb?(C=e=>{eZ({type:\"tab\",tab:e}),(0,l.trackClientEvent)(o.mixpanelEvents.pricing.tab_changed,{...tb,to:e})},eL[18]=tb,eL[19]=C):C=eL[19];let tv=C;eL[20]!==tb?(P=e=>{("
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "mixpanel",
+  "byteOffset": 48400,
+  "line": 2,
+  "snippet": "eL[19];let tv=C;eL[20]!==tb?(P=e=>{(0,l.trackClientEvent)(o.mixpanelEvents.pricing.plan_selected,{...tb,planId:e})},eL[20]=tb,eL[21]=P):P=eL[21];let t_=P;eL[22]!==tb?(L"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "credits",
+  "byteOffset": 10075,
+  "line": 2,
+  "snippet": "peace of mind, pick just the Prepare tools you need, or buy credits and use them whenever.\",children:[(0,t.jsx)(m.Accent,{children:\"Transparent\"}),\" Pricing Options\"]}"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "credits",
+  "byteOffset": 25320,
+  "line": 2,
+  "snippet": ", each priced on its own. Calls and mock interviews stay on credits.\",features:g,unitSwitcher:b,footer:y,showHeading:k,surface:S,brandAction:w,...o,children:j}),_[44]="
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "credits",
+  "byteOffset": 25846,
+  "line": 2,
+  "snippet": "ar W=e.i(573224);let H={subscription:\"subscription_monthly\",credits:\"credit_6\"};function V(e){return{tab:e,picked:\"prepare\"===e?{}:{[e]:H[e]}}}function Y(e,t){if(\"pick"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "credits",
+  "byteOffset": 26030,
+  "line": 2,
+  "snippet": ";let r,i=(n=t.planId,\"credit\"===(r=d.paymentPlans[n]).type?\"credits\":\"subscription\"===r.type&&\"full\"!==r.tier?\"prepare\":\"subscription\");return\"prepare\"===i?{...e,tab:i"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "credits",
+  "byteOffset": 35940,
+  "line": 2,
+  "snippet": "for(\"react.memo_cache_sentinel\")?(l=(0,J.getVideoEmbedUrl)(\"creditsAndSubscriptions\"),x[4]=l):l=x[4],x[5]===Symbol.for(\"react.memo_cache_sentinel\")?(o=(0,t.jsx)(ep,{ch"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "credits",
+  "byteOffset": 36443,
+  "line": 2,
+  "snippet": "nd text-[15px] leading-[21px] font-medium\",children:\"How do credits work?\"}),x[6]=c):c=x[6],x[7]===Symbol.for(\"react.memo_cache_sentinel\")?(d=(0,t.jsxs)(\"div\",{classNa"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "subscription",
+  "byteOffset": 25810,
+  "line": 2,
+  "snippet": "ancel anytime.\"}),r[0]=e):e=r[0],e}var W=e.i(573224);let H={subscription:\"subscription_monthly\",credits:\"credit_6\"};function V(e){return{tab:e,picked:\"prepare\"===e?{}:{[e]:"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "subscription",
+  "byteOffset": 25824,
+  "line": 2,
+  "snippet": "\"}),r[0]=e):e=r[0],e}var W=e.i(573224);let H={subscription:\"subscription_monthly\",credits:\"credit_6\"};function V(e){return{tab:e,picked:\"prepare\"===e?{}:{[e]:H[e]}}}functio"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "subscription",
+  "byteOffset": 26040,
+  "line": 2,
+  "snippet": "n=t.planId,\"credit\"===(r=d.paymentPlans[n]).type?\"credits\":\"subscription\"===r.type&&\"full\"!==r.tier?\"prepare\":\"subscription\");return\"prepare\"===i?{...e,tab:i}:{tab:i,picked"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "subscription",
+  "byteOffset": 26091,
+  "line": 2,
+  "snippet": "redits\":\"subscription\"===r.type&&\"full\"!==r.tier?\"prepare\":\"subscription\");return\"prepare\"===i?{...e,tab:i}:{tab:i,picked:{...e.picked,[i]:t.planId}}}return\"prepare\"===t.ta"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "subscription",
+  "byteOffset": 37904,
+  "line": 2,
+  "snippet": " eh(e){let r,i,a,l,o,d,p,x,u,m,f,h,g,b,y,j,v,_=(0,n.c)(44),{subscriptionSwitch:w}=e,{request:N,preview:k,confirm:S,close:C,submit:P}=w;_[0]!==k.data?(r=k.data?(0,c.formatPr"
+ },
+ {
+  "file": "chunks_0ucw7qxfrf1b5.js",
+  "term": "subscription",
+  "byteOffset": 44577,
+  "line": 2,
+  "snippet": "d,ep,ex,em,ef,ew,eN,ek,eS,eC,eP,eL=(0,n.c)(224),{pricing:eT,subscription:eE,skipEntrance:eA,initialTab:eI,initialTool:eR,bare:ez,showsPrivacy:eD,surface:eF}=e,eM=void 0!==e"
+ },
+ {
+  "file": "chunks_13h7yaw5ft3-m.js",
+  "term": "gemini",
+  "byteOffset": 31682,
+  "line": 2,
+  "snippet": "o,\"jobPostUrlSchema\",0,a])},132197,e=>{\"use strict\";let t=[\"gemini-3-5-flash-lite\",\"gpt-5-6-luna\"],n=[\"gemini-3-6-flash\",\"gpt-5-6-terra\",\"claude-haiku-4-5\",\"claude-so"
+ },
+ {
+  "file": "chunks_13h7yaw5ft3-m.js",
+  "term": "gemini",
+  "byteOffset": 31725,
+  "line": 2,
+  "snippet": " strict\";let t=[\"gemini-3-5-flash-lite\",\"gpt-5-6-luna\"],n=[\"gemini-3-6-flash\",\"gpt-5-6-terra\",\"claude-haiku-4-5\",\"claude-sonnet-5\"],i=[...t,...n];e.s([\"ADVANCED_MODEL"
+ },
+ {
+  "file": "chunks_13h7yaw5ft3-m.js",
+  "term": "gemini",
+  "byteOffset": 32066,
+  "line": 2,
+  "snippet": "ude-sonnet-4-5\",\"claude-haiku-4-5\",\"cerebras-gpt-oss-120b\",\"gemini-3-1-flash-lite\",\"gemini-3-5-flash\",\"gemini-3-5-flash-lite\",\"gemini-3-6-flash\",\"gpt-5-6-luna\",\"gpt-5"
+ },
+ {
+  "file": "chunks_13h7yaw5ft3-m.js",
+  "term": "gemini",
+  "byteOffset": 32090,
+  "line": 2,
+  "snippet": "haiku-4-5\",\"cerebras-gpt-oss-120b\",\"gemini-3-1-flash-lite\",\"gemini-3-5-flash\",\"gemini-3-5-flash-lite\",\"gemini-3-6-flash\",\"gpt-5-6-luna\",\"gpt-5-6-terra\",\"claude-sonnet"
+ },
+ {
+  "file": "chunks_13h7yaw5ft3-m.js",
+  "term": "gemini",
+  "byteOffset": 32109,
+  "line": 2,
+  "snippet": "s-gpt-oss-120b\",\"gemini-3-1-flash-lite\",\"gemini-3-5-flash\",\"gemini-3-5-flash-lite\",\"gemini-3-6-flash\",\"gpt-5-6-luna\",\"gpt-5-6-terra\",\"claude-sonnet-5\",\"claude-opus-5\""
+ },
+ {
+  "file": "chunks_13h7yaw5ft3-m.js",
+  "term": "gemini",
+  "byteOffset": 32133,
+  "line": 2,
+  "snippet": "3-1-flash-lite\",\"gemini-3-5-flash\",\"gemini-3-5-flash-lite\",\"gemini-3-6-flash\",\"gpt-5-6-luna\",\"gpt-5-6-terra\",\"claude-sonnet-5\",\"claude-opus-5\",\"gpt-5-6-sol\"],\"DOCUMEN"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sentry",
+  "byteOffset": 1743,
+  "line": 2,
+  "snippet": "ring\")}function V(e){return\"object\"==typeof e&&null!==e&&\"__sentry_template_string__\"in e&&\"__sentry_template_values__\"in e}function X(e){return null===e||V(e)||\"obje"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sentry",
+  "byteOffset": 1777,
+  "line": 2,
+  "snippet": "\"==typeof e&&null!==e&&\"__sentry_template_string__\"in e&&\"__sentry_template_values__\"in e}function X(e){return null===e||V(e)||\"object\"!=typeof e&&\"function\"!=typeof "
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sentry",
+  "byteOffset": 2625,
+  "line": 2,
+  "snippet": "try{let n=t.prototype||{};e.prototype=t.prototype=n,et(e,\"__sentry_original__\",t)}catch{}}function er(e){return e.__sentry_original__}function ea(e){if(U(e))return{me"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sentry",
+  "byteOffset": 2681,
+  "line": 2,
+  "snippet": ",\"__sentry_original__\",t)}catch{}}function er(e){return e.__sentry_original__}function ea(e){if(U(e))return{message:e.message,name:e.name,stack:e.stack,...ei(e)};if(Y"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sentry",
+  "byteOffset": 3252,
+  "line": 2,
+  "snippet": "}function es(){return eo(()=>Date.now())}let eu=Symbol.for(\"sentry.skipNormalization\"),ec=Symbol.for(\"sentry.overrideNormalizationDepth\"),ed=/\\(error: (.*)\\)/,ef=/cap"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sentry",
+  "byteOffset": 3294,
+  "line": 2,
+  "snippet": "et eu=Symbol.for(\"sentry.skipNormalization\"),ec=Symbol.for(\"sentry.overrideNormalizationDepth\"),ed=/\\(error: (.*)\\)/,ef=/captureMessage|captureException/;function ep("
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "vercel",
+  "byteOffset": 155938,
+  "line": 19,
+  "snippet": "onment||af.default.env.SENTRY_ENVIRONMENT||(t=\"production\",`vercel-${t}`)||\"production\",defaultIntegrations:(r=om(e),(\"u\"<typeof __SENTRY_TRACING__||__SENTRY_TRACING_"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "vercel",
+  "byteOffset": 415280,
+  "line": 53,
+  "snippet": ".exports=n.default)},841370,e=>{\"use strict\";if(/(?:^|;\\s)__vercel_toolbar=1(?:;|$)/.test(document.cookie)){var t=document.createElement(\"script\");t.src=\"https://verc"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "vercel",
+  "byteOffset": 415382,
+  "line": 53,
+  "snippet": "kie)){var t=document.createElement(\"script\");t.src=\"https://vercel.live/_next-live/feedback/feedback.js\",t.setAttribute(\"data-explicit-opt-in\",\"true\"),t.setAttribute("
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "/api/",
+  "byteOffset": 106547,
+  "line": 9,
+  "snippet": ":${e.port}`:\"\",`${r}//${e.host}${a}${e.path?`/${e.path}`:\"\"}/api/`}${e.projectId}/envelope/?${i={sentry_version:\"7\"},e.publicKey&&(i.sentry_key=e.publicKey),n&&(i.se"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "/api/",
+  "byteOffset": 450837,
+  "line": 53,
+  "snippet": "tion r(e){return\"/api\"===e||!!(null==e?void 0:e.startsWith(\"/api/\"))}Object.defineProperty(n,\"__esModule\",{value:!0}),Object.defineProperty(n,\"isAPIRoute\",{enumerabl"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "fetch(",
+  "byteOffset": 397595,
+  "line": 49,
+  "snippet": "(t)})),r)}}function s(e){let t=a.get(e);return t||a.set(e,t=fetch(e,{credentials:\"same-origin\"}).then(t=>{if(!t.ok)throw Object.defineProperty(Error(`Failed to load s"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "fetch(",
+  "byteOffset": 398704,
+  "line": 49,
+  "snippet": "e=>{if(a)throw e;return{error:e}}).finally(()=>i?.())})},prefetch(t){let n;return(n=navigator.connection)&&(n.saveData||/2g/.test(n.effectiveType))?Promise.resolve():"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "fetch(",
+  "byteOffset": 420033,
+  "line": 53,
+  "snippet": "f),d=(0,$.getDeploymentId)(),f=l=>(function e(t,n,r){return fetch(t,{credentials:\"same-origin\",method:r.method||\"GET\",headers:Object.assign({},r.headers,{\"x-nextjs-da"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "fetch(",
+  "byteOffset": 442494,
+  "line": 53,
+  "snippet": "HashChange(e)})}urlIsNew(e){return this.asPath!==e}async prefetch(e,t=e,n={}){if(\"u\">typeof window&&(0,L.isBot)(window.navigator.userAgent))return;let r=(0,g.parseRel"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "EventSource",
+  "byteOffset": 128168,
+  "line": 10,
+  "snippet": "rackList,BroadcastChannel,ChannelMergerNode,CryptoOperation,EventSource,FileReader,HTMLUnknownElement,IDBDatabase,IDBRequest,IDBTransaction,KeyOperation,MediaController,Me"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "WebSocket",
+  "byteOffset": 128390,
+  "line": 10,
+  "snippet": "ce,Screen,SharedWorker,TextTrack,TextTrackCue,TextTrackList,WebSocket,WebSocketWorker,Worker,XMLHttpRequest,XMLHttpRequestEventTarget,XMLHttpRequestUpload\".split(\",\");fu"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "WebSocket",
+  "byteOffset": 128400,
+  "line": 10,
+  "snippet": "SharedWorker,TextTrack,TextTrackCue,TextTrackList,WebSocket,WebSocketWorker,Worker,XMLHttpRequest,XMLHttpRequestEventTarget,XMLHttpRequestUpload\".split(\",\");function i2("
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sampleRate",
+  "byteOffset": 87623,
+  "line": 9,
+  "snippet": "panContext:t.spanContext(),startTimestamp:r.start_timestamp,sampleRate:function(){try{let e=Number(r.data?.[e4]??n.dsc?.sample_rate);return Number.isNaN(e)?0:e}catch{retu"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sampleRate",
+  "byteOffset": 88490,
+  "line": 9,
+  "snippet": "PropagationContext({...n,dsc:{...n.dsc,sample_rate:String(a.sampleRate),sampled:String(aw(a.spanContext))},sampleRand:a.sampleRand}),e.parentSampled=aw(a.spanContext),e.p"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sampleRate",
+  "byteOffset": 88618,
+  "line": 9,
+  "snippet": "nd}),e.parentSampled=aw(a.spanContext),e.parentSampleRate=a.sampleRate,e.spanAttributes={...e.spanAttributes,[e5]:a.sampleRate}})}(e,{linkPreviousTrace:N,consistentTraceS"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sampleRate",
+  "byteOffset": 88674,
+  "line": 9,
+  "snippet": "e=a.sampleRate,e.spanAttributes={...e.spanAttributes,[e5]:a.sampleRate}})}(e,{linkPreviousTrace:N,consistentTraceSampling:L}),k.location){if(T){let t=eL();aM(e,{name:k.lo"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "sampleRate",
+  "byteOffset": 117307,
+  "line": 9,
+  "snippet": "ge):$(e))})}_processEvent(e,t,n,r){let a=this.getOptions(),{sampleRate:i}=a,o=iL(e),l=iI(e),s=e.type||\"error\",u=`before send for type \\`${s}\\``,c=void 0===i?void 0:tk(i),"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "term": "subscription",
+  "byteOffset": 422361,
+  "line": 53,
+  "snippet": "itialProps:r,pageLoader:a,App:i,wrapApp:o,Component:s,err:u,subscription:c,isFallback:d,locale:f,locales:p,defaultLocale:y,domainLocales:v,isPreview:b}){this.sdc={},this.sb"
+ },
+ {
+  "file": "chunks_1ck7ihezwd4r8.js",
+  "term": "stripe",
+  "byteOffset": 12941,
+  "line": 2,
+  "snippet": "={}).USD=\"USD\",i.INR=\"INR\",i.EUR=\"EUR\",i),c=((n={}).Stripe=\"stripe\",n.Dodo=\"dodo\",n);e.s([\"Currency\",()=>u,\"PaymentProvider\",()=>c,\"PricingAudience\",()=>t,\"formatCurr"
+ },
+ {
+  "file": "chunks_1ck7ihezwd4r8.js",
+  "term": "subscription",
+  "byteOffset": 15737,
+  "line": 2,
+  "snippet": "ency:\"eur\",price:153,audiences:[r.PricingAudience.Europe]}],subscription_weekly:[{currency:\"usd\",price:78,audiences:[r.PricingAudience.Other,r.PricingAudience.Europe]},{cur"
+ },
+ {
+  "file": "chunks_1ck7ihezwd4r8.js",
+  "term": "subscription",
+  "byteOffset": 16073,
+  "line": 2,
+  "snippet": "rency:\"eur\",price:67,audiences:[r.PricingAudience.Europe]}],subscription_monthly:[{currency:\"usd\",price:149.9,audiences:[r.PricingAudience.Other,r.PricingAudience.Europe]},"
+ },
+ {
+  "file": "chunks_1ck7ihezwd4r8.js",
+  "term": "subscription",
+  "byteOffset": 16418,
+  "line": 2,
+  "snippet": "cy:\"eur\",price:129.9,audiences:[r.PricingAudience.Europe]}],subscription_yearly:[{currency:\"usd\",price:599.9,audiences:[r.PricingAudience.Other,r.PricingAudience.Europe]},{"
+ },
+ {
+  "file": "chunks_1ck7ihezwd4r8.js",
+  "term": "subscription",
+  "byteOffset": 19248,
+  "line": 2,
+  "snippet": "=e.tier}function d(e){return e?.status===\"past_due\"}let l=[\"subscription_weekly\",\"subscription_monthly\",\"subscription_yearly\"];function p(e,r){return`custom_${e}_${r}`}[..."
+ },
+ {
+  "file": "chunks_1ck7ihezwd4r8.js",
+  "term": "subscription",
+  "byteOffset": 19270,
+  "line": 2,
+  "snippet": "return e?.status===\"past_due\"}let l=[\"subscription_weekly\",\"subscription_monthly\",\"subscription_yearly\"];function p(e,r){return`custom_${e}_${r}`}[...l];let y=u(\"custom_res"
+ },
+ {
+  "file": "chunks_1ck7ihezwd4r8.js",
+  "term": "subscription",
+  "byteOffset": 19293,
+  "line": 2,
+  "snippet": "t_due\"}let l=[\"subscription_weekly\",\"subscription_monthly\",\"subscription_yearly\"];function p(e,r){return`custom_${e}_${r}`}[...l];let y=u(\"custom_resume_maker_monthly\",\"cus"
+ },
+ {
+  "file": "chunks_1kjt3gx3kvaeg.js",
+  "term": "credits",
+  "byteOffset": 38072,
+  "line": 2,
+  "snippet": " je ponoven prenos brezplačen\",makingPdf:\"Priprava PDF‑ja…\",creditsLeft:e=>`Po tem prenosu vam ostane: ${r(e)}`,atsReadable:\"Berljiv za sisteme za sledenje kandidatom\""
+ },
+ {
+  "file": "chunks_1kjt3gx3kvaeg.js",
+  "term": "credits",
+  "byteOffset": 38458,
+  "line": 2,
+  "snippet": "it, and tailor resumes for free. Download with your plan or credits, and use them in Call Assistant.\",pricing:`Editing is free; the first download of each version cost"
+ },
+ {
+  "file": "chunks_1kjt3gx3kvaeg.js",
+  "term": "credits",
+  "byteOffset": 38631,
+  "line": 2,
+  "snippet": ",i.formatLocaleNumber)(\"en\",n.RESUME_DOWNLOAD_CREDIT_COST)} credits or is included in your plan, and a version you have already paid for downloads again free.`,pricing"
+ },
+ {
+  "file": "chunks_1kjt3gx3kvaeg.js",
+  "term": "credits",
+  "byteOffset": 68230,
+  "line": 2,
+  "snippet": "t. Try again tomorrow.\",needsCredits:\"You don't have enough credits for this download.\",needsCreditsMobile:\"You don't have enough credits for this download. Credits ca"
+ },
+ {
+  "file": "chunks_1kjt3gx3kvaeg.js",
+  "term": "credits",
+  "byteOffset": 68300,
+  "line": 2,
+  "snippet": "r this download.\",needsCreditsMobile:\"You don't have enough credits for this download. Credits can't be bought in the mobile app.\",checkPrice:\"Check download price\",bu"
+ },
+ {
+  "file": "chunks_1kjt3gx3kvaeg.js",
+  "term": "credits",
+  "byteOffset": 68628,
+  "line": 2,
+  "snippet": ":[\"Unlimited PDF downloads\",\"Download every new version, no credits needed\",\"Cancel anytime\"],offerTitle:\"Download every version, whenever you need it\",oneMonth:\"1 mon"
+ },
+ {
+  "file": "chunks_1kjt3gx3kvaeg.js",
+  "term": "subscription",
+  "byteOffset": 69151,
+  "line": 2,
+  "snippet": "oad:\"1 download\",oneTime:\"one-time\",paidOnce:\"Paid once, no subscription\",singleBenefits:[\"One PDF download of your resume\",\"Free to download again while it's unchanged\",\"N"
+ },
+ {
+  "file": "chunks_1kjt3gx3kvaeg.js",
+  "term": "subscription",
+  "byteOffset": 69265,
+  "line": 2,
+  "snippet": "r resume\",\"Free to download again while it's unchanged\",\"No subscription, nothing to cancel\"],buyDownload:e=>`Buy 1 download${e?` \\xb7 ${e}`:\"\"}`,close:\"Close\",backToEditor"
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "mixpanel",
+  "byteOffset": 33273,
+  "line": 2,
+  "snippet": "_raised\"},experiment:{started:\"$experiment_started\"}};e.s([\"mixpanelEvents\",0,r])}]); //# debugId=5ae248a8-e679-7159-4409-ae02f6b41047"
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "credits",
+  "byteOffset": 27221,
+  "line": 2,
+  "snippet": "_done\",\"dismissed\",\"toast_opened_web\"]),earnCredits:t(\"earn_credits\",[\"shown\",\"card_selected\",\"dismissed\"]),companyReview:t(\"company_review\",[\"submitted\"]),companyBloc"
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "credits",
+  "byteOffset": 29698,
+  "line": 2,
+  "snippet": "launcher_viewed\",\"create_opened\",\"how_it_works_opened\",\"buy_credits_clicked\",\"past_mocks_clicked\",\"preset_opened\",\"started\",\"pool_built\",\"voice_lost\",\"disconnected\",\"l"
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "credits",
+  "byteOffset": 31230,
+  "line": 2,
+  "snippet": "n\",\"download_case_shown\",\"download_confirmed\",\"download_buy_credits_clicked\",\"downloaded\",\"download_failed\",\"download_render_failed\",\"download_blocked_daily_limit\",\"do"
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "credits",
+  "byteOffset": 31365,
+  "line": 2,
+  "snippet": "ownload_blocked_daily_limit\",\"download_blocked_insufficient_credits\"]),headshots:t(\"headshots\",[\"source_selected\",\"source_rejected\",\"source_stored\",\"source_removed\",\"p"
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "credits",
+  "byteOffset": 31552,
+  "line": 2,
+  "snippet": "le_changed\",\"generate_gate_shown\",\"generate_confirmed\",\"buy_credits_clicked\",\"generated\",\"generation_failed\",\"generation_blocked_daily_limit\",\"generation_blocked_insuf"
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "credits",
+  "byteOffset": 31667,
+  "line": 2,
+  "snippet": "ation_blocked_daily_limit\",\"generation_blocked_insufficient_credits\",\"detail_opened\",\"download_clicked\",\"favorite_toggled\",\"regenerate_clicked\",\"deleted\",\"apply_to_res"
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "subscription",
+  "byteOffset": 28251,
+  "line": 2,
+  "snippet": "ailed\",\"refunded\"]),billing:t(\"billing\",[\"portal_accessed\",\"subscription_switched\"]),subscription:t(\"subscription\",[\"cancelled\"]),cancellationFlow:t(\"cancellation_flow\",[\"s"
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "subscription",
+  "byteOffset": 28276,
+  "line": 2,
+  "snippet": "ng:t(\"billing\",[\"portal_accessed\",\"subscription_switched\"]),subscription:t(\"subscription\",[\"cancelled\"]),cancellationFlow:t(\"cancellation_flow\",[\"started\",\"stage_opened\",\"s"
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "subscription",
+  "byteOffset": 28292,
+  "line": 2,
+  "snippet": "\"portal_accessed\",\"subscription_switched\"]),subscription:t(\"subscription\",[\"cancelled\"]),cancellationFlow:t(\"cancellation_flow\",[\"started\",\"stage_opened\",\"survey_completed\""
+ },
+ {
+  "file": "chunks_1qnbx5rat5g1k.js",
+  "term": "subscription",
+  "byteOffset": 28417,
+  "line": 2,
+  "snippet": "w\",[\"started\",\"stage_opened\",\"survey_completed\",\"retained\",\"subscription_cancelled\",\"discount_offer_accepted\",\"reason_recorded\"]),support:t(\"support\",[\"credit_refund_queue_"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "/api/",
+  "byteOffset": 1505,
+  "line": 2,
+  "snippet": "pcLinks\",0,function(){let e={transformer:i.default,url:c()+\"/api/trpc\",headers:()=>{let e=new Headers;return e.set(\"x-parakeet-request-source\",\"web-trpc\"),a.env.NEXT"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "/api/",
+  "byteOffset": 1870,
+  "line": 2,
+  "snippet": "ndition:e=>u.has(e.path),true:(0,r.httpLink)({...e,url:c()+\"/api/position-playground\"}),false:(0,s.splitLink)({condition:e=>l.has(e.path),true:(0,r.httpLink)(e),fals"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "fetch(",
+  "byteOffset": 12000,
+  "line": 2,
+  "snippet": "us});!u||f||b||v||void 0!==c&&!(c>m.state.dataUpdatedAt)||m.fetch(void 0,{initialPromise:Promise.resolve(u).then(o)}).catch(s)})}],372775)},346974,114272,e=>{\"use str"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "fetch(",
+  "byteOffset": 21112,
+  "line": 2,
+  "snippet": "e=this.observers.find(e=>e.shouldFetchOnWindowFocus());e?.refetch({cancelRefetch:!1}),this.#u?.continue()}onOnline(){let e=this.observers.find(e=>e.shouldFetchOnRecon"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "fetch(",
+  "byteOffset": 21231,
+  "line": 2,
+  "snippet": "t e=this.observers.find(e=>e.shouldFetchOnReconnect());e?.refetch({cancelRefetch:!1}),this.#u?.continue()}addObserver(e){this.observers.includes(e)||(this.observers.p"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "fetch(",
+  "byteOffset": 21908,
+  "line": 2,
+  "snippet": "his.state.isInvalidated||this.#c({type:\"invalidate\"})}async fetch(e,r){let s;if(\"idle\"!==this.state.fetchStatus&&this.#u?.status()!==\"rejected\"){if(void 0!==this.stat"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "fetch(",
+  "byteOffset": 29231,
+  "line": 2,
+  "snippet": ").filter(e=>!e.isDisabled()&&!e.isStatic()).map(e=>{let r=e.fetch(void 0,n);return n.throwOnError||(r=r.catch(t.noop)),\"paused\"===e.state.fetchStatus?Promise.resolve("
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "fetch(",
+  "byteOffset": 29529,
+  "line": 2,
+  "snippet": "rn n.isStaleByTime((0,t.resolveStaleTime)(r.staleTime,n))?n.fetch(r):Promise.resolve(n.state.data)}prefetchQuery(e){return this.fetchQuery(e).then(t.noop).catch(t.noo"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "WebSocket",
+  "byteOffset": 45033,
+  "line": 6,
+  "snippet": ",x.default)(this,\"id\",++e.connectCount),(0,x.default)(this,\"WebSocketPonyfill\",void 0),(0,x.default)(this,\"urlOptions\",void 0),(0,x.default)(this,\"keepAliveOpts\",void 0)"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "WebSocket",
+  "byteOffset": 45449,
+  "line": 6,
+  "snippet": "get=()=>e,r}()),(0,x.default)(this,\"openPromise\",null),this.WebSocketPonyfill=null!=(r=t.WebSocketPonyfill)?r:WebSocket,!this.WebSocketPonyfill)throw Error(\"No WebSocket"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "WebSocket",
+  "byteOffset": 45478,
+  "line": 6,
+  "snippet": "(this,\"openPromise\",null),this.WebSocketPonyfill=null!=(r=t.WebSocketPonyfill)?r:WebSocket,!this.WebSocketPonyfill)throw Error(\"No WebSocket implementation found - you p"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "WebSocket",
+  "byteOffset": 45499,
+  "line": 6,
+  "snippet": "ull),this.WebSocketPonyfill=null!=(r=t.WebSocketPonyfill)?r:WebSocket,!this.WebSocketPonyfill)throw Error(\"No WebSocket implementation found - you probably don't want to"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "WebSocket",
+  "byteOffset": 45515,
+  "line": 6,
+  "snippet": "ketPonyfill=null!=(r=t.WebSocketPonyfill)?r:WebSocket,!this.WebSocketPonyfill)throw Error(\"No WebSocket implementation found - you probably don't want to use this on the"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "WebSocket",
+  "byteOffset": 45549,
+  "line": 6,
+  "snippet": "nyfill)?r:WebSocket,!this.WebSocketPonyfill)throw Error(\"No WebSocket implementation found - you probably don't want to use this on the server, but if you do you need to"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "credits",
+  "byteOffset": 132541,
+  "line": 6,
+  "snippet": "){return new u({code:\"BAD_REQUEST\",message:\"Not enough call credits.\",appCode:\"INSUFFICIENT_CREDITS\"})}static duplicateLedgerEntry(){return new u({code:\"CONFLICT\",mess"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "subscription",
+  "byteOffset": 35347,
+  "line": 2,
+  "snippet": "uire_objectSpread2)(),1);let c={query:\"GET\",mutation:\"POST\",subscription:\"PATCH\"};function d(e){return\"input\"in e?e.transformer.input.serialize(e.input):function(e){let t={"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "subscription",
+  "byteOffset": 35715,
+  "line": 2,
+  "snippet": "sh(t[1]),\"inputs\"in e&&n.push(\"batch=1\"),\"query\"===e.type||\"subscription\"===e.type){let t=d(e);void 0!==t&&\"POST\"!==e.methodOverride&&n.push(`input=${encodeURIComponent(JSO"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "subscription",
+  "byteOffset": 37698,
+  "line": 2,
+  "snippet": "urn(0,l.observable)(r=>{let s,{path:i,input:l,type:h}=n;if(\"subscription\"===h)throw Error(\"Subscriptions are unsupported by `httpLink` - use `httpSubscriptionLink` or `wsLi"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "subscription",
+  "byteOffset": 41473,
+  "line": 2,
+  "snippet": "mutation\"))};return({op:e})=>(0,l.observable)(t=>{let s;if(\"subscription\"===e.type)throw Error(\"Subscriptions are unsupported by `httpLink` - use `httpSubscriptionLink` or "
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "subscription",
+  "byteOffset": 42233,
+  "line": 2,
+  "snippet": "t v={query:[\"72e3ff\",\"3fb0d8\"],mutation:[\"c5a3fc\",\"904dfc\"],subscription:[\"ff49e1\",\"d83fbe\"]},g={query:[\"\\x1b[30;46m\",\"\\x1b[97;46m\"],mutation:[\"\\x1b[30;45m\",\"\\x1b[97;45m\"],"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "term": "subscription",
+  "byteOffset": 42345,
+  "line": 2,
+  "snippet": ";46m\",\"\\x1b[97;46m\"],mutation:[\"\\x1b[30;45m\",\"\\x1b[97;45m\"],subscription:[\"\\x1b[30;42m\",\"\\x1b[97;42m\"]},w={query:[\"\\x1b[1;30;46m\",\"\\x1b[1;97;46m\"],mutation:[\"\\x1b[1;30;45m\""
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "stripe",
+  "byteOffset": 23461,
+  "line": 2,
+  "snippet": "={}).USD=\"USD\",i.INR=\"INR\",i.EUR=\"EUR\",i),s=((r={}).Stripe=\"stripe\",r.Dodo=\"dodo\",r);e.s([\"Currency\",()=>a,\"PaymentProvider\",()=>s,\"PricingAudience\",()=>n,\"formatCurr"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "credits",
+  "byteOffset": 5112,
+  "line": 2,
+  "snippet": "533200,e=>{\"use strict\";e.s([\"PLAN_TABS\",0,[\"subscription\",\"credits\",\"prepare\"],\"PLAN_TAB_LABELS\",0,{subscription:\"Unlimited\",prepare:\"Custom\",credits:\"Credits\"},\"cust"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "credits",
+  "byteOffset": 5195,
+  "line": 2,
+  "snippet": "AN_TAB_LABELS\",0,{subscription:\"Unlimited\",prepare:\"Custom\",credits:\"Credits\"},\"customPlanHref\",0,function(e,t){return`${e}${e.includes(\"?\")?\"&\":\"?\"}tool=${t}`}])},264"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "credits",
+  "byteOffset": 38645,
+  "line": 2,
+  "snippet": "HackerRank session.\",category:\"privacy\",showInTutorials:!0},creditsAndSubscriptions:{youtubeId:\"Q7CsP6p1EO0\",title:\"How to Buy ParakeetAI?\",description:\"A short explai"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "credits",
+  "byteOffset": 38770,
+  "line": 2,
+  "snippet": "y ParakeetAI?\",description:\"A short explainer on ParakeetAI credits, subscriptions and how they renew.\",category:\"billing\",showInTutorials:!0},referralCode:{youtubeId:"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "credits",
+  "byteOffset": 38984,
+  "line": 2,
+  "snippet": " Credits\",description:\"Share your referral code, earn extra credits, and learn how new buyers can redeem it.\",category:\"billing\",showInTutorials:!0},podcastStarterStor"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "subscription",
+  "byteOffset": 5097,
+  "line": 2,
+  "snippet": "(a,e),null}])},533200,e=>{\"use strict\";e.s([\"PLAN_TABS\",0,[\"subscription\",\"credits\",\"prepare\"],\"PLAN_TAB_LABELS\",0,{subscription:\"Unlimited\",prepare:\"Custom\",credits:\"Credi"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "subscription",
+  "byteOffset": 5153,
+  "line": 2,
+  "snippet": "0,[\"subscription\",\"credits\",\"prepare\"],\"PLAN_TAB_LABELS\",0,{subscription:\"Unlimited\",prepare:\"Custom\",credits:\"Credits\"},\"customPlanHref\",0,function(e,t){return`${e}${e.inc"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "subscription",
+  "byteOffset": 26257,
+  "line": 2,
+  "snippet": "ency:\"eur\",price:153,audiences:[t.PricingAudience.Europe]}],subscription_weekly:[{currency:\"usd\",price:78,audiences:[t.PricingAudience.Other,t.PricingAudience.Europe]},{cur"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "subscription",
+  "byteOffset": 26593,
+  "line": 2,
+  "snippet": "rency:\"eur\",price:67,audiences:[t.PricingAudience.Europe]}],subscription_monthly:[{currency:\"usd\",price:149.9,audiences:[t.PricingAudience.Other,t.PricingAudience.Europe]},"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "subscription",
+  "byteOffset": 26938,
+  "line": 2,
+  "snippet": "cy:\"eur\",price:129.9,audiences:[t.PricingAudience.Europe]}],subscription_yearly:[{currency:\"usd\",price:599.9,audiences:[t.PricingAudience.Other,t.PricingAudience.Europe]},{"
+ },
+ {
+  "file": "chunks_2f8i9dxemcpu3.js",
+  "term": "subscription",
+  "byteOffset": 29768,
+  "line": 2,
+  "snippet": "=e.tier}function d(e){return e?.status===\"past_due\"}let l=[\"subscription_weekly\",\"subscription_monthly\",\"subscription_yearly\"];function p(e,t){return`custom_${e}_${t}`}[..."
+ },
+ {
+  "file": "chunks_2hcwz74benv3g.js",
+  "term": "resend",
+  "byteOffset": 24960,
+  "line": 21,
+  "snippet": "`${t%60}`.padStart(2,\"0\");return`Too many requests. You can resend in ${n}:${a}.`}])}]); //# debugId=55b40a32-b7fa-15d1-633b-7ec70d20e477"
+ },
+ {
+  "file": "chunks_2hcwz74benv3g.js",
+  "term": "/api/",
+  "byteOffset": 10815,
+  "line": 2,
+  "snippet": " strict\";function t(e){return e.trim().toLowerCase()}let n=\"/api/auth/session\";async function a({email:e,token:r,readLockedUntil:l}){let i,o,s=new URLSearchParams({e"
+ },
+ {
+  "file": "chunks_2hcwz74benv3g.js",
+  "term": "/api/",
+  "byteOffset": 10973,
+  "line": 2,
+  "snippet": "rams({email:t(e),token:r,callbackUrl:n});try{i=await fetch(`/api/auth/callback/email?${s.toString()}`,{method:\"GET\",credentials:\"same-origin\",redirect:\"follow\"})}cat"
+ },
+ {
+  "file": "chunks_2hcwz74benv3g.js",
+  "term": "fetch(",
+  "byteOffset": 10966,
+  "line": 2,
+  "snippet": "earchParams({email:t(e),token:r,callbackUrl:n});try{i=await fetch(`/api/auth/callback/email?${s.toString()}`,{method:\"GET\",credentials:\"same-origin\",redirect:\"follow\""
+ },
+ {
+  "file": "chunks_2hk8we-14n4n-.js",
+  "term": "resend",
+  "byteOffset": 2839,
+  "line": 2,
+  "snippet": "ext-center\",children:X}),R[19]=X,R[20]=W):W=R[20],R[21]!==Z.resend||R[22]!==D||R[23]!==P||R[24]!==A?(V=!D&&(0,i.jsx)(m.Typography,{render:(0,i.jsxs)(\"p\",{className:\"t"
+ },
+ {
+  "file": "chunks_2hk8we-14n4n-.js",
+  "term": "resend",
+  "byteOffset": 3073,
+  "line": 2,
+  "snippet": "ode?\",\" \",0===P?(0,i.jsx)(\"button\",{type:\"button\",onClick:Z.resend,disabled:A,className:\"text-muted-foreground cursor-pointer underline disabled:cursor-default disabl"
+ },
+ {
+  "file": "chunks_2hk8we-14n4n-.js",
+  "term": "resend",
+  "byteOffset": 3277,
+  "line": 2,
+  "snippet": "i.jsxs)(\"span\",{children:[\"Resend (\",P,\"s)\"]})]})}),R[21]=Z.resend,R[22]=D,R[23]=P,R[24]=A,R[25]=V):V=R[25],R[26]!==S||R[27]!==W||R[28]!==V?(C=(0,i.jsxs)(\"div\",{class"
+ },
+ {
+  "file": "chunks_2hk8we-14n4n-.js",
+  "term": "resend",
+  "byteOffset": 47171,
+  "line": 13,
+  "snippet": "(n):n)},a=(e,t)=>({step:\"code\",email:e,code:\"\",verifying:!1,resendDeadline:t}),l=async t=>{r(\"email\",e=>({...e,sending:!0}));try{let i=await e().requestCode(t);if(!i."
+ },
+ {
+  "file": "chunks_2hk8we-14n4n-.js",
+  "term": "resend",
+  "byteOffset": 47377,
+  "line": 13,
+  "snippet": "tify({title:R.sendFailed,description:n}),r(\"code\",e=>({...e,resendDeadline:null})))}await e().pendingCode.issued(t),o(e=>\"providers\"===e.step?e:a(t,new Date(Date.now("
+ },
+ {
+  "file": "chunks_2hk8we-14n4n-.js",
+  "term": "resend",
+  "byteOffset": 49259,
+  "line": 13,
+  "snippet": "t,code:e,error:void 0})),e.length<f.CODE_LENGTH||t||c(i,e)},resend:()=>{let e;if(\"code\"!==n.step)return;let{verifying:t,resendDeadline:i,email:o}=n;t||(e=Date.now(),("
+ },
+ {
+  "file": "chunks_2hk8we-14n4n-.js",
+  "term": "RTCPeerConnection",
+  "byteOffset": 31646,
+  "line": 5,
+  "snippet": ")return -2;if(ev()&&!ew()&&!(en([\"DOMRectList\"in(t=window),\"RTCPeerConnectionIceEvent\"in t,\"SVGGeometryElement\"in t,\"ontransitioncancel\"in t])>=3))return -1;let r=new o(1,5e3,44"
+ },
+ {
+  "file": "chunks_2n3sk9mqce-1p.js",
+  "term": "mixpanel",
+  "byteOffset": 103829,
+  "line": 2,
+  "snippet": "!1;return}K.current||(K.current=!0,(0,f.trackClientEvent)(h.mixpanelEvents.resumeMaker.preview_overflow_shown,{pageCount:P,templateId:r.templateId,density:r.density,pag"
+ },
+ {
+  "file": "chunks_2roeq6879x39u.js",
+  "term": "mixpanel",
+  "byteOffset": 518,
+  "line": 2,
+  "snippet": "(78030),i=e.i(881213);function a(){(0,r.trackClientEvent)(i.mixpanelEvents.hiring.page_viewed)}e.s([\"HiringPageView\",0,function(){let e,r=(0,t.c)(1);return r[0]===Symbo"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "next-auth",
+  "byteOffset": 11687,
+  "line": 2,
+  "snippet": "}return e}var l={error:function(e,t){t=c(t),console.error(\"[next-auth][error][\".concat(e,\"]\"),\"\\nhttps://next-auth.js.org/errors#\".concat(e.toLowerCase()),t.message,t)},"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "next-auth",
+  "byteOffset": 11732,
+  "line": 2,
+  "snippet": "onsole.error(\"[next-auth][error][\".concat(e,\"]\"),\"\\nhttps://next-auth.js.org/errors#\".concat(e.toLowerCase()),t.message,t)},warn:function(e){console.warn(\"[next-auth][wa"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "next-auth",
+  "byteOffset": 11828,
+  "line": 2,
+  "snippet": "oLowerCase()),t.message,t)},warn:function(e){console.warn(\"[next-auth][warn][\".concat(e,\"]\"),\"\\nhttps://next-auth.js.org/warnings#\".concat(e.toLowerCase()))},debug:funct"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "next-auth",
+  "byteOffset": 11872,
+  "line": 2,
+  "snippet": "{console.warn(\"[next-auth][warn][\".concat(e,\"]\"),\"\\nhttps://next-auth.js.org/warnings#\".concat(e.toLowerCase()))},debug:function(e,t){console.log(\"[next-auth][debug][\".c"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "next-auth",
+  "byteOffset": 11960,
+  "line": 2,
+  "snippet": "concat(e.toLowerCase()))},debug:function(e,t){console.log(\"[next-auth][debug][\".concat(e,\"]\"),t)}};r.default=l},498520,(e,t,r)=>{\"use strict\";Object.defineProperty(r,\"__"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "nextauth",
+  "byteOffset": 12579,
+  "line": 2,
+  "snippet": "r e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:\"nextauth.message\";return{receive:function(t){var r=function(r){if(r.key===e){var n,o=JSON.parse(null!=(n=r.n"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "/api/",
+  "byteOffset": 12155,
+  "line": 2,
+  "snippet": "fault=function(e){var t;let r=new URL(\"http://localhost:3000/api/auth\");e&&!e.startsWith(\"http\")&&(e=`https://${e}`);let n=new URL(null!=(t=e)?t:r),o=(\"/\"===n.pathna"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "/api/",
+  "byteOffset": 36992,
+  "line": 10,
+  "snippet": "ated\"===t.status;return(y.useEffect(function(){if(a){var e=\"/api/auth/signin?\".concat(new URLSearchParams({error:\"SessionRequired\",callbackUrl:window.location.href})"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "fetch(",
+  "byteOffset": 10661,
+  "line": 2,
+  "snippet": "\"return\",navigator.sendBeacon(s,f));case 8:return r.next=10,fetch(s,{method:\"POST\",body:f,keepalive:!0});case 10:return r.abrupt(\"return\",r.sent);case 11:case\"end\":re"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "fetch(",
+  "byteOffset": 14217,
+  "line": 2,
+  "snippet": "y&&(d.body=JSON.stringify(c.body),d.method=\"POST\"),e.next=7,fetch(f,d);case 7:return h=e.sent,e.next=10,h.json();case 10:if(v=e.sent,h.ok){e.next=13;break}throw v;cas"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "term": "fetch(",
+  "byteOffset": 42556,
+  "line": 10,
+  "snippet": "t1(e.t4),u={method:\"post\",headers:e.t0,body:e.t5},e.next=13,fetch(\"\".concat(a,\"/signout\"),u);case 13:return s=e.sent,e.next=16,s.json();case 16:if(i=e.sent,S.post({ev"
+ },
+ {
+  "file": "chunks_2zatq1633tqk3.js",
+  "term": "https://api",
+  "byteOffset": 7880,
+  "line": 2,
+  "snippet": "s.initMixpanel)(o.env.NEXT_PUBLIC_MIXPANEL_TOKEN,{api_host:\"https://api-eu.mixpanel.com\",debug:\"production\"!==o.env.NEXT_PUBLIC_VERCEL_TARGET_ENV,track_pageview:!0,persist"
+ },
+ {
+  "file": "chunks_2zatq1633tqk3.js",
+  "term": "mixpanel",
+  "byteOffset": 1852,
+  "line": 2,
+  "snippet": "]!==B||R[16]!==F||R[17]!==j?(b=e=>{(0,u.trackClientEvent)(c.mixpanelEvents.cookieConsent.decided,{decision:e,previous_decision:U,surface:F?\"cookie_settings\":\"banner\",co"
+ },
+ {
+  "file": "chunks_2zatq1633tqk3.js",
+  "term": "mixpanel",
+  "byteOffset": 2161,
+  "line": 2,
+  "snippet": "t z=b;R[19]!==U||R[20]!==B?(x=()=>{(0,u.trackClientEvent)(c.mixpanelEvents.cookieConsent.settings_dismissed,{decision:U,country_code:B??null}),Q(!1)},R[19]=U,R[20]=B,R["
+ },
+ {
+  "file": "chunks_2zatq1633tqk3.js",
+  "term": "mixpanel",
+  "byteOffset": 7895,
+  "line": 2,
+  "snippet": "(o.env.NEXT_PUBLIC_MIXPANEL_TOKEN,{api_host:\"https://api-eu.mixpanel.com\",debug:\"production\"!==o.env.NEXT_PUBLIC_VERCEL_TARGET_ENV,track_pageview:!0,persistence:\"cookie"
+ },
+ {
+  "file": "chunks_37mwxe2-fs5by.js",
+  "term": "fetch(",
+  "byteOffset": 72222,
+  "line": 3,
+  "snippet": "ault)},935779,(e,t,r)=>{\"use strict\";function n(e,t){return fetch(e,t)}Object.defineProperty(r,\"__esModule\",{value:!0}),Object.defineProperty(r,\"fetch\",{enumerable:!0"
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "mixpanel",
+  "byteOffset": 1225,
+  "line": 2,
+  "snippet": "||k[7]!==H||k[8]!==B?(b=()=>{H&&B&&(0,h.trackClientEvent)(f.mixpanelEvents.discountCode.claim_dialog_shown,{code:F})},x=[H,B,F],k[6]=F,k[7]=H,k[8]=B,k[9]=b,k[10]=x):(b="
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "mixpanel",
+  "byteOffset": 1472,
+  "line": 2,
+  "snippet": "gator.clipboard.writeText(F),Q(!0),(0,h.trackClientEvent)(f.mixpanelEvents.discountCode.code_copied,{code:F,surface:\"dialog\"}),u.toast.success(\"Discount code copied to "
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "mixpanel",
+  "byteOffset": 5101,
+  "line": 2,
+  "snippet": ":(0,t.jsx)(\"a\",{href:W,onClick:()=>(0,h.trackClientEvent)(f.mixpanelEvents.discountCode.claim_sign_in_clicked,{code:F}),children:\"Sign in to claim\"})})]}):(0,t.jsx)(p.B"
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "fetch(",
+  "byteOffset": 22707,
+  "line": 2,
+  "snippet": ".Currency.USD;eo(!0);try{let n=await er.billing.previewCode.fetch({code:_}),i=(\"planId\"in e?[e.planId]:(0,o.customSelectionPlanIds)(e.custom)).every(e=>n.prices?.[e]?"
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "credits",
+  "byteOffset": 8688,
+  "line": 2,
+  "snippet": "\",y.REFERRAL_DISCOUNT_PERCENT,\"% off, but no bonus referral credits.\"]}),q[56]=ei,q[57]=$):$=q[57],q[58]!==ei?(L=\"already-purchased\"===ei&&(0,t.jsxs)(p.Typography,{var"
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "credits",
+  "byteOffset": 8894,
+  "line": 2,
+  "snippet": "ground leading-4\",children:[\"Referral codes only earn bonus credits on a first purchase — you'll get \",y.REFERRAL_DISCOUNT_PERCENT,\"% off, but no bonus referral credit"
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "credits",
+  "byteOffset": 8997,
+  "line": 2,
+  "snippet": "\",y.REFERRAL_DISCOUNT_PERCENT,\"% off, but no bonus referral credits.\"]}),q[58]=ei,q[59]=L):L=q[59],q[60]!==ei?(A=\"referrer-no-purchase\"===ei&&(0,t.jsxs)(p.Typography,{"
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "credits",
+  "byteOffset": 9300,
+  "line": 2,
+  "snippet": "\",y.REFERRAL_DISCOUNT_PERCENT,\"% off, but no bonus referral credits.\"]}),q[60]=ei,q[61]=A):A=q[61],q[62]!==ei?(F=\"same-device\"===ei&&(0,t.jsxs)(p.Typography,{variant:\""
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "credits",
+  "byteOffset": 9585,
+  "line": 2,
+  "snippet": "\",y.REFERRAL_DISCOUNT_PERCENT,\"% off, but no bonus referral credits.\"]}),q[62]=ei,q[63]=F):F=q[63],q[64]!==r||q[65]!==g||q[66]!==x||q[67]!==$||q[68]!==L||q[69]!==A||q["
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "credits",
+  "byteOffset": 13355,
+  "line": 2,
+  "snippet": "CENT}% off this purchase, but you won’t earn bonus referral credits. Those are only awarded when someone else uses your code.`},\"already-purchased\":{title:\"Using a ref"
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "subscription",
+  "byteOffset": 6590,
+  "line": 2,
+  "snippet": ")(el),eu=ec===m.Currency.USD,ep=!f.UPI_DISABLED_ON_STRIPE&&\"subscription_yearly\"===G&&W===m.Currency.INR,[em,eh]=(0,r.useState)(\"subscribe\"),ef=\"pay_once\"===em,ey=ep&&!eu;q"
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "subscription",
+  "byteOffset": 17227,
+  "line": 2,
+  "snippet": "t\":\"Credits\"}`}function l(e){let t=n.paymentPlans[e];return\"subscription\"===t.type?`/ ${a.PERIOD_LABELS[t.period].title.replace(/ly$/,\"\")}`:void 0}n.PREPARE_FEATURES.map(e="
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "subscription",
+  "byteOffset": 17486,
+  "line": 2,
+  "snippet": "===a)return;let s=function(e,t){let i=n.paymentPlans[e];if(\"subscription\"===i.type)return\"weekly\"===i.period?t*c:\"quarterly\"===i.period?t/3:\"yearly\"===i.period?t/12:t}(e,i)"
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "subscription",
+  "byteOffset": 18106,
+  "line": 2,
+  "snippet": "t_9\"],\"CREDIT_UNITS\",0,[\"full\",\"credit\"],\"DEFAULT_UNITS\",0,{subscription:\"month\",credits:\"credit\"},\"PRICE_UNIT_LABELS\",0,{full:\"Total\",month:\"Per month\",call:\"Per call\",cre"
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "subscription",
+  "byteOffset": 18305,
+  "line": 2,
+  "snippet": "TION_UNITS\",0,[\"full\",\"month\",\"call\"],\"UNLIMITED_TIERS\",0,[\"subscription_monthly\",\"subscription_yearly\"],\"midTermSwitchNames\",0,function(e,t){let n=\"quarterly\"===e.period?\""
+ },
+ {
+  "file": "chunks_38ktq90uj2w2n.js",
+  "term": "subscription",
+  "byteOffset": 18328,
+  "line": 2,
+  "snippet": "month\",\"call\"],\"UNLIMITED_TIERS\",0,[\"subscription_monthly\",\"subscription_yearly\"],\"midTermSwitchNames\",0,function(e,t){let n=\"quarterly\"===e.period?\"3-month\":a.PERIOD_LABEL"
+ },
+ {
+  "file": "chunks_3iaalxitts_51.js",
+  "term": "https://api",
+  "byteOffset": 391470,
+  "line": 2,
+  "snippet": "record/\",flags:\"flags/\",settings:\"settings/\"},ly={api_host:\"https://api-js.mixpanel.com\",api_hosts:{},api_routes:lv,api_extra_query_params:{},api_method:\"POST\",api_transpo"
+ },
+ {
+  "file": "chunks_3iaalxitts_51.js",
+  "term": "mixpanel",
+  "byteOffset": 270385,
+  "line": 2,
+  "snippet": "lementation error. Please turn on debug and contact support@mixpanel.com.\"),S.DEBUG&&ai.critical(e)}}},ac=function(e){var t=e.prototype;for(var r in t)\"function\"==typeo"
+ },
+ {
+  "file": "chunks_3iaalxitts_51.js",
+  "term": "mixpanel",
+  "byteOffset": 290291,
+  "line": 2,
+  "snippet": "){e=t.getAll()}).then(function(){return e.result})};var aT=\"mixpanelBrowserDb\",aP=\"mixpanelRecordingEvents\",aF=\"mixpanelRecordingRegistry\",aL={version:1,storeNames:[aP,"
+ },
+ {
+  "file": "chunks_3iaalxitts_51.js",
+  "term": "mixpanel",
+  "byteOffset": 290314,
+  "line": 2,
+  "snippet": "unction(){return e.result})};var aT=\"mixpanelBrowserDb\",aP=\"mixpanelRecordingEvents\",aF=\"mixpanelRecordingRegistry\",aL={version:1,storeNames:[aP,aF]};function aN(e,t){a"
+ },
+ {
+  "file": "chunks_3iaalxitts_51.js",
+  "term": "mixpanel",
+  "byteOffset": 290343,
+  "line": 2,
+  "snippet": "var aT=\"mixpanelBrowserDb\",aP=\"mixpanelRecordingEvents\",aF=\"mixpanelRecordingRegistry\",aL={version:1,storeNames:[aP,aF]};function aN(e,t){aG(!0,e,t)}function aD(e,t){aG"
+ },
+ {
+  "file": "chunks_3iaalxitts_51.js",
+  "term": "mixpanel",
+  "byteOffset": 316644,
+  "line": 2,
+  "snippet": "ediaInteraction,nj.Drag,nj.Selection]),c1=function(e){this._mixpanel=e.mixpanelInstance,this._onIdleTimeout=e.onIdleTimeout||aI,this._onMaxLengthReached=e.onMaxLengthRe"
+ },
+ {
+  "file": "chunks_3iaalxitts_51.js",
+  "term": "mixpanel",
+  "byteOffset": 316655,
+  "line": 2,
+  "snippet": "tion,nj.Drag,nj.Selection]),c1=function(e){this._mixpanel=e.mixpanelInstance,this._onIdleTimeout=e.onIdleTimeout||aI,this._onMaxLengthReached=e.onMaxLengthReached||aI,t"
+ },
+ {
+  "file": "chunks_3iaalxitts_51.js",
+  "term": "fetch(",
+  "byteOffset": 324274,
+  "line": 2,
+  "snippet": "panel.get_api_host(\"record\")||this.getConfig(\"api_host\");se.fetch(o+\"/\"+this._getApiRoute()+\"?\"+new URLSearchParams(t),{method:\"POST\",headers:{Authorization:\"Basic \"+"
+ },
+ {
+  "file": "chunks_3iaalxitts_51.js",
+  "term": "fetch(",
+  "byteOffset": 402825,
+  "line": 2,
+  "snippet": "btoa(t.get_config(\"token\")+\":\")},signal:s.signal};return se.fetch(n+\"?\"+o,c).then(function(e){if(clearTimeout(a),!e.ok){ai.critical(\"Network response was not ok\"),r()"
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "stripe",
+  "byteOffset": 26828,
+  "line": 2,
+  "snippet": "\"View Transcript\"},{identity:{default:{title:\"Stripe\",logo:\"stripe\",subtitle:\"Payments Engineer\"},calls:{title:\"Contract Review\",subtitle:\"Redlines to walk through\"}}"
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "openai",
+  "byteOffset": 4605,
+  "line": 2,
+  "snippet": "x]\",children:n}),r[0]=n,r[1]=s):s=r[1],s}let N=[{src:\"model-openai.svg\",left:26},{src:\"model-claude.svg\",left:108},{src:\"model-gemini.svg\",left:190}];function k(){let"
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "openai",
+  "byteOffset": 25666,
+  "line": 2,
+  "snippet": "n:\"Start Session\"},{identity:{default:{title:\"OpenAI\",logo:\"openai\",subtitle:\"Machine Learning Engineer\"},calls:{title:\"Product Demo\",subtitle:\"Second call, ops team\""
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "anthropic",
+  "byteOffset": 24833,
+  "line": 2,
+  "snippet": "dockScale:1},I=[{identity:{default:{title:\"Anthropic\",logo:\"anthropic\",subtitle:\"Software Developer\"},calls:{title:\"Discovery Call\",subtitle:\"New inbound lead\"}},duratio"
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "gemini",
+  "byteOffset": 4672,
+  "line": 2,
+  "snippet": "svg\",left:26},{src:\"model-claude.svg\",left:108},{src:\"model-gemini.svg\",left:190}];function k(){let e,s,n,i,l,o,c=(0,a.c)(6);return c[0]===Symbol.for(\"react.memo_cach"
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "credits",
+  "byteOffset": 24962,
+  "line": 2,
+  "snippet": "l\",subtitle:\"New inbound lead\"}},duration:\"11 mins 23 secs\",credits:\"Free\",mode:\"Interview\",transcript:\"Yes\",created:\"May 12, 2026\",state:\"Live\",action:\"Join Session\"}"
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "credits",
+  "byteOffset": 25236,
+  "line": 2,
+  "snippet": "wal Review\",subtitle:\"Contract ends in June\"}},duration:\"—\",credits:\"—\",mode:\"Interview\",transcript:\"Yes\",created:\"Jun 3, 2026\",state:\"Ready to Start\",action:\"Start Se"
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "credits",
+  "byteOffset": 25508,
+  "line": 2,
+  "snippet": "ndor Onboarding\",subtitle:\"Access checklist\"}},duration:\"—\",credits:\"—\",mode:\"Interview\",transcript:\"Yes\",created:\"Jun 3, 2026\",state:\"Ready to Start\",action:\"Start Se"
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "credits",
+  "byteOffset": 25802,
+  "line": 2,
+  "snippet": "btitle:\"Second call, ops team\"}},duration:\"28 mins 12 secs\",credits:\"0.5\",mode:\"Interview\",transcript:\"Yes\",created:\"May 28, 2026\",state:\"Ended\",action:\"View Transcrip"
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "credits",
+  "byteOffset": 26101,
+  "line": 2,
+  "snippet": "tle:\"Numbers and next quarter\"}},duration:\"37 mins 41 secs\",credits:\"1.3\",mode:\"Interview\",transcript:\"No\",created:\"May 15, 2026\",state:\"Ended\",action:\"View Transcript"
+ },
+ {
+  "file": "chunks_3nw0anb_44k-b.js",
+  "term": "credits",
+  "byteOffset": 26388,
+  "line": 2,
+  "snippet": "le:\"Intro from a mutual client\"}},duration:\"46 mins 5 secs\",credits:\"2.5\",mode:\"Interview\",transcript:\"Yes\",created:\"Apr 28, 2026\",state:\"Ended\",action:\"View Transcrip"
+ },
+ {
+  "file": "chunks_3o21s6wf2f-6k.js",
+  "term": "mixpanel",
+  "byteOffset": 23993,
+  "line": 2,
+  "snippet": "|E.isStartingCheckout,onClick:()=>{(0,c.trackClientEvent)(d.mixpanelEvents.resumeMaker.download_buy_credits_clicked,D?{resumeId:i,offer:\"single\",surface:_}:{resumeId:i,"
+ },
+ {
+  "file": "chunks_3o21s6wf2f-6k.js",
+  "term": "credits",
+  "byteOffset": 24033,
+  "line": 2,
+  "snippet": "trackClientEvent)(d.mixpanelEvents.resumeMaker.download_buy_credits_clicked,D?{resumeId:i,offer:\"single\",surface:_}:{resumeId:i,offer:\"plan\",period:I,surface:_}),G(I)}"
+ },
+ {
+  "file": "chunks_3o21s6wf2f-6k.js",
+  "term": "subscription",
+  "byteOffset": 22049,
+  "line": 2,
+  "snippet": "underline-offset-2 transition-colors\";function Z({pricing:e,subscription:a,resumeId:i,file:x,titleAs:N,surface:_,onClose:M,onPayWithCredits:k,active:C,offerSingle:S}){let P"
+ },
+ {
+  "file": "chunks_3o21s6wf2f-6k.js",
+  "term": "subscription",
+  "byteOffset": 22252,
+  "line": 2,
+  "snippet": "ER_MESSAGES).download,E=(0,y.usePricingCheckout)({pricing:e,subscription:a}),R=S?w.OFFER_CHOICES:w.OFFER_CHOICES.filter(e=>\"single\"!==e),[O,z]=(0,s.useState)(\"quarterly\"),I"
+ },
+ {
+  "file": "chunks_3o21s6wf2f-6k.js",
+  "term": "subscription",
+  "byteOffset": 28142,
+  "line": 2,
+  "snippet": "FER_LINK_CLASS\",0,V,\"ResumePlanOffer\",0,function({pricing:e,subscription:a,resumeId:n,file:r,titleAs:i,surface:l=\"dialog\",onClose:o,onPayWithCredits:c,onShown:d,offerSingle"
+ },
+ {
+  "file": "chunks_3o21s6wf2f-6k.js",
+  "term": "subscription",
+  "byteOffset": 28565,
+  "line": 2,
+  "snippet": "ct)(()=>{d?.(y)},[y]),f&&(!p||h&&g))?(0,t.jsx)(Z,{pricing:f,subscription:x,resumeId:n,file:r,titleAs:i,surface:l,onClose:o,onPayWithCredits:c,active:g?h:void 0,offerSingle:"
+ },
+ {
+  "file": "chunks_3tdn22e5iyx38.js",
+  "term": "credits",
+  "byteOffset": 28594,
+  "line": 2,
+  "snippet": "HackerRank session.\",category:\"privacy\",showInTutorials:!0},creditsAndSubscriptions:{youtubeId:\"Q7CsP6p1EO0\",title:\"How to Buy ParakeetAI?\",description:\"A short explai"
+ },
+ {
+  "file": "chunks_3tdn22e5iyx38.js",
+  "term": "credits",
+  "byteOffset": 28719,
+  "line": 2,
+  "snippet": "y ParakeetAI?\",description:\"A short explainer on ParakeetAI credits, subscriptions and how they renew.\",category:\"billing\",showInTutorials:!0},referralCode:{youtubeId:"
+ },
+ {
+  "file": "chunks_3tdn22e5iyx38.js",
+  "term": "credits",
+  "byteOffset": 28933,
+  "line": 2,
+  "snippet": " Credits\",description:\"Share your referral code, earn extra credits, and learn how new buyers can redeem it.\",category:\"billing\",showInTutorials:!0},podcastStarterStor"
+ },
+ {
+  "file": "chunks_3tdn22e5iyx38.js",
+  "term": "subscription",
+  "byteOffset": 28728,
+  "line": 2,
+  "snippet": "tAI?\",description:\"A short explainer on ParakeetAI credits, subscriptions and how they renew.\",category:\"billing\",showInTutorials:!0},referralCode:{youtubeId:\"CT5YaxGdnzI\","
+ },
+ {
+  "file": "chunks_42jpfsz0q26y6.js",
+  "term": "stripe",
+  "byteOffset": 131813,
+  "line": 2,
+  "snippet": ",children:(0,a.jsx)(n.default,{src:\"/landing/hero/companies/stripe.png\",alt:\"\",width:40,height:40,className:\"size-8 object-contain\"})}),s[0]=e):e=s[0],s[1]===Symbol.f"
+ },
+ {
+  "file": "chunks_42jpfsz0q26y6.js",
+  "term": "mixpanel",
+  "byteOffset": 1381,
+  "line": 2,
+  "snippet": "1]!==g||f[2]!==b||f[3]!==x?(u=()=>{(0,n.trackClientEvent)(i.mixpanelEvents.prepareLanding.page_viewed,{product:g,status:x,signedIn:b,language:v})},m=[g,x,b,v],f[0]=v,f["
+ },
+ {
+  "file": "chunks_42jpfsz0q26y6.js",
+  "term": "mixpanel",
+  "byteOffset": 2393,
+  "line": 2,
+  "snippet": "let e=t.closest(\"section\")?.id??\"\";(0,n.trackClientEvent)(i.mixpanelEvents.prepareLanding.cta_clicked,{product:g,placement:d.has(e)?e:\"final\",entry:u.kind,...\"template\""
+ },
+ {
+  "file": "chunks_42jpfsz0q26y6.js",
+  "term": "mixpanel",
+  "byteOffset": 2631,
+  "line": 2,
+  "snippet": "areProductForPath)(r);m&&m.id!==g&&(0,n.trackClientEvent)(i.mixpanelEvents.prepareLanding.product_link_clicked,{product:m.id,from:g,signedIn:b})};return document.addEve"
+ },
+ {
+  "file": "chunks_42jpfsz0q26y6.js",
+  "term": "credits",
+  "byteOffset": 81464,
+  "line": 2,
+  "snippet": " the clean PDF is paid, at ${n.RESUME_DOWNLOAD_CREDIT_COST} credits for each new version, or unlimited on a plan that includes the Resume Maker. There is no trial that"
+ },
+ {
+  "file": "chunks_42jpfsz0q26y6.js",
+  "term": "credits",
+  "byteOffset": 84238,
+  "line": 2,
+  "snippet": "nload of any version costs ${n.RESUME_DOWNLOAD_CREDIT_COST} credits; after that it downloads free, and going back to a version you paid for earlier costs nothing.`},{c"
+ },
+ {
+  "file": "chunks_42jpfsz0q26y6.js",
+  "term": "subscription",
+  "byteOffset": 17163,
+  "line": 2,
+  "snippet": "perimentation program (120 A/B tests per quarter) and moved subscription pricing to annual plans, which raised retention by 9 points.\"})}),E[23]=q,E[24]=v):v=E[24],E[25]==="
+ },
+ {
+  "file": "chunks_42jpfsz0q26y6.js",
+  "term": "subscription",
+  "byteOffset": 81585,
+  "line": 2,
+  "snippet": "ludes the Resume Maker. There is no trial that turns into a subscription.`},{category:\"Privacy\",question:\"Is my data safe?\",answer:\"Your resumes are private to your account"
+ },
+ {
+  "file": "chunks_42jpfsz0q26y6.js",
+  "term": "subscription",
+  "byteOffset": 121556,
+  "line": 2,
+  "snippet": "mentation program that ran 120 A/B tests a quarter.\",\"Moved subscription pricing to annual plans, raising retention 9 points.\"]},{id:\"e3\",company:\"Ledgerly\",role:\"Associate"
+ }
+]

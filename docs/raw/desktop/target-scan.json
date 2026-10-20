@@ -1,0 +1,429 @@
+{
+  "docs/raw/desktop/asar-extracted/dist/main/main.js": {
+    "bytes": 2079069,
+    "contentProtection": [
+      {
+        "offset": 1847067,
+        "match": "setContentProtection",
+        "context": "ct\";t.setPrivateMode=function(e){o.mainWindow&&!o.mainWindow.isDestroyed()&&(o.mainWindow.setContentProtection(e),r.ipcMainProxy.emit(o.mainWindow,\"main/private-mode-changed\",e)),(0,i.setSetting)(\"isPrivate\",e)},t.getPrivateMode=function(){return(0,i"
+      }
+    ],
+    "alwaysOnTop": [
+      {
+        "offset": 1827660,
+        "match": "alwaysOnTop",
+        "context": "-${c.THEME_FLAGS.liveCall}=${n.liveCall}`]},transparent:!0,roundedCorners:!1,hasShadow:!1,alwaysOnTop:!0,frame:!1,resizable:!1,skipTaskbar:!0,hiddenInMissionControl:!0,movable:!1,type:\"panel\"});if(p.isWindows){r.setAlwaysOnTop(!0,\"screen-sav"
+      },
+      {
+        "offset": 1827782,
+        "match": "setAlwaysOnTop",
+        "context": "e:!1,skipTaskbar:!0,hiddenInMissionControl:!0,movable:!1,type:\"panel\"});if(p.isWindows){r.setAlwaysOnTop(!0,\"screen-saver\",1),r.webContents.setBackgroundThrottling(!1);const e=setInterval(()=>{r&&!r.isDestroyed()?r.setAlwaysOnTop(!0,\"screen-sav"
+      },
+      {
+        "offset": 1827907,
+        "match": "setAlwaysOnTop",
+        "context": ",r.webContents.setBackgroundThrottling(!1);const e=setInterval(()=>{r&&!r.isDestroyed()?r.setAlwaysOnTop(!0,\"screen-saver\",1):e&&clearInterval(e)},1e3)}return r.setVisibleOnAllWorkspaces(!0,{visibleOnFullScreen:!0}),r.webContents.session.setPer"
+      }
+    ],
+    "skipTaskbar": [
+      {
+        "offset": 1827697,
+        "match": "skipTaskbar",
+        "context": "ll}`]},transparent:!0,roundedCorners:!1,hasShadow:!1,alwaysOnTop:!0,frame:!1,resizable:!1,skipTaskbar:!0,hiddenInMissionControl:!0,movable:!1,type:\"panel\"});if(p.isWindows){r.setAlwaysOnTop(!0,\"screen-saver\",1),r.webContents.setBackgroundThr"
+      },
+      {
+        "offset": 1859639,
+        "match": "setSkipTaskbar",
+        "context": "{u.mainWindow&&!u.mainWindow.isDestroyed()&&(u.mainWindow.setFocusable(t),t?(u.mainWindow.setSkipTaskbar(!0),u.mainWindow.focus()):u.mainWindow.blur())}),s.ipcMainProxy.handle(\"renderer/set-is-live-call-session-screen-visible\",(e,{isVisible:t,r"
+      }
+    ],
+    "globalShortcut": [
+      {
+        "offset": 1670160,
+        "match": "accelerator",
+        "context": "9|F8|F7|F6|F5|F4|F3|F2|F1|[0-9A-Z)!@#$%^&*(:+<_>?~{|}\";=,\\-./`[\\\\\\]'])/i,r={};function o({accelerator:e,event:t},n){switch(n){case\"command\":case\"cmd\":return function(e,t,n){if(\"darwin\"!==process.platform)return r;if(t.metaKey)throw new Error"
+      },
+      {
+        "offset": 1670398,
+        "match": "accelerator",
+        "context": "ror(\"Double `Command` modifier specified.\");return{event:Object.assign({},t,{metaKey:!0}),accelerator:e.slice(n.length)}}(e,t,n);case\"super\":return function(e,t,n){if(t.metaKey)throw new Error(\"Double `Super` modifier specified.\");return{eve"
+      },
+      {
+        "offset": 1670585,
+        "match": "accelerator",
+        "context": "Error(\"Double `Super` modifier specified.\");return{event:Object.assign({},t,{metaKey:!0}),accelerator:e.slice(n.length)}}(e,t,n);case\"control\":case\"ctrl\":return function(e,t,n){if(t.ctrlKey)throw new Error(\"Double `Control` modifier specifie"
+      },
+      {
+        "offset": 1670787,
+        "match": "accelerator",
+        "context": "ror(\"Double `Control` modifier specified.\");return{event:Object.assign({},t,{ctrlKey:!0}),accelerator:e.slice(n.length)}}(e,t,n);case\"commandorcontrol\":case\"cmdorctrl\":return function(e,t,n){if(\"darwin\"===process.platform){if(t.metaKey)throw"
+      },
+      {
+        "offset": 1671035,
+        "match": "accelerator",
+        "context": "ror(\"Double `Command` modifier specified.\");return{event:Object.assign({},t,{metaKey:!0}),accelerator:e.slice(n.length)}}if(t.ctrlKey)throw new Error(\"Double `Control` modifier specified.\");return{event:Object.assign({},t,{ctrlKey:!0}),accel"
+      },
+      {
+        "offset": 1671181,
+        "match": "accelerator",
+        "context": "ror(\"Double `Control` modifier specified.\");return{event:Object.assign({},t,{ctrlKey:!0}),accelerator:e.slice(n.length)}}(e,t,n);case\"option\":case\"altgr\":case\"alt\":return function(e,t,n){if(\"option\"===n&&\"darwin\"!==process.platform)return r;"
+      }
+    ],
+    "ignoreMouse": [
+      {
+        "offset": 1828572,
+        "match": "setIgnoreMouseEvents",
+        "context": "ler(e=>(i.shell.openExternal(e.url),{action:\"deny\"})),(0,u.applyWindowSizeAndMargin)(r),r.setIgnoreMouseEvents(!0,{forward:!0}),(0,p.setMainWindow)(r),(0,f.setPrivateMode)(!0),(0,h.checkForUpdates)(),s.default.info(\"Main window created\"),r};const o=r"
+      },
+      {
+        "offset": 1859183,
+        "match": "setIgnoreMouseEvents",
+        "context": "/set-ignore-mouse-events\",(e,t)=>{u.mainWindow&&!u.mainWindow.isDestroyed()&&u.mainWindow.setIgnoreMouseEvents(t,{forward:!0})}),s.ipcMainProxy.handle(\"renderer/window-error\",(e,t)=>{i.default.error(\"Window error:\",t),u.mainWindow&&!u.mainWindow.isDe"
+      }
+    ],
+    "lsuielement": [
+      {
+        "offset": 1826742,
+        "match": "app.dock",
+        "context": "dow.isMinimized()?p.mainWindow.restore():p.mainWindow.isFocused()||p.mainWindow.focus(),i.app.dock?.isVisible()&&(s.default.info(\"Dock visible after focus, hiding it\"),i.app.dock.hide()),null===e&&(a.ipcMainProxy.emit(p.mainWindow,\"main/f"
+      },
+      {
+        "offset": 1826822,
+        "match": "app.dock",
+        "context": "focus(),i.app.dock?.isVisible()&&(s.default.info(\"Dock visible after focus, hiding it\"),i.app.dock.hide()),null===e&&(a.ipcMainProxy.emit(p.mainWindow,\"main/focus-window\"),(0,g.unregisterTray)()),s.default.info(\"Main window focused\"),p.ma"
+      },
+      {
+        "offset": 1827145,
+        "match": "app.dock",
+        "context": " not create the window\"),null;s.default.info(\"Main window does not exist, creating it\"),i.app.dock?.hide();const t=\"started\"===e;t||(0,g.unregisterTray)();const n=(0,m.readThemeSettings)(),r=new i.BrowserWindow({icon:(0,l.getAssetPath)(\"i"
+      },
+      {
+        "offset": 1835505,
+        "match": "app.dock",
+        "context": ",n=!1}if(!0===e.wasOpenedAtLogin||process.argv.includes(\"--was-opened-at-login\")||n){if(i.app.dock?.hide(),\"enabled\"!==(0,b.getSetting)(\"autoDetectMeetings\"))return void i.app.quit();(0,T.registerTray)()}else(0,u.createOrFocusMainWindow)("
+      },
+      {
+        "offset": 1835942,
+        "match": "app.dock",
+        "context": "ault.warn(\"Failed to set display media request handler:\",e)}t.isMacOS&&setInterval(()=>{i.app.dock&&i.app.dock.isVisible()&&(a.default.info(\"Dock poll: dock visible, re-hiding\"),i.app.dock.hide())},2e3),(0,p.startMeetingDetector)()}),i.ap"
+      },
+      {
+        "offset": 1835954,
+        "match": "app.dock",
+        "context": "ailed to set display media request handler:\",e)}t.isMacOS&&setInterval(()=>{i.app.dock&&i.app.dock.isVisible()&&(a.default.info(\"Dock poll: dock visible, re-hiding\"),i.app.dock.hide())},2e3),(0,p.startMeetingDetector)()}),i.app.on(\"activa"
+      }
+    ],
+    "permissions": [
+      {
+        "offset": 104673,
+        "match": "media",
+        "context": "7),o=n(84157),i=n(74031),s=r.defineIntegration(()=>({name:\"NormalizePaths\",setup:e=>{setImmediate(()=>{e.on(\"beforeEnvelope\",e=>{r.forEachEnvelopeItem(e,(e,t)=>{\"profile\"===t&&i.normaliseProfile(e[1],o.app.getAppPath())})})})},processE"
+      },
+      {
+        "offset": 113024,
+        "match": "media",
+        "context": "ed to create minidump loader\",e)}const f=e.getOptions();if(function(e){function n(n){setImmediate(async()=>t?.set({scope:n,event:await a.getEventDefaults(e)}))}s.addScopeListener(e=>{n(e)}),n(s.getScopeData())}(e),!f?.dsn)throw new Err"
+      },
+      {
+        "offset": 248202,
+        "match": "media",
+        "context": "mages.every(e=>r.isPlainObject(e)&&\"string\"==typeof e.code_file)))))}(e.data)){if(e.stopImmediatePropagation(),e.data._sentryDebugIds&&(o.DEBUG_BUILD&&r.debug.log(\"Sentry debugId web worker message received\",e.data),s.WINDOW._sentryDeb"
+      },
+      {
+        "offset": 480919,
+        "match": "media",
+        "context": "eof e.image_url?e.image_url.startsWith(\"data:\"):r(e))}(e)||i(e)||s(e)||function(e){return\"media_type\"in e&&\"string\"==typeof e.media_type&&\"data\"in e}(e)||function(e){return\"type\"in e&&\"file\"===e.type&&\"mediaType\"in e&&\"string\"==typeof "
+      },
+      {
+        "offset": 480955,
+        "match": "media",
+        "context": "th(\"data:\"):r(e))}(e)||i(e)||s(e)||function(e){return\"media_type\"in e&&\"string\"==typeof e.media_type&&\"data\"in e}(e)||function(e){return\"type\"in e&&\"file\"===e.type&&\"mediaType\"in e&&\"string\"==typeof e.mediaType&&\"data\"in e&&\"string\"==t"
+      },
+      {
+        "offset": 481031,
+        "match": "media",
+        "context": "ng\"==typeof e.media_type&&\"data\"in e}(e)||function(e){return\"type\"in e&&\"file\"===e.type&&\"mediaType\"in e&&\"string\"==typeof e.mediaType&&\"data\"in e&&\"string\"==typeof e.data&&!e.data.startsWith(\"http://\")&&!e.data.startsWith(\"https://\")}"
+      }
+    ],
+    "audio": [
+      {
+        "offset": 695655,
+        "match": "getDisplayMedia",
+        "context": "tener(\"change\",e)}},[]),t}();e.useEffect(()=>{(async()=>{t();const e=await s.mediaDevices.getDisplayMedia({video:{width:o.innerWidth*c,height:o.innerHeight*c},audio:!1,monitorTypeSurfaces:\"exclude\",preferCurrentTab:!0,selfBrowserSurface:\"include"
+      },
+      {
+        "offset": 1402656,
+        "match": "loopback",
+        "context": "s.useColors,o.inspect(e,this.inspectOpts)}},85324(e,t){\"use strict\";t.buildFeatureFlags=t.loopbackAudioTypes=t.featureSwitchKey=t.defaultSourcesOptions=t.ipcEvents=void 0,t.ipcEvents={enableLoopbackAudio:\"enable-loopback-audio\",disableLoo"
+      },
+      {
+        "offset": 1402778,
+        "match": "loopback",
+        "context": "chKey=t.defaultSourcesOptions=t.ipcEvents=void 0,t.ipcEvents={enableLoopbackAudio:\"enable-loopback-audio\",disableLoopbackAudio:\"disable-loopback-audio\"},t.defaultSourcesOptions={types:[\"screen\"]},t.featureSwitchKey=\"enable-features\",t.loo"
+      },
+      {
+        "offset": 1402824,
+        "match": "loopback",
+        "context": " 0,t.ipcEvents={enableLoopbackAudio:\"enable-loopback-audio\",disableLoopbackAudio:\"disable-loopback-audio\"},t.defaultSourcesOptions={types:[\"screen\"]},t.featureSwitchKey=\"enable-features\",t.loopbackAudioTypes={loopback:\"loopback\",loopbackW"
+      },
+      {
+        "offset": 1402923,
+        "match": "loopback",
+        "context": "audio\"},t.defaultSourcesOptions={types:[\"screen\"]},t.featureSwitchKey=\"enable-features\",t.loopbackAudioTypes={loopback:\"loopback\",loopbackWithMute:\"loopbackWithMute\"};const n={pulseaudioLoopbackForScreenShare:\"PulseaudioLoopbackForScreenS"
+      },
+      {
+        "offset": 1402943,
+        "match": "loopback",
+        "context": "rcesOptions={types:[\"screen\"]},t.featureSwitchKey=\"enable-features\",t.loopbackAudioTypes={loopback:\"loopback\",loopbackWithMute:\"loopbackWithMute\"};const n={pulseaudioLoopbackForScreenShare:\"PulseaudioLoopbackForScreenShare\",macLoopbackAud"
+      }
+    ],
+    "ws": [
+      {
+        "offset": 1853458,
+        "match": "wss://*.rt.speechmatics.com",
+        "context": "c 'self'\",[\"connect-src 'self'\",o,o,...t.PROTECTED_ORIGINS,\"https://api-eu.mixpanel.com\",\"wss://*.rt.speechmatics.com\",\"https://api.openai.com\",\"https://www.google.com/generate_204\",\"https://cp.cloudflare.com/generate_204\"].filter(Boolean).join(\" \"),\"frame-"
+      }
+    ],
+    "vendors": [
+      {
+        "offset": 83917,
+        "match": "anthropic",
+        "context": "ntProcessor,t.addIntegration=r.addIntegration,t.amqplibIntegration=r.amqplibIntegration,t.anthropicAIIntegration=r.anthropicAIIntegration,t.applyDiagnosticsChannelInjectionIntegrations=r.applyDiagnosticsChannelInjectionIntegrations,t.bindS"
+      },
+      {
+        "offset": 83942,
+        "match": "anthropic",
+        "context": "ion=r.addIntegration,t.amqplibIntegration=r.amqplibIntegration,t.anthropicAIIntegration=r.anthropicAIIntegration,t.applyDiagnosticsChannelInjectionIntegrations=r.applyDiagnosticsChannelInjectionIntegrations,t.bindScopeToEmitter=r.bindScope"
+      },
+      {
+        "offset": 85537,
+        "match": "firebase",
+        "context": "ifyIntegration=r.fastifyIntegration,t.featureFlagsIntegration=r.featureFlagsIntegration,t.firebaseIntegration=r.firebaseIntegration,t.flush=r.flush,t.fsIntegration=r.fsIntegration,t.functionToStringIntegration=r.functionToStringIntegratio"
+      },
+      {
+        "offset": 85559,
+        "match": "firebase",
+        "context": "fyIntegration,t.featureFlagsIntegration=r.featureFlagsIntegration,t.firebaseIntegration=r.firebaseIntegration,t.flush=r.flush,t.fsIntegration=r.fsIntegration,t.functionToStringIntegration=r.functionToStringIntegration,t.generateInstrument"
+      },
+      {
+        "offset": 86735,
+        "match": "Anthropic",
+        "context": "tegration=r.inboundFiltersIntegration,t.initOpenTelemetry=r.initOpenTelemetry,t.instrumentAnthropicAiClient=r.instrumentAnthropicAiClient,t.instrumentGoogleGenAIClient=r.instrumentGoogleGenAIClient,t.instrumentLangChainEmbeddings=r.instrum"
+      },
+      {
+        "offset": 86765,
+        "match": "Anthropic",
+        "context": "gration,t.initOpenTelemetry=r.initOpenTelemetry,t.instrumentAnthropicAiClient=r.instrumentAnthropicAiClient,t.instrumentGoogleGenAIClient=r.instrumentGoogleGenAIClient,t.instrumentLangChainEmbeddings=r.instrumentLangChainEmbeddings,t.instr"
+      }
+    ],
+    "capture": [
+      {
+        "offset": 91938,
+        "match": "screen.getPrimaryDisplay",
+        "context": ")=>{const t={};let n=e.deviceModelManufacturer;const o={...a,...e};function c(){const e=i.screen.getPrimaryDisplay(),n=Math.floor(e.size.width*e.scaleFactor),r=Math.floor(e.size.height*e.scaleFactor);t.screen_density=e.scaleFactor,t.screen_resolution=`${"
+      },
+      {
+        "offset": 1404432,
+        "match": "desktopCapturer",
+        "context": "|r.session.defaultSession).setDisplayMediaRequestHandler(async(e,t)=>{let s;try{s=await r.desktopCapturer.getSources(a),i&&(s=i(s))}catch{throw new Error(\"Failed to get sources for system audio loopback capture.\")}if(0===s.length)throw new Error"
+      },
+      {
+        "offset": 1404448,
+        "match": "getSources",
+        "context": "ltSession).setDisplayMediaRequestHandler(async(e,t)=>{let s;try{s=await r.desktopCapturer.getSources(a),i&&(s=i(s))}catch{throw new Error(\"Failed to get sources for system audio loopback capture.\")}if(0===s.length)throw new Error(\"No source"
+      },
+      {
+        "offset": 1825025,
+        "match": "screen.getPrimaryDisplay",
+        "context": "argin=function(e){const t=(0,o.getCurrentScreenIndex)(),n=r.screen.getAllDisplays()[t]??r.screen.getPrimaryDisplay(),{workArea:i}=n,s=i.width-24,a=i.height-24,c=i.x+12,u=i.y+12;\"darwin\"===process.platform&&(e.setMinimumSize(0,0),e.setMaximumSize(0,0));co"
+      },
+      {
+        "offset": 1835724,
+        "match": "desktopCapturer",
+        "context": "OrFocusMainWindow)();try{i.session.defaultSession.setDisplayMediaRequestHandler((e,t)=>{i.desktopCapturer.getSources({types:[\"screen\"]}).then(e=>{t({video:e[0],audio:\"loopback\"})})},{useSystemPicker:!0})}catch(e){a.default.warn(\"Failed to set di"
+      },
+      {
+        "offset": 1835740,
+        "match": "getSources",
+        "context": "w)();try{i.session.defaultSession.setDisplayMediaRequestHandler((e,t)=>{i.desktopCapturer.getSources({types:[\"screen\"]}).then(e=>{t({video:e[0],audio:\"loopback\"})})},{useSystemPicker:!0})}catch(e){a.default.warn(\"Failed to set display media"
+      }
+    ],
+    "tray": [
+      {
+        "offset": 1870719,
+        "match": "Tray(",
+        "context": "con/tray.png\")),e.setTemplateImage(!0)):e=(0,i.getAssetPath)(\"trayIcon/tray.ico\"),a=new r.Tray(e),a.setToolTip(\"ParakeetAI\");const t=r.Menu.buildFromTemplate([{label:\"Meeting Detect enabled\",enabled:!1},{type:\"separator\"},{label:\"Open "
+      },
+      {
+        "offset": 1871412,
+        "match": "setContextMenu",
+        "context": "quit())})()}}]);return s.isWindows&&a.on(\"click\",()=>{(0,o.createOrFocusMainWindow)()}),a.setContextMenu(t),a},t.unregisterTray=function(){a&&(a.destroy(),a=null)};const r=n(84157),o=n(6586),i=n(89553),s=n(30327);let a=null},35558(e,t,n){\"use s"
+      }
+    ]
+  },
+  "docs/raw/desktop/asar-extracted/dist/main/mic-monitor-worker.js": {
+    "bytes": 25809
+  },
+  "docs/raw/desktop/asar-extracted/dist/renderer/renderer.js": {
+    "bytes": 4228820,
+    "permissions": [
+      {
+        "offset": 153495,
+        "match": "media",
+        "context": "mages.every(e=>r.isPlainObject(e)&&\"string\"==typeof e.code_file)))))}(e.data)){if(e.stopImmediatePropagation(),e.data._sentryDebugIds&&(o.DEBUG_BUILD&&r.debug.log(\"Sentry debugId web worker message received\",e.data),a.WINDOW._sentryDeb"
+      },
+      {
+        "offset": 386215,
+        "match": "media",
+        "context": "eof e.image_url?e.image_url.startsWith(\"data:\"):r(e))}(e)||i(e)||a(e)||function(e){return\"media_type\"in e&&\"string\"==typeof e.media_type&&\"data\"in e}(e)||function(e){return\"type\"in e&&\"file\"===e.type&&\"mediaType\"in e&&\"string\"==typeof "
+      },
+      {
+        "offset": 386251,
+        "match": "media",
+        "context": "th(\"data:\"):r(e))}(e)||i(e)||a(e)||function(e){return\"media_type\"in e&&\"string\"==typeof e.media_type&&\"data\"in e}(e)||function(e){return\"type\"in e&&\"file\"===e.type&&\"mediaType\"in e&&\"string\"==typeof e.mediaType&&\"data\"in e&&\"string\"==t"
+      },
+      {
+        "offset": 386327,
+        "match": "media",
+        "context": "ng\"==typeof e.media_type&&\"data\"in e}(e)||function(e){return\"type\"in e&&\"file\"===e.type&&\"mediaType\"in e&&\"string\"==typeof e.mediaType&&\"data\"in e&&\"string\"==typeof e.data&&!e.data.startsWith(\"http://\")&&!e.data.startsWith(\"https://\")}"
+      },
+      {
+        "offset": 386362,
+        "match": "media",
+        "context": "e}(e)||function(e){return\"type\"in e&&\"file\"===e.type&&\"mediaType\"in e&&\"string\"==typeof e.mediaType&&\"data\"in e&&\"string\"==typeof e.data&&!e.data.startsWith(\"http://\")&&!e.data.startsWith(\"https://\")}(e)||function(e){return\"type\"in e&&"
+      },
+      {
+        "offset": 577429,
+        "match": "media",
+        "context": "e: only ${e};`:\"\"}\\n\\n ${x(\"dark\"===e?{...w,...t}:{..._,...n})}\\n}\\n\\n${\"system\"===e?`\\n@media (prefers-color-scheme: dark) {\\n :host {\\n color-scheme: only dark;\\n\\n ${x({...w,...t})}\\n }\\n}`:\"\"}\\n`,r&&o.setAttribute(\"nonce\","
+      }
+    ],
+    "audio": [
+      {
+        "offset": 600935,
+        "match": "getDisplayMedia",
+        "context": "tener(\"change\",e)}},[]),t}();e.useEffect(()=>{(async()=>{t();const e=await a.mediaDevices.getDisplayMedia({video:{width:o.innerWidth*l,height:o.innerHeight*l},audio:!1,monitorTypeSurfaces:\"exclude\",preferCurrentTab:!0,selfBrowserSurface:\"include"
+      },
+      {
+        "offset": 1895268,
+        "match": "getUserMedia",
+        "context": "crophone permissions. Error: ${(0,o.stringifyUnknownError)(e)}`,source:`${x}.performStart.getUserMedia`,error:e,severity:\"info\"}}const F=(0,l.useTranscriptionSession)({label:\"Microphone\",sourceBase:x,source:\"microphone\",callSessionId:d,speake"
+      },
+      {
+        "offset": 1896046,
+        "match": "getUserMedia",
+        "context": "t D(),n={echoCancellation:g,noiseSuppression:!1};let r;try{r=await navigator.mediaDevices.getUserMedia({audio:t?{...n,deviceId:{exact:t}}:n})}catch(e){const o=(e instanceof Error||e instanceof DOMException)&&[\"OverconstrainedError\",\"NotFoundE"
+      },
+      {
+        "offset": 1896298,
+        "match": "getUserMedia",
+        "context": "ReadableError\"].includes(e.name);if(!t||!o)return j(e);try{r=await navigator.mediaDevices.getUserMedia({audio:n}),L({type:\"device-fallback\"})}catch(e){return j(e)}}e.setMediaStream(r),A.current=r,R(r,C.current),U().then(e=>{M.current=e});cons"
+      },
+      {
+        "offset": 2200291,
+        "match": "getUserMedia",
+        "context": "=n(8204);async function i(e){return e?new MediaStream([e.clone()]):navigator.mediaDevices.getUserMedia({audio:{echoCancellation:!0,noiseSuppression:!0,autoGainControl:!0}})}},63660(e,t){\"use strict\";t.REALTIME_TURN_DETECTION=void 0,t.REALTIME"
+      },
+      {
+        "offset": 2333816,
+        "match": "loopback",
+        "context": "ht=(0,a.useRef)(null);(0,a.useEffect)(()=>window.electron.ipcRendererProxy.on(\"main/share-loopback-error\",()=>{(async()=>{const e=await window.electron.ipcRendererProxy.invoke(\"renderer/list-output-devices\").catch(()=>[]);if(\"retry-same-d"
+      }
+    ],
+    "ws": [
+      {
+        "offset": 774333,
+        "match": "wss://eu2.rt.speechmatics.com/v2",
+        "context": "acy\"),i(this,\"timeout\"),i(this,\"socket\"),i(this,\"lastAudioAddedSeqNo\",0),this.url=e.url??\"wss://eu2.rt.speechmatics.com/v2\",this.appId=e.appId,this.enableLegacy=e.enableLegacy??!1,this.timeout=e.connectionTimeout??1e4}get socketState(){if(this.socket)return{[Web"
+      },
+      {
+        "offset": 2204157,
+        "match": "wss://global.rt.speechmatics.com/v2",
+        "context": ";return{language:t,domain:n}}t.SPEECHMATICS_MODEL=\"enhanced\",t.SPEECHMATICS_REALTIME_URL=\"wss://global.rt.speechmatics.com/v2\"},25642(e,t,n){\"use strict\";t.stringifyUnknownError=s,t.unknownToReportFields=function(e){if(e instanceof Error)return{errorName:e.name,mes"
+      }
+    ],
+    "vendors": [
+      {
+        "offset": 121288,
+        "match": "Anthropic",
+        "context": "ceData=i.getTraceData,t.inboundFiltersIntegration=i.inboundFiltersIntegration,t.instrumentAnthropicAiClient=i.instrumentAnthropicAiClient,t.instrumentCreateReactAgent=i.instrumentCreateReactAgent,t.instrumentGoogleGenAIClient=i.instrumentG"
+      },
+      {
+        "offset": 121318,
+        "match": "Anthropic",
+        "context": "dFiltersIntegration=i.inboundFiltersIntegration,t.instrumentAnthropicAiClient=i.instrumentAnthropicAiClient,t.instrumentCreateReactAgent=i.instrumentCreateReactAgent,t.instrumentGoogleGenAIClient=i.instrumentGoogleGenAIClient,t.instrumentL"
+      },
+      {
+        "offset": 121574,
+        "match": "OpenAi",
+        "context": "s=i.instrumentLangChainEmbeddings,t.instrumentLangGraph=i.instrumentLangGraph,t.instrumentOpenAiClient=i.instrumentOpenAiClient,t.instrumentStateGraph=i.instrumentStateGraph,t.instrumentSupabaseClient=i.instrumentSupabaseClient,t.isEnab"
+      },
+      {
+        "offset": 121599,
+        "match": "OpenAi",
+        "context": "beddings,t.instrumentLangGraph=i.instrumentLangGraph,t.instrumentOpenAiClient=i.instrumentOpenAiClient,t.instrumentStateGraph=i.instrumentStateGraph,t.instrumentSupabaseClient=i.instrumentSupabaseClient,t.isEnabled=i.isEnabled,t.isIniti"
+      },
+      {
+        "offset": 121670,
+        "match": "Supabase",
+        "context": "Client=i.instrumentOpenAiClient,t.instrumentStateGraph=i.instrumentStateGraph,t.instrumentSupabaseClient=i.instrumentSupabaseClient,t.isEnabled=i.isEnabled,t.isInitialized=i.isInitialized,t.lastEventId=i.lastEventId,t.logger=i.logger,t.ma"
+      },
+      {
+        "offset": 121697,
+        "match": "Supabase",
+        "context": "ient,t.instrumentStateGraph=i.instrumentStateGraph,t.instrumentSupabaseClient=i.instrumentSupabaseClient,t.isEnabled=i.isEnabled,t.isInitialized=i.isInitialized,t.lastEventId=i.lastEventId,t.logger=i.logger,t.makeMultiplexedTransport=i.ma"
+      }
+    ]
+  },
+  "hosts": [
+    "${e.bucket}.s3-accelerate.amazonaws.com",
+    "${e.bucket}.s3.${e.region}.amazonaws.com.cn",
+    "${e.bucket}.s3.amazonaws.com",
+    "${e.name}.${e.region}.digitaloceanspaces.com",
+    "${r}",
+    "${t}",
+    "*.vercel.app",
+    "api-eu.mixpanel.com",
+    "api-js.mixpanel.com",
+    "api.bitbucket.org",
+    "api.openai.com",
+    "base-ui.com",
+    "browser.sentry-cdn.com",
+    "cdn.mxpnl.com",
+    "company.com",
+    "cp.cloudflare.com",
+    "docs.sentry.io",
+    "dummy.dsn",
+    "f.a.k",
+    "github.com",
+    "img.logo.dev",
+    "json-schema.org",
+    "localhost:3000",
+    "localhost:8969",
+    "mixpanel.com",
+    "npms.io",
+    "o447951.ingest.sentry.io",
+    "o4511434168008704.ingest.de.sentry.io",
+    "parakeetai-git-branch.vercel.app",
+    "radix-ui.com",
+    "react.dev",
+    "s.io",
+    "s3-${e.region}.amazonaws.com",
+    "s3.amazonaws.com",
+    "sentry.io",
+    "spotlightjs.com",
+    "staging.${t.v}",
+    "staging.parakeet-ai.com",
+    "support.zoom.us",
+    "trpc.io",
+    "vercel.com",
+    "ws:*.rt.speechmatics.com",
+    "ws:eu2.rt.speechmatics.com",
+    "ws:global.rt.speechmatics.com",
+    "www.${t.v}",
+    "www.google.com",
+    "www.parakeet-ai.com",
+    "www.w3.org",
+    "www.youtube.com"
+  ]
+}

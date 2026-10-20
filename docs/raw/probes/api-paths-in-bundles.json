@@ -1,0 +1,47 @@
+[
+ {
+  "file": "chunks_00kaqdsh3kqdl.js",
+  "byteOffset": 31597,
+  "path": "/api/auth/signin"
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "byteOffset": 11813,
+  "path": "/api/auth/session"
+ },
+ {
+  "file": "chunks_0q-s4_usbquwy.js",
+  "byteOffset": 11971,
+  "path": "/api/auth/callback/email"
+ },
+ {
+  "file": "chunks_15fo63hca7dvq.js",
+  "byteOffset": 450836,
+  "path": "/api/"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "byteOffset": 1504,
+  "path": "/api/trpc"
+ },
+ {
+  "file": "chunks_2bl2ke0-0dsf0.js",
+  "byteOffset": 1869,
+  "path": "/api/position-playground"
+ },
+ {
+  "file": "chunks_2hcwz74benv3g.js",
+  "byteOffset": 10814,
+  "path": "/api/auth/session"
+ },
+ {
+  "file": "chunks_2hcwz74benv3g.js",
+  "byteOffset": 10972,
+  "path": "/api/auth/callback/email"
+ },
+ {
+  "file": "chunks_2w9fom9n6pnd_.js",
+  "byteOffset": 36991,
+  "path": "/api/auth/signin"
+ }
+]

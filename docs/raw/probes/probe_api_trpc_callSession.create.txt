@@ -1,0 +1,1 @@
+{"error":{"json":{"message":"Expected property name or '}' in JSON at position 1 (line 1 column 2)","code":-32600,"data":{"code":"BAD_REQUEST","httpStatus":400,"path":"callSession.create","zodError":null,"appCode":null}},"meta":{"values":{"data.appCode":["undefined"]},"v":1}}}

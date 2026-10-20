@@ -1,0 +1,39 @@
+{
+    "captured_at":  "2026-10-20T19:12:16.0557310+05:30",
+    "screen":  {
+                   "left":  0,
+                   "width":  1366,
+                   "top":  0,
+                   "height":  768
+               },
+    "full_capture":  "docs\\evidence\\stealth\\desktop-capture-20261020-191215.png",
+    "windows":  [
+                    {
+                        "title":  "Floating Mini-Screen",
+                        "hwnd":  "0x30610",
+                        "pid":  17276,
+                        "affinity":  "0x11",
+                        "rect":  {
+                                     "left":  315,
+                                     "right":  1050,
+                                     "bottom":  549,
+                                     "top":  171
+                                 },
+                        "capture_region":  "docs\\evidence\\stealth\\window-region-Floating-Mini-Screen-191215.png"
+                    },
+                    {
+                        "title":  "Launcher",
+                        "hwnd":  "0x26019A",
+                        "pid":  17276,
+                        "affinity":  "0x11",
+                        "rect":  {
+                                     "left":  431,
+                                     "right":  935,
+                                     "bottom":  717,
+                                     "top":  3
+                                 },
+                        "capture_region":  "docs\\evidence\\stealth\\window-region-Launcher-191216.png"
+                    }
+                ],
+    "note":  "WDA_EXCLUDEFROMCAPTURE (0x11) windows should be absent from the captured pixels while still visible on the physical desktop."
+}

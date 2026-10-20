@@ -1,0 +1,14 @@
+﻿{
+  "code": "VALIDATION_ERROR",
+  "message": "Unsupported agent integration\n\nDetails: [\n  {\n    \"code\": \"custom\",\n    \"path\": [\n      \"client\",\n      0\n    ],\n    \"message\": \"Unsupported agent integration\"\n  }\n]",
+  "fieldErrors": [
+    {
+      "code": "custom",
+      "missing": false,
+      "path": "client.0",
+      "expected": "",
+      "received": "",
+      "message": "Unsupported agent integration"
+    }
+  ]
+}

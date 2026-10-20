@@ -1,0 +1,11 @@
+version: 3.9.126
+files:
+  - url: ParakeetAI-3.9.126-universal-mac.zip
+    sha512: YFozaBZ03yJw9897wDBqjnDtPDwymLYVOl/vrq432q3LyC0+Z5vejP1HA9i/lakRZ7RzQDTBUvka+1XIh0vEUg==
+    size: 234169902
+  - url: ParakeetAI-3.9.126.dmg
+    sha512: nc14Z5NCnKumZYd04pjyu6/kfPAjn7VH7i5Vtvd6xt7zAsOx8DqdcQub+y3MhZfOk20WP4ccVSQcKiLYrlu/ZQ==
+    size: 242957012
+path: ParakeetAI-3.9.126-universal-mac.zip
+sha512: YFozaBZ03yJw9897wDBqjnDtPDwymLYVOl/vrq432q3LyC0+Z5vejP1HA9i/lakRZ7RzQDTBUvka+1XIh0vEUg==
+releaseDate: '2026-10-19T15:26:29.637Z'

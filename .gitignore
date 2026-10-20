@@ -50,3 +50,11 @@ artifacts/craft-vita/temp-tauri-launch.png
 
 # External tool checkout (REA) with its own git history
 /rea/
+
+# Large downloaded competitor artifacts (keep manifests, hashes, and scan output only)
+/docs/raw/desktop/mac-unpacked/
+/docs/raw/desktop/asar-extracted/
+/docs/raw/desktop/*.zip
+/docs/raw/desktop/*.dmg
+/docs/raw/desktop/*.exe
+/docs/raw/desktop/*.msi

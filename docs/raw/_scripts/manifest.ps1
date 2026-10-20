@@ -1,0 +1,18 @@
+$out = @('# docs/raw manifest','','Observation date: 2026-10-20 (Asia/Calcutta). Target: https://www.parakeet-ai.com','','SHA-256 hashes. The 700 MB unpacked app tree is deliberately NOT hashed (huge, and reproducible from the zip); only the downloaded zip, the manifests, the asar and the derived index files are hashed.','','## Hashed artifacts','','| path | bytes | sha256 |','|---|---|---|')
+$files = @(
+'docs\raw\desktop\ParakeetAI-3.9.126-universal-mac.zip','docs\raw\desktop\latest.yml','docs\raw\desktop\latest-mac.yml','docs\raw\desktop\asar-filelist.txt','docs\raw\desktop\target-scan.json','docs\raw\desktop\mac-unpacked\ParakeetAI.app\Contents\Info.plist','docs\raw\desktop\mac-unpacked\ParakeetAI.app\Contents\Resources\app.asar','docs\raw\desktop\mac-unpacked\ParakeetAI.app\Contents\Resources\app-update.yml','docs\raw\desktop\asar-extracted\dist\main\main.js','docs\raw\desktop\asar-extracted\dist\main\preload.js','docs\raw\desktop\asar-extracted\dist\main\mic-monitor-worker.js','docs\raw\desktop\asar-extracted\dist\renderer\renderer.js','docs\raw\desktop\asar-extracted\package.json','docs\raw\probes\trpc-latestRelease.json','docs\raw\probes\trpc-billing.getPrices.json','docs\raw\probes\gh-release-latest.json','docs\raw\probes\wayback-cdx.txt','docs\raw\probes\requested-paths.txt','docs\raw\probes\sitemap-urls.txt','docs\raw\probes\static-asset-urls.txt','docs\raw\probes\desktop-mechanism-grep.json','docs\raw\pages\sitemap.xml','docs\raw\pages\robots.txt','docs\raw\subdomains.md')
+foreach ($f in $files) { if (Test-Path $f) { $i=Get-Item $f; $h=(Get-FileHash $f -Algorithm SHA256).Hash.ToLower(); $out += ('| ' + ($f -replace 'docs\\raw\\','') + ' | ' + $i.Length + ' | ' + $h + ' |') } }
+$out += ''; $out += '## Page captures'; $out += ''; $out += '| file | bytes |'; $out += '|---|---|'
+Get-ChildItem docs\raw\pages -Filter *.html | Sort-Object Name | ForEach-Object { $out += ('| pages/' + $_.Name + ' | ' + $_.Length + ' |') }
+$out += ''; $out += '## JS/CSS assets (from /_next/static)'; $out += ''; $out += '| file | bytes |'; $out += '|---|---|'
+Get-ChildItem docs\raw\assets | Sort-Object Name | ForEach-Object { $out += ('| assets/' + $_.Name + ' | ' + $_.Length + ' |') }
+$out += ''; $out += '## Header captures'; $out += ''; $out += '| file | bytes |'; $out += '|---|---|'
+Get-ChildItem docs\raw\headers -Filter *.txt | Sort-Object Name | ForEach-Object { $out += ('| headers/' + $_.Name + ' | ' + $_.Length + ' |') }
+$out += ''
+$out += ('Totals: pages=' + (Get-ChildItem docs\raw\pages -File).Count + ', assets=' + (Get-ChildItem docs\raw\assets -File).Count + ', headers=' + (Get-ChildItem docs\raw\headers -File).Count + ', probes=' + (Get-ChildItem docs\raw\probes -File).Count + ', desktop=' + (Get-ChildItem docs\raw\desktop -File).Count)
+$out += ''; $out += '## Not downloaded (recorded, not fetched)'; $out += ''
+$out += '- Windows NSIS installer ParakeetAI-Setup-3.9.126.exe, 245,161,376 bytes, sha512 in desktop/latest.yml. Not downloaded: the macOS build carries the identical cross-platform JS plus the win32 native addon, which is what the Windows-specific mechanisms live in. Avoids serving/executing an untrusted 234 MB installer.'
+$out += '- ParakeetAI-3.9.126.dmg, 242,957,012 bytes: redundant with the universal zip (same app.asar).'
+$out | Set-Content -Encoding utf8 docs\raw\manifest.md
+Write-Host ('manifest lines: ' + $out.Count)
+Write-Host ('pages=' + (Get-ChildItem docs\raw\pages -File).Count + ' assets=' + (Get-ChildItem docs\raw\assets -File).Count + ' headers=' + (Get-ChildItem docs\raw\headers -File).Count + ' probes=' + (Get-ChildItem docs\raw\probes -File).Count)

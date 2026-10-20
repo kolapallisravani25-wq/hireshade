@@ -1,0 +1,4 @@
+﻿COMMAND: pnpm --dir artifacts/api-server test
+EXITCODE=0 DURATION_SEC=3.2
+OUTPUT:
+

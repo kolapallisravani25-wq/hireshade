@@ -7,7 +7,10 @@
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
     "build": "node ./build.mjs",
     "start": "node --env-file-if-exists=.env --enable-source-maps ./dist/index.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run --exclude **/sessions.integration.test.ts",
+    "test:integration": "vitest run tests/sessions.integration.test.ts"
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",
