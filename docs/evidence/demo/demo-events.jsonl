@@ -1,97 +1,97 @@
 {"type":"session.start","atMs":0,"mediaMs":0,"stream":null,"data":{"model":"gpt-5","sessionId":"run-01-gpt-5","sessionCreate":{"resumeId":null,"documentIds":[],"language":"en","aiModel":"gpt-5","responseLength":"medium","responseFormat":"prose","responseTone":"confident","useStarMethod":false,"useFillerWords":false,"autoAnswer":true,"saveTranscription":true,"transcriptionContext":"Live technical interview; the interviewer is asking system-design questions.","systemInstructions":"","createdFrom":"desktop-app"},"promptChars":6198,"target":{"asr":{"transport":"websocket","url":"wss://global.rt.speechmatics.com/v2","encoding":"pcm_f32le","sampleRate":16000,"channels":1,"auth":{"kind":"jwt-query-param","param":"jwt"},"events":{"partial":"AddPartialTranscript","final":"AddTranscript","endpoint":"EndOfUtterance"},"streams":[{"id":"mic","label":"Microphone","role":"candidate"},{"id":"screen","label":"Screen Sharing","role":"interviewer"}]},"llm":{"transport":"sse","path":"/api/chat","headers":{"Content-Type":"text/event-stream","Cache-Control":"no-cache, no-transform","X-Accel-Buffering":"no"}}}}}
-{"type":"stream.start","atMs":2.9326999999998407,"mediaMs":0,"stream":"mic","data":{"wavFile":"demo-mic.wav","role":"candidate","durationMs":4600,"segmentCount":1,"encoding":"pcm_f32le","sampleRate":16000}}
-{"type":"stream.start","atMs":3.765400000000227,"mediaMs":0,"stream":"screen","data":{"wavFile":"demo-screen.wav","role":"interviewer","durationMs":4600,"segmentCount":2,"encoding":"pcm_f32le","sampleRate":16000}}
-{"type":"vad.segment","atMs":609.0870000000004,"mediaMs":600,"stream":"screen","data":{"segmentId":"screen:0","startMs":600,"endMs":1600,"startSample":9600,"endSample":25600,"endpointMs":2300}}
-{"type":"asr.partial","atMs":860.1365999999998,"mediaMs":850,"stream":"screen","data":{"text":"Can you explain how","segmentId":"screen:0","targetMessage":"AddPartialTranscript","encoding":"pcm_f32le"}}
-{"type":"asr.partial","atMs":1109.6461,"mediaMs":1100,"stream":"screen","data":{"text":"Can you explain how you would design","segmentId":"screen:0","targetMessage":"AddPartialTranscript","encoding":"pcm_f32le"}}
-{"type":"vad.segment","atMs":2309.5248,"mediaMs":2300,"stream":"screen","data":{"segmentId":"screen:1","startMs":2300,"endMs":3300,"startSample":36800,"endSample":52800,"endpointMs":4000}}
-{"type":"asr.final","atMs":2309.6785,"mediaMs":2300,"stream":"screen","data":{"text":"Can you explain how you would design a rate limiter using Redis?","segmentId":"screen:0","targetMessage":"AddTranscript"}}
-{"type":"asr.end_of_utterance","atMs":2309.6785,"mediaMs":2300,"stream":"screen","data":{"segmentId":"screen:0","target":{"message":"EndOfUtterance","metadata":{"stream":"screen","utteranceId":"screen:0","time":2300}}}}
-{"type":"question.detected","atMs":2317.2097000000003,"mediaMs":2300,"stream":"screen","data":{"question":"Can you explain how you would design a rate limiter using Redis?","segmentId":"screen:0","source":"live_interim","confidenceScore":1,"model":"gpt-5","detector":{"question":"Can you explain how you would design a rate limiter using Redis?","ignoredNoise":false,"confidenceScore":1}}}
-{"type":"prompt.built","atMs":2317.3072,"mediaMs":2300,"stream":"screen","data":{"promptChars":6198,"answerMode":"default","language":"en","model":"gpt-5"}}
-{"type":"asr.partial","atMs":2560.9636,"mediaMs":2550,"stream":"screen","data":{"text":"And how would you handle","segmentId":"screen:1","targetMessage":"AddPartialTranscript","encoding":"pcm_f32le"}}
-{"type":"asr.partial","atMs":2808.4888,"mediaMs":2800,"stream":"screen","data":{"text":"And how would you handle the case","segmentId":"screen:1","targetMessage":"AddPartialTranscript","encoding":"pcm_f32le"}}
-{"type":"answer.first_token","atMs":2824.8262999999997,"mediaMs":2300,"stream":"screen","data":{"latencyMs":507.6165999999994,"model":"gpt-5"}}
-{"type":"answer.delta","atMs":2824.8262999999997,"mediaMs":2300,"stream":"screen","data":{"text":"Here's how I'd answer","model":"gpt-5"}}
-{"type":"answer.delta","atMs":2859.4583000000002,"mediaMs":2300,"stream":"screen","data":{"text":" that in a real","model":"gpt-5"}}
-{"type":"answer.delta","atMs":2893.7594,"mediaMs":2300,"stream":"screen","data":{"text":" interview.\n\nI'd start by","model":"gpt-5"}}
-{"type":"answer.delta","atMs":2928.0392,"mediaMs":2300,"stream":"screen","data":{"text":" **framing the problem in","model":"gpt-5"}}
-{"type":"answer.delta","atMs":2959.4647999999997,"mediaMs":2300,"stream":"screen","data":{"text":" one sentence**, then walk","model":"gpt-5"}}
-{"type":"answer.delta","atMs":2994.34,"mediaMs":2300,"stream":"screen","data":{"text":" through the design decisions.","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3025.1261000000004,"mediaMs":2300,"stream":"screen","data":{"text":" In my last role","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3056.5069000000003,"mediaMs":2300,"stream":"screen","data":{"text":" I built a **Redis-backed","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3093.1175999999996,"mediaMs":2300,"stream":"screen","data":{"text":" rate limiter** for an","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3127.1546,"mediaMs":2300,"stream":"screen","data":{"text":" Express API: a fixed","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3158.5726000000004,"mediaMs":2300,"stream":"screen","data":{"text":" window using `INCR` plus","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3194.6679000000004,"mediaMs":2300,"stream":"screen","data":{"text":" a short `EXPIRE`, with","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3228.1242,"mediaMs":2300,"stream":"screen","data":{"text":" the limit keyed by","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3259.9298,"mediaMs":2300,"stream":"screen","data":{"text":" user id and route.","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3293.7875000000004,"mediaMs":2300,"stream":"screen","data":{"text":"\n\n- **Trade-off:** fixed windows","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3327.8889,"mediaMs":2300,"stream":"screen","data":{"text":" are simple but allow","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3358.6152,"mediaMs":2300,"stream":"screen","data":{"text":" bursts at the boundary,","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3394.6580999999996,"mediaMs":2300,"stream":"screen","data":{"text":" so I added a","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3426.6849,"mediaMs":2300,"stream":"screen","data":{"text":" sliding-window counter for the","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3460.3226000000004,"mediaMs":2300,"stream":"screen","data":{"text":" sensitive endpoints.\n- **Failure","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3493.7446,"mediaMs":2300,"stream":"screen","data":{"text":" mode:** if Redis is","model":"gpt-5"}}
-{"type":"vad.segment","atMs":3509.3179,"mediaMs":3500,"stream":"mic","data":{"segmentId":"mic:0","startMs":3500,"endMs":3750,"startSample":56000,"endSample":60000,"endpointMs":4450}}
-{"type":"answer.delta","atMs":3527.8576999999996,"mediaMs":2300,"stream":"screen","data":{"text":" unavailable I fall back","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3561.3959000000004,"mediaMs":2300,"stream":"screen","data":{"text":" to an in-process token","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3592.7326000000003,"mediaMs":2300,"stream":"screen","data":{"text":" bucket, so the API","model":"gpt-5"}}
-{"type":"asr.partial","atMs":3608.9687000000004,"mediaMs":3600,"stream":"mic","data":{"text":"Okay","segmentId":"mic:0","targetMessage":"AddPartialTranscript","encoding":"pcm_f32le"}}
-{"type":"answer.delta","atMs":3624.9871999999996,"mediaMs":2300,"stream":"screen","data":{"text":" degrades instead of failing","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3657.6050999999998,"mediaMs":2300,"stream":"screen","data":{"text":" open.\n- **Observability:** every","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3690.0958,"mediaMs":2300,"stream":"screen","data":{"text":" decision emits a counter","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3721.6068000000005,"mediaMs":2300,"stream":"screen","data":{"text":" and a p99 latency","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3753.4894000000004,"mediaMs":2300,"stream":"screen","data":{"text":" metric, so we see","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3785.4255000000003,"mediaMs":2300,"stream":"screen","data":{"text":" throttling before users complain.","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3827.3899,"mediaMs":2300,"stream":"screen","data":{"text":"\n\nThat's the answer I'd","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3858.8486000000003,"mediaMs":2300,"stream":"screen","data":{"text":" give - concrete, honest","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3894.2064,"mediaMs":2300,"stream":"screen","data":{"text":" about trade-offs, and grounded","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3928.3905000000004,"mediaMs":2300,"stream":"screen","data":{"text":" in what I actually","model":"gpt-5"}}
-{"type":"answer.delta","atMs":3960.4026000000003,"mediaMs":2300,"stream":"screen","data":{"text":" shipped.","model":"gpt-5"}}
-{"type":"answer.final","atMs":3960.5582000000004,"mediaMs":2300,"stream":"screen","data":{"answer":"Here's how I'd answer that in a real interview.\n\nI'd start by **framing the problem in one sentence**, then walk through the design decisions. In my last role I built a **Redis-backed rate limiter** for an Express API: a fixed window using `INCR` plus a short `EXPIRE`, with the limit keyed by user id and route.\n\n- **Trade-off:** fixed windows are simple but allow bursts at the boundary, so I added a sliding-window counter for the sensitive endpoints.\n- **Failure mode:** if Redis is unavailable I fall back to an in-process token bucket, so the API degrades instead of failing open.\n- **Observability:** every decision emits a counter and a p99 latency metric, so we see throttling before users complain.\n\nThat's the answer I'd give - concrete, honest about trade-offs, and grounded in what I actually shipped.","questionToAnswerVisibleMs":1643.3485,"firstTokenLatencyMs":507.6165999999994,"model":"gpt-5"}}
-{"type":"asr.final","atMs":4007.9473,"mediaMs":4000,"stream":"screen","data":{"text":"And how would you handle the case where Redis is unavailable?","segmentId":"screen:1","targetMessage":"AddTranscript"}}
-{"type":"asr.end_of_utterance","atMs":4007.9473,"mediaMs":4000,"stream":"screen","data":{"segmentId":"screen:1","target":{"message":"EndOfUtterance","metadata":{"stream":"screen","utteranceId":"screen:1","time":4000}}}}
-{"type":"question.detected","atMs":4009.7817000000005,"mediaMs":4000,"stream":"screen","data":{"question":"And how would you handle the case where Redis is unavailable?","segmentId":"screen:1","source":"live_interim","confidenceScore":1,"model":"gpt-5","detector":{"question":"And how would you handle the case where Redis is unavailable?","ignoredNoise":false,"confidenceScore":1}}}
-{"type":"prompt.built","atMs":4009.8004,"mediaMs":4000,"stream":"screen","data":{"promptChars":6198,"answerMode":"default","language":"en","model":"gpt-5"}}
-{"type":"asr.final","atMs":4459.1535,"mediaMs":4450,"stream":"mic","data":{"text":"Okay, got it.","segmentId":"mic:0","targetMessage":"AddTranscript"}}
-{"type":"asr.end_of_utterance","atMs":4459.1535,"mediaMs":4450,"stream":"mic","data":{"segmentId":"mic:0","target":{"message":"EndOfUtterance","metadata":{"stream":"mic","utteranceId":"mic:0","time":4450}}}}
-{"type":"question.ignored","atMs":4461.7103,"mediaMs":4450,"stream":"mic","data":{"reason":"candidate_channel","detector":{"question":"Got it","ignoredNoise":false,"confidenceScore":0.21999999999999997}}}
-{"type":"answer.first_token","atMs":4525.5536,"mediaMs":4000,"stream":"screen","data":{"latencyMs":515.7718999999997,"model":"gpt-5"}}
-{"type":"answer.delta","atMs":4525.5536,"mediaMs":4000,"stream":"screen","data":{"text":"Here's how I'd answer","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4560.2255,"mediaMs":4000,"stream":"screen","data":{"text":" that in a real","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4593.736599999999,"mediaMs":4000,"stream":"screen","data":{"text":" interview.\n\nI'd start by","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4624.6305999999995,"mediaMs":4000,"stream":"screen","data":{"text":" **framing the problem in","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4661.299599999999,"mediaMs":4000,"stream":"screen","data":{"text":" one sentence**, then walk","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4695.4027,"mediaMs":4000,"stream":"screen","data":{"text":" through the design decisions.","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4728.281599999999,"mediaMs":4000,"stream":"screen","data":{"text":" In my last role","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4761.1627,"mediaMs":4000,"stream":"screen","data":{"text":" I built a **Redis-backed","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4794.9076,"mediaMs":4000,"stream":"screen","data":{"text":" rate limiter** for an","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4826.5902,"mediaMs":4000,"stream":"screen","data":{"text":" Express API: a fixed","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4861.821999999999,"mediaMs":4000,"stream":"screen","data":{"text":" window using `INCR` plus","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4894.3643,"mediaMs":4000,"stream":"screen","data":{"text":" a short `EXPIRE`, with","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4927.752100000001,"mediaMs":4000,"stream":"screen","data":{"text":" the limit keyed by","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4961.7411999999995,"mediaMs":4000,"stream":"screen","data":{"text":" user id and route.","model":"gpt-5"}}
-{"type":"answer.delta","atMs":4995.1819000000005,"mediaMs":4000,"stream":"screen","data":{"text":"\n\n- **Trade-off:** fixed windows","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5028.659000000001,"mediaMs":4000,"stream":"screen","data":{"text":" are simple but allow","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5061.8303000000005,"mediaMs":4000,"stream":"screen","data":{"text":" bursts at the boundary,","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5095.0973,"mediaMs":4000,"stream":"screen","data":{"text":" so I added a","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5128.8406,"mediaMs":4000,"stream":"screen","data":{"text":" sliding-window counter for the","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5161.196999999999,"mediaMs":4000,"stream":"screen","data":{"text":" sensitive endpoints.\n- **Failure","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5196.1789,"mediaMs":4000,"stream":"screen","data":{"text":" mode:** if Redis is","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5227.3077,"mediaMs":4000,"stream":"screen","data":{"text":" unavailable I fall back","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5260.7046,"mediaMs":4000,"stream":"screen","data":{"text":" to an in-process token","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5294.4122,"mediaMs":4000,"stream":"screen","data":{"text":" bucket, so the API","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5328.489699999999,"mediaMs":4000,"stream":"screen","data":{"text":" degrades instead of failing","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5360.7372000000005,"mediaMs":4000,"stream":"screen","data":{"text":" open.\n- **Observability:** every","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5395.6614,"mediaMs":4000,"stream":"screen","data":{"text":" decision emits a counter","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5428.4011,"mediaMs":4000,"stream":"screen","data":{"text":" and a p99 latency","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5461.5816,"mediaMs":4000,"stream":"screen","data":{"text":" metric, so we see","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5495.4517000000005,"mediaMs":4000,"stream":"screen","data":{"text":" throttling before users complain.","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5526.9039999999995,"mediaMs":4000,"stream":"screen","data":{"text":"\n\nThat's the answer I'd","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5561.907,"mediaMs":4000,"stream":"screen","data":{"text":" give - concrete, honest","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5595.7635,"mediaMs":4000,"stream":"screen","data":{"text":" about trade-offs, and grounded","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5629.147400000001,"mediaMs":4000,"stream":"screen","data":{"text":" in what I actually","model":"gpt-5"}}
-{"type":"answer.delta","atMs":5662.168199999999,"mediaMs":4000,"stream":"screen","data":{"text":" shipped.","model":"gpt-5"}}
-{"type":"answer.final","atMs":5662.182,"mediaMs":4000,"stream":"screen","data":{"answer":"Here's how I'd answer that in a real interview.\n\nI'd start by **framing the problem in one sentence**, then walk through the design decisions. In my last role I built a **Redis-backed rate limiter** for an Express API: a fixed window using `INCR` plus a short `EXPIRE`, with the limit keyed by user id and route.\n\n- **Trade-off:** fixed windows are simple but allow bursts at the boundary, so I added a sliding-window counter for the sensitive endpoints.\n- **Failure mode:** if Redis is unavailable I fall back to an in-process token bucket, so the API degrades instead of failing open.\n- **Observability:** every decision emits a counter and a p99 latency metric, so we see throttling before users complain.\n\nThat's the answer I'd give - concrete, honest about trade-offs, and grounded in what I actually shipped.","questionToAnswerVisibleMs":1652.4002999999993,"firstTokenLatencyMs":515.7718999999997,"model":"gpt-5"}}
-{"type":"session.end","atMs":5678.4762,"mediaMs":4600,"stream":null,"data":{"durationMs":5678.4762,"questionCount":2,"answerChars":814,"targetKey":"AddTranscript"}}
+{"type":"stream.start","atMs":4.385499999999865,"mediaMs":0,"stream":"mic","data":{"wavFile":"demo-mic.wav","role":"candidate","durationMs":4600,"segmentCount":1,"encoding":"pcm_f32le","sampleRate":16000}}
+{"type":"stream.start","atMs":5.346900000000005,"mediaMs":0,"stream":"screen","data":{"wavFile":"demo-screen.wav","role":"interviewer","durationMs":4600,"segmentCount":2,"encoding":"pcm_f32le","sampleRate":16000}}
+{"type":"vad.segment","atMs":613.7650000000003,"mediaMs":600,"stream":"screen","data":{"segmentId":"screen:0","startMs":600,"endMs":1600,"startSample":9600,"endSample":25600,"endpointMs":2300}}
+{"type":"asr.partial","atMs":858.1498000000001,"mediaMs":850,"stream":"screen","data":{"text":"Can you explain how","segmentId":"screen:0","targetMessage":"AddPartialTranscript","encoding":"pcm_f32le"}}
+{"type":"asr.partial","atMs":1111.6746000000003,"mediaMs":1100,"stream":"screen","data":{"text":"Can you explain how you would design","segmentId":"screen:0","targetMessage":"AddPartialTranscript","encoding":"pcm_f32le"}}
+{"type":"vad.segment","atMs":2312.7695000000003,"mediaMs":2300,"stream":"screen","data":{"segmentId":"screen:1","startMs":2300,"endMs":3300,"startSample":36800,"endSample":52800,"endpointMs":4000}}
+{"type":"asr.final","atMs":2312.8427,"mediaMs":2300,"stream":"screen","data":{"text":"Can you explain how you would design a rate limiter using Redis?","segmentId":"screen:0","targetMessage":"AddTranscript"}}
+{"type":"asr.end_of_utterance","atMs":2312.8427,"mediaMs":2300,"stream":"screen","data":{"segmentId":"screen:0","target":{"message":"EndOfUtterance","metadata":{"stream":"screen","utteranceId":"screen:0","time":2300}}}}
+{"type":"question.detected","atMs":2316.6612000000005,"mediaMs":2300,"stream":"screen","data":{"question":"Can you explain how you would design a rate limiter using Redis?","segmentId":"screen:0","source":"live_interim","confidenceScore":1,"model":"gpt-5","detector":{"question":"Can you explain how you would design a rate limiter using Redis?","ignoredNoise":false,"confidenceScore":1}}}
+{"type":"prompt.built","atMs":2316.7056000000002,"mediaMs":2300,"stream":"screen","data":{"promptChars":6198,"answerMode":"default","language":"en","model":"gpt-5"}}
+{"type":"asr.partial","atMs":2550.4361,"mediaMs":2550,"stream":"screen","data":{"text":"And how would you handle","segmentId":"screen:1","targetMessage":"AddPartialTranscript","encoding":"pcm_f32le"}}
+{"type":"asr.partial","atMs":2808.8821,"mediaMs":2800,"stream":"screen","data":{"text":"And how would you handle the case","segmentId":"screen:1","targetMessage":"AddPartialTranscript","encoding":"pcm_f32le"}}
+{"type":"answer.first_token","atMs":2826.6540999999997,"mediaMs":2300,"stream":"screen","data":{"latencyMs":509.9928999999993,"model":"gpt-5"}}
+{"type":"answer.delta","atMs":2826.6540999999997,"mediaMs":2300,"stream":"screen","data":{"text":"Here's how I'd answer","model":"gpt-5"}}
+{"type":"answer.delta","atMs":2857.3458,"mediaMs":2300,"stream":"screen","data":{"text":" that in a real","model":"gpt-5"}}
+{"type":"answer.delta","atMs":2888.6526999999996,"mediaMs":2300,"stream":"screen","data":{"text":" interview.\n\nI'd start by","model":"gpt-5"}}
+{"type":"answer.delta","atMs":2919.2528,"mediaMs":2300,"stream":"screen","data":{"text":" **framing the problem in","model":"gpt-5"}}
+{"type":"answer.delta","atMs":2957.8323,"mediaMs":2300,"stream":"screen","data":{"text":" one sentence**, then walk","model":"gpt-5"}}
+{"type":"answer.delta","atMs":2990.8738999999996,"mediaMs":2300,"stream":"screen","data":{"text":" through the design decisions.","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3023.3108,"mediaMs":2300,"stream":"screen","data":{"text":" In my last role","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3056.0009,"mediaMs":2300,"stream":"screen","data":{"text":" I built a **Redis-backed","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3088.4233000000004,"mediaMs":2300,"stream":"screen","data":{"text":" rate limiter** for an","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3121.3436,"mediaMs":2300,"stream":"screen","data":{"text":" Express API: a fixed","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3160.9716,"mediaMs":2300,"stream":"screen","data":{"text":" window using `INCR` plus","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3193.9987,"mediaMs":2300,"stream":"screen","data":{"text":" a short `EXPIRE`, with","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3225.8441000000003,"mediaMs":2300,"stream":"screen","data":{"text":" the limit keyed by","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3258.3885,"mediaMs":2300,"stream":"screen","data":{"text":" user id and route.","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3291.1081000000004,"mediaMs":2300,"stream":"screen","data":{"text":"\n\n- **Trade-off:** fixed windows","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3322.9717,"mediaMs":2300,"stream":"screen","data":{"text":" are simple but allow","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3363.1576000000005,"mediaMs":2300,"stream":"screen","data":{"text":" bursts at the boundary,","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3395.1128,"mediaMs":2300,"stream":"screen","data":{"text":" so I added a","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3427.5699999999997,"mediaMs":2300,"stream":"screen","data":{"text":" sliding-window counter for the","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3472.8273,"mediaMs":2300,"stream":"screen","data":{"text":" sensitive endpoints.\n- **Failure","model":"gpt-5"}}
+{"type":"vad.segment","atMs":3504.5161,"mediaMs":3500,"stream":"mic","data":{"segmentId":"mic:0","startMs":3500,"endMs":3750,"startSample":56000,"endSample":60000,"endpointMs":4450}}
+{"type":"answer.delta","atMs":3504.5882,"mediaMs":2300,"stream":"screen","data":{"text":" mode:** if Redis is","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3541.5020999999997,"mediaMs":2300,"stream":"screen","data":{"text":" unavailable I fall back","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3572.223,"mediaMs":2300,"stream":"screen","data":{"text":" to an in-process token","model":"gpt-5"}}
+{"type":"asr.partial","atMs":3618.2011,"mediaMs":3600,"stream":"mic","data":{"text":"Okay","segmentId":"mic:0","targetMessage":"AddPartialTranscript","encoding":"pcm_f32le"}}
+{"type":"answer.delta","atMs":3618.3073999999997,"mediaMs":2300,"stream":"screen","data":{"text":" bucket, so the API","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3650.2264000000005,"mediaMs":2300,"stream":"screen","data":{"text":" degrades instead of failing","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3681.9869,"mediaMs":2300,"stream":"screen","data":{"text":" open.\n- **Observability:** every","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3718.0811000000003,"mediaMs":2300,"stream":"screen","data":{"text":" decision emits a counter","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3749.4056,"mediaMs":2300,"stream":"screen","data":{"text":" and a p99 latency","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3781.9471999999996,"mediaMs":2300,"stream":"screen","data":{"text":" metric, so we see","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3813.5807999999997,"mediaMs":2300,"stream":"screen","data":{"text":" throttling before users complain.","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3847.0912,"mediaMs":2300,"stream":"screen","data":{"text":"\n\nThat's the answer I'd","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3878.1002,"mediaMs":2300,"stream":"screen","data":{"text":" give - concrete, honest","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3912.0087999999996,"mediaMs":2300,"stream":"screen","data":{"text":" about trade-offs, and grounded","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3943.8981999999996,"mediaMs":2300,"stream":"screen","data":{"text":" in what I actually","model":"gpt-5"}}
+{"type":"answer.delta","atMs":3976.4246999999996,"mediaMs":2300,"stream":"screen","data":{"text":" shipped.","model":"gpt-5"}}
+{"type":"answer.final","atMs":3976.5411999999997,"mediaMs":2300,"stream":"screen","data":{"answer":"Here's how I'd answer that in a real interview.\n\nI'd start by **framing the problem in one sentence**, then walk through the design decisions. In my last role I built a **Redis-backed rate limiter** for an Express API: a fixed window using `INCR` plus a short `EXPIRE`, with the limit keyed by user id and route.\n\n- **Trade-off:** fixed windows are simple but allow bursts at the boundary, so I added a sliding-window counter for the sensitive endpoints.\n- **Failure mode:** if Redis is unavailable I fall back to an in-process token bucket, so the API degrades instead of failing open.\n- **Observability:** every decision emits a counter and a p99 latency metric, so we see throttling before users complain.\n\nThat's the answer I'd give - concrete, honest about trade-offs, and grounded in what I actually shipped.","questionToAnswerVisibleMs":1659.8799999999992,"firstTokenLatencyMs":509.9928999999993,"model":"gpt-5"}}
+{"type":"asr.final","atMs":4004.0815000000002,"mediaMs":4000,"stream":"screen","data":{"text":"And how would you handle the case where Redis is unavailable?","segmentId":"screen:1","targetMessage":"AddTranscript"}}
+{"type":"asr.end_of_utterance","atMs":4004.0815000000002,"mediaMs":4000,"stream":"screen","data":{"segmentId":"screen:1","target":{"message":"EndOfUtterance","metadata":{"stream":"screen","utteranceId":"screen:1","time":4000}}}}
+{"type":"question.detected","atMs":4005.1976999999997,"mediaMs":4000,"stream":"screen","data":{"question":"And how would you handle the case where Redis is unavailable?","segmentId":"screen:1","source":"live_interim","confidenceScore":1,"model":"gpt-5","detector":{"question":"And how would you handle the case where Redis is unavailable?","ignoredNoise":false,"confidenceScore":1}}}
+{"type":"prompt.built","atMs":4005.214,"mediaMs":4000,"stream":"screen","data":{"promptChars":6198,"answerMode":"default","language":"en","model":"gpt-5"}}
+{"type":"asr.final","atMs":4462.1592,"mediaMs":4450,"stream":"mic","data":{"text":"Okay, got it.","segmentId":"mic:0","targetMessage":"AddTranscript"}}
+{"type":"asr.end_of_utterance","atMs":4462.1592,"mediaMs":4450,"stream":"mic","data":{"segmentId":"mic:0","target":{"message":"EndOfUtterance","metadata":{"stream":"mic","utteranceId":"mic:0","time":4450}}}}
+{"type":"question.ignored","atMs":4465.0147,"mediaMs":4450,"stream":"mic","data":{"reason":"candidate_channel","detector":{"question":"Got it","ignoredNoise":false,"confidenceScore":0.21999999999999997}}}
+{"type":"answer.first_token","atMs":4525.5442,"mediaMs":4000,"stream":"screen","data":{"latencyMs":520.3465000000006,"model":"gpt-5"}}
+{"type":"answer.delta","atMs":4525.5442,"mediaMs":4000,"stream":"screen","data":{"text":"Here's how I'd answer","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4556.336799999999,"mediaMs":4000,"stream":"screen","data":{"text":" that in a real","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4586.5702,"mediaMs":4000,"stream":"screen","data":{"text":" interview.\n\nI'd start by","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4618.1078,"mediaMs":4000,"stream":"screen","data":{"text":" **framing the problem in","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4648.9339,"mediaMs":4000,"stream":"screen","data":{"text":" one sentence**, then walk","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4684.0466,"mediaMs":4000,"stream":"screen","data":{"text":" through the design decisions.","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4716.0828,"mediaMs":4000,"stream":"screen","data":{"text":" In my last role","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4748.0134,"mediaMs":4000,"stream":"screen","data":{"text":" I built a **Redis-backed","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4779.3487000000005,"mediaMs":4000,"stream":"screen","data":{"text":" rate limiter** for an","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4811.3778999999995,"mediaMs":4000,"stream":"screen","data":{"text":" Express API: a fixed","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4842.8488,"mediaMs":4000,"stream":"screen","data":{"text":" window using `INCR` plus","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4878.9197,"mediaMs":4000,"stream":"screen","data":{"text":" a short `EXPIRE`, with","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4911.170400000001,"mediaMs":4000,"stream":"screen","data":{"text":" the limit keyed by","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4942.554700000001,"mediaMs":4000,"stream":"screen","data":{"text":" user id and route.","model":"gpt-5"}}
+{"type":"answer.delta","atMs":4972.466399999999,"mediaMs":4000,"stream":"screen","data":{"text":"\n\n- **Trade-off:** fixed windows","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5004.8166,"mediaMs":4000,"stream":"screen","data":{"text":" are simple but allow","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5036.561100000001,"mediaMs":4000,"stream":"screen","data":{"text":" bursts at the boundary,","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5080.0679,"mediaMs":4000,"stream":"screen","data":{"text":" so I added a","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5113.6698,"mediaMs":4000,"stream":"screen","data":{"text":" sliding-window counter for the","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5149.5695,"mediaMs":4000,"stream":"screen","data":{"text":" sensitive endpoints.\n- **Failure","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5191.248600000001,"mediaMs":4000,"stream":"screen","data":{"text":" mode:** if Redis is","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5223.141799999999,"mediaMs":4000,"stream":"screen","data":{"text":" unavailable I fall back","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5255.510700000001,"mediaMs":4000,"stream":"screen","data":{"text":" to an in-process token","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5301.1810000000005,"mediaMs":4000,"stream":"screen","data":{"text":" bucket, so the API","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5332.2395,"mediaMs":4000,"stream":"screen","data":{"text":" degrades instead of failing","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5375.8534,"mediaMs":4000,"stream":"screen","data":{"text":" open.\n- **Observability:** every","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5407.673199999999,"mediaMs":4000,"stream":"screen","data":{"text":" decision emits a counter","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5441.3526999999995,"mediaMs":4000,"stream":"screen","data":{"text":" and a p99 latency","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5473.3305,"mediaMs":4000,"stream":"screen","data":{"text":" metric, so we see","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5504.8673,"mediaMs":4000,"stream":"screen","data":{"text":" throttling before users complain.","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5536.4717,"mediaMs":4000,"stream":"screen","data":{"text":"\n\nThat's the answer I'd","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5574.195100000001,"mediaMs":4000,"stream":"screen","data":{"text":" give - concrete, honest","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5606.652599999999,"mediaMs":4000,"stream":"screen","data":{"text":" about trade-offs, and grounded","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5638.6222,"mediaMs":4000,"stream":"screen","data":{"text":" in what I actually","model":"gpt-5"}}
+{"type":"answer.delta","atMs":5670.330400000001,"mediaMs":4000,"stream":"screen","data":{"text":" shipped.","model":"gpt-5"}}
+{"type":"answer.final","atMs":5670.3369,"mediaMs":4000,"stream":"screen","data":{"answer":"Here's how I'd answer that in a real interview.\n\nI'd start by **framing the problem in one sentence**, then walk through the design decisions. In my last role I built a **Redis-backed rate limiter** for an Express API: a fixed window using `INCR` plus a short `EXPIRE`, with the limit keyed by user id and route.\n\n- **Trade-off:** fixed windows are simple but allow bursts at the boundary, so I added a sliding-window counter for the sensitive endpoints.\n- **Failure mode:** if Redis is unavailable I fall back to an in-process token bucket, so the API degrades instead of failing open.\n- **Observability:** every decision emits a counter and a p99 latency metric, so we see throttling before users complain.\n\nThat's the answer I'd give - concrete, honest about trade-offs, and grounded in what I actually shipped.","questionToAnswerVisibleMs":1665.1392000000005,"firstTokenLatencyMs":520.3465000000006,"model":"gpt-5"}}
+{"type":"session.end","atMs":5686.317000000001,"mediaMs":4600,"stream":null,"data":{"durationMs":5686.317000000001,"questionCount":2,"answerChars":814,"targetKey":"AddTranscript"}}

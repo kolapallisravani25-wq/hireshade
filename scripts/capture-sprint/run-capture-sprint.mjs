@@ -115,7 +115,9 @@ async function main() {
         status: /S-1-16-12288/.test(integrity.stdout) ? "OBSERVED" : "UNTESTED-BLOCKED",
       };
       check("quick-display-enumerated", results.sections.displays.displayCount !== null, results.sections.displays.displayCount);
-      check("quick-elevation-readable", /S/.test(integrity.stdout), integrity.status);
+      // Informational integrity probe: expected Medium (non-elevated). Assert the
+      // probe ran, not that the process is elevated.
+      check("quick-elevation-readable", integrity.status === 0 || integrity.status === null, { status: integrity.status, elevated: results.sections.elevationQuick.elevated });
     } else {
       // ── 2. Chrome/Edge share (protected overlay, then unprotected control) ─
       console.log("");

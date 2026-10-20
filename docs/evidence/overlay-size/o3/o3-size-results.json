@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T15:58:04.026Z",
+  "generatedAt": "2026-10-20T17:49:04.970Z",
   "pass": true,
   "kind": "overlay-size-acceptance",
   "environment": {
@@ -1193,29 +1193,29 @@
     "samples": [
       {
         "id": "teleprompter",
-        "applyMs": 4,
-        "frameMs": 16.200000047683716,
+        "applyMs": 2.399999976158142,
+        "frameMs": 8.899999976158142,
         "preset": "teleprompter",
         "fontSize": 23
       },
       {
         "id": "compact",
-        "applyMs": 3.599999964237213,
-        "frameMs": 13.5,
+        "applyMs": 3.5,
+        "frameMs": 13.399999976158142,
         "preset": "compact",
         "fontSize": 17
       },
       {
         "id": "reading",
-        "applyMs": 0.800000011920929,
-        "frameMs": 13.599999964237213,
+        "applyMs": 0.699999988079071,
+        "frameMs": 13.400000035762787,
         "preset": "reading",
         "fontSize": 20
       }
     ],
-    "medianApplyMs": 3.599999964237213,
-    "maxApplyMs": 4,
-    "frameMs": 13.599999964237213,
+    "medianApplyMs": 2.399999976158142,
+    "maxApplyMs": 3.5,
+    "frameMs": 13.400000035762787,
     "preset": "reading",
     "fontSize": 20,
     "method": "median of 3 preset switches; applyMs = attribute + forced style/layout read; frameMs = until next rAF"
@@ -1223,12 +1223,12 @@
   "persistence": {
     "persisted": {
       "stored": "reading",
-      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792511819190}"
+      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792518481411}"
     },
     "restored": {
       "preset": "reading",
       "stored": "reading",
-      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792511839766}",
+      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792518501995}",
       "metrics": {
         "preset": "reading",
         "presetSource": "o1",
@@ -1398,11 +1398,11 @@
       "status": "PASS",
       "required": true,
       "detail": {
-        "medianApplyMs": 3.599999964237213,
+        "medianApplyMs": 2.399999976158142,
         "samples": [
-          0.800000011920929,
-          3.599999964237213,
-          4
+          0.699999988079071,
+          2.399999976158142,
+          3.5
         ]
       }
     },
@@ -1415,7 +1415,7 @@
         "preset": "reading",
         "fontSize": 20,
         "expectedFont": 20,
-        "frameMs": 13.599999964237213
+        "frameMs": 13.400000035762787
       }
     },
     {

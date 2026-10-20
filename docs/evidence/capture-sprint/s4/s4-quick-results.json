@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T17:42:49.893Z",
+  "generatedAt": "2026-10-20T17:49:49.467Z",
   "quick": true,
   "environment": {
     "platform": "win32",
@@ -56,10 +56,10 @@
         }
       ],
       "timings": {
-        "launchMs": 1174,
-        "clickOnMs": 1787,
-        "clickOffMs": 1673,
-        "totalMs": 6417
+        "launchMs": 1084,
+        "clickOnMs": 1657,
+        "clickOffMs": 1621,
+        "totalMs": 6115
       },
       "on": {
         "info": {
@@ -97,7 +97,7 @@
             "xRel": 0.44619523443504994,
             "yRel": 0.46653005464480873
           },
-          "foregroundTitleHint": "overlay"
+          "foregroundTitleHint": "target"
         },
         "point": {
           "x": 240,
@@ -115,7 +115,7 @@
         "lastTargetClick": {
           "x": 228,
           "y": 139,
-          "at": 1792518172923
+          "at": 1792518592269
         }
       },
       "off": {
@@ -172,7 +172,7 @@
         "stdout": "Mandatory Label\\Medium Mandatory Level                        Label            S-1-16-8192",
         "stderr": "",
         "error": null,
-        "durationMs": 699
+        "durationMs": 566
       },
       "elevated": false,
       "status": "UNTESTED-BLOCKED"
@@ -183,10 +183,10 @@
       "name": "click-through-proof",
       "pass": true,
       "detail": {
-        "launchMs": 1174,
-        "clickOnMs": 1787,
-        "clickOffMs": 1673,
-        "totalMs": 6417
+        "launchMs": 1084,
+        "clickOnMs": 1657,
+        "clickOffMs": 1621,
+        "totalMs": 6115
       }
     },
     {
@@ -197,7 +197,10 @@
     {
       "name": "quick-elevation-readable",
       "pass": true,
-      "detail": 0
+      "detail": {
+        "status": 0,
+        "elevated": false
+      }
     }
   ],
   "pass": true,
@@ -206,6 +209,6 @@
     "displays": "PASS",
     "elevationQuick": "PASS"
   },
-  "durationMs": 7666,
+  "durationMs": 7154,
   "evidenceFile": "docs/evidence/capture-sprint/s4/s4-quick-results.json"
 }
