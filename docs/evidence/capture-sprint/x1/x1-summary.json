@@ -1,0 +1,149 @@
+{
+  "generated_at": "2026-10-20T18:59:56.776Z",
+  "question": "Resolve U1 (0x11 + DXGI = luma 27.39, content visible) vs V1 (0x11 + DXGI marker 0, hidden).",
+  "method": "Same run/window: unique rgb(1,254,1) marker painted over the overlay client area + DXGI ddagrab luma diff vs hidden baseline (external SW_HIDE, same desktop state). State assertions (visible, affinity 0x11, topmost) before/after every visible capture. Sweep GPU compositing variable, N=5 per config.",
+  "n_per_config": 5,
+  "configs": [
+    {
+      "id": "default",
+      "flags": [],
+      "env": {},
+      "gpu_compositing": "disabled_software"
+    },
+    {
+      "id": "gpu-compositing-off",
+      "flags": [
+        "--disable-gpu-compositing"
+      ],
+      "env": {},
+      "gpu_compositing": "disabled_software"
+    },
+    {
+      "id": "gpu-off",
+      "flags": [
+        "--disable-gpu"
+      ],
+      "env": {},
+      "gpu_compositing": "disabled_software"
+    },
+    {
+      "id": "hw-accel-off",
+      "flags": [],
+      "env": {
+        "HIRESHADE_DISABLE_HW_ACCEL": "1"
+      },
+      "gpu_compositing": "disabled_software"
+    }
+  ],
+  "per_config": {
+    "default": {
+      "n": 5,
+      "valid": 5,
+      "invalid": 0,
+      "marker_visible": 0,
+      "luma_visible": 2,
+      "agree": 3,
+      "disagree": 2,
+      "marker_fractions": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "luma_means": [
+        0.323,
+        0.209,
+        5.812,
+        5.738,
+        0.139
+      ]
+    },
+    "gpu-compositing-off": {
+      "n": 5,
+      "valid": 5,
+      "invalid": 0,
+      "marker_visible": 0,
+      "luma_visible": 3,
+      "agree": 2,
+      "disagree": 3,
+      "marker_fractions": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "luma_means": [
+        0.143,
+        5.792,
+        6.167,
+        3.967,
+        1.161
+      ]
+    },
+    "gpu-off": {
+      "n": 5,
+      "valid": 5,
+      "invalid": 0,
+      "marker_visible": 0,
+      "luma_visible": 2,
+      "agree": 3,
+      "disagree": 2,
+      "marker_fractions": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "luma_means": [
+        0.118,
+        0.159,
+        0.174,
+        4.73,
+        5.383
+      ]
+    },
+    "hw-accel-off": {
+      "n": 5,
+      "valid": 5,
+      "invalid": 0,
+      "marker_visible": 0,
+      "luma_visible": 1,
+      "agree": 4,
+      "disagree": 1,
+      "marker_fractions": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "luma_means": [
+        0.281,
+        0.184,
+        0.2,
+        0.153,
+        5.464
+      ]
+    }
+  },
+  "step1_same_run_agreement": {
+    "valid_runs": 20,
+    "agree": 12,
+    "disagree": 8,
+    "note": "All 8 disagreements are marker=HIDDEN with luma judged VISIBLE from unrelated desktop changes; luma means in those runs were 3.97-6.17, not U1's 27.39."
+  },
+  "gpu_status_note": "Every config, including default, reports gpu_compositing=disabled_software (2d_canvas/rasterization/video also disabled_software; vulkan/opengl/webgl disabled). This host has no hardware GPU compositing available to Electron, so the 'GPU compositing ON vs OFF' variable could not actually be toggled ON: default and all flags are software-composited. U1's luma result therefore cannot be attributed to GPU compositing.",
+  "foreground_note": "Every run in the inspected set had foreground=true and topmost=true immediately before capture (external focus + SetWindowPos). No backgrounded-at-capture split exists in this sweep; a true backgrounded comparison remains UNTESTED.",
+  "conclusion": "DXGI under WDA_EXCLUDEFROMCAPTURE 0x11 is deterministically HIDDEN by content-specific marker detection: 20/20 valid runs, 0 marker pixels, across default, --disable-gpu-compositing, --disable-gpu and app.disableHardwareAcceleration(). The U1 luma 27.39 'content visible' is not reproduced (max luma mean 6.17) and the luma-only baseline method disagrees with the marker in 8/20 runs because it reacts to unrelated desktop content. Resolve the contradiction as detector/contamination: no evidence that DXGI honours the overlay under 0x11; the V1 hidden result is the correct, repeatable measurement. No fix is warranted.",
+  "u1_claim": "Withdrawn/reclassified: U1 0x11+DXGI luma 27.39 should not be used as evidence that DXGI shows protected overlay content.",
+  "untested": [
+    "c) backgrounded-at-capture: all runs were foreground/topmost; no backgrounded split measured.",
+    "d) native DXGI Desktop Duplication probe (C++/g++): not built; ffmpeg ddagrab only.",
+    "e) just-recreated vs long-lived window: not run in X1.",
+    "f) elevated capture process: not attempted; host runs Medium integrity."
+  ],
+  "evidence": "docs/evidence/capture-sprint/x1/x1-dxgi-determinism.json"
+}

@@ -1,0 +1,14 @@
+﻿{
+    "captured_at":  "2026-10-21T00:22:03.4112051+05:30",
+    "label":  "default-2",
+    "a":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-baseline-frame.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-visible-frame.png",
+    "threshold":  16,
+    "width":  1258,
+    "height":  636,
+    "rect":  "54,42,1258,636",
+    "mean_abs_diff":  0.209,
+    "fraction_diff_gt_threshold":  0.00307,
+    "mean_diff_where_changed":  34.09,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-default-2.png"
+}

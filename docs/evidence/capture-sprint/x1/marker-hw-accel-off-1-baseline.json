@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-21T00:27:27.4017362+05:30",
+    "label":  "hw-accel-off-1-baseline",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-1-baseline-frame.png",
+    "rect":  "54,42,1258,636",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  0,
+    "sampled_pixels":  400044,
+    "fraction":  0,
+    "present":  false
+}

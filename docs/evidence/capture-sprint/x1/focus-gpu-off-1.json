@@ -1,0 +1,12 @@
+﻿{
+    "captured_at":  "2026-10-21T00:25:09.1376792+05:30",
+    "method":  "user32 ShowWindow(SW_SHOW)+SetWindowPos(HWND_TOPMOST)+SetForegroundWindow",
+    "matched":  true,
+    "window":  {
+                   "hwnd":  "0xDC0558",
+                   "title":  "Floating Mini-Screen",
+                   "visible":  true,
+                   "foreground":  true,
+                   "topmost":  true
+               }
+}

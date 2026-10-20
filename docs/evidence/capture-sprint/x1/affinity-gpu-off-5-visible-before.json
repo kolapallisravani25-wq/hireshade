@@ -1,0 +1,80 @@
+﻿{
+    "captured_at":  "2026-10-21T00:26:49.3679957+05:30",
+    "expect":  "0x11",
+    "note":  "X1 gpu-off-5-visible-before",
+    "electron_pids":  [
+                          10200
+                      ],
+    "windows":  [
+                    {
+                        "title":  "Launcher",
+                        "hwnd":  "0xE00528",
+                        "pid":  10200,
+                        "visible":  true,
+                        "affinity":  "0x11",
+                        "bounds":  {
+                                       "y":  3,
+                                       "width":  506,
+                                       "height":  716,
+                                       "x":  430
+                                   }
+                    },
+                    {
+                        "title":  "Floating Mini-Screen",
+                        "hwnd":  "0xBD07AA",
+                        "pid":  10200,
+                        "visible":  true,
+                        "affinity":  "0x11",
+                        "bounds":  {
+                                       "y":  43,
+                                       "width":  1257,
+                                       "height":  635,
+                                       "x":  54
+                                   }
+                    },
+                    {
+                        "title":  "MSCTFIME UI",
+                        "hwnd":  "0x10C051C",
+                        "pid":  10200,
+                        "visible":  false,
+                        "affinity":  "0x0",
+                        "bounds":  {
+                                       "y":  0,
+                                       "width":  0,
+                                       "height":  0,
+                                       "x":  0
+                                   }
+                    },
+                    {
+                        "title":  "Default IME",
+                        "hwnd":  "0xAE07B8",
+                        "pid":  10200,
+                        "visible":  false,
+                        "affinity":  "0x0",
+                        "bounds":  {
+                                       "y":  0,
+                                       "width":  0,
+                                       "height":  0,
+                                       "x":  0
+                                   }
+                    }
+                ],
+    "matching":  [
+                     {
+                         "title":  "Floating Mini-Screen",
+                         "hwnd":  "0xBD07AA",
+                         "pid":  10200,
+                         "visible":  true,
+                         "affinity":  "0x11",
+                         "bounds":  {
+                                        "y":  43,
+                                        "width":  1257,
+                                        "height":  635,
+                                        "x":  54
+                                    },
+                         "expected":  "0x11",
+                         "pass":  true
+                     }
+                 ],
+    "pass":  true
+}

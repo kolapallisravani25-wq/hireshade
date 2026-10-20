@@ -34,6 +34,25 @@ const geometry = require("./lib/overlayGeometry.js");
 // the vitest suite and the preload self-check UI (plain CJS, no build step).
 const captureLogic = require("../craft-vita/src/overlay/capture/captureLogic.cjs");
 
+// X1 determinism sweep (test-only, env-gated; product default unchanged).
+// HIRESHADE_DISABLE_HW_ACCEL=1 must run before app ready so Chromium selects the
+// software path from startup; HIRESHADE_GPU_STATUS=1 logs the GPU feature status
+// once so the rig can record which compositor path the process actually used.
+if (process.env.HIRESHADE_DISABLE_HW_ACCEL === "1") {
+  app.disableHardwareAcceleration();
+  console.log("[x1] hardware acceleration disabled via HIRESHADE_DISABLE_HW_ACCEL=1");
+}
+if (process.env.HIRESHADE_GPU_STATUS === "1") {
+  app.whenReady().then(function () {
+    try {
+      console.log("[x1] gpuFeatureStatus=" + JSON.stringify(app.getGPUFeatureStatus()));
+    } catch (error) {
+      console.log("[x1] gpuFeatureStatus unavailable: " + error);
+    }
+    console.log("[x1] argv=" + JSON.stringify(process.argv.slice(1)));
+  });
+}
+
 // U1: in-process affinity control. Electron's setContentProtection(bool) only
 // reaches WDA_NONE (0x00) and WDA_EXCLUDEFROMCAPTURE (0x11); WDA_MONITOR (0x01)
 // must be set from the process that owns the HWND. koffi is an N-API FFI with

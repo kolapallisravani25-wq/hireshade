@@ -140,6 +140,39 @@ gdi-A-gdi-control-0x00-crop.png, gdi-B-gdi-control-0x00-crop.png, marker-*.json,
 affinity-*.json, main-A.log, main-B.log} and scripts/capture-matrix/{v1-compat-ab.mjs, marker-stats.ps1,
 focus-window.ps1, window-style.ps1}. U2 harness details remain in the U2 evidence files.
 
+### X1: DXGI contradiction resolved — deterministic HIDDEN under 0x11; luma-only baseline is the nondeterministic detector
+
+Same run, same window, two independent detectors: content-specific marker (`rgb(1,254,1)`, >=20% =
+VISIBLE) and DXGI luma diff vs a hidden baseline (external `SW_HIDE`, same desktop state), N=5 per
+config. All 20 runs valid (visible + affinity 0x11 + topmost asserted before and after each capture).
+
+| config | flags / env | gpu_compositing | N | marker VISIBLE | luma VISIBLE | both agree |
+|---|---|---|---|---|---|---|
+| default | none | disabled_software | 5 | **0/5** | 2/5 | 3/5 |
+| gpu-compositing-off | `--disable-gpu-compositing` | disabled_software | 5 | **0/5** | 3/5 | 2/5 |
+| gpu-off | `--disable-gpu` | disabled_software | 5 | **0/5** | 2/5 | 3/5 |
+| hw-accel-off | `HIRESHADE_DISABLE_HW_ACCEL=1` | disabled_software | 5 | **0/5** | 1/5 | 4/5 |
+
+- Marker fractions were **0.00000 in 20/20 runs**. Luma flagged "visible" in 8 runs with means 3.97-6.17
+  (never U1's 27.39); those are unrelated desktop changes, and the marker proves our overlay was absent.
+  Step 1: 12/20 agree, 8/20 disagree; every disagreement is marker=HIDDEN / luma=VISIBLE.
+- **GPU compositing could not be varied**: default and every flag report
+  `gpu_compositing: disabled_software` (2d_canvas/rasterization/video also disabled_software; vulkan/
+  opengl/webgl disabled). This host has no hardware GPU path available to Electron, so "GPU compositing
+  ON vs OFF" is UNTESTED as a variable; U1's luma result cannot be attributed to GPU compositing.
+- Foreground: every inspected run was foreground=true + topmost=true at capture; no backgrounded split
+  exists in this sweep (UNTESTED). Native DXGI probe (d), recreation variant (e), elevation (f) not run;
+  recorded UNTESTED.
+- Test-only switch added to main.js: `HIRESHADE_DISABLE_HW_ACCEL=1` calls
+  `app.disableHardwareAcceleration()` before ready; `HIRESHADE_GPU_STATUS=1` logs
+  `app.getGPUFeatureStatus()` and argv. Product default unchanged.
+
+**Conclusion: detector/contamination, not nondeterministic exclusion.** DXGI under 0x11 is deterministically
+HIDDEN with content-specific detection (20/20); the luma-only baseline method is the nondeterministic one
+(8/20 false positives). U1's "0x11 + DXGI = content visible (luma 27.39)" is withdrawn/reclassified; V1's
+hidden result is the correct repeatable measurement. No window/GPU fix is warranted. Evidence:
+docs/evidence/capture-sprint/x1/{x1-dxgi-determinism.json, x1-summary.json, runs/logs/frames}.
+
 - Fallback ladder (plain language, in src/overlay/capture/captureLogic.cjs and the
   in-app self-check panel), now failure-specific:
   1) **second monitor** - fixes DXGI/whole-screen capture that ignores WDA_EXCLUDEFROMCAPTURE;
@@ -232,7 +265,7 @@ Definitive 2×5 measurement under **WDA_EXCLUDEFROMCAPTURE 0x11**, same rig, sam
 
 **Positive control (0x00, same rig): the unique rgb(1,254,1) marker WAS captured on the display paths**, so the zero fractions under 0x11 are meaningful, not a broken detector. `WS_EX_LAYERED` was recorded for both variants, so it is not used as the discriminator. Verdict: **identical on all five paths — compatibility mode has no measured capture effect.** It is retained only as a cosmetic dark surface (contrast/readability); the pre-flight no longer recommends it and the self-check copy says so. Evidence: `docs/evidence/capture-sprint/v1/v1-compat-ab.json` + per-path state/captures.
 
-Caveat recorded honestly: DXGI under 0x11 measured HIDDEN in this rig but showed content (luma 27.39) in the earlier controlled U1 run. DXGI behaviour is **host/run dependent**; do not claim "always leaks" or "always excludes". Black-box mode remains the targeted mitigation when it does leak.
+Resolved by X1 (§8): the earlier U1 luma 27.39 was the IDE window underneath, not the overlay. With content-specific marker detection, 0x11 over DXGI is **HIDDEN in 20/20** runs on this software-composited host; GPU-composited DXGI is **UNTESTED** (all configs report `disabled_software`). Do not claim a DXGI leak or universal exclusion. Black box mode is an **optional** concealment fallback, ranked after window/tab sharing.
 
 ### V2 — affinity routing policy (0x11 default, 0x01 targeted)
 

@@ -1,0 +1,79 @@
+node.exe : $ vitest run
+At C:\Program Files\nodejs\pnpm.ps1:16 char:5
++     & "$basedir/node$exe"  "$basedir/node_modules/corepack/dist/pnpm. ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ($ vitest run:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+ RUN  v4.1.9 D:/hireshade/artifacts/craft-vita
+
+ ✓ src/gaze/warp.test.ts (8 tests) 558ms
+ ✓ src/gaze/demoGaze.test.ts (4 tests) 1429ms
+     ✓ runs a deterministic mock burst for the demo pipeline  792ms
+     ✓ is byte-deterministic across runs  624ms
+ ✓ src/gaze/latency.test.ts (1 test) 1474ms
+     ✓ keeps p95 per-frame CPU cost below 25 ms (best of 3 batches)  1469ms
+ ✓ src/gaze/processor.test.ts (13 tests) 2079ms
+     ✓ returns identical bytes when no landmarks are found or confidence is low  308ms
+     ✓ auto-boosts strength while tokens stream, clamped to 1  405ms
+ ✓ src/demo/pipeline.pronunciation.test.ts (3 tests) 568ms
+ ✓ src/demo/pipeline.test.ts (5 tests) 769ms
+ ✓ src/features/pronunciation/pronunciation.test.ts (22 tests) 271ms
+ ✓ src/gaze/syntheticFace.test.ts (6 tests) 195ms
+ ✓ src/overlay/presets/readability.test.ts (13 tests) 289ms
+ ✓ src/overlay/autoscroll/autoScrollMachine.test.ts (29 tests) 108ms
+ ✓ src/overlay/answerFormat.test.ts (15 tests) 242ms
+ ✓ src/lib/languages.test.ts (30 tests) 94ms
+ ✓ src/lib/instructions.test.ts (8 tests) 82ms
+ ✓ src/fixtures/pronunciation/pronunciationMetrics.test.ts (7 tests) 2710ms
+     ✓ is deterministic and large enough  2699ms
+ ✓ src/overlay/preflight/domAdapter.test.ts (8 tests) 280ms
+ ✓ src/features/session/detection/activeQuestionDetector.test.ts (4 tests) 125ms
+ ✓ src/gaze/detector.test.ts (5 tests) 62ms
+ ✓ src/overlay/autoscroll/overlayAutoScroll.test.ts (17 tests) 165ms
+ ✓ src/lib/transcript-stabilizer.test.ts (37 tests) 163ms
+ ✓ src/overlay/preflight/preflight.test.ts (37 tests) 110ms
+ ✓ src/demo/vad.test.ts (8 tests) 165ms
+ ✓ src/features/coding/codingMode.test.ts (29 tests) 40ms
+ ✓ src/features/meetingDetection/meetingAutoDetector.test.ts (11 tests) 177ms
+ ✓ src/overlay/presets/presets.test.ts (26 tests) 107ms
+ ✓ src/gaze/frameSource.test.ts (5 tests) 46ms
+ ✓ src/overlay/presets/domAdapter.test.ts (15 tests) 64ms
+ ✓ src/overlay/hotkeys.test.ts (23 tests) 51ms
+ ✓ src/lib/meetingDetection.test.ts (45 tests) 111ms
+ ✓ src/overlay/size.test.ts (19 tests) 216ms
+ ✓ src/overlay/capture/captureLogic.test.ts (17 tests) 47ms
+ ✓ src/gaze/virtualCamera.test.ts (7 tests) 37ms
+ ✓ src/overlay/preflight/testedApps.test.ts (5 tests) 65ms
+ ✓ src/gaze/smoothing.test.ts (5 tests) 27ms
+ ✓ src/features/session/hooks/cancellableListener.test.ts (4 tests) 27ms
+ ✓ src/tauriSecurityManifest.test.ts (4 tests) 23ms
+ ✓ src/overlay/overlayGeometry.test.ts (14 tests) 36ms
+ ✓ src/features/mockInterview/interviewLoop.test.ts (14 tests) 40ms
+ ✓ src/demo/wav.test.ts (2 tests) 40ms
+ ✓ src/demo/metrics.test.ts (9 tests) 25ms
+ ✓ src/overlay/tauriCsp.test.ts (4 tests) 23ms
+ ✓ src/lib/utterance-completeness.test.ts (13 tests) 33ms
+ ✓ src/features/session/hooks/autoGenTrailingTranscript.test.ts (11 tests) 48ms
+ ✓ src/overlay/preflight/selfCheckPattern.test.ts (5 tests) 26ms
+ ✓ src/features/session/audio/audioSessionController.test.ts (2 tests) 22ms
+ ✓ src/demo/overlayStream.test.ts (5 tests) 21ms
+ ✓ src/features/session/audio/systemHealth.test.ts (11 tests) 23ms
+ ✓ src/features/session/hooks/autoScrollPolicy.test.ts (14 tests) 23ms
+ ✓ src/sensitiveLogging.test.ts (3 tests) 25ms
+ ✓ src/lib/generation-pipeline.test.ts (13 tests) 23ms
+ ✓ src/hooks/useAIChat.test.ts (10 tests) 24ms
+ ✓ src/features/session/audio/captureStatus.test.ts (9 tests) 16ms
+ ✓ src/demo/demoSession.test.ts (4 tests) 19ms
+ ✓ src/features/session/hooks/autoGenQuestionSource.test.ts (10 tests) 20ms
+ ✓ src/gaze/previewState.test.ts (3 tests) 18ms
+ ✓ src/types/ai-answer.test.ts (4 tests) 42ms
+ ✓ src/pages/Sessions/ActiveSession/answerScrollPolicy.test.ts (9 tests) 18ms
+ ✓ src/features/session/detection/classifierMetrics.test.ts (7 tests) 21ms
+
+ Test Files  57 passed (57)
+      Tests  671 passed (671)
+   Start at  00:35:12
+   Duration  15.63s (transform 18.10s, setup 0ms, import 24.12s, tests 13.56s, environment 37ms)
+

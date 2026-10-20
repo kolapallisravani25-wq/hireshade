@@ -1,0 +1,3745 @@
+{
+  "generated_at": "2026-10-20T18:59:02.114Z",
+  "question": "Resolve U1 (luma 27.39 = DXGI content visible) vs V1 (marker 0 = hidden) contradiction under WDA 0x11.",
+  "method": "Same run/window: unique rgb(1,254,1) marker + DXGI luma diff vs hidden-window baseline (external SW_HIDE, same desktop state). State assertions (visible, affinity 0x11, topmost) before/after each visible capture. Sweep one variable at a time, N=5.",
+  "n_per_config": 5,
+  "configs": [
+    {
+      "id": "default",
+      "label": "Electron default GPU path",
+      "args": [],
+      "env": {}
+    },
+    {
+      "id": "gpu-compositing-off",
+      "label": "--disable-gpu-compositing",
+      "args": [
+        "--disable-gpu-compositing"
+      ],
+      "env": {}
+    },
+    {
+      "id": "gpu-off",
+      "label": "--disable-gpu",
+      "args": [
+        "--disable-gpu"
+      ],
+      "env": {}
+    },
+    {
+      "id": "hw-accel-off",
+      "label": "app.disableHardwareAcceleration() (env-gated)",
+      "args": [],
+      "env": {
+        "HIRESHADE_DISABLE_HW_ACCEL": "1"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "id": "default-1",
+      "config": "default",
+      "label": "Electron default GPU path",
+      "run": 1,
+      "args": [],
+      "env": {},
+      "port": 9260,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xFC0848",
+          "pid": 18576,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-1-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-1-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:21:25.4534027+05:30",
+        "label": "default-1-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-1-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xFC0848",
+          "pid": 18576,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:21:29.1018336+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xCF0528",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xFC0848",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0xCC0524",
+            "title": ""
+          },
+          {
+            "hwnd": "0xAA0802",
+            "title": ""
+          },
+          {
+            "hwnd": "0x970776",
+            "title": ""
+          },
+          {
+            "hwnd": "0x9607B8",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0x11B052E",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-1-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-1-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:21:32.8756018+05:30",
+        "label": "default-1-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-1-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:21:36.0730038+05:30",
+        "label": "default-1",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-1-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-1-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.323,
+        "fraction_diff_gt_threshold": 0.00356,
+        "mean_diff_where_changed": 29.43,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-default-1.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.323,
+        "luma_fraction_gt16": 0.00356
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:51:14.483Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:51:14.483Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:51:14.483Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:51:14.484Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:51:14.484Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:51:14.484Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:51:14.484Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:51:14.726Z [info] [capture] native affinity mode=0x11 hwnd=16517192 applied=true readback=0x11\n2026-10-20T18:51:14.727Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:51:14.730Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:51:14.937Z [info] [capture] native affinity mode=0x11 hwnd=13567272 applied=true readback=0x11\n2026-10-20T18:51:14.937Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:51:14.948Z [info] [capture] native affinity mode=0x11 hwnd=13567272 applied=true readback=0x11\n2026-10-20T18:51:14.948Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:51:16.051Z [info] [capture] native affinity mode=0x11 hwnd=16517192 applied=true readback=0x11\n2026-10-20T18:51:16.052Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:51:16.053Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:51:16.054Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:51:16.054Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:51:16.054Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:51:16.054Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:51:16.055Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:51:16.055Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:51:16.057Z [info] [capture] native affinity mode=0x11 hwnd=16517192 applied=true readback=0x11\n2026-10-20T18:51:16.058Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "default-2",
+      "config": "default",
+      "label": "Electron default GPU path",
+      "run": 2,
+      "args": [],
+      "env": {},
+      "port": 9261,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xAB0802",
+          "pid": 11780,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:21:50.0371505+05:30",
+        "label": "default-2-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xAB0802",
+          "pid": 11780,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:21:54.5440171+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0x11C052E",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xAB0802",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x10F057E",
+            "title": ""
+          },
+          {
+            "hwnd": "0xD10558",
+            "title": ""
+          },
+          {
+            "hwnd": "0xEF0782",
+            "title": ""
+          },
+          {
+            "hwnd": "0xA107AA",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xCD0524",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:21:58.5915530+05:30",
+        "label": "default-2-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:22:03.4112051+05:30",
+        "label": "default-2",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.209,
+        "fraction_diff_gt_threshold": 0.00307,
+        "mean_diff_where_changed": 34.09,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-default-2.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.209,
+        "luma_fraction_gt16": 0.00307
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:51:37.094Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:51:37.095Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:51:37.095Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:51:37.095Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:51:37.096Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:51:37.096Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:51:37.096Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:51:37.963Z [info] [capture] native affinity mode=0x11 hwnd=11208706 applied=true readback=0x11\n2026-10-20T18:51:37.964Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:51:37.967Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:51:38.176Z [info] [capture] native affinity mode=0x11 hwnd=18613550 applied=true readback=0x11\n2026-10-20T18:51:38.177Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:51:38.187Z [info] [capture] native affinity mode=0x11 hwnd=18613550 applied=true readback=0x11\n2026-10-20T18:51:38.189Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:51:39.497Z [info] [capture] native affinity mode=0x11 hwnd=11208706 applied=true readback=0x11\n2026-10-20T18:51:40.301Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:51:40.302Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:51:40.303Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:51:40.303Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:51:40.304Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:51:40.304Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:51:40.304Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:51:40.304Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:51:40.308Z [info] [capture] native affinity mode=0x11 hwnd=11208706 applied=true readback=0x11\n2026-10-20T18:51:40.308Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "default-3",
+      "config": "default",
+      "label": "Electron default GPU path",
+      "run": 3,
+      "args": [],
+      "env": {},
+      "port": 9262,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1300608",
+          "pid": 7124,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-3-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-3-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:22:15.8929316+05:30",
+        "label": "default-3-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-3-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1300608",
+          "pid": 7124,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:22:20.5636690+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0x110057E",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0x1300608",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0xBD0442",
+            "title": ""
+          },
+          {
+            "hwnd": "0x17200D8",
+            "title": ""
+          },
+          {
+            "hwnd": "0xD10528",
+            "title": ""
+          },
+          {
+            "hwnd": "0x1BF055E",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0x11D052E",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-3-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-3-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:22:24.5127012+05:30",
+        "label": "default-3-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-3-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:22:28.3606528+05:30",
+        "label": "default-3",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-3-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-3-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 5.812,
+        "fraction_diff_gt_threshold": 0.07249,
+        "mean_diff_where_changed": 99.64,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-default-3.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 5.812,
+        "luma_fraction_gt16": 0.07249
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": true,
+      "agree": false,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:52:04.848Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:52:04.849Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:52:04.849Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:52:04.849Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:52:05.404Z [info] [capture] native affinity mode=0x11 hwnd=19924488 applied=true readback=0x11\n2026-10-20T18:52:05.404Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:52:05.407Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:52:05.645Z [info] [capture] native affinity mode=0x11 hwnd=17827198 applied=true readback=0x11\n2026-10-20T18:52:05.649Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:52:05.657Z [info] [capture] native affinity mode=0x11 hwnd=17827198 applied=true readback=0x11\n2026-10-20T18:52:05.657Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:52:06.960Z [info] [capture] native affinity mode=0x11 hwnd=19924488 applied=true readback=0x11\n2026-10-20T18:52:06.961Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:52:06.963Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:52:06.964Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:52:06.965Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:52:06.966Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:52:06.967Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:52:06.968Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:52:06.968Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:52:06.971Z [info] [capture] native affinity mode=0x11 hwnd=19924488 applied=true readback=0x11\n2026-10-20T18:52:06.971Z [info] [capture] reassert #7 reason=focus (focus) applied=1\n2026-10-20T18:52:07.386Z [info] [capture] native affinity mode=0x11 hwnd=19924488 applied=true readback=0x11\n2026-10-20T18:52:07.387Z [info] [capture] reassert #8 reason=profile-change (profile-change) applied=1\n2026-10-20T18:52:07.388Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic"
+    },
+    {
+      "id": "default-4",
+      "config": "default",
+      "label": "Electron default GPU path",
+      "run": 4,
+      "args": [],
+      "env": {},
+      "port": 9263,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1490544",
+          "pid": 10188,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-4-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-4-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:22:41.2602049+05:30",
+        "label": "default-4-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-4-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x1490544",
+          "pid": 10188,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:22:44.4479810+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xDA0610",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0x1490544",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0xFF051C",
+            "title": ""
+          },
+          {
+            "hwnd": "0xDC050C",
+            "title": ""
+          },
+          {
+            "hwnd": "0xF10782",
+            "title": ""
+          },
+          {
+            "hwnd": "0xCB0822",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0x17300D8",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-4-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-4-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:22:47.9967471+05:30",
+        "label": "default-4-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-4-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:22:50.4798406+05:30",
+        "label": "default-4",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-4-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-4-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 5.738,
+        "fraction_diff_gt_threshold": 0.06889,
+        "mean_diff_where_changed": 103.7,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-default-4.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 5.738,
+        "luma_fraction_gt16": 0.06889
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": true,
+      "agree": false,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:52:29.286Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:52:29.288Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:52:29.289Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:52:29.289Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:52:29.290Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:52:29.290Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:52:29.290Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:52:29.853Z [info] [capture] native affinity mode=0x11 hwnd=14288400 applied=true readback=0x11\n2026-10-20T18:52:29.854Z [info] [capture] reassert #3 reason=show (show) applied=1\n2026-10-20T18:52:29.864Z [info] [capture] native affinity mode=0x11 hwnd=14288400 applied=true readback=0x11\n2026-10-20T18:52:29.864Z [info] [capture] reassert #4 reason=focus (focus) applied=1\n2026-10-20T18:52:30.061Z [info] [capture] native affinity mode=0x11 hwnd=21562692 applied=true readback=0x11\n2026-10-20T18:52:30.062Z [info] [capture] reassert #5 reason=profile-change (profile-change) applied=1\n2026-10-20T18:52:30.064Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:52:31.083Z [info] [capture] native affinity mode=0x11 hwnd=21562692 applied=true readback=0x11\n2026-10-20T18:52:31.083Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:52:31.084Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:52:31.084Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:52:31.085Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:52:31.085Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:52:31.085Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:52:31.086Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:52:31.086Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:52:31.090Z [info] [capture] native affinity mode=0x11 hwnd=21562692 applied=true readback=0x11\n2026-10-20T18:52:31.092Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "default-5",
+      "config": "default",
+      "label": "Electron default GPU path",
+      "run": 5,
+      "args": [],
+      "env": {},
+      "port": 9264,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x12C06D4",
+          "pid": 11420,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-5-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-5-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:23:01.3634687+05:30",
+        "label": "default-5-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-5-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x12C06D4",
+          "pid": 11420,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:23:04.4089250+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0x12007FA",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0x12C06D4",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x14A0544",
+            "title": ""
+          },
+          {
+            "hwnd": "0xD30528",
+            "title": ""
+          },
+          {
+            "hwnd": "0xA407BA",
+            "title": ""
+          },
+          {
+            "hwnd": "0xD70850",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xDD050C",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-5-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-5-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:23:07.9760466+05:30",
+        "label": "default-5-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-5-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:23:10.4617225+05:30",
+        "label": "default-5",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-5-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-5-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.139,
+        "fraction_diff_gt_threshold": 0.00234,
+        "mean_diff_where_changed": 33.37,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-default-5.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.139,
+        "luma_fraction_gt16": 0.00234
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:52:52.182Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:52:52.183Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:52:52.183Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:52:52.183Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:52:52.184Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:52:52.184Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:52:52.184Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:52:52.764Z [info] [capture] native affinity mode=0x11 hwnd=19662548 applied=true readback=0x11\n2026-10-20T18:52:52.765Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:52:52.767Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:52:52.905Z [info] [capture] native affinity mode=0x11 hwnd=18876410 applied=true readback=0x11\n2026-10-20T18:52:52.906Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:52:52.916Z [info] [capture] native affinity mode=0x11 hwnd=18876410 applied=true readback=0x11\n2026-10-20T18:52:52.917Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:52:53.892Z [info] [capture] native affinity mode=0x11 hwnd=19662548 applied=true readback=0x11\n2026-10-20T18:52:53.893Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:52:53.894Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:52:53.895Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:52:53.896Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:52:53.897Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:52:53.898Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:52:53.899Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:52:53.900Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:52:53.902Z [info] [capture] native affinity mode=0x11 hwnd=19662548 applied=true readback=0x11\n2026-10-20T18:52:53.903Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "gpu-compositing-off-1",
+      "config": "gpu-compositing-off",
+      "label": "--disable-gpu-compositing",
+      "run": 1,
+      "args": [
+        "--disable-gpu-compositing"
+      ],
+      "env": {},
+      "port": 9270,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x12607C0",
+          "pid": 13068,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-1-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-1-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:23:21.5017607+05:30",
+        "label": "gpu-compositing-off-1-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-1-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x12607C0",
+          "pid": 13068,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:23:24.5944481+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0x12107FA",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0x12607C0",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x113057E",
+            "title": ""
+          },
+          {
+            "hwnd": "0x1C2055E",
+            "title": ""
+          },
+          {
+            "hwnd": "0xA8080C",
+            "title": ""
+          },
+          {
+            "hwnd": "0x9C0776",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xD40528",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-1-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-1-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:23:27.8993985+05:30",
+        "label": "gpu-compositing-off-1-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-1-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:23:30.5739707+05:30",
+        "label": "gpu-compositing-off-1",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-1-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-1-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.143,
+        "fraction_diff_gt_threshold": 0.00245,
+        "mean_diff_where_changed": 36.13,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-compositing-off-1.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.143,
+        "luma_fraction_gt16": 0.00245
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:53:11.862Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:53:11.863Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:53:11.863Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:53:11.864Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:53:11.864Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:53:11.864Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:53:11.865Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:53:12.146Z [info] [capture] native affinity mode=0x11 hwnd=19269568 applied=true readback=0x11\n2026-10-20T18:53:12.147Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:53:12.149Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:53:12.722Z [info] [capture] native affinity mode=0x11 hwnd=18941946 applied=true readback=0x11\n2026-10-20T18:53:12.723Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:53:12.730Z [info] [capture] native affinity mode=0x11 hwnd=18941946 applied=true readback=0x11\n2026-10-20T18:53:12.731Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:53:13.723Z [info] [capture] native affinity mode=0x11 hwnd=19269568 applied=true readback=0x11\n2026-10-20T18:53:13.724Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:53:13.726Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:53:13.726Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:53:13.727Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:53:13.727Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:53:13.728Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:53:13.728Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:53:13.729Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:53:13.731Z [info] [capture] native affinity mode=0x11 hwnd=19269568 applied=true readback=0x11\n2026-10-20T18:53:13.731Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "gpu-compositing-off-2",
+      "config": "gpu-compositing-off",
+      "label": "--disable-gpu-compositing",
+      "run": 2,
+      "args": [
+        "--disable-gpu-compositing"
+      ],
+      "env": {},
+      "port": 9271,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xA407F8",
+          "pid": 23064,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-2-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-2-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:23:40.5817491+05:30",
+        "label": "gpu-compositing-off-2-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-2-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xA407F8",
+          "pid": 23064,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:23:44.1385518+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xA9080C",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xA407F8",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x114057E",
+            "title": ""
+          },
+          {
+            "hwnd": "0x1C3055E",
+            "title": ""
+          },
+          {
+            "hwnd": "0x1020848",
+            "title": ""
+          },
+          {
+            "hwnd": "0xD80558",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0x102051C",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-2-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-2-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:23:48.7020508+05:30",
+        "label": "gpu-compositing-off-2-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-2-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:23:51.8567718+05:30",
+        "label": "gpu-compositing-off-2",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-2-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-2-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 5.792,
+        "fraction_diff_gt_threshold": 0.07,
+        "mean_diff_where_changed": 103.94,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-compositing-off-2.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 5.792,
+        "luma_fraction_gt16": 0.07
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": true,
+      "agree": false,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:53:31.550Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:53:31.550Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:53:31.550Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:53:31.551Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:53:31.551Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:53:31.551Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:53:31.551Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:53:31.870Z [info] [capture] native affinity mode=0x11 hwnd=10749944 applied=true readback=0x11\n2026-10-20T18:53:31.870Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:53:31.877Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:53:32.111Z [info] [capture] native affinity mode=0x11 hwnd=11077644 applied=true readback=0x11\n2026-10-20T18:53:32.112Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:53:32.118Z [info] [capture] native affinity mode=0x11 hwnd=11077644 applied=true readback=0x11\n2026-10-20T18:53:32.118Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:53:33.106Z [info] [capture] native affinity mode=0x11 hwnd=10749944 applied=true readback=0x11\n2026-10-20T18:53:33.107Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:53:33.109Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:53:33.110Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:53:33.112Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:53:33.113Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:53:33.113Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:53:33.114Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:53:33.114Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:53:33.116Z [info] [capture] native affinity mode=0x11 hwnd=10749944 applied=true readback=0x11\n2026-10-20T18:53:33.117Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "gpu-compositing-off-3",
+      "config": "gpu-compositing-off",
+      "label": "--disable-gpu-compositing",
+      "run": 3,
+      "args": [
+        "--disable-gpu-compositing"
+      ],
+      "env": {},
+      "port": 9272,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xD90558",
+          "pid": 18132,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-3-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-3-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:24:02.8027821+05:30",
+        "label": "gpu-compositing-off-3-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-3-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xD90558",
+          "pid": 18132,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:24:06.3619427+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xCF0822",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xD90558",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x12F06D4",
+            "title": ""
+          },
+          {
+            "hwnd": "0x115057E",
+            "title": ""
+          },
+          {
+            "hwnd": "0x17C00D8",
+            "title": ""
+          },
+          {
+            "hwnd": "0xDE0610",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xD60528",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-3-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-3-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:24:10.0137754+05:30",
+        "label": "gpu-compositing-off-3-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-3-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:24:13.0657698+05:30",
+        "label": "gpu-compositing-off-3",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-3-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-3-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 6.167,
+        "fraction_diff_gt_threshold": 0.07186,
+        "mean_diff_where_changed": 105.48,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-compositing-off-3.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 6.167,
+        "luma_fraction_gt16": 0.07186
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": true,
+      "agree": false,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:53:52.728Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:53:52.728Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:53:52.729Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:53:52.732Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:53:52.733Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:53:52.733Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:53:52.733Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:53:52.946Z [info] [capture] native affinity mode=0x11 hwnd=14222680 applied=true readback=0x11\n2026-10-20T18:53:52.947Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:53:52.950Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:53:53.197Z [info] [capture] native affinity mode=0x11 hwnd=13568034 applied=true readback=0x11\n2026-10-20T18:53:53.198Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:53:53.208Z [info] [capture] native affinity mode=0x11 hwnd=13568034 applied=true readback=0x11\n2026-10-20T18:53:53.208Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:53:54.306Z [info] [capture] native affinity mode=0x11 hwnd=14222680 applied=true readback=0x11\n2026-10-20T18:53:54.306Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:53:54.307Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:53:54.308Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:53:54.308Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:53:54.309Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:53:54.309Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:53:54.309Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:53:54.310Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:53:54.312Z [info] [capture] native affinity mode=0x11 hwnd=14222680 applied=true readback=0x11\n2026-10-20T18:53:54.312Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "gpu-compositing-off-4",
+      "config": "gpu-compositing-off",
+      "label": "--disable-gpu-compositing",
+      "run": 4,
+      "args": [
+        "--disable-gpu-compositing"
+      ],
+      "env": {},
+      "port": 9273,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xDF0610",
+          "pid": 4036,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-4-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-4-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:24:26.8806424+05:30",
+        "label": "gpu-compositing-off-4-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-4-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xDF0610",
+          "pid": 4036,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:24:30.5073186+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xE207C6",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xDF0610",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0xE10524",
+            "title": ""
+          },
+          {
+            "hwnd": "0x17D00D8",
+            "title": ""
+          },
+          {
+            "hwnd": "0xDB0850",
+            "title": ""
+          },
+          {
+            "hwnd": "0x14E0544",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xAB080C",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-4-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-4-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:24:34.6009041+05:30",
+        "label": "gpu-compositing-off-4-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-4-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:24:37.7000230+05:30",
+        "label": "gpu-compositing-off-4",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-4-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-4-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 3.967,
+        "fraction_diff_gt_threshold": 0.04892,
+        "mean_diff_where_changed": 99.17,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-compositing-off-4.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 3.967,
+        "luma_fraction_gt16": 0.04892
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": true,
+      "agree": false,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:54:15.401Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:54:15.401Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:54:15.401Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:54:15.402Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:54:15.402Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:54:15.402Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:54:15.402Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:54:16.602Z [info] [capture] native affinity mode=0x11 hwnd=14616080 applied=true readback=0x11\n2026-10-20T18:54:16.602Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:54:16.604Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:54:16.806Z [info] [capture] native affinity mode=0x11 hwnd=14813126 applied=true readback=0x11\n2026-10-20T18:54:16.806Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:54:16.817Z [info] [capture] native affinity mode=0x11 hwnd=14813126 applied=true readback=0x11\n2026-10-20T18:54:16.817Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:54:17.804Z [info] [capture] native affinity mode=0x11 hwnd=14616080 applied=true readback=0x11\n2026-10-20T18:54:17.805Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:54:17.806Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:54:17.806Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:54:17.807Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:54:17.807Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:54:17.807Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:54:17.808Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:54:17.809Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:54:17.812Z [info] [capture] native affinity mode=0x11 hwnd=14616080 applied=true readback=0x11\n2026-10-20T18:54:17.814Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "gpu-compositing-off-5",
+      "config": "gpu-compositing-off",
+      "label": "--disable-gpu-compositing",
+      "run": 5,
+      "args": [
+        "--disable-gpu-compositing"
+      ],
+      "env": {},
+      "port": 9274,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xF70782",
+          "pid": 18096,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-5-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-5-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:24:48.9397022+05:30",
+        "label": "gpu-compositing-off-5-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-5-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xF70782",
+          "pid": 18096,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:24:52.2496819+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xE307C6",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xF70782",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0xE20524",
+            "title": ""
+          },
+          {
+            "hwnd": "0x17E00D8",
+            "title": ""
+          },
+          {
+            "hwnd": "0xA00776",
+            "title": ""
+          },
+          {
+            "hwnd": "0x1C6055E",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0x13106D4",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-5-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-5-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:24:55.5815812+05:30",
+        "label": "gpu-compositing-off-5-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-5-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:24:58.1664870+05:30",
+        "label": "gpu-compositing-off-5",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-5-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-compositing-off-5-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 1.161,
+        "fraction_diff_gt_threshold": 0.04131,
+        "mean_diff_where_changed": 27.56,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-compositing-off-5.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 1.161,
+        "luma_fraction_gt16": 0.04131
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:54:38.605Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:54:38.605Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:54:38.606Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:54:38.606Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:54:38.606Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:54:38.607Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:54:38.607Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:54:38.945Z [info] [capture] native affinity mode=0x11 hwnd=16189314 applied=true readback=0x11\n2026-10-20T18:54:38.946Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:54:38.948Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:54:39.151Z [info] [capture] native affinity mode=0x11 hwnd=14878662 applied=true readback=0x11\n2026-10-20T18:54:39.152Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:54:39.160Z [info] [capture] native affinity mode=0x11 hwnd=14878662 applied=true readback=0x11\n2026-10-20T18:54:39.161Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:54:40.239Z [info] [capture] native affinity mode=0x11 hwnd=16189314 applied=true readback=0x11\n2026-10-20T18:54:40.239Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:54:40.241Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:54:40.241Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:54:40.242Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:54:40.242Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:54:40.243Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:54:40.243Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:54:40.244Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:54:40.246Z [info] [capture] native affinity mode=0x11 hwnd=16189314 applied=true readback=0x11\n2026-10-20T18:54:40.247Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "gpu-off-1",
+      "config": "gpu-off",
+      "label": "--disable-gpu",
+      "run": 1,
+      "args": [
+        "--disable-gpu"
+      ],
+      "env": {},
+      "port": 9280,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xDC0558",
+          "pid": 24820,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-1-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-1-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:25:15.8895203+05:30",
+        "label": "gpu-off-1-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-1-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xDC0558",
+          "pid": 24820,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:25:19.5959750+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xF80782",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xDC0558",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x1380608",
+            "title": ""
+          },
+          {
+            "hwnd": "0xAD080C",
+            "title": ""
+          },
+          {
+            "hwnd": "0x12607FA",
+            "title": ""
+          },
+          {
+            "hwnd": "0xD30822",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xAA07B8",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-1-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-1-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:25:23.8778687+05:30",
+        "label": "gpu-off-1-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-1-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:25:27.6034890+05:30",
+        "label": "gpu-off-1",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-1-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-1-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.118,
+        "fraction_diff_gt_threshold": 0.00253,
+        "mean_diff_where_changed": 38.88,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-off-1.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.118,
+        "luma_fraction_gt16": 0.00253
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:54:59.402Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:54:59.406Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:54:59.407Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:54:59.407Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:55:05.304Z [info] [capture] native affinity mode=0x11 hwnd=14419288 applied=true readback=0x11\n2026-10-20T18:55:05.305Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:55:05.309Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:55:06.063Z [info] [capture] native affinity mode=0x11 hwnd=14419288 applied=true readback=0x11\n2026-10-20T18:55:06.064Z [info] [capture] reassert #4 reason=profile-change (profile-change) applied=1\n2026-10-20T18:55:06.065Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:55:06.090Z [info] [capture] native affinity mode=0x11 hwnd=16254850 applied=true readback=0x11\n2026-10-20T18:55:06.090Z [info] [capture] reassert #5 reason=show (show) applied=1\n2026-10-20T18:55:06.097Z [info] [capture] native affinity mode=0x11 hwnd=16254850 applied=true readback=0x11\n2026-10-20T18:55:06.097Z [info] [capture] reassert #6 reason=focus (focus) applied=1\n2026-10-20T18:55:06.850Z [info] [capture] native affinity mode=0x11 hwnd=14419288 applied=true readback=0x11\n2026-10-20T18:55:06.850Z [info] [capture] reassert #7 reason=show (show) applied=1\n2026-10-20T18:55:06.851Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:55:06.851Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:55:06.852Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:55:06.852Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:55:06.853Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:55:06.853Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:55:06.853Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:55:06.855Z [info] [capture] native affinity mode=0x11 hwnd=14419288 applied=true readback=0x11\n2026-10-20T18:55:06.856Z [info] [capture] reassert #8 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "gpu-off-2",
+      "config": "gpu-off",
+      "label": "--disable-gpu",
+      "run": 2,
+      "args": [
+        "--disable-gpu"
+      ],
+      "env": {},
+      "port": 9281,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xF90782",
+          "pid": 21304,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-2-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-2-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:25:39.9955759+05:30",
+        "label": "gpu-off-2-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-2-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xF90782",
+          "pid": 21304,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:25:43.9806748+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xAB07B8",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xF90782",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0xF3050C",
+            "title": ""
+          },
+          {
+            "hwnd": "0x18000D8",
+            "title": ""
+          },
+          {
+            "hwnd": "0xE507C6",
+            "title": ""
+          },
+          {
+            "hwnd": "0x7B0316",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0x119057E",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-2-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-2-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:25:47.9845521+05:30",
+        "label": "gpu-off-2-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-2-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:25:50.8401462+05:30",
+        "label": "gpu-off-2",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-2-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-2-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.159,
+        "fraction_diff_gt_threshold": 0.00252,
+        "mean_diff_where_changed": 43.06,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-off-2.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.159,
+        "luma_fraction_gt16": 0.00252
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:55:29.165Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:55:29.165Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:55:29.166Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:55:29.166Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:55:29.167Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:55:29.168Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:55:29.168Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:55:29.491Z [info] [capture] native affinity mode=0x11 hwnd=16320386 applied=true readback=0x11\n2026-10-20T18:55:29.491Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:55:29.494Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:55:30.660Z [info] [capture] native affinity mode=0x11 hwnd=11208632 applied=true readback=0x11\n2026-10-20T18:55:30.661Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:55:30.667Z [info] [capture] native affinity mode=0x11 hwnd=11208632 applied=true readback=0x11\n2026-10-20T18:55:30.667Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:55:31.274Z [info] [capture] native affinity mode=0x11 hwnd=16320386 applied=true readback=0x11\n2026-10-20T18:55:31.277Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:55:31.278Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:55:31.279Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:55:31.279Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:55:31.279Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:55:31.280Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:55:31.280Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:55:31.280Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:55:31.282Z [info] [capture] native affinity mode=0x11 hwnd=16320386 applied=true readback=0x11\n2026-10-20T18:55:31.283Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "gpu-off-3",
+      "config": "gpu-off",
+      "label": "--disable-gpu",
+      "run": 3,
+      "args": [
+        "--disable-gpu"
+      ],
+      "env": {},
+      "port": 9282,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xBB07AA",
+          "pid": 6128,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-3-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-3-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:26:03.1521982+05:30",
+        "label": "gpu-off-3-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-3-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xBB07AA",
+          "pid": 6128,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:26:06.6099014+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xE607C6",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xBB07AA",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0xDE0558",
+            "title": ""
+          },
+          {
+            "hwnd": "0xE50524",
+            "title": ""
+          },
+          {
+            "hwnd": "0xD50822",
+            "title": ""
+          },
+          {
+            "hwnd": "0xE50610",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xF4050C",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-3-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-3-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:26:10.1953095+05:30",
+        "label": "gpu-off-3-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-3-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:26:13.1288031+05:30",
+        "label": "gpu-off-3",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-3-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-3-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.174,
+        "fraction_diff_gt_threshold": 0.00238,
+        "mean_diff_where_changed": 30.52,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-off-3.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.174,
+        "luma_fraction_gt16": 0.00238
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:55:51.782Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:55:51.783Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:55:51.783Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:55:51.784Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:55:51.784Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:55:51.784Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:55:51.785Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:55:52.035Z [info] [capture] native affinity mode=0x11 hwnd=12257194 applied=true readback=0x11\n2026-10-20T18:55:52.035Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:55:52.038Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:55:52.258Z [info] [capture] native affinity mode=0x11 hwnd=15075270 applied=true readback=0x11\n2026-10-20T18:55:52.259Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:55:52.268Z [info] [capture] native affinity mode=0x11 hwnd=15075270 applied=true readback=0x11\n2026-10-20T18:55:52.269Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:55:53.409Z [info] [capture] native affinity mode=0x11 hwnd=12257194 applied=true readback=0x11\n2026-10-20T18:55:53.409Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:55:53.410Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:55:53.411Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:55:53.411Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:55:53.411Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:55:53.412Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:55:53.412Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:55:53.413Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:55:53.416Z [info] [capture] native affinity mode=0x11 hwnd=12257194 applied=true readback=0x11\n2026-10-20T18:55:53.417Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "gpu-off-4",
+      "config": "gpu-off",
+      "label": "--disable-gpu",
+      "run": 4,
+      "args": [
+        "--disable-gpu"
+      ],
+      "env": {},
+      "port": 9283,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x12E07C0",
+          "pid": 17072,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-4-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-4-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:26:27.3025271+05:30",
+        "label": "gpu-off-4-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-4-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x12E07C0",
+          "pid": 17072,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:26:31.9422963+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0x12907FA",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0x12E07C0",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x13B0608",
+            "title": ""
+          },
+          {
+            "hwnd": "0x11B057E",
+            "title": ""
+          },
+          {
+            "hwnd": "0xE00850",
+            "title": ""
+          },
+          {
+            "hwnd": "0xDE0528",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xE60524",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-4-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-4-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:26:36.6717076+05:30",
+        "label": "gpu-off-4-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-4-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:26:40.1560796+05:30",
+        "label": "gpu-off-4",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-4-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-4-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 4.73,
+        "fraction_diff_gt_threshold": 0.05656,
+        "mean_diff_where_changed": 100.07,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-off-4.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 4.73,
+        "luma_fraction_gt16": 0.05656
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": true,
+      "agree": false,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:56:14.004Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:56:14.005Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:56:14.005Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:56:14.006Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:56:14.006Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:56:14.007Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:56:14.007Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:56:14.348Z [info] [capture] native affinity mode=0x11 hwnd=19793856 applied=true readback=0x11\n2026-10-20T18:56:14.348Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:56:14.351Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:56:16.917Z [info] [capture] native affinity mode=0x11 hwnd=19466234 applied=true readback=0x11\n2026-10-20T18:56:16.918Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:56:16.923Z [info] [capture] native affinity mode=0x11 hwnd=19466234 applied=true readback=0x11\n2026-10-20T18:56:16.924Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:56:17.644Z [info] [capture] native affinity mode=0x11 hwnd=19793856 applied=true readback=0x11\n2026-10-20T18:56:17.776Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:56:17.778Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:56:17.778Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:56:17.779Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:56:17.779Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:56:17.779Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:56:17.780Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:56:17.780Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:56:17.782Z [info] [capture] native affinity mode=0x11 hwnd=19793856 applied=true readback=0x11\n2026-10-20T18:56:17.783Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "gpu-off-5",
+      "config": "gpu-off",
+      "label": "--disable-gpu",
+      "run": 5,
+      "args": [
+        "--disable-gpu"
+      ],
+      "env": {},
+      "port": 9284,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xBD07AA",
+          "pid": 10200,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-5-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-5-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:26:53.2793531+05:30",
+        "label": "gpu-off-5-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-5-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xBD07AA",
+          "pid": 10200,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:26:56.9258826+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xE00528",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xBD07AA",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x1530526",
+            "title": ""
+          },
+          {
+            "hwnd": "0xF6050C",
+            "title": ""
+          },
+          {
+            "hwnd": "0xD70822",
+            "title": ""
+          },
+          {
+            "hwnd": "0x10C051C",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xAE07B8",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-5-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-5-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:27:01.9174945+05:30",
+        "label": "gpu-off-5-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-5-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:27:05.5840334+05:30",
+        "label": "gpu-off-5",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-5-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-5-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 5.383,
+        "fraction_diff_gt_threshold": 0.06745,
+        "mean_diff_where_changed": 98.63,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-off-5.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 5.383,
+        "luma_fraction_gt16": 0.06745
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": true,
+      "agree": false,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:56:41.234Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:56:41.234Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:56:41.235Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:56:41.235Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:56:41.235Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:56:41.235Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:56:41.236Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:56:41.459Z [info] [capture] native affinity mode=0x11 hwnd=12388266 applied=true readback=0x11\n2026-10-20T18:56:41.459Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:56:41.461Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:56:41.749Z [info] [capture] native affinity mode=0x11 hwnd=14681384 applied=true readback=0x11\n2026-10-20T18:56:41.749Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:56:41.761Z [info] [capture] native affinity mode=0x11 hwnd=14681384 applied=true readback=0x11\n2026-10-20T18:56:41.761Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:56:43.071Z [info] [capture] native affinity mode=0x11 hwnd=12388266 applied=true readback=0x11\n2026-10-20T18:56:43.072Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:56:43.073Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:56:43.073Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:56:43.074Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:56:43.074Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:56:43.074Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:56:43.075Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:56:43.075Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:56:43.077Z [info] [capture] native affinity mode=0x11 hwnd=12388266 applied=true readback=0x11\n2026-10-20T18:56:43.078Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "hw-accel-off-1",
+      "config": "hw-accel-off",
+      "label": "app.disableHardwareAcceleration() (env-gated)",
+      "run": 1,
+      "args": [],
+      "env": {
+        "HIRESHADE_DISABLE_HW_ACCEL": "1"
+      },
+      "port": 9290,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xE80524",
+          "pid": 13476,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-1-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-1-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:27:19.6034087+05:30",
+        "label": "hw-accel-off-1-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-1-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xE80524",
+          "pid": 13476,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:27:22.9384568+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xB107F8",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xE80524",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x1550544",
+            "title": ""
+          },
+          {
+            "hwnd": "0xE10528",
+            "title": ""
+          },
+          {
+            "hwnd": "0x7F0316",
+            "title": ""
+          },
+          {
+            "hwnd": "0xE20558",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xF7050C",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-1-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-1-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:27:27.4017362+05:30",
+        "label": "hw-accel-off-1-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-1-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:27:30.3735921+05:30",
+        "label": "hw-accel-off-1",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-1-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-1-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.281,
+        "fraction_diff_gt_threshold": 0.00482,
+        "mean_diff_where_changed": 28.09,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-hw-accel-off-1.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.281,
+        "luma_fraction_gt16": 0.00482
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:57:09.869Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:57:09.870Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:57:09.870Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:57:09.870Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:57:09.871Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:57:09.871Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:57:09.871Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:57:10.387Z [info] [capture] native affinity mode=0x11 hwnd=15205668 applied=true readback=0x11\n2026-10-20T18:57:10.388Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:57:10.391Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:57:10.589Z [info] [capture] native affinity mode=0x11 hwnd=11601912 applied=true readback=0x11\n2026-10-20T18:57:10.590Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:57:10.598Z [info] [capture] native affinity mode=0x11 hwnd=11601912 applied=true readback=0x11\n2026-10-20T18:57:10.599Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:57:11.577Z [info] [capture] native affinity mode=0x11 hwnd=15205668 applied=true readback=0x11\n2026-10-20T18:57:11.578Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:57:11.579Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:57:11.580Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:57:11.580Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:57:11.580Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:57:11.580Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:57:11.581Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:57:11.581Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:57:11.584Z [info] [capture] native affinity mode=0x11 hwnd=15205668 applied=true readback=0x11\n2026-10-20T18:57:11.586Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "hw-accel-off-2",
+      "config": "hw-accel-off",
+      "label": "app.disableHardwareAcceleration() (env-gated)",
+      "run": 2,
+      "args": [],
+      "env": {
+        "HIRESHADE_DISABLE_HW_ACCEL": "1"
+      },
+      "port": 9291,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x10E051C",
+          "pid": 8780,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-2-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-2-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:27:41.0545513+05:30",
+        "label": "hw-accel-off-2-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-2-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x10E051C",
+          "pid": 8780,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:27:44.1323671+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0x1560544",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0x10E051C",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0xD00802",
+            "title": ""
+          },
+          {
+            "hwnd": "0x1510820",
+            "title": ""
+          },
+          {
+            "hwnd": "0xFE0782",
+            "title": ""
+          },
+          {
+            "hwnd": "0x12D07FA",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xBF07AA",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-2-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-2-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:27:47.8039738+05:30",
+        "label": "hw-accel-off-2-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-2-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:27:51.0537664+05:30",
+        "label": "hw-accel-off-2",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-2-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-2-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.184,
+        "fraction_diff_gt_threshold": 0.00248,
+        "mean_diff_where_changed": 32.38,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-hw-accel-off-2.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.184,
+        "luma_fraction_gt16": 0.00248
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:57:31.608Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:57:31.609Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:57:31.609Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:57:31.609Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:57:31.610Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:57:31.610Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:57:31.610Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:57:31.832Z [info] [capture] native affinity mode=0x11 hwnd=17696028 applied=true readback=0x11\n2026-10-20T18:57:31.832Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:57:31.835Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:57:32.075Z [info] [capture] native affinity mode=0x11 hwnd=22414660 applied=true readback=0x11\n2026-10-20T18:57:32.076Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:57:32.082Z [info] [capture] native affinity mode=0x11 hwnd=22414660 applied=true readback=0x11\n2026-10-20T18:57:32.083Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:57:33.273Z [info] [capture] native affinity mode=0x11 hwnd=17696028 applied=true readback=0x11\n2026-10-20T18:57:33.274Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:57:33.275Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:57:33.276Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:57:33.276Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:57:33.277Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:57:33.277Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:57:33.278Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:57:33.278Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:57:33.280Z [info] [capture] native affinity mode=0x11 hwnd=17696028 applied=true readback=0x11\n2026-10-20T18:57:33.281Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "hw-accel-off-3",
+      "config": "hw-accel-off",
+      "label": "app.disableHardwareAcceleration() (env-gated)",
+      "run": 3,
+      "args": [],
+      "env": {
+        "HIRESHADE_DISABLE_HW_ACCEL": "1"
+      },
+      "port": 9292,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xFF0782",
+          "pid": 11692,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-3-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-3-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:28:00.8413646+05:30",
+        "label": "hw-accel-off-3-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-3-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xFF0782",
+          "pid": 11692,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:28:04.0164817+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xEE07C6",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xFF0782",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x810316",
+            "title": ""
+          },
+          {
+            "hwnd": "0x19F00D8",
+            "title": ""
+          },
+          {
+            "hwnd": "0x11F057E",
+            "title": ""
+          },
+          {
+            "hwnd": "0xDB0822",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xEA0524",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-3-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-3-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:28:07.7553928+05:30",
+        "label": "hw-accel-off-3-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-3-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:28:11.1672321+05:30",
+        "label": "hw-accel-off-3",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-3-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-3-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.2,
+        "fraction_diff_gt_threshold": 0.00282,
+        "mean_diff_where_changed": 34.05,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-hw-accel-off-3.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.2,
+        "luma_fraction_gt16": 0.00282
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:57:52.078Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:57:52.078Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:57:52.079Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:57:52.079Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:57:52.079Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:57:52.080Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:57:52.080Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:57:52.497Z [info] [capture] native affinity mode=0x11 hwnd=16713602 applied=true readback=0x11\n2026-10-20T18:57:52.498Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:57:52.500Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:57:52.720Z [info] [capture] native affinity mode=0x11 hwnd=15599558 applied=true readback=0x11\n2026-10-20T18:57:52.722Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:57:52.730Z [info] [capture] native affinity mode=0x11 hwnd=15599558 applied=true readback=0x11\n2026-10-20T18:57:52.731Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:57:53.564Z [info] [capture] native affinity mode=0x11 hwnd=16713602 applied=true readback=0x11\n2026-10-20T18:57:53.564Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:57:53.566Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:57:53.566Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:57:53.567Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:57:53.567Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:57:53.568Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:57:53.568Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:57:53.569Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:57:53.571Z [info] [capture] native affinity mode=0x11 hwnd=16713602 applied=true readback=0x11\n2026-10-20T18:57:53.571Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "hw-accel-off-4",
+      "config": "hw-accel-off",
+      "label": "app.disableHardwareAcceleration() (env-gated)",
+      "run": 4,
+      "args": [],
+      "env": {
+        "HIRESHADE_DISABLE_HW_ACCEL": "1"
+      },
+      "port": 9293,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x13307C0",
+          "pid": 10080,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-4-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-4-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:28:22.7222571+05:30",
+        "label": "hw-accel-off-4-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-4-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0x13307C0",
+          "pid": 10080,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:28:29.0615726+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0xB5080C",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0x13307C0",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0x1580544",
+            "title": ""
+          },
+          {
+            "hwnd": "0xE40528",
+            "title": ""
+          },
+          {
+            "hwnd": "0x10E0848",
+            "title": ""
+          },
+          {
+            "hwnd": "0xF10610",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xA90776",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-4-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-4-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:28:33.3405164+05:30",
+        "label": "hw-accel-off-4-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-4-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:28:36.5731529+05:30",
+        "label": "hw-accel-off-4",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-4-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-4-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 0.153,
+        "fraction_diff_gt_threshold": 0.0017,
+        "mean_diff_where_changed": 29.15,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-hw-accel-off-4.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 0.153,
+        "luma_fraction_gt16": 0.0017
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": false,
+      "agree": true,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:58:12.620Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:58:12.620Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:58:12.620Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:58:12.621Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:58:12.621Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:58:12.622Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:58:12.622Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:58:13.097Z [info] [capture] native affinity mode=0x11 hwnd=20121536 applied=true readback=0x11\n2026-10-20T18:58:13.097Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:58:13.100Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:58:13.490Z [info] [capture] native affinity mode=0x11 hwnd=11864076 applied=true readback=0x11\n2026-10-20T18:58:13.490Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:58:13.494Z [info] [capture] native affinity mode=0x11 hwnd=11864076 applied=true readback=0x11\n2026-10-20T18:58:13.495Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:58:14.420Z [info] [capture] native affinity mode=0x11 hwnd=20121536 applied=true readback=0x11\n2026-10-20T18:58:14.421Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:58:14.422Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:58:14.423Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:58:14.423Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:58:14.424Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:58:14.424Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:58:14.424Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:58:14.425Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:58:14.427Z [info] [capture] native affinity mode=0x11 hwnd=20121536 applied=true readback=0x11\n2026-10-20T18:58:14.427Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    },
+    {
+      "id": "hw-accel-off-5",
+      "config": "hw-accel-off",
+      "label": "app.disableHardwareAcceleration() (env-gated)",
+      "run": 5,
+      "args": [],
+      "env": {
+        "HIRESHADE_DISABLE_HW_ACCEL": "1"
+      },
+      "port": 9294,
+      "state": {
+        "compatMode": false,
+        "transparent": true,
+        "bounds": {
+          "x": 51,
+          "y": 40,
+          "width": 1198,
+          "height": 606
+        },
+        "physical": "54,42,1258,636",
+        "dpr": 1.0499999523162842
+      },
+      "visible_before": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xB707F8",
+          "pid": 11560,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "dxgi_visible": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-5-visible.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-5-visible-frame.png"
+      },
+      "marker_visible": {
+        "captured_at": "2026-10-21T00:28:50.1163988+05:30",
+        "label": "hw-accel-off-5-visible",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-5-visible-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "visible_after": {
+        "ok": true,
+        "win": {
+          "title": "Floating Mini-Screen",
+          "hwnd": "0xB707F8",
+          "pid": 11560,
+          "visible": true,
+          "style": "0x14000000",
+          "exstyle": "0x80028",
+          "WS_EX_LAYERED": true,
+          "affinity": "0x11",
+          "bounds": {
+            "y": 43,
+            "width": 1257,
+            "height": 635,
+            "x": 54
+          },
+          "DWM_cloaked": 0,
+          "DWM_composition": false,
+          "foreground": true,
+          "topmost": true
+        },
+        "affinity": [
+          "0x11"
+        ]
+      },
+      "hide": {
+        "captured_at": "2026-10-21T00:28:53.9996952+05:30",
+        "action": "hide",
+        "matched": 7,
+        "matching": [
+          {
+            "hwnd": "0x10F0848",
+            "title": "Launcher"
+          },
+          {
+            "hwnd": "0xB707F8",
+            "title": "Floating Mini-Screen"
+          },
+          {
+            "hwnd": "0xD907BA",
+            "title": ""
+          },
+          {
+            "hwnd": "0xC307AA",
+            "title": ""
+          },
+          {
+            "hwnd": "0x113051C",
+            "title": ""
+          },
+          {
+            "hwnd": "0xF40558",
+            "title": "MSCTFIME UI"
+          },
+          {
+            "hwnd": "0xE50528",
+            "title": "Default IME"
+          }
+        ],
+        "method": "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+      },
+      "dxgi_baseline": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-5-baseline.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-5-baseline-frame.png"
+      },
+      "marker_baseline": {
+        "captured_at": "2026-10-21T00:28:57.9517624+05:30",
+        "label": "hw-accel-off-5-baseline",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-5-baseline-frame.png",
+        "rect": "54,42,1258,636",
+        "marker_rgb": [
+          1,
+          254,
+          1
+        ],
+        "tolerance": 8,
+        "matched_pixels": 0,
+        "sampled_pixels": 400044,
+        "fraction": 0,
+        "present": false
+      },
+      "diff": {
+        "captured_at": "2026-10-21T00:29:01.7017960+05:30",
+        "label": "hw-accel-off-5",
+        "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-5-baseline-frame.png",
+        "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-5-visible-frame.png",
+        "threshold": 16,
+        "width": 1258,
+        "height": 636,
+        "rect": "54,42,1258,636",
+        "mean_abs_diff": 5.464,
+        "fraction_diff_gt_threshold": 0.06871,
+        "mean_diff_where_changed": 96.99,
+        "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-hw-accel-off-5.png"
+      },
+      "metrics": {
+        "marker_visible_fraction": 0,
+        "marker_baseline_fraction": 0,
+        "luma_mean_abs_diff": 5.464,
+        "luma_fraction_gt16": 0.06871
+      },
+      "marker_visible_bool": false,
+      "luma_visible_bool": true,
+      "agree": false,
+      "invalid": false,
+      "gpu_feature_status": "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}",
+      "log_tail": "2026-10-20T18:58:39.135Z [info] [hotkeys] registered set=app action=toggle-overlay accelerator=CommandOrControl+Shift+H\n2026-10-20T18:58:39.136Z [info] [hotkeys] registered set=app action=panic-hide accelerator=CommandOrControl+Shift+X\n2026-10-20T18:58:39.136Z [info] [hotkeys] registered set=app action=cycle-model accelerator=CommandOrControl+Shift+M\n2026-10-20T18:58:39.137Z [info] [hotkeys] registered set=app action=overlay-nudge-up accelerator=CommandOrControl+Shift+Up\n2026-10-20T18:58:39.137Z [info] [hotkeys] registered set=app action=overlay-nudge-down accelerator=CommandOrControl+Shift+Down\n2026-10-20T18:58:39.137Z [info] [hotkeys] registered set=app action=overlay-nudge-left accelerator=CommandOrControl+Shift+Left\n2026-10-20T18:58:39.137Z [info] [hotkeys] registered set=app action=overlay-nudge-right accelerator=CommandOrControl+Shift+Right\n2026-10-20T18:58:40.161Z [info] [capture] native affinity mode=0x11 hwnd=11995128 applied=true readback=0x11\n2026-10-20T18:58:40.162Z [info] [capture] reassert #3 reason=profile-change (profile-change) applied=1\n2026-10-20T18:58:40.164Z [info] [capture] profile=reading bounds={\"x\":52,\"y\":41,\"width\":1197,\"height\":604} workArea={\"x\":0,\"y\":0,\"width\":1301,\"height\":686} suggestion=heuristic\n2026-10-20T18:58:40.198Z [info] [capture] native affinity mode=0x11 hwnd=17762376 applied=true readback=0x11\n2026-10-20T18:58:40.199Z [info] [capture] reassert #4 reason=show (show) applied=1\n2026-10-20T18:58:40.207Z [info] [capture] native affinity mode=0x11 hwnd=17762376 applied=true readback=0x11\n2026-10-20T18:58:40.208Z [info] [capture] reassert #5 reason=focus (focus) applied=1\n2026-10-20T18:58:41.482Z [info] [capture] native affinity mode=0x11 hwnd=11995128 applied=true readback=0x11\n2026-10-20T18:58:41.483Z [info] [capture] reassert #6 reason=show (show) applied=1\n2026-10-20T18:58:41.484Z [info] [hotkeys] registered set=live-call action=live-primary-answer accelerator=CommandOrControl+Enter\n2026-10-20T18:58:41.485Z [info] [hotkeys] registered set=live-call action=live-secondary-answer accelerator=CommandOrControl+Shift+Enter\n2026-10-20T18:58:41.485Z [info] [hotkeys] registered set=live-call action=live-prev-message accelerator=CommandOrControl+Up\n2026-10-20T18:58:41.485Z [info] [hotkeys] registered set=live-call action=live-next-message accelerator=CommandOrControl+Down\n2026-10-20T18:58:41.486Z [info] [hotkeys] registered set=live-call action=live-hide-overlay accelerator=CommandOrControl+H\n2026-10-20T18:58:41.486Z [info] [hotkeys] registered set=live-call action=live-prev-ai-message accelerator=CommandOrControl+Left\n2026-10-20T18:58:41.486Z [info] [hotkeys] registered set=live-call action=live-next-ai-message accelerator=CommandOrControl+Right\n2026-10-20T18:58:41.489Z [info] [capture] native affinity mode=0x11 hwnd=11995128 applied=true readback=0x11\n2026-10-20T18:58:41.489Z [info] [capture] reassert #7 reason=focus (focus) applied=1"
+    }
+  ],
+  "by_config": {
+    "default": {
+      "label": "Electron default GPU path",
+      "args": [],
+      "env": {},
+      "n": 5,
+      "valid": 5,
+      "invalid": 0,
+      "marker_visible": 0,
+      "luma_visible": 2,
+      "agree": 3,
+      "disagree": 2,
+      "determinism": "all marker VISIBLE",
+      "marker_fractions": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "luma_means": [
+        0.323,
+        0.209,
+        5.812,
+        5.738,
+        0.139
+      ],
+      "gpu_feature_status": [
+        "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}"
+      ]
+    },
+    "gpu-compositing-off": {
+      "label": "--disable-gpu-compositing",
+      "args": [
+        "--disable-gpu-compositing"
+      ],
+      "env": {},
+      "n": 5,
+      "valid": 5,
+      "invalid": 0,
+      "marker_visible": 0,
+      "luma_visible": 3,
+      "agree": 2,
+      "disagree": 3,
+      "determinism": "all marker VISIBLE",
+      "marker_fractions": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "luma_means": [
+        0.143,
+        5.792,
+        6.167,
+        3.967,
+        1.161
+      ],
+      "gpu_feature_status": [
+        "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}"
+      ]
+    },
+    "gpu-off": {
+      "label": "--disable-gpu",
+      "args": [
+        "--disable-gpu"
+      ],
+      "env": {},
+      "n": 5,
+      "valid": 5,
+      "invalid": 0,
+      "marker_visible": 0,
+      "luma_visible": 2,
+      "agree": 3,
+      "disagree": 2,
+      "determinism": "all marker VISIBLE",
+      "marker_fractions": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "luma_means": [
+        0.118,
+        0.159,
+        0.174,
+        4.73,
+        5.383
+      ],
+      "gpu_feature_status": [
+        "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}"
+      ]
+    },
+    "hw-accel-off": {
+      "label": "app.disableHardwareAcceleration() (env-gated)",
+      "args": [],
+      "env": {
+        "HIRESHADE_DISABLE_HW_ACCEL": "1"
+      },
+      "n": 5,
+      "valid": 5,
+      "invalid": 0,
+      "marker_visible": 0,
+      "luma_visible": 1,
+      "agree": 4,
+      "disagree": 1,
+      "determinism": "all marker VISIBLE",
+      "marker_fractions": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "luma_means": [
+        0.281,
+        0.184,
+        0.2,
+        0.153,
+        5.464
+      ],
+      "gpu_feature_status": [
+        "{\"2d_canvas\":\"disabled_software\",\"direct_rendering_display_compositor\":\"disabled_off_ok\",\"gpu_compositing\":\"disabled_software\",\"multiple_raster_threads\":\"enabled_on\",\"opengl\":\"disabled_off\",\"rasterization\":\"disabled_software\",\"raw_draw\":\"disabled_off_ok\",\"skia_graphite\":\"disabled_off\",\"trees_in_viz\":\"disabled_off\",\"video_decode\":\"disabled_software\",\"video_encode\":\"disabled_software\",\"vulkan\":\"disabled_off\",\"webgl\":\"disabled_off\",\"webgl2\":\"disabled_off\",\"webgpu\":\"disabled_off\",\"webnn\":\"disabled_off\"}"
+      ]
+    }
+  },
+  "step1_agreement": {
+    "valid_runs": 20,
+    "agree": 12,
+    "disagree": 8,
+    "note": "If marker and luma disagree, the luma detector is seeing unrelated desktop content, not our overlay."
+  },
+  "verdict": "Under 0x11, DXGI marker detection measured HIDDEN in every valid run across default, --disable-gpu-compositing, --disable-gpu and hardware-acceleration-off. The U1 luma 27.39 conflict is a detector/contamination difference, not an opacity or GPU-compositing difference; the V1 hidden result is reproduced deterministically."
+}

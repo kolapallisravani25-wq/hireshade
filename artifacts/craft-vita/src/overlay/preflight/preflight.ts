@@ -47,7 +47,7 @@ export const DEFAULT_MONITOR_COPY =
  * Copy must always state the cost on paths that already worked.
  */
 export const BLACK_BOX_COST_COPY =
-  'Black box mode is a targeted mitigation, not an upgrade: capture paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band instead, and the rectangle is discoverable.';
+  'Black box mode is an OPTIONAL concealment fallback, not load-bearing: X1 measured WDA_EXCLUDEFROMCAPTURE as hidden on DXGI in 20/20 marker runs on this software-composited host, so it is not required there. On GPU-composited capture (unverified here) it may help, but paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) then show a discoverable black band.';
 
 export const BLACK_BOX_JUSTIFIED_COPY =
   'Known-DXGI/high-risk single-display setup: black box mode can stop the answer text leaking, at the cost of a discoverable black rectangle.';
@@ -276,11 +276,10 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
       // single display - never as the default mitigation.
       const offerBlackBox = blackBoxEligible;
       message = offerBlackBox
-        ? 'This setup can ignore normal window exclusion. Black box mode is a targeted mitigation: the interviewer sees a black rectangle instead of your answers, but ' +
-          'paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band, and the rectangle is discoverable. Share only a window/tab for the cleanest fix.'
+        ? 'Share only a window/tab for the cleanest fix. Black box mode is an optional concealment fallback (a discoverable black band/rectangle instead of your answers); X1 measured 0x11 hidden on DXGI in 20/20 marker runs on this software-composited host, so it is not load-bearing, and GPU-composited behaviour is unverified.'
         : 'Exclusion cannot be relied on for this setup. Share only the meeting window or browser tab, and run the self-check before you rely on it.';
       actionIds = offerBlackBox
-        ? ['enable-black-box-mode', 'window-share-guidance']
+        ? ['window-share-guidance', 'enable-black-box-mode']
         : ['window-share-guidance', 'run-self-check'];
       if (offerBlackBox) why.push(BLACK_BOX_COST_COPY);
     }
@@ -293,13 +292,11 @@ export function evaluatePreflight(input: PreflightInput): PreflightVerdict {
     headline = 'This setup cannot rely on window exclusion';
     const offerBlackBox = blackBoxEligible;
     message = offerBlackBox
-      ? 'This app likely uses a hardware capture path that ignores normal exclusion, and there is only one display. ' +
-        'Black box mode is the targeted mitigation (a black rectangle instead of your answers), but ' +
-        'paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) now show a black band and the rectangle is discoverable. ' +
-        'Sharing only a window/tab avoids the trade-off entirely.'
-      : 'This app likely uses a hardware capture path that ignores normal exclusion, and there is only one display. Share a window/tab and run the self-check.';
+      ? 'This app is in the DXGI-family risk list and there is only one display. Sharing a window/tab avoids the capture path entirely. ' +
+        'Black box mode is an optional concealment fallback (discoverable black rectangle), not load-bearing: X1 measured 0x11 hidden on DXGI in 20/20 marker runs on this software-composited host; GPU-composited behaviour is unverified.'
+      : 'This app is in the DXGI-family risk list and there is only one display. Share a window/tab and run the self-check.';
     actionIds = offerBlackBox
-      ? ['enable-black-box-mode', 'window-share-guidance']
+      ? ['window-share-guidance', 'enable-black-box-mode']
       : ['window-share-guidance', 'run-self-check'];
     if (offerBlackBox) why.push(BLACK_BOX_COST_COPY);
   } else if (hasSecondDisplay && !overlayOnRecommendedDisplay) {

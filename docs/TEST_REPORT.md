@@ -247,3 +247,42 @@ Harness now checks Electron tracked ignore-mouse, `WS_EX_TRANSPARENT` (0x20), `G
 ### Gates
 
 Gates (all on sprint-resolve): frontend **57 files / 671 tests pass** (`docs/evidence/29-resolve-frontend.txt`); workspace typecheck exit 0 (`30-resolve-typecheck.txt`); **full keyless `make demo` exit 0** with the quick capture-sprint step PASS (`31-resolve-make-demo.txt`).
+
+## 17. X3 — W4 gaze virtual camera: preview-only, never a registered device
+
+**Question:** did the W4 gaze virtual camera ever register as a selectable device (OBS-style / named device visible to apps), or was it preview-only behind the fallback?
+
+**Answer: (B) PREVIEW-ONLY / NO DEVICE.**
+
+- **Code:** `artifacts/craft-vita/src/gaze/virtualCamera.ts` ships `MockVirtualCameraSink` + `DeferredVirtualCameraSink` (kind `preview-only`, status `deferred`, `realCameraDevice: false`); `createDefaultVirtualCameraSink()` returns the deferred sink on every platform. DirectShow/CMIO/v4l2 adapters are typed stubs that fail closed with the exact MSVC/regsvr32/CMIO/v4l2loopback reason (no fake success). No file under `src/pages`, `src/components` or `src/features` imports a gaze/virtual-camera sink; only the standalone preview page (canvases) and the demo flag consume the gaze pipeline.
+- **Repo:** W4 commit `7af3432` (37 files, 4001 insertions) is pure TypeScript/tests/scripts/docs and its own subject names the deliverable **"mock virtual-camera sink"**. Zero native `.vcxproj/.sln/.inf/.ax` projects, zero gaze/vcam DLLs, zero COM-registration code; no commit on any branch mentions registering/shipping a DirectShow camera.
+- **Host runtime (Windows 11, this machine):** `Get-PnpDevice -Class Camera,Image` -> only `Integrated Webcam`; `ffmpeg -f dshow -list_devices` -> only `Integrated Webcam` (video) + Realtek mic (audio); DirectShow video-input category `{860BB310-...}\Instance` keys **absent**; KSCATEGORY `{e5323777-...}` DeviceClasses contains only the USB webcam; `pnputil /enum-devices /class Camera` -> only Integrated Webcam (`usbvideo.inf`); opening `"Gaze Virtual Camera"`, `"HireShade Virtual Camera"`, `"OBS Virtual Camera"` fails `I/O error`; control open of the physical webcam succeeds (872,601-byte frame). So the ffmpeg/DirectShow open path works and the failure is "device absent", not method error.
+- **Tests:** `pnpm --dir artifacts/craft-vita exec vitest run src/gaze` -> **10 files / 57 tests passed**, including `virtualCamera.test.ts` asserting the preview-only deferred status and the fail-closed DirectShow reason.
+
+Full commands + raw output: `docs/evidence/gaze/x3-virtual-camera.txt`.
+
+## 18. Sprint-determinism — X1 DXGI detector, X2 CI wall, X4 launch scope
+
+### X1 — DXGI contradiction resolved: detector contamination, not DXGI behaviour
+
+Same run/window, both detectors, 20 valid runs with visible/topmost/affinity 0x11 asserted before and after capture: **marker = 0 pixels in 20/20 (HIDDEN)**; luma-only baseline said VISIBLE in 8/20 and disagreed, but those means were **3.97–6.17**, never U1's 27.39. The saved U1 crop shows the IDE window underneath, not the overlay. **U1's 0x11+DXGI content claim is withdrawn.**
+
+GPU sweep (N=5 each) — default, `--disable-gpu-compositing`, `--disable-gpu`, `HIRESHADE_DISABLE_HW_ACCEL=1`: **0/5 marker visible in every config**; every config reports `gpu_compositing=disabled_software` (`2d_canvas`/`rasterization`/`video` software; Vulkan/OpenGL/WebGL disabled). The GPU-surface hypothesis is **UNTESTED**, not disproven. Backgrounded-at-capture, native DXGI probe, just-recreated window and elevated capture remain UNTESTED. No window/GPU fix is warranted.
+
+Consequence: black box mode is **optional** (ranked after window/tab sharing), not load-bearing; the pre-flight no longer leads with it. Evidence: `docs/evidence/capture-sprint/x1/{x1-dxgi-determinism.json,x1-summary.json}`; ADR-032.
+
+### X2 — macOS CI: push fixed 404, YAML fixed 422, billing locked the runner before TCC
+
+Pushed `sprint-determinism` -> workflow visible (id 390900999). The new workflow still could not dispatch from a non-default branch, so the SCK probe was added to the registered **Desktop Build** workflow; a malformed heredoc made all runs fail as 'workflow file issue', fixed and validated with PyYAML. Dispatch then created **run 39478568834**, but every job failed in 3–4 s with **zero steps**; verbatim annotation: **'The job was not started because your account is locked due to a billing issue.'** TCC.db seeding, SCK display probe, window-scoped SCK and legacy `screencapture` were never reached. Runners API remains 403. G-055 stays DEFERRED; exact output in `docs/evidence/macos-probe-attempt.txt`.
+
+### X4 — Launch scope decided
+
+ADR-031: **Windows-only v1 is acceptable; macOS is not a launch blocker.** No macOS exclusion claim ships; macOS validation is post-launch and requires a self-hosted Mac with TCC Screen Recording and a second display/viewer.
+
+### X3 — gaze virtual camera answered (see §17)
+
+**PREVIEW-ONLY / NO DEVICE.** No virtual-camera device is registered; only the physical Integrated Webcam enumerates, opening any Gaze/HireShade/OBS virtual camera returns an I/O error while the physical webcam opens successfully. Evidence: `docs/evidence/gaze/x3-virtual-camera.txt`; G-060.
+
+### Gates (sprint-determinism)
+
+Frontend **57 files / 671 tests pass** (`docs/evidence/32-determinism-frontend.txt`); workspace typecheck **exit 0** (`33-determinism-typecheck.txt`); **full keyless `make demo` exit 0** with the capture-sprint quick step PASS (`34-determinism-make-demo.txt`).

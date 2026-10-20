@@ -206,7 +206,9 @@ describe('pre-flight verdict states (exactly three)', () => {
   it('offers black box mode for DXGI-risk single-display setups (U1)', () => {
     const knownPath = evaluatePreflight(base({ capturePathHint: 'DXGI Desktop Duplication' }));
     expect(knownPath.status).toBe('RED');
-    expect(knownPath.actions[0]!.id).toBe('enable-black-box-mode');
+    // X1 demotion: window/tab sharing ranks first; black box is optional.
+    expect(knownPath.actions[0]!.id).toBe('window-share-guidance');
+    expect(knownPath.actions.map((action) => action.id)).toContain('enable-black-box-mode');
 
     const highRiskApp = evaluatePreflight(base({ detectedApps: detected('zoom') }));
     expect(highRiskApp.status).toBe('RED');
@@ -358,11 +360,11 @@ describe('V2 affinity hardening: black box is a targeted mitigation, never a def
   it('offers black box exactly for a known-DXGI or high-risk SINGLE-display setup', () => {
     const knownPath = evaluatePreflight(base({ capturePathHint: 'DXGI Desktop Duplication' }));
     expect(knownPath.facts.blackBoxEligible).toBe(true);
-    expect(knownPath.actions[0]!.id).toBe('enable-black-box-mode');
+    expect(knownPath.actions[0]!.id).toBe('window-share-guidance');
 
     const highRisk = evaluatePreflight(base({ detectedApps: detected('zoom') }));
     expect(highRisk.facts.blackBoxEligible).toBe(true);
-    expect(highRisk.actions[0]!.id).toBe('enable-black-box-mode');
+    expect(highRisk.actions[0]!.id).toBe('window-share-guidance');
 
     const highRiskWithSecondDisplay = evaluatePreflight(
       base({ displays: [primary, secondary], detectedApps: detected('zoom') }),

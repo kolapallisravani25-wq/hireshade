@@ -1,0 +1,36 @@
+﻿{
+    "captured_at":  "2026-10-21T00:26:06.6099014+05:30",
+    "action":  "hide",
+    "matched":  7,
+    "matching":  [
+                     {
+                         "hwnd":  "0xE607C6",
+                         "title":  "Launcher"
+                     },
+                     {
+                         "hwnd":  "0xBB07AA",
+                         "title":  "Floating Mini-Screen"
+                     },
+                     {
+                         "hwnd":  "0xDE0558",
+                         "title":  ""
+                     },
+                     {
+                         "hwnd":  "0xE50524",
+                         "title":  ""
+                     },
+                     {
+                         "hwnd":  "0xD50822",
+                         "title":  ""
+                     },
+                     {
+                         "hwnd":  "0xE50610",
+                         "title":  "MSCTFIME UI"
+                     },
+                     {
+                         "hwnd":  "0xF4050C",
+                         "title":  "Default IME"
+                     }
+                 ],
+    "method":  "user32!ShowWindow (out-of-process window visibility toggle; used only if CDP dies after hiding)"
+}

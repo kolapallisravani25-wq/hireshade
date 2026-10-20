@@ -164,7 +164,9 @@ describe('pre-flight DOM panel', () => {
       },
       { setBlackBoxMode },
     );
-    actionButtons(blackBox.panel.element)[0]!.click();
+    // Window-share guidance ranks first after the X1 demotion; black box is the
+    // second one-click action in this RED setup.
+    actionButtons(blackBox.panel.element)[1]!.click();
     await vi.waitFor(() => expect(setBlackBoxMode).toHaveBeenCalledWith(true));
 
     const check = mount(

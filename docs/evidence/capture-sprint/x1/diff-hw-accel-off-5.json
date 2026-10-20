@@ -1,0 +1,14 @@
+﻿{
+    "captured_at":  "2026-10-21T00:29:01.7017960+05:30",
+    "label":  "hw-accel-off-5",
+    "a":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-5-baseline-frame.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-5-visible-frame.png",
+    "threshold":  16,
+    "width":  1258,
+    "height":  636,
+    "rect":  "54,42,1258,636",
+    "mean_abs_diff":  5.464,
+    "fraction_diff_gt_threshold":  0.06871,
+    "mean_diff_where_changed":  96.99,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-hw-accel-off-5.png"
+}

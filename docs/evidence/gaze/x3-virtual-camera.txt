@@ -1,0 +1,268 @@
+X3 - W4 gaze virtual camera: did it ever register as a selectable device?
+================================================================================
+Date: 2026-10-21T00:28 IST
+Branch: sprint-determinism (off 9c2fc0b)
+Host: Windows 11 NT 10.0.26300.0 / Dell Latitude 3400 / Node v24.19.0
+W4 code commit: 7af3432 "feat(ext-W4): local gaze-correction MVP - warp+feather+EMA,
+mock/ONNX detector seam, preview, mock virtual-camera sink (81% displacement
+reduction, p95 6.3ms)"
+
+ANSWER: (B) PREVIEW-ONLY / NO DEVICE
+------------------------------------
+The W4 gaze virtual camera NEVER registered as a selectable device (no
+"Gaze Virtual Camera", "HireShade Virtual Camera", OBS Virtual Camera, or any
+other name). It was shipped behind the preview/fallback as a deferred sink:
+  - the only runtime sink the product can obtain is DeferredVirtualCameraSink
+    (status "deferred", capabilities.realCameraDevice = false);
+  - the DirectShow/CMIO/v4l2 adapters are typed stubs that FAIL CLOSED with
+    the exact build+registration reason (no fake success);
+  - no DirectShow filter DLL / INF / VCXPROJ exists in the repo, no COM
+    registration code exists, and the host has no such device to open;
+  - the product UI exposes no virtual-camera output at all; only the standalone
+    preview page/canvases and the demo flag consume the gaze pipeline, and
+    neither imports a virtual-camera sink.
+
+Runtime proof on this Windows host (see section 4): ffmpeg DirectShow enumeration
+lists only the physical "Integrated Webcam"; the DirectShow video-input
+aggregation key has no Instance entries; the only camera device is the USB
+webcam; named virtual-camera opens fail with I/O error, while the control
+physical-webcam open succeeds.
+
+================================================================================
+1. CODE PATH - deferred / preview-only (source of truth)
+================================================================================
+artifacts/craft-vita/src/gaze/virtualCamera.ts:1-16 (header):
+  "Reality check: exposing a new camera device to Zoom/Meet/Teams needs a
+   platform driver, not just an app API. This MVP ships:
+     - MockVirtualCameraSink: deterministic sink for tests/demo (records frames).
+     - DeferredVirtualCameraSink: explicitly preview-only; start() succeeds and
+       status === "deferred" with the exact setup reason, so the app can show
+       'Preview only - virtual camera requires the driver build/registration'.
+     - DirectShow / CMIO / v4l2loopback adapters: typed stubs that fail closed
+       with the exact deferred reason. No fake success.
+   Windows DirectShow DLL registration is DEFERRED: it needs an MSVC-built COM
+   filter DLL plus elevated registration (regsvr32 as Administrator) or a
+   signed installer, none of which exist in this repo/environment."
+
+virtualCamera.ts:26-33 - DIRECTSHOW_DEFERRED_REASON / CMIODAL / V4L2:
+  "Windows DirectShow virtual-camera DLL is DEFERRED: ... requires an MSVC-built
+   COM filter DLL (x64, DirectShow BaseClasses) and elevated COM registration
+   (regsvr32 from an Administrator prompt, or a signed installer writing
+   HKLM/HKCU CLSID + filter category). Neither the DLL nor an elevated
+   registration step exists in this environment, so only mock/preview sinks are
+   shipped."
+
+virtualCamera.ts:93-101 - capabilities:
+  realCameraDevice: false
+
+virtualCamera.ts:164-208 - DeferredVirtualCameraSink:
+  readonly kind = "preview-only";
+  start() -> status "deferred"; push() only retains preview frames.
+
+virtualCamera.ts:264-269 - best sink with no driver work:
+  createDefaultVirtualCameraSink(): if platform === "win32" return
+  new DeferredVirtualCameraSink(platform) (all platforms preview/deferred).
+
+Tests (artifacts/craft-vita/src/gaze/virtualCamera.test.ts):
+  :41-51 "preview-only sink is explicitly deferred with the exact DirectShow
+        reason" -> status "deferred", deferredReason === DIRECTSHOW_DEFERRED_REASON,
+        matches /MSVC/ and /regsvr32/.
+  :53-58 "DirectShow adapter fails closed with build+registration instructions"
+        -> start() rejects with /regsvr32/.
+  :74-78 factory returns preview-only DeferredVirtualCameraSink for
+        mode "preview-only" and "directshow-deferred" for mode "directshow".
+
+docs/GAZE.md:136-152 ("Virtual camera: platform matrix and deferred work"):
+  "Shipped in this MVP: mock sink (tests/demo) and preview-only sink that
+   reports status 'deferred' ... no fake success."
+  Windows row: "DEFERRED: no DLL in repo, no elevated COM registration".
+
+================================================================================
+2. UI / PRODUCT PATH - no virtual-camera output is exposed
+================================================================================
+Searches over artifacts/craft-vita/src (excluding src/gaze/**) for
+"VirtualCamera", "virtual camera", or imports from @/gaze:
+
+  Only match: artifacts/craft-vita/src/demo/run-demo.ts (imports
+  isGazeDemoEnabled/runDemoGazeStage from ../gaze/demoGaze for the keyless demo
+  stage). No file under src/pages, src/components or src/features imports gaze
+  or a virtual camera sink.
+
+- scripts/gaze/preview/main.ts (standalone preview page) imports the real gaze
+  processor/detector but NOT any VirtualCameraSink; it renders synthetic
+  before/after frames to two <canvas> elements. Grep for
+  VirtualCameraSink|createDefaultVirtualCameraSink|createVirtualCameraSink|
+  virtual camera in scripts/gaze: 0 matches.
+- artifacts/craft-vita/src/gaze/demoGaze.ts (demo pipeline stage) references
+  the processor only; grep for any virtual-camera sink: 0 matches.
+- scripts/gaze/preview-dist bundle is a canvas preview; the virtual-camera
+  module is not wired into it.
+
+=> There is no shipped "virtual camera" output selector, no device published by
+   the app, and the only user-visible surface is the before/after preview
+   (docs/evidence/gaze/preview.png) plus the optional demo flag.
+
+================================================================================
+3. NATIVE / DRIVER ARTIFACTS - none
+================================================================================
+Commands (repo root):
+  (Get-ChildItem -Path artifacts,scripts,docs -Recurse -File -Include
+    *.vcxproj,*.sln,*.inf,*.ax | Where-Object { $_.FullName -notmatch
+    'node_modules|target\' } | Measure-Object).Count
+  -> 0
+
+  (Get-ChildItem -Path artifacts,scripts -Recurse -File -Include *.dll,*.ax,*.def
+    | Where-Object { $_.FullName -notmatch 'node_modules|target\' -and
+    $_.Name -match 'gaze|vcam|virtualcam' } | Measure-Object).Count
+  -> 0
+
+  Select-String over (src, src-tauri/src, desktop-electron, scripts) for
+  'regsvr32|GazeVirtualCamera.dll|CLSID_VideoInputDeviceCategory'
+  (excluding virtualCamera.ts) -> only virtualCamera.test.ts (asserts the
+  deferred reason contains regsvr32). No registration implementation.
+
+Tauri/Electron code searches:
+  artifacts/craft-vita/src-tauri/**  "VirtualCamera|DirectShow|regsvr32|OBS Virtual" -> 0 matches
+  artifacts/desktop-electron/**      "VirtualCamera|DirectShow|regsvr32|OBS Virtual" -> 0 matches
+
+Git history:
+  git log --oneline --all -- artifacts/craft-vita/src/gaze/virtualCamera.ts
+  -> 7af3432 feat(ext-W4): local gaze-correction MVP - ... - mock virtual-camera sink
+  git show --stat 7af3432: 37 files, 4001 insertions - all TypeScript/tests,
+  scripts/gaze preview/evidence and docs; zero native projects/DLLs/INF files.
+  No commit (any branch) mentions virtual camera registration/regsvr32/DirectShow
+  DLL shipping:
+  git log --all --oneline --grep='virtual camera' -i  -> (no output)
+  git log --all --oneline --grep='regsvr32|directshow|vcam' -i -> (no output)
+
+================================================================================
+4. RUNTIME DEVICE-REGISTRATION CHECK (this Windows host)
+================================================================================
+Command block (PowerShell 7, 2026-10-21T00:28:06+05:30):
+  Get-PnpDevice -Class Camera,Image
+  ffmpeg -hide_banner -list_devices true -f dshow -i dummy
+  (registry) DirectShow video-input category
+    HKLM/HKCU \SOFTWARE\Classes\CLSID\{860BB310-5D01-11d0-BD3B-00A0C911CE86}\Instance
+  (registry) DeviceClasses \{e5323777-f976-4f5b-9b55-b94699c46e44}
+  pnputil /enum-devices /class Camera
+  ffmpeg -f dshow -i video="<gaze/virtual name>" -frames:v 1
+  control: ffmpeg -f dshow -i video="Integrated Webcam" -frames:v 1
+
+Raw output:
+---
+X3 - W4 gaze virtual camera: runtime device-registration check
+Timestamp: 2026-10-21T00:28:06.8348028+05:30
+Host: Microsoft Windows NT 10.0.26300.0 / Latitude 3400 / Node v24.19.0
+
+=== 1. Get-PnpDevice -Class Camera,Image ===
+
+Status Class  FriendlyName      InstanceId
+------ -----  ------------      ------------
+OK     Camera Integrated Webcam USB\VID_0BDA&PID_5675&MI_00\6&1E506ECB&0&0000
+
+=== 2. ffmpeg -f dshow device enumeration ===
+[in#0 ...] "Integrated Webcam" (video)
+[in#0 ...]   Alternative name "@device_pnp_\\?\usb#vid_0bda&pid_5675&mi_00#6&1e506ecb&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\global"
+[in#0 ...] "Microphone (Realtek(R) Audio)" (audio)
+[in#0 ...]   Alternative name "@device_cm_{33D9A762-90C8-11D0-BD43-00A0C911CE86}\wave_{B8D3F076-...}"
+Error opening input file dummy.
+(ffmpeg prints the device list then intentionally fails to open the "dummy" input;
+ this is the documented way to enumerate DirectShow devices.)
+
+=== 3. DirectShow video input category keys (HKLM/HKCU) ===
+KEY HKLM:\SOFTWARE\Classes\CLSID\{860BB310-5D01-11d0-BD3B-00A0C911CE86} EXISTS=True
+KEY HKCU:\SOFTWARE\Classes\CLSID\{860BB310-5D01-11d0-BD3B-00A0C911CE86} EXISTS=False
+KEY HKLM:\SOFTWARE\Classes\CLSID\{860BB310-5D01-11d0-BD3B-00A0C911CE86}\Instance EXISTS=False
+KEY HKCU:\SOFTWARE\Classes\CLSID\{860BB310-5D01-11d0-BD3B-00A0C911CE86}\Instance EXISTS=False
+  (The category CLSID exists as a system filter; there are ZERO Instance
+   subkeys, i.e. no third-party video-input filter registered through it.)
+
+=== 4. KSCATEGORY_VIDEO_CAMERA DeviceClasses enumeration ===
+KEY EXISTS=True
+##?#USB#VID_0BDA&PID_5675&MI_00#6&1e506ecb&0&0000#{e5323777-f976-4f5b-9b55-b94699c46e44}
+  (only the physical USB webcam)
+
+=== 5. pnputil /enum-devices /class Camera ===
+Instance ID:                USB\VID_0BDA&PID_5675&MI_00\6&1e506ecb&0&0000
+Device Description:         Integrated Webcam
+Class Name:                 Camera
+Class GUID:                 {ca3e7ab9-b4c3-4ae6-8251-579ef933890f}
+Manufacturer Name:          Microsoft
+Status:                     Started
+Driver Name:                usbvideo.inf
+
+=== 6. Open attempts: gaze/virtual camera names (DirectShow) ===
+TRY video="Gaze Virtual Camera"
+Error opening input file video=Gaze Virtual Camera.
+Error opening input files: I/O error
+
+TRY video="HireShade Virtual Camera"
+Error opening input file video=HireShade Virtual Camera.
+Error opening input files: I/O error
+
+TRY video="OBS Virtual Camera"
+Error opening input file video=OBS Virtual Camera.
+Error opening input files: I/O error
+
+TRY video="HireShade Gaze Camera"
+Error opening input file video=HireShade Gaze Camera.
+Error opening input files: I/O error
+  (No gaze-named device exists to open; OBS Virtual Camera is also NOT installed
+   on this host, so W4 did not piggyback on an OBS driver either.)
+
+=== 7. Control: open the real webcam (proves the DirectShow open path works) ===
+frame=    0 fps=0.0 q=0.0 size=       0KiB ...
+frame=    1 fps=1 q=-0.0 Lsize=N/A time=00:00:00.03 bitrate=N/A speed=0.0574x
+CONTROL_FRAME_EXISTS=True
+CONTROL_FRAME_BYTES=872601
+  (The same ffmpeg/DirectShow open path succeeds on the physical webcam -> the
+   failures in section 6 are "device absent", not a broken test method.)
+---
+
+Supplementary enumeration (Get-PnpDevice over all classes for names matching
+virtual/gaze/obs/hireshade/camera):
+  Only Microsoft Hyper-V virtual *system/net* devices, Wi-Fi Direct virtual
+  adapters, Bluetooth audio (MEDIA) and "Integrated Webcam" (Camera). No
+  virtual camera / image device of any vendor.
+Driver store (C:\Windows\System32\DriverStore\FileRepository directories
+matching gaze|vcam|virtualcam): none.
+Driver packages containing "Camera|Gaze|Virtual Camera" (pnputil /enum-drivers
+context search): no gaze/virtual-camera package; the camera stack is
+usbvideo.inf for the Integrated Webcam.
+
+================================================================================
+5. TESTS / REPRO
+================================================================================
+cd artifacts/craft-vita
+pnpm exec vitest run src/gaze
+-> 10 files / 57 tests passed, EXITCODE=0
+   (includes virtualCamera.test.ts 7 tests: preview-only deferred status,
+    DirectShow adapter fails closed with regsvr32/MSVC reason, factory modes,
+    realCameraDevice=false.)
+
+Reproduce this evidence:
+  # runtime registration/de-dup check (no admin required except pnputil listing):
+  pwsh -NoProfile -Command "Get-PnpDevice -Class Camera,Image"
+  ffmpeg -hide_banner -list_devices true -f dshow -i dummy
+  ffmpeg -hide_banner -f dshow -i video="Gaze Virtual Camera" -frames:v 1 NUL
+  # code/artifact check:
+  git log --oneline --all -- artifacts/craft-vita/src/gaze/virtualCamera.ts
+  git show --stat 7af3432
+  pnpm --dir artifacts/craft-vita exec vitest run src/gaze
+
+================================================================================
+6. WHAT WOULD MAKE THIS ANSWER (A) REGISTERED SELECTABLE DEVICE
+================================================================================
+A future build would have to:
+  1. build an MSVC x64 DirectShow COM filter DLL (DirectShow BaseClasses);
+  2. elevate and run regsvr32 on it (or ship a signed installer that writes
+     HKLM/HKCU CLSID + CLSID_VideoInputDeviceCategory + the video-input
+     DeviceClasses mapping);
+  3. restart Zoom/Meet/Teams so they re-enumerate cameras;
+  4. then ffmpeg -list_devices would show a gaze-named video device and
+     ffmpeg -f dshow -i video="Gaze Virtual Camera" would open it.
+None of these exist on this branch/host: 0 native projects, 0 DLLs, 0
+registration entries, 0 devices; the W4 commit itself names the deliverable
+"mock virtual-camera sink" and the code fails closed to preview-only.
+
+FINAL: (B) PREVIEW-ONLY / NO DEVICE.

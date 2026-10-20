@@ -32,9 +32,9 @@ export const PREFLIGHT_ACTION_CATALOG: Readonly<Record<PreflightActionId, Prefli
   },
   'enable-black-box-mode': {
     id: 'enable-black-box-mode',
-    label: 'Turn on black box mode (targeted mitigation)',
+    label: 'Turn on black box mode (optional concealment)',
     description:
-      'Switches exclusion to WDA_MONITOR (0x01): capture apps that ignore normal exclusion (DXGI Desktop Duplication) see a black rectangle instead of your answers. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a black band, and the rectangle is discoverable. Use only for a known-DXGI/high-risk single-display setup, not as an upgrade.',
+      'Switches exclusion to WDA_MONITOR (0x01): capture apps see a black rectangle instead of your answers. OPTIONAL, not load-bearing: X1 measured 0x11 hidden on DXGI in 20/20 marker runs on a software-composited host, so it is not required there; GPU-composited DXGI is unverified. THE COST: on paths that already hid the overlay (GDI, PrintWindow, desktopCapturer) you trade invisibility for a discoverable black band. Offer only for a known-DXGI/high-risk single-display setup, after window/tab sharing, and not as an upgrade.',
     kind: 'one-click',
   },
   'switch-to-compact': {

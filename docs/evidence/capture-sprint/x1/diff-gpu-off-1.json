@@ -1,0 +1,14 @@
+﻿{
+    "captured_at":  "2026-10-21T00:25:27.6034890+05:30",
+    "label":  "gpu-off-1",
+    "a":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-1-baseline-frame.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-gpu-off-1-visible-frame.png",
+    "threshold":  16,
+    "width":  1258,
+    "height":  636,
+    "rect":  "54,42,1258,636",
+    "mean_abs_diff":  0.118,
+    "fraction_diff_gt_threshold":  0.00253,
+    "mean_diff_where_changed":  38.88,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\diff-gpu-off-1.png"
+}

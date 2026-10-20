@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T18:31:47.671Z",
+  "generatedAt": "2026-10-20T19:08:07.903Z",
   "pass": true,
   "environment": {
     "platform": "win32",
@@ -33,10 +33,10 @@
       "finalDistanceFromBottomPx": 0,
       "frameStats": {
         "frames": 148,
-        "maxUpdateMs": 0.19999998807907104,
-        "maxFrameIntervalMs": 2311.400000035763,
-        "lastUpdateMs": 0,
-        "lastFrameIntervalMs": 16.5
+        "maxUpdateMs": 0.20000004768371582,
+        "maxFrameIntervalMs": 2881.5,
+        "lastUpdateMs": 0.10000002384185791,
+        "lastFrameIntervalMs": 13.5
       }
     },
     "unlock": {
@@ -58,7 +58,7 @@
       "saved": {
         "offset": 648,
         "pinned": false,
-        "updatedAt": 15259.399999976158
+        "updatedAt": 14676.800000011921
       },
       "restoredOffset": 648,
       "maxOffsetAfterRender": 821
@@ -189,7 +189,7 @@
       "detail": {
         "offset": 648,
         "pinned": false,
-        "updatedAt": 15259.399999976158
+        "updatedAt": 14676.800000011921
       }
     },
     {
@@ -289,10 +289,10 @@
   ],
   "capture": {
     "ok": true,
-    "frames": 137,
-    "durationSeconds": 5.9,
-    "fps": 23,
-    "bytes": 683911,
+    "frames": 203,
+    "durationSeconds": 4.7,
+    "fps": 30,
+    "bytes": 746632,
     "file": "docs/evidence/overlay-scroll/overlay-scroll-capture.mp4",
     "screenshots": [
       "docs/evidence/overlay-scroll/overlay-scroll-pinned.png",
@@ -304,7 +304,7 @@
     ]
   },
   "electronLogs": {
-    "stdout": "\r\n[overlay-scroll-main] loaded http://127.0.0.1:63131/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:63131/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:63131/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:63131/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:63131/scroll-demo.html (cdp port 9333)\n",
-    "stderr": "\r\nDevTools listening on ws://127.0.0.1:9333/devtools/browser/6a2a8011-bb2f-41e7-b192-a94f54e17b4b\r\n"
+    "stdout": "\r\n[overlay-scroll-main] loaded http://127.0.0.1:50248/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:50248/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:50248/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:50248/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:50248/scroll-demo.html (cdp port 9333)\n",
+    "stderr": "\r\nDevTools listening on ws://127.0.0.1:9333/devtools/browser/c9a9f9a1-72b0-47c8-94b3-a6dafca08cab\r\n"
   }
 }

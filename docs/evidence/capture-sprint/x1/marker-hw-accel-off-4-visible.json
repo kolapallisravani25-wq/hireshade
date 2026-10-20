@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-21T00:28:22.7222571+05:30",
+    "label":  "hw-accel-off-4-visible",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-hw-accel-off-4-visible-frame.png",
+    "rect":  "54,42,1258,636",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  0,
+    "sampled_pixels":  400044,
+    "fraction":  0,
+    "present":  false
+}

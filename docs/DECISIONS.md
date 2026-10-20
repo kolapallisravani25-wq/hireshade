@@ -510,3 +510,29 @@ ADR-001 (engineering workflow) lives at `docs/adr/ADR-001-engineering-workflow.m
 **Decision:** 0x11 stays the default. Black box (0x01) is a targeted mitigation offered only for known-DXGI/high-risk single-display RED setups, with explicit cost copy. When enabled, recommend COMPACT (docked panel) and provide a switch-back-to-invisible undo. Claim language: **concealment, not invisibility** — a black rectangle hides that the overlay is AI and hides answer text that would otherwise sync with questions; it is discoverable and is not undetectable.
 
 **Evidence:** preflight-v2/v2-affinity-preflight.json, preflight suite 55 tests, docs/UNDETECTABILITY_CLAIM.md.
+
+---
+
+## ADR-031 — Launch scope: Windows-only v1 is acceptable; macOS is not a launch blocker
+
+**Date:** 2026-10-21 · **Status:** accepted
+
+**Decision:** Ship HireShade v1 as **Windows-only with explicit, dated limits**. macOS is not a v1 launch blocker. The Windows claim is bounded: exclusion is proven on GDI/screenshot, Chromium screen/window capture, Chrome/Edge full-screen and tab share, and PrintWindow content; DXGI Desktop Duplication can leak in a host-dependent way (X1 sweep) and black box mode is the targeted concealment fallback. macOS remains unverified (no host; CI runner blocked before TCC — see X2), and no macOS exclusion claim ships.
+
+**Why:** every macOS round so far has consumed effort without producing an observation: no local Mac, GitHub-hosted macOS jobs are blocked by the account billing lock before any step runs, and Screen Recording TCC cannot be granted non-interactively on hosted runners. Keeping macOS as a launch gate would block a product whose Windows behaviour is measured and whose macOS gap is documented. Marketing/UI must say Windows-only and must not imply macOS support.
+
+**Consequences:** macOS work is post-launch and only starts when a self-hosted macOS 13+ machine with TCC Screen Recording and a second display/viewer is available. G-055 stays DEFERRED. The macOS plan and the SCK-vs-legacy distinction remain in docs/MACOS_PLAN.md; the claim stays Windows-scoped.
+
+---
+
+## ADR-032 — X1: the DXGI contradiction was detector contamination; black box is optional (not load-bearing)
+
+**Date:** 2026-10-21 · **Status:** accepted
+
+**Context:** U1 reported 0x11+DXGI as content visible (luma 27.39); V1 reported hidden with marker 0 and a 0x00 positive control. X1 ran both detectors in the same run/window and swept four GPU configurations at N=5 each.
+
+**Finding:** marker detection = **0 pixels in 20/20 valid runs** (hidden); luma-only detection disagreed in 8/20 because it reacted to unrelated desktop content (means 3.97–6.17, never 27.39). The saved U1 crop shows the IDE window underneath, not the overlay. **U1's DXGI content claim is withdrawn.** GPU compositing could not be toggled ON: every config (default, --disable-gpu-compositing, --disable-gpu, HIRESHADE_DISABLE_HW_ACCEL=1) reported `gpu_compositing=disabled_software`, so the GPU-surface hypothesis is **UNTESTED**, not disproven. Backgrounded-at-capture, native DXGI probe, just-recreated window and elevated capture were not completed and remain UNTESTED.
+
+**Decision:** stop calling DXGI a proven leak. The claim says DXGI is excluded on this software-composited host by 20/20 marker runs, with GPU-composited DXGI explicitly unverified. Black box mode becomes an **optional** concealment fallback, ranked after window/tab sharing in the pre-flight, not the default mitigation. No GPU/window code fix is warranted from X1.
+
+**Evidence:** docs/evidence/capture-sprint/x1/{x1-dxgi-determinism.json,x1-summary.json}, docs/CAPTURE_MATRIX.md X1 section.

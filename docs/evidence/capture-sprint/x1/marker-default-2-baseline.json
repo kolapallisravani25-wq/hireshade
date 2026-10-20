@@ -1,0 +1,16 @@
+﻿{
+    "captured_at":  "2026-10-21T00:21:58.5915530+05:30",
+    "label":  "default-2-baseline",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\x1\\dxgi-default-2-baseline-frame.png",
+    "rect":  "54,42,1258,636",
+    "marker_rgb":  [
+                       1,
+                       254,
+                       1
+                   ],
+    "tolerance":  8,
+    "matched_pixels":  0,
+    "sampled_pixels":  400044,
+    "fraction":  0,
+    "present":  false
+}
