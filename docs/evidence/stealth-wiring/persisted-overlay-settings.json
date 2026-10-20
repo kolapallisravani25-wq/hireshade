@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "opacity": 0.55,
+  "clickThrough": true,
+  "isPrivate": true,
+  "positionPreset": "top-right",
+  "bounds": {
+    "floating": {
+      "x": 578,
+      "y": 16,
+      "width": 707,
+      "height": 367
+    }
+  },
+  "hotkeys": {}
+}

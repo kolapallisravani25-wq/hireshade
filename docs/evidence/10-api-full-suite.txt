@@ -1,0 +1,424 @@
+node.exe : $ vitest run
+At C:\Program Files\nodejs\pnpm.ps1:16 char:5
++     & "$basedir/node$exe"  "$basedir/node_modules/corepack/dist/pnpm. ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ($ vitest run:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+ RUN  v4.1.9 D:/hireshade/artifacts/api-server
+
+[19:42:27.258] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "0b2b56cf-9443-4c8d-9ec0-c99e1ce3fac1"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 12
+    [35mcharged[39m: 6
+    [35mfinalStatus[39m: "COMPLETED"
+    [35mdeductionReason[39m: "SESSION_MINUTES"
+[19:42:27.714] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "25f555c7-6e98-4562-a01b-74ce16bd0638"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 11
+    [35mcharged[39m: 5.5
+    [35mfinalStatus[39m: "COMPLETED"
+    [35mdeductionReason[39m: "SESSION_MINUTES"
+[19:42:28.052] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "3d4c6cf6-9e92-461a-81d5-af435084b80a"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 20
+    [35mcharged[39m: 10
+    [35mfinalStatus[39m: "COMPLETED"
+    [35mdeductionReason[39m: "SESSION_MINUTES"
+[19:42:28.461] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "c77701ec-b9eb-48b2-870e-97e10916c9dd"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 5
+    [35mcharged[39m: 0
+    [35mfinalStatus[39m: "COMPLETED"
+    [35mdeductionReason[39m: "FREE_ZONE"
+[19:42:28.859] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "d3c39ecb-ba1f-4f9d-8e71-bc3e17c27854"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 61
+    [35mcharged[39m: 2
+    [35mfinalStatus[39m: "CREDIT_EXHAUSTED"
+    [35mdeductionReason[39m: "SESSION_MINUTES_PARTIAL"
+[19:42:29.148] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "9ce10bce-d607-4094-9307-7fa28b2f7c0b"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 31
+    [35mcharged[39m: 0
+    [35mfinalStatus[39m: "COMPLETED"
+    [35mdeductionReason[39m: "FREE_SESSION"
+stdout | tests/sessions.integration.test.ts > stale-session reaper > auto-settles a zombie ACTIVE session so it stops blocking creation
+[sessions] reaped stale live session 5359a78a-2a98-4cbe-affa-5af6a0e62be9 last seen 2026-10-20T14:08:29.358Z
+
+[19:42:29.423] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "5359a78a-2a98-4cbe-affa-5af6a0e62be9"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 26
+    [35mcharged[39m: 13
+    [35mfinalStatus[39m: "AUTO_ENDED"
+    [35mdeductionReason[39m: "SESSION_MINUTES"
+[19:42:30.776] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "151877ff-d85d-4959-83f3-b545117a02b5"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 61
+    [35mcharged[39m: 3
+    [35mfinalStatus[39m: "CREDIT_EXHAUSTED"
+    [35mdeductionReason[39m: "SESSION_MINUTES_PARTIAL"
+[19:42:31.058] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "a065617f-0297-4cb5-88bd-07edbbf74e60"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 31
+    [35mcharged[39m: 0
+    [35mfinalStatus[39m: "AUTO_ENDED"
+    [35mdeductionReason[39m: "FREE_SESSION"
+[19:42:34.979] [32mINFO[39m (22076): [36m[credits] purchase credited[39m
+    [35mpurchaseId[39m: "b2e31a1b-dd74-4832-b699-60c80341627c"
+    [35mcredits[39m: "50"
+[19:42:34.994] [32mINFO[39m (22076): [36m[credits] purchase settlement replay ignored (already completed)[39m
+    [35mpurchaseId[39m: "b2e31a1b-dd74-4832-b699-60c80341627c"
+[19:42:35.230] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "2b417419-1462-4cf6-a044-5c0b8ce0109e"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 10
+    [35mcharged[39m: 5
+    [35mfinalStatus[39m: "COMPLETED"
+    [35mdeductionReason[39m: "SESSION_MINUTES"
+[19:42:36.834] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "322b8785-a054-4b3f-89f2-0088dfcd1452"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 3
+    [35mcharged[39m: 0
+    [35mfinalStatus[39m: "COMPLETED"
+    [35mdeductionReason[39m: "FREE_ZONE"
+[19:42:37.202] [32mINFO[39m (22076): [36m[credits] session settled[39m
+    [35msessionId[39m: "240f0825-e6c5-4de9-9818-a3f28774193e"
+    [35muserId[39m: "user-a"
+    [35mminutes[39m: 3
+    [35mcharged[39m: 0
+    [35mfinalStatus[39m: "COMPLETED"
+    [35mdeductionReason[39m: "FREE_ZONE"
+[19:42:37.515] [32mINFO[39m (22076): [36m[credits] feature charged[39m
+    [35muserId[39m: "user-a"
+    [35moperation[39m: "resume_generate"
+    [35mcost[39m: 5
+[19:42:37.868] [32mINFO[39m (22076): [36m[credits] feature charged[39m
+    [35muserId[39m: "user-a"
+    [35moperation[39m: "resume_generate"
+    [35mcost[39m: 5
+[19:42:38.367] [32mINFO[39m (22076): [36m[credits] feature charged[39m
+    [35muserId[39m: "user-a"
+    [35moperation[39m: "resume_generate"
+    [35mcost[39m: 5
+[19:42:39.483] [32mINFO[39m (22076): [36m[credits] feature charged[39m
+    [35muserId[39m: "user-a"
+    [35moperation[39m: "resume_generate"
+    [35mcost[39m: 5
+[19:42:41.637] [32mINFO[39m (22076): [36m[credits] feature charged[39m
+    [35muserId[39m: "user-a"
+    [35moperation[39m: "resume_ats"
+    [35mcost[39m: 5
+[19:42:41.990] [32mINFO[39m (22076): [36m[credits] feature charged[39m
+    [35muserId[39m: "user-a"
+    [35moperation[39m: "resume_ats"
+    [35mcost[39m: 5
+[19:42:42.975] [32mINFO[39m (22076): [36m[credits] feature charged[39m
+    [35muserId[39m: "user-a"
+    [35moperation[39m: "resume_ats"
+    [35mcost[39m: 5
+stdout | tests/sessions.integration.test.ts > answer grounding — project and document context > ai-answer system prompt actually includes the project grounding end-to-end
+[sessions] ai-answer context-presence {
+  sessionId: 'd540454c-048b-41cc-aecb-5f31f9d3dc1a',
+  triggerSource: undefined,
+  resumeLoaded: false,
+  projectLoaded: true,
+  documentsLoaded: false,
+  jdLoaded: false,
+  sessionPromptLoaded: false,
+  thinContext: false,
+  groundingSourceCount: 1
+}
+[sessions] ai-answer context {
+  sessionId: 'd540454c-048b-41cc-aecb-5f31f9d3dc1a',
+  questionChars: 43,
+  messageCount: 2,
+  promptChars: 5543,
+  estimatedTokens: 1386,
+  isRegenerate: false
+}
+
+stdout | tests/sessions.integration.test.ts > answer grounding — project and document context > sessions without project/document get an unchanged prompt (no empty grounding blocks)
+[sessions] ai-answer context-presence {
+  sessionId: '8742eede-c64b-4878-a044-c1e66c574d03',
+  triggerSource: undefined,
+  resumeLoaded: false,
+  projectLoaded: false,
+  documentsLoaded: false,
+  jdLoaded: false,
+  sessionPromptLoaded: false,
+  thinContext: true,
+  groundingSourceCount: 0
+}
+[sessions] ai-answer context {
+  sessionId: '8742eede-c64b-4878-a044-c1e66c574d03',
+  questionChars: 16,
+  messageCount: 2,
+  promptChars: 6654,
+  estimatedTokens: 1664,
+  isRegenerate: false
+}
+
+stdout | tests/sessions.integration.test.ts > resume ownership isolation (IDOR fix) > a session pointing at ANOTHER user's resumeId gets no resume context in the prompt
+[sessions] ai-answer context-presence {
+  sessionId: 'd2b829b3-f9d2-487f-88ab-3c07d79ef865',
+  triggerSource: undefined,
+  resumeLoaded: false,
+  projectLoaded: false,
+  documentsLoaded: false,
+  jdLoaded: false,
+  sessionPromptLoaded: false,
+  thinContext: true,
+  groundingSourceCount: 0
+}
+[sessions] ai-answer context {
+  sessionId: 'd2b829b3-f9d2-487f-88ab-3c07d79ef865',
+  questionChars: 28,
+  messageCount: 2,
+  promptChars: 6666,
+  estimatedTokens: 1667,
+  isRegenerate: false
+}
+
+ ✓ tests/sessions.integration.test.ts (63 tests) 26762ms
+     ✓ charges session minutes past the grace zone and writes the ledger  461ms
+     ✓ is idempotent — a retried deactivate never double-charges  413ms
+     ✓ survives concurrent double-clicks without double-charging  429ms
+     ✓ grace-zone sessions end free  311ms
+     ✓ marks CREDIT_EXHAUSTED and charges only what exists when balance can't cover  402ms
+     ✓ auto-settles a zombie ACTIVE session so it stops blocking creation  305ms
+     ✓ a genuinely live ACTIVE session still blocks  303ms
+     ✓ bumps liveness and reports remaining minutes  646ms
+     ✓ force-ends a paid session whose accrued cost exceeds the balance  365ms
+     ✓ blocks paid activation with zero credits  319ms
+     ✓ blocks reading another user's answer  373ms
+     ✓ blocks editing another user's answer  377ms
+     ✓ blocks reading another user's revisions and cross-message restore  513ms
+     ✓ does not duplicate version rows across successive edits  531ms
+     ✓ rejects concurrent edits from a stale base version  377ms
+     ✓ enforces unique provider order and payment identifiers  304ms
+     ✓ replayed verification does not credit twice and seeds a missing balance row  371ms
+     ✓ parallel settlement callers charge exactly once  358ms
+     ✓ parses sender lines into ordered USER/INTERVIEWER rows and is retry-safe  1534ms
+     ✓ skips persistence for ephemeral sessions (saveTranscription=false)  354ms
+     ✓ charges the configured cost and records an idempotency-keyed ledger row  316ms
+     ✓ is idempotent — replaying the same key never double-charges  364ms
+     ✓ concurrent duplicate keys charge exactly once  503ms
+     ✓ throws InsufficientCreditsError and charges nothing when balance can't cover  389ms
+     ✓ spends earned credits before purchased  452ms
+     ✓ is registered in the feature-cost registry (was previously invisible to billing)  449ms
+     ✓ charges when priced via env, blocking on 402 with zero side effects  728ms
+     ✓ is registered and charges/blocks correctly once priced, even on a COMPLETED session  348ms
+     ✓ /api/resume/ats-score charges resume_ats (5) and marks the resume scored  652ms
+     ✓ /api/resume/builder/ats-score charges resume_ats too (duplicate route, same cost)  388ms
+     ✓ /api/resume/generate-cover-letter charges resume_cover_letter (8) and blocks at 402 when unaffordable  487ms
+     ✓ double-submitting ats-score with the same Idempotency-Key charges exactly once  322ms
+     ✓ existing returns null before generation, object after  362ms
+     ✓ generation is idempotent — repeated calls return the same row, no duplicates  376ms
+     ✓ concurrent generation converges on one row  397ms
+     ✓ returns 422 when there's not enough transcript to evaluate  353ms
+     ✓ blocks insights access to another user's session (ownership)  383ms
+     ✓ resolves the selected project into prompt text (primary first, ownership enforced)  337ms
+     ✓ ai-answer system prompt actually includes the project grounding end-to-end  636ms
+     ✓ sessions without project/document get an unchanged prompt (no empty grounding blocks)  605ms
+     ✓ returns autoGenerateResponse, language, simpleLanguage, aiModel  1316ms
+     ✓ ats-score on another user's resumeId returns 404, not their analysis  323ms
+     ✓ resume export renders posted HTML into a PDF attachment (no version, no charge)  320ms
+     ✓ maps renderer failures to the client's error-code contract  314ms
+     ✓ project export is a GET (matching the real client), ownership-checked, renders content  416ms
+     ✓ order: creates a REAL razorpay order, persists its id, returns keyId + server-side amount  470ms
+     ✓ order: rejects unknown packCode with the exact client-contract string  341ms
+     ✓ order: maps missing keys to 503 'Razorpay is not configured'  654ms
+     ✓ fail endpoint marks the user's pending purchase failed (and only theirs)  334ms
+[19:43:00.793] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "fec7b23d-558f-475c-99c2-b2ec4835bb0f"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_4c83d72a9a0496062e47544d"
+[19:43:01.094] [33mWARN[39m (24068): [36m[stripe] webhook signature rejected[39m
+    [35mreason[39m: "signature_mismatch"
+[19:43:01.352] [33mWARN[39m (24068): [36m[stripe] webhook signature rejected[39m
+    [35mreason[39m: "signature_mismatch"
+[19:43:01.576] [33mWARN[39m (24068): [36m[stripe] webhook signature rejected[39m
+    [35mreason[39m: "timestamp_out_of_tolerance"
+[19:43:01.799] [33mWARN[39m (24068): [36m[stripe] webhook signature rejected[39m
+    [35mreason[39m: "missing_header"
+[19:43:02.026] [31mERROR[39m (24068): [36m[stripe] webhook received but STRIPE_WEBHOOK_SECRET is unset[39m
+[19:43:02.262] [31mERROR[39m (24068): [36m[stripe] webhook received but Stripe is not configured[39m
+[19:43:02.591] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "e038cfc8-5db4-4303-a813-59ce46af2bb6"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_03d8ebcb35bfea46744d8f0a"
+[19:43:03.367] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "40337e80-c13c-44ce-b95b-5a4f3583ad09"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_d6e7284a17f6e1e8f8badd6b"
+[19:43:04.948] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "992d9307-a573-4854-8dba-ca58de18f6ce"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_a37f11d4b0b16a3cd38945c8"
+[19:43:05.484] [32mINFO[39m (24068): [36m[stripe] settlement replay ignored (already completed)[39m
+    [35mpurchaseId[39m: "992d9307-a573-4854-8dba-ca58de18f6ce"
+    [35meventId[39m: "evt_c"
+[19:43:05.854] [32mINFO[39m (24068): [36m[stripe] settlement replay ignored (already completed)[39m
+    [35mpurchaseId[39m: "992d9307-a573-4854-8dba-ca58de18f6ce"
+    [35meventId[39m: "evt_b"
+[19:43:06.262] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "1396a4db-89cd-4108-ad6c-4b276bb396e8"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_6b00b774b1e064b2ad93b26a"
+[19:43:06.347] [32mINFO[39m (24068): [36m[stripe] settlement replay ignored (already completed)[39m
+    [35mpurchaseId[39m: "1396a4db-89cd-4108-ad6c-4b276bb396e8"
+    [35meventId[39m: "evt_second"
+[19:43:06.803] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "742586b0-a03d-462e-a8c8-25ecb863d402"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_1404e1a76700be32d41f55d5"
+[19:43:07.196] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "d455e8f7-41be-4148-a590-2a32ab0082a8"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_0ac00de5019930e09edeedd0"
+[19:43:07.701] [32mINFO[39m (24068): [36m[stripe] purchase marked failed (no credits granted)[39m
+    [35mpurchaseId[39m: "f4700d86-e489-4f41-a12d-13cfbe1e7411"
+    [35mreason[39m: "checkout.session.expired"
+[19:43:08.294] [32mINFO[39m (24068): [36m[stripe] purchase marked failed (no credits granted)[39m
+    [35mpurchaseId[39m: "3f1147b4-956d-4c10-aec0-ed31620ce882"
+    [35mreason[39m: "checkout.session.expired"
+[19:43:08.413] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "3f1147b4-956d-4c10-aec0-ed31620ce882"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_b5c5938ae11b0e2ad4b15500"
+[19:43:08.803] [32mINFO[39m (24068): [36m[stripe] purchase marked failed (no credits granted)[39m
+    [35mpurchaseId[39m: "068da050-5fe8-45e4-9039-4752e0fd5d65"
+    [35mreason[39m: "payment_intent.payment_failed"
+[19:43:11.056] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "6c5a6c1c-a091-42b0-96d7-436bf8455c53"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_a3382d8d86eac6b554526b08"
+[19:43:11.174] [32mINFO[39m (24068): [36m[stripe] purchase refund reversed[39m
+    [35mpurchaseId[39m: "6c5a6c1c-a091-42b0-96d7-436bf8455c53"
+    [35mcredits[39m: 6
+    [35mrefundId[39m: "re_test_1"
+[19:43:11.546] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "1d5200ae-6f30-4e59-b50c-8a0dbba28a5a"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_43f13bfb75194ddeb10b11d5"
+[19:43:11.675] [32mINFO[39m (24068): [36m[stripe] purchase refund reversed[39m
+    [35mpurchaseId[39m: "1d5200ae-6f30-4e59-b50c-8a0dbba28a5a"
+    [35mcredits[39m: 6
+    [35mrefundId[39m: "re_replay"
+[19:43:12.058] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "d53240cd-1aef-43b6-8844-846de5a45fbb"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_6e7d993fe5cf504157e3520f"
+[19:43:12.188] [32mINFO[39m (24068): [36m[stripe] purchase refund reversed[39m
+    [35mpurchaseId[39m: "d53240cd-1aef-43b6-8844-846de5a45fbb"
+    [35mcredits[39m: 6
+    [35mrefundId[39m: "re_same"
+[19:43:12.277] [32mINFO[39m (24068): [36m[stripe] refund replay ignored (already refunded)[39m
+    [35mpurchaseId[39m: "d53240cd-1aef-43b6-8844-846de5a45fbb"
+    [35meventId[39m: "evt_refund_created"
+[19:43:12.671] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "84a7f21f-8f38-4a52-b06d-98d14b4dccab"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_0313740f39316036eba644d1"
+[19:43:13.132] [32mINFO[39m (24068): [36m[stripe] refund observed before settlement — purchase marked refunded (no credit)[39m
+    [35mpurchaseId[39m: "883850de-8098-4bad-9585-ed46b5228731"
+    [35meventId[39m: "evt_refund_unsettled"
+[19:43:13.247] [32mINFO[39m (24068): [36m[stripe] settlement replay ignored (already refunded)[39m
+    [35mpurchaseId[39m: "883850de-8098-4bad-9585-ed46b5228731"
+    [35meventId[39m: "evt_unsettled_late_paid"
+[19:43:13.867] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "bd3f3482-efb3-43d2-a50e-098d9017a880"
+    [35mcredits[39m: 6
+    [35mcheckoutSessionId[39m: "cs_test_mock_9898ed1239ac208a81c4e4b0"
+[19:43:14.024] [32mINFO[39m (24068): [36m[stripe] purchase refund reversed[39m
+    [35mpurchaseId[39m: "bd3f3482-efb3-43d2-a50e-098d9017a880"
+    [35mcredits[39m: 6
+    [35mrefundId[39m: "re_spent"
+[19:43:14.436] [32mINFO[39m (24068): [36m[stripe] entitlement purchase activated (no credit movement)[39m
+    [35mpurchaseId[39m: "4be36ba6-6c0e-490f-9e35-77191f757b62"
+    [35mproductKind[39m: "subscription"
+[19:43:14.925] [32mINFO[39m (24068): [36m[stripe] purchase credited[39m
+    [35mpurchaseId[39m: "c7283d07-3608-4810-a157-1c57033b4470"
+    [35mcredits[39m: 9
+    [35mcheckoutSessionId[39m: "cs_test_mock_174c56057fe5cd2a27512b76"
+[19:43:15.065] [32mINFO[39m (24068): [36m[stripe] purchase refund reversed[39m
+    [35mpurchaseId[39m: "c7283d07-3608-4810-a157-1c57033b4470"
+    [35mcredits[39m: 9
+    [35mrefundId[39m: "re_sum"
+ ✓ tests/stripe.integration.test.ts (35 tests) 20476ms
+     ✓ has the Stripe ledger and webhook-event tables  936ms
+     ✓ uses the INR catalog amount for INR checkouts  2599ms
+     ✓ ignores client-supplied amounts/credits and prices server-side  388ms
+     ✓ rejects unknown product codes with the shared client-contract string  334ms
+     ✓ supports subscription tiers as subscription-mode checkout with zero credits  347ms
+     ✓ credits exactly once for a valid checkout.session.completed  358ms
+     ✓ replayed deliveries of the same event id never double-credit  422ms
+     ✓ concurrent duplicate deliveries (one event id) settle exactly once  1021ms
+     ✓ concurrent DIFFERENT events for the same session settle exactly once  2219ms
+     ✓ a new event id after settlement is a safe replay (already completed)  460ms
+     ✓ ignores unpaid checkout.session.completed then settles on async_payment_succeeded  458ms
+     ✓ immutably appends replay evidence (no duplicate ledger rows on event replay)  414ms
+     ✓ marks an expired checkout failed without granting credits  685ms
+     ✓ credits once when a failed purchase is later paid (processor is authoritative)  501ms
+     ✓ marks the purchase failed on payment_intent.payment_failed  393ms
+     ✓ acknowledges unknown checkout sessions and unknown event types with 200  399ms
+     ✓ does not settle a non-Stripe purchase row with the same order id  341ms
+     ✓ reverses a credit grant exactly once and appends a negative ledger row  1643ms
+     ✓ is idempotent on a replayed refund event  496ms
+     ✓ is idempotent across refund.created + charge.refunded for the same refund  592ms
+     ✓ ignores partial refunds (manual review) without reversing the grant  472ms
+     ✓ durably blocks a refund that arrives before settlement (out-of-order delivery)  545ms
+     ✓ clamps the balance projection at zero if credits were already spent  732ms
+     ✓ activates a subscription checkout exactly once without credit movement  502ms
+     ✓ only ever stores non-zero deltas and keeps the running sum auditable  549ms
+ ✓ tests/sessionCredits.test.ts (6 tests) 1159ms
+ ✓ src/lib/mocks/demoRoutes.test.ts (6 tests) 198ms
+ ✓ tests/openrouterDiagnostics.test.ts (6 tests) 93ms
+ ✓ tests/clerkAuth.test.ts (6 tests) 162ms
+ ✓ tests/stripe.unit.test.ts (35 tests) 85ms
+ ✓ src/lib/mocks/demoChat.test.ts (3 tests) 82ms
+ ✓ src/lib/mocks/llmRouter.test.ts (6 tests) 50ms
+ ✓ src/lib/mocks/llmOpenRouter.test.ts (2 tests) 72ms
+ ✓ src/lib/mocks/targetContracts.test.ts (10 tests) 17ms
+ ✓ tests/interviewPrompt.test.ts (7 tests) 11ms
+ ✓ tests/questionReadiness.test.ts (9 tests) 16ms
+ ✓ tests/groundingGuard.structural.test.ts (12 tests) 22ms
+ ✓ src/lib/mocks/mockAsr.test.ts (6 tests) 17ms
+ ✓ tests/groundingGuard.test.ts (6 tests) 18ms
+ ✓ src/lib/mocks/mockTts.test.ts (4 tests) 14ms
+ ✓ tests/groundingGuard.extended.test.ts (4 tests) 27ms
+ ✓ src/lib/mocks/mockLlm.test.ts (8 tests) 18ms
+ ✓ tests/sensitiveLogging.test.ts (3 tests) 9ms
+ ✓ tests/languages.test.ts (9 tests) 20ms
+ ✓ src/lib/mocks/demoMode.test.ts (6 tests) 20ms
+ ✓ tests/openrouterModelSlug.test.ts (7 tests) 13ms
+ ✓ tests/answeredQuestionMemory.test.ts (13 tests) 13ms
+ ✓ tests/sessionGenerationLock.test.ts (6 tests) 24ms
+ ✓ tests/codingMode.test.ts (6 tests) 8ms
+ ✓ src/lib/mocks/providerSet.test.ts (3 tests) 15ms
+ ✓ src/lib/mocks/asrDeepgram.test.ts (6 tests) 12ms
+ ✓ tests/projectUpdates.test.ts (2 tests) 7ms
+ ✓ tests/instructions.test.ts (7 tests) 9ms
+ ✓ tests/aiRateLimit.test.ts (2 tests) 9ms
+ ✓ tests/desktopManifest.test.ts (2 tests) 9ms
+ ✓ tests/uploadValidation.test.ts (3 tests) 8ms
+ ✓ tests/economicAiBoundaries.test.ts (3 tests) 9ms
+ ✓ tests/corsPolicy.test.ts (3 tests) 8ms
+
+ Test Files  35 passed (35)
+      Tests  315 passed (315)
+   Start at  19:42:22
+   Duration  70.58s (transform 1.75s, setup 468ms, import 7.15s, tests 49.49s, environment 8ms)
+

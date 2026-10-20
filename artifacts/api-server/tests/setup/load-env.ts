@@ -12,3 +12,19 @@ const envPath = resolve(here, "../../.env");
 if (!process.env.DATABASE_URL && existsSync(envPath)) {
   process.loadEnvFile(envPath);
 }
+
+// Derive POSTGRES_* connection parts from DATABASE_URL so the dedicated-DB
+// integration suites (stripe.integration.test.ts) can build their own URL
+// without requiring a second copy of the credentials in the environment.
+// Explicit POSTGRES_* values always win.
+if (process.env.DATABASE_URL) {
+  try {
+    const url = new URL(process.env.DATABASE_URL);
+    process.env.POSTGRES_USER ??= decodeURIComponent(url.username);
+    process.env.POSTGRES_PASSWORD ??= decodeURIComponent(url.password);
+    process.env.POSTGRES_HOST ??= url.hostname;
+    process.env.POSTGRES_PORT ??= url.port || "5432";
+  } catch {
+    // Malformed DATABASE_URL: let the consuming code produce its own error.
+  }
+}

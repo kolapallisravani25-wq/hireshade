@@ -51,6 +51,15 @@ artifacts/craft-vita/temp-tauri-launch.png
 # External tool checkout (REA) with its own git history
 /rea/
 
+# Portable local toolchain used for validation (not part of the repo)
+/tools/
+
+# Generated Electron helper bundles (prestart/predev regenerate them)
+/artifacts/desktop-electron/lib/
+
+# Electron user-data trees captured during stealth-wiring validation
+/docs/evidence/stealth-wiring/userdata/
+
 # Large downloaded competitor artifacts (keep manifests, hashes, and scan output only)
 /docs/raw/desktop/mac-unpacked/
 /docs/raw/desktop/asar-extracted/

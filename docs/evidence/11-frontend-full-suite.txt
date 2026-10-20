@@ -1,0 +1,48 @@
+node.exe : $ vitest run
+At C:\Program Files\nodejs\pnpm.ps1:16 char:5
++     & "$basedir/node$exe"  "$basedir/node_modules/corepack/dist/pnpm. ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ($ vitest run:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+ RUN  v4.1.9 D:/hireshade/artifacts/craft-vita
+
+ ✓ src/overlay/hotkeys.test.ts (23 tests) 52ms
+ ✓ src/lib/utterance-completeness.test.ts (13 tests) 29ms
+ ✓ src/lib/languages.test.ts (30 tests) 87ms
+ ✓ src/features/meetingDetection/meetingAutoDetector.test.ts (11 tests) 85ms
+ ✓ src/lib/meetingDetection.test.ts (45 tests) 93ms
+ ✓ src/lib/transcript-stabilizer.test.ts (37 tests) 134ms
+ ✓ src/features/session/detection/activeQuestionDetector.test.ts (4 tests) 126ms
+ ✓ src/features/mockInterview/interviewLoop.test.ts (14 tests) 38ms
+ ✓ src/features/coding/codingMode.test.ts (29 tests) 45ms
+ ✓ src/lib/instructions.test.ts (8 tests) 103ms
+ ✓ src/demo/vad.test.ts (8 tests) 111ms
+ ✓ src/demo/pipeline.test.ts (5 tests) 841ms
+ ✓ src/overlay/tauriCsp.test.ts (4 tests) 24ms
+ ✓ src/hooks/useAIChat.test.ts (10 tests) 29ms
+ ✓ src/demo/wav.test.ts (2 tests) 33ms
+ ✓ src/overlay/overlayGeometry.test.ts (14 tests) 38ms
+ ✓ src/tauriSecurityManifest.test.ts (4 tests) 159ms
+ ✓ src/lib/generation-pipeline.test.ts (13 tests) 25ms
+ ✓ src/demo/metrics.test.ts (9 tests) 39ms
+ ✓ src/demo/overlayStream.test.ts (5 tests) 29ms
+ ✓ src/features/session/hooks/cancellableListener.test.ts (4 tests) 33ms
+ ✓ src/sensitiveLogging.test.ts (3 tests) 67ms
+ ✓ src/features/session/hooks/autoGenQuestionSource.test.ts (10 tests) 20ms
+ ✓ src/features/session/hooks/autoGenTrailingTranscript.test.ts (11 tests) 39ms
+ ✓ src/features/session/audio/audioSessionController.test.ts (2 tests) 22ms
+ ✓ src/features/session/hooks/autoScrollPolicy.test.ts (14 tests) 45ms
+ ✓ src/features/session/audio/captureStatus.test.ts (9 tests) 19ms
+ ✓ src/features/session/audio/systemHealth.test.ts (11 tests) 23ms
+ ✓ src/types/ai-answer.test.ts (4 tests) 13ms
+ ✓ src/demo/demoSession.test.ts (4 tests) 30ms
+ ✓ src/pages/Sessions/ActiveSession/answerScrollPolicy.test.ts (9 tests) 18ms
+ ✓ src/features/session/detection/classifierMetrics.test.ts (7 tests) 19ms
+
+ Test Files  32 passed (32)
+      Tests  376 passed (376)
+   Start at  19:43:49
+   Duration  8.18s (transform 8.13s, setup 0ms, import 11.43s, tests 2.46s, environment 17ms)
+

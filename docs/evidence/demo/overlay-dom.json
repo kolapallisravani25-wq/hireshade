@@ -1,0 +1,86 @@
+{
+  "generatedAt": "2026-10-20T14:11:54.214Z",
+  "pass": true,
+  "surface": {
+    "kind": "electron-overlay",
+    "window": {
+      "frame": false,
+      "transparent": true,
+      "alwaysOnTop": true,
+      "skipTaskbar": true
+    },
+    "electronExe": "D:\\hireshade\\artifacts\\desktop-electron\\node_modules\\electron\\dist\\electron.exe",
+    "cdpPort": 9333,
+    "pageUrl": "file:///D:/hireshade/docs/evidence/demo/overlay.generated.html"
+  },
+  "assertionVia": "CDP Runtime.evaluate DOM text",
+  "dom": {
+    "title": "HireShade Overlay Demo",
+    "status": "Complete",
+    "model": "gpt-5",
+    "question": "And how would you handle the case where Redis is unavailable?",
+    "answerChars": 784,
+    "answerPreview": "Here's how I'd answer that in a real interview.\n\nI'd start by framing the problem in one sentence, then walk through the design decisions. In my last role I built a Redis-backed rate limiter for an Express API: a fixed w",
+    "framesApplied": 85,
+    "timings": {
+      "startedAt": 395.5,
+      "questionAtMs": 4011.3336,
+      "firstTokenAtMs": 4524.952799999999,
+      "completeAtMs": 5659.6374,
+      "answerVisibleMs": 1648.3037999999997
+    }
+  },
+  "assertions": [
+    {
+      "name": "overlay-done",
+      "pass": true,
+      "detail": "true"
+    },
+    {
+      "name": "status-complete",
+      "pass": true,
+      "detail": "Complete"
+    },
+    {
+      "name": "question-rendered",
+      "pass": true,
+      "detail": "And how would you handle the case where Redis is unavailable?"
+    },
+    {
+      "name": "answer-length",
+      "pass": true,
+      "detail": "784 chars"
+    },
+    {
+      "name": "answer-mentions-rate-limiter",
+      "pass": true,
+      "detail": "regex /rate limiter/i"
+    },
+    {
+      "name": "answer-mentions-redis",
+      "pass": true,
+      "detail": "regex /redis/i"
+    },
+    {
+      "name": "answer-visible-within-budget",
+      "pass": true,
+      "detail": "1648.3 ms (budget 5000 ms)"
+    },
+    {
+      "name": "frames-applied",
+      "pass": true,
+      "detail": "85/85"
+    },
+    {
+      "name": "window-visible",
+      "pass": true,
+      "detail": "visible"
+    }
+  ],
+  "screenshot": "docs/evidence/demo/overlay-answer.png",
+  "electronLogs": {
+    "stdout": "\r\n[overlay-main] loaded D:\\hireshade\\docs\\evidence\\demo\\overlay.generated.html (cdp port 9333)\n",
+    "stderr": "\r\nDevTools listening on ws://127.0.0.1:9333/devtools/browser/82893e32-8e8e-4eeb-959b-0f0a2c68e10f\r\n"
+  },
+  "consoleMessages": []
+}

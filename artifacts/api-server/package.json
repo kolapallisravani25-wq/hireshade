@@ -9,7 +9,7 @@
     "start": "node --env-file-if-exists=.env --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:unit": "vitest run --exclude **/sessions.integration.test.ts",
+    "test:unit": "vitest run --exclude **/sessions.integration.test.ts --exclude **/stripe.integration.test.ts",
     "test:integration": "vitest run tests/sessions.integration.test.ts"
   },
   "dependencies": {

@@ -1,0 +1,34 @@
+cargo :     Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.57s
+At line:1 char:199
++ ... 'Continue'; cargo check --message-format short *> D:\hireshade\docs\e ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (    Finished `d...get(s) in 1.57s:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+cargo :     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.17s
+At line:1 char:306
++ ... STEXITCODE; cargo test --lib *>> D:\hireshade\docs\evidence\14-cargo- ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (    Finished `t...get(s) in 1.17s:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+     Running unittests src\lib.rs (target\debug\deps\hireshade_lib-29f7b5d889b172ee.exe)
+
+running 14 tests
+test mini_state_tests::badge_hugs_the_collapsed_pill ... ok
+test mini_state_tests::collapse_expand_collapse_is_stable ... ok
+test mini_state_tests::expanded_height_is_clamped ... ok
+test mini_state_tests::expand_restores_the_full_bar ... ok
+test mini_state_tests::no_second_bar_after_collapse ... ok
+test mini_state_tests::unknown_state_is_rejected ... ok
+test screen_protect::tests::constants_match_the_windows_sdk ... ok
+test mini_state_tests::transcription_requires_a_request_scoped_key ... ok
+test screen_protect::tests::disabling_only_attempts_none ... ok
+test screen_protect::tests::falls_back_to_monitor_when_exclude_from_capture_is_rejected ... ok
+test screen_protect::tests::names_are_stable_for_logs ... ok
+test screen_protect::tests::protection_prefers_exclude_from_capture_with_monitor_fallback ... ok
+test screen_protect::tests::reports_every_rejected_mode_when_no_fallback_works ... ok
+test screen_protect::tests::uses_exclude_from_capture_when_the_os_accepts_it ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

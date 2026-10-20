@@ -1,0 +1,2398 @@
+{
+  "captured_at": "2026-10-20T14:03:28.555Z",
+  "cdp_port": "9223",
+  "page": {
+    "title": "Floating Mini-Screen",
+    "url": "file:///D:/hireshade/artifacts/craft-vita/dist/public/floating.html"
+  },
+  "steps": {
+    "display": {
+      "width": 1301,
+      "availWidth": 1301,
+      "availHeight": 686,
+      "devicePixelRatio": 1.0499999523162842
+    },
+    "initial": {
+      "windows": {
+        "floating": {
+          "exists": true,
+          "visible": true,
+          "focused": true,
+          "alwaysOnTop": true,
+          "opacity": 0.55,
+          "bounds": {
+            "x": 578,
+            "y": 15,
+            "width": 707,
+            "height": 367
+          }
+        },
+        "launcher": {
+          "exists": true,
+          "visible": true,
+          "focused": false,
+          "alwaysOnTop": true,
+          "opacity": 1,
+          "bounds": {
+            "x": 409,
+            "y": 2,
+            "width": 483,
+            "height": 683
+          }
+        }
+      },
+      "settings": {
+        "version": 1,
+        "opacity": 0.55,
+        "clickThrough": true,
+        "isPrivate": true,
+        "positionPreset": "top-right",
+        "bounds": {
+          "floating": {
+            "x": 579,
+            "y": 16,
+            "width": 706,
+            "height": 366
+          }
+        },
+        "hotkeys": {},
+        "activeModel": "anthropic/claude-haiku-4.5",
+        "platform": "win",
+        "settingsPath": "D:\\hireshade\\docs\\evidence\\stealth-wiring\\userdata\\overlay-settings.json",
+        "presets": [
+          "top-left",
+          "top-center",
+          "top-right",
+          "center",
+          "bottom-left",
+          "bottom-center",
+          "bottom-right"
+        ],
+        "resolvedHotkeys": [
+          {
+            "action": "toggle-overlay",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+H",
+            "display": "Ctrl + Shift + H",
+            "label": "Toggle overlay",
+            "description": "Show or hide the floating overlay.",
+            "registered": true
+          },
+          {
+            "action": "panic-hide",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+X",
+            "display": "Ctrl + Shift + X",
+            "label": "Panic hide",
+            "description": "Instantly hide every HireShade window.",
+            "registered": true
+          },
+          {
+            "action": "cycle-model",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+M",
+            "display": "Ctrl + Shift + M",
+            "label": "Cycle model",
+            "description": "Cycle the AI model used for the next answer.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-up",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Up",
+            "display": "Ctrl + Shift + ↑",
+            "label": "Nudge overlay up",
+            "description": "Move the floating overlay up by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-down",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Down",
+            "display": "Ctrl + Shift + ↓",
+            "label": "Nudge overlay down",
+            "description": "Move the floating overlay down by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-left",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Left",
+            "display": "Ctrl + Shift + ←",
+            "label": "Nudge overlay left",
+            "description": "Move the floating overlay left by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-right",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Right",
+            "display": "Ctrl + Shift + →",
+            "label": "Nudge overlay right",
+            "description": "Move the floating overlay right by one step.",
+            "registered": true
+          },
+          {
+            "action": "live-primary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Enter",
+            "display": "Ctrl + ↵",
+            "label": "Generate primary answer",
+            "description": "Generate the primary AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-secondary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Shift+Enter",
+            "display": "Ctrl + Shift + ↵",
+            "label": "Generate secondary answer",
+            "description": "Generate an alternative AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Up",
+            "display": "Ctrl + ↑",
+            "label": "Previous message",
+            "description": "Select the previous message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-next-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Down",
+            "display": "Ctrl + ↓",
+            "label": "Next message",
+            "description": "Select the next message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-hide-overlay",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+H",
+            "display": "Ctrl + H",
+            "label": "Hide overlay",
+            "description": "Hide the floating overlay without ending the session.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Left",
+            "display": "Ctrl + ←",
+            "label": "Previous AI answer",
+            "description": "Show the previous AI answer.",
+            "registered": true
+          },
+          {
+            "action": "live-next-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Right",
+            "display": "Ctrl + →",
+            "label": "Next AI answer",
+            "description": "Show the next AI answer.",
+            "registered": true
+          }
+        ],
+        "hotkeyIssues": []
+      },
+      "activeModel": "anthropic/claude-haiku-4.5",
+      "stealthEnabled": true,
+      "platform": "win",
+      "hotkeys": [
+        {
+          "action": "toggle-overlay",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+H",
+          "display": "Ctrl + Shift + H",
+          "label": "Toggle overlay",
+          "description": "Show or hide the floating overlay.",
+          "registered": true
+        },
+        {
+          "action": "panic-hide",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+X",
+          "display": "Ctrl + Shift + X",
+          "label": "Panic hide",
+          "description": "Instantly hide every HireShade window.",
+          "registered": true
+        },
+        {
+          "action": "cycle-model",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+M",
+          "display": "Ctrl + Shift + M",
+          "label": "Cycle model",
+          "description": "Cycle the AI model used for the next answer.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-up",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Up",
+          "display": "Ctrl + Shift + ↑",
+          "label": "Nudge overlay up",
+          "description": "Move the floating overlay up by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-down",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Down",
+          "display": "Ctrl + Shift + ↓",
+          "label": "Nudge overlay down",
+          "description": "Move the floating overlay down by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-left",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Left",
+          "display": "Ctrl + Shift + ←",
+          "label": "Nudge overlay left",
+          "description": "Move the floating overlay left by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-right",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Right",
+          "display": "Ctrl + Shift + →",
+          "label": "Nudge overlay right",
+          "description": "Move the floating overlay right by one step.",
+          "registered": true
+        },
+        {
+          "action": "live-primary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Enter",
+          "display": "Ctrl + ↵",
+          "label": "Generate primary answer",
+          "description": "Generate the primary AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-secondary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Shift+Enter",
+          "display": "Ctrl + Shift + ↵",
+          "label": "Generate secondary answer",
+          "description": "Generate an alternative AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Up",
+          "display": "Ctrl + ↑",
+          "label": "Previous message",
+          "description": "Select the previous message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-next-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Down",
+          "display": "Ctrl + ↓",
+          "label": "Next message",
+          "description": "Select the next message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-hide-overlay",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+H",
+          "display": "Ctrl + H",
+          "label": "Hide overlay",
+          "description": "Hide the floating overlay without ending the session.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Left",
+          "display": "Ctrl + ←",
+          "label": "Previous AI answer",
+          "description": "Show the previous AI answer.",
+          "registered": true
+        },
+        {
+          "action": "live-next-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Right",
+          "display": "Ctrl + →",
+          "label": "Next AI answer",
+          "description": "Show the next AI answer.",
+          "registered": true
+        }
+      ]
+    },
+    "opacity": {
+      "settings": {
+        "version": 1,
+        "opacity": 0.55,
+        "clickThrough": true,
+        "isPrivate": true,
+        "positionPreset": "top-right",
+        "bounds": {
+          "floating": {
+            "x": 579,
+            "y": 16,
+            "width": 706,
+            "height": 366
+          }
+        },
+        "hotkeys": {},
+        "activeModel": "anthropic/claude-haiku-4.5",
+        "platform": "win",
+        "settingsPath": "D:\\hireshade\\docs\\evidence\\stealth-wiring\\userdata\\overlay-settings.json",
+        "presets": [
+          "top-left",
+          "top-center",
+          "top-right",
+          "center",
+          "bottom-left",
+          "bottom-center",
+          "bottom-right"
+        ],
+        "resolvedHotkeys": [
+          {
+            "action": "toggle-overlay",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+H",
+            "display": "Ctrl + Shift + H",
+            "label": "Toggle overlay",
+            "description": "Show or hide the floating overlay.",
+            "registered": true
+          },
+          {
+            "action": "panic-hide",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+X",
+            "display": "Ctrl + Shift + X",
+            "label": "Panic hide",
+            "description": "Instantly hide every HireShade window.",
+            "registered": true
+          },
+          {
+            "action": "cycle-model",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+M",
+            "display": "Ctrl + Shift + M",
+            "label": "Cycle model",
+            "description": "Cycle the AI model used for the next answer.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-up",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Up",
+            "display": "Ctrl + Shift + ↑",
+            "label": "Nudge overlay up",
+            "description": "Move the floating overlay up by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-down",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Down",
+            "display": "Ctrl + Shift + ↓",
+            "label": "Nudge overlay down",
+            "description": "Move the floating overlay down by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-left",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Left",
+            "display": "Ctrl + Shift + ←",
+            "label": "Nudge overlay left",
+            "description": "Move the floating overlay left by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-right",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Right",
+            "display": "Ctrl + Shift + →",
+            "label": "Nudge overlay right",
+            "description": "Move the floating overlay right by one step.",
+            "registered": true
+          },
+          {
+            "action": "live-primary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Enter",
+            "display": "Ctrl + ↵",
+            "label": "Generate primary answer",
+            "description": "Generate the primary AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-secondary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Shift+Enter",
+            "display": "Ctrl + Shift + ↵",
+            "label": "Generate secondary answer",
+            "description": "Generate an alternative AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Up",
+            "display": "Ctrl + ↑",
+            "label": "Previous message",
+            "description": "Select the previous message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-next-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Down",
+            "display": "Ctrl + ↓",
+            "label": "Next message",
+            "description": "Select the next message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-hide-overlay",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+H",
+            "display": "Ctrl + H",
+            "label": "Hide overlay",
+            "description": "Hide the floating overlay without ending the session.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Left",
+            "display": "Ctrl + ←",
+            "label": "Previous AI answer",
+            "description": "Show the previous AI answer.",
+            "registered": true
+          },
+          {
+            "action": "live-next-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Right",
+            "display": "Ctrl + →",
+            "label": "Next AI answer",
+            "description": "Show the next AI answer.",
+            "registered": true
+          }
+        ],
+        "hotkeyIssues": []
+      },
+      "state": {
+        "windows": {
+          "floating": {
+            "exists": true,
+            "visible": true,
+            "focused": true,
+            "alwaysOnTop": true,
+            "opacity": 0.55,
+            "bounds": {
+              "x": 578,
+              "y": 15,
+              "width": 707,
+              "height": 367
+            }
+          },
+          "launcher": {
+            "exists": true,
+            "visible": true,
+            "focused": false,
+            "alwaysOnTop": true,
+            "opacity": 1,
+            "bounds": {
+              "x": 409,
+              "y": 2,
+              "width": 483,
+              "height": 683
+            }
+          }
+        },
+        "settings": {
+          "version": 1,
+          "opacity": 0.55,
+          "clickThrough": true,
+          "isPrivate": true,
+          "positionPreset": "top-right",
+          "bounds": {
+            "floating": {
+              "x": 579,
+              "y": 16,
+              "width": 706,
+              "height": 366
+            }
+          },
+          "hotkeys": {},
+          "activeModel": "anthropic/claude-haiku-4.5",
+          "platform": "win",
+          "settingsPath": "D:\\hireshade\\docs\\evidence\\stealth-wiring\\userdata\\overlay-settings.json",
+          "presets": [
+            "top-left",
+            "top-center",
+            "top-right",
+            "center",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+          ],
+          "resolvedHotkeys": [
+            {
+              "action": "toggle-overlay",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+H",
+              "display": "Ctrl + Shift + H",
+              "label": "Toggle overlay",
+              "description": "Show or hide the floating overlay.",
+              "registered": true
+            },
+            {
+              "action": "panic-hide",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+X",
+              "display": "Ctrl + Shift + X",
+              "label": "Panic hide",
+              "description": "Instantly hide every HireShade window.",
+              "registered": true
+            },
+            {
+              "action": "cycle-model",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+M",
+              "display": "Ctrl + Shift + M",
+              "label": "Cycle model",
+              "description": "Cycle the AI model used for the next answer.",
+              "registered": true
+            },
+            {
+              "action": "overlay-nudge-up",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+Up",
+              "display": "Ctrl + Shift + ↑",
+              "label": "Nudge overlay up",
+              "description": "Move the floating overlay up by one step.",
+              "registered": true
+            },
+            {
+              "action": "overlay-nudge-down",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+Down",
+              "display": "Ctrl + Shift + ↓",
+              "label": "Nudge overlay down",
+              "description": "Move the floating overlay down by one step.",
+              "registered": true
+            },
+            {
+              "action": "overlay-nudge-left",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+Left",
+              "display": "Ctrl + Shift + ←",
+              "label": "Nudge overlay left",
+              "description": "Move the floating overlay left by one step.",
+              "registered": true
+            },
+            {
+              "action": "overlay-nudge-right",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+Right",
+              "display": "Ctrl + Shift + →",
+              "label": "Nudge overlay right",
+              "description": "Move the floating overlay right by one step.",
+              "registered": true
+            },
+            {
+              "action": "live-primary-answer",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Enter",
+              "display": "Ctrl + ↵",
+              "label": "Generate primary answer",
+              "description": "Generate the primary AI answer for the current question.",
+              "registered": true
+            },
+            {
+              "action": "live-secondary-answer",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Shift+Enter",
+              "display": "Ctrl + Shift + ↵",
+              "label": "Generate secondary answer",
+              "description": "Generate an alternative AI answer for the current question.",
+              "registered": true
+            },
+            {
+              "action": "live-prev-message",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Up",
+              "display": "Ctrl + ↑",
+              "label": "Previous message",
+              "description": "Select the previous message in the transcript.",
+              "registered": true
+            },
+            {
+              "action": "live-next-message",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Down",
+              "display": "Ctrl + ↓",
+              "label": "Next message",
+              "description": "Select the next message in the transcript.",
+              "registered": true
+            },
+            {
+              "action": "live-hide-overlay",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+H",
+              "display": "Ctrl + H",
+              "label": "Hide overlay",
+              "description": "Hide the floating overlay without ending the session.",
+              "registered": true
+            },
+            {
+              "action": "live-prev-ai-message",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Left",
+              "display": "Ctrl + ←",
+              "label": "Previous AI answer",
+              "description": "Show the previous AI answer.",
+              "registered": true
+            },
+            {
+              "action": "live-next-ai-message",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Right",
+              "display": "Ctrl + →",
+              "label": "Next AI answer",
+              "description": "Show the next AI answer.",
+              "registered": true
+            }
+          ],
+          "hotkeyIssues": []
+        },
+        "activeModel": "anthropic/claude-haiku-4.5",
+        "stealthEnabled": true,
+        "platform": "win",
+        "hotkeys": [
+          {
+            "action": "toggle-overlay",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+H",
+            "display": "Ctrl + Shift + H",
+            "label": "Toggle overlay",
+            "description": "Show or hide the floating overlay.",
+            "registered": true
+          },
+          {
+            "action": "panic-hide",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+X",
+            "display": "Ctrl + Shift + X",
+            "label": "Panic hide",
+            "description": "Instantly hide every HireShade window.",
+            "registered": true
+          },
+          {
+            "action": "cycle-model",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+M",
+            "display": "Ctrl + Shift + M",
+            "label": "Cycle model",
+            "description": "Cycle the AI model used for the next answer.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-up",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Up",
+            "display": "Ctrl + Shift + ↑",
+            "label": "Nudge overlay up",
+            "description": "Move the floating overlay up by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-down",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Down",
+            "display": "Ctrl + Shift + ↓",
+            "label": "Nudge overlay down",
+            "description": "Move the floating overlay down by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-left",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Left",
+            "display": "Ctrl + Shift + ←",
+            "label": "Nudge overlay left",
+            "description": "Move the floating overlay left by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-right",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Right",
+            "display": "Ctrl + Shift + →",
+            "label": "Nudge overlay right",
+            "description": "Move the floating overlay right by one step.",
+            "registered": true
+          },
+          {
+            "action": "live-primary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Enter",
+            "display": "Ctrl + ↵",
+            "label": "Generate primary answer",
+            "description": "Generate the primary AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-secondary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Shift+Enter",
+            "display": "Ctrl + Shift + ↵",
+            "label": "Generate secondary answer",
+            "description": "Generate an alternative AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Up",
+            "display": "Ctrl + ↑",
+            "label": "Previous message",
+            "description": "Select the previous message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-next-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Down",
+            "display": "Ctrl + ↓",
+            "label": "Next message",
+            "description": "Select the next message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-hide-overlay",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+H",
+            "display": "Ctrl + H",
+            "label": "Hide overlay",
+            "description": "Hide the floating overlay without ending the session.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Left",
+            "display": "Ctrl + ←",
+            "label": "Previous AI answer",
+            "description": "Show the previous AI answer.",
+            "registered": true
+          },
+          {
+            "action": "live-next-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Right",
+            "display": "Ctrl + →",
+            "label": "Next AI answer",
+            "description": "Show the next AI answer.",
+            "registered": true
+          }
+        ]
+      }
+    },
+    "clickThroughOff": {
+      "version": 1,
+      "opacity": 0.55,
+      "clickThrough": false,
+      "isPrivate": true,
+      "positionPreset": "top-right",
+      "bounds": {
+        "floating": {
+          "x": 579,
+          "y": 16,
+          "width": 706,
+          "height": 366
+        }
+      },
+      "hotkeys": {},
+      "activeModel": "anthropic/claude-haiku-4.5",
+      "platform": "win",
+      "settingsPath": "D:\\hireshade\\docs\\evidence\\stealth-wiring\\userdata\\overlay-settings.json",
+      "presets": [
+        "top-left",
+        "top-center",
+        "top-right",
+        "center",
+        "bottom-left",
+        "bottom-center",
+        "bottom-right"
+      ],
+      "resolvedHotkeys": [
+        {
+          "action": "toggle-overlay",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+H",
+          "display": "Ctrl + Shift + H",
+          "label": "Toggle overlay",
+          "description": "Show or hide the floating overlay.",
+          "registered": true
+        },
+        {
+          "action": "panic-hide",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+X",
+          "display": "Ctrl + Shift + X",
+          "label": "Panic hide",
+          "description": "Instantly hide every HireShade window.",
+          "registered": true
+        },
+        {
+          "action": "cycle-model",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+M",
+          "display": "Ctrl + Shift + M",
+          "label": "Cycle model",
+          "description": "Cycle the AI model used for the next answer.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-up",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Up",
+          "display": "Ctrl + Shift + ↑",
+          "label": "Nudge overlay up",
+          "description": "Move the floating overlay up by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-down",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Down",
+          "display": "Ctrl + Shift + ↓",
+          "label": "Nudge overlay down",
+          "description": "Move the floating overlay down by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-left",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Left",
+          "display": "Ctrl + Shift + ←",
+          "label": "Nudge overlay left",
+          "description": "Move the floating overlay left by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-right",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Right",
+          "display": "Ctrl + Shift + →",
+          "label": "Nudge overlay right",
+          "description": "Move the floating overlay right by one step.",
+          "registered": true
+        },
+        {
+          "action": "live-primary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Enter",
+          "display": "Ctrl + ↵",
+          "label": "Generate primary answer",
+          "description": "Generate the primary AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-secondary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Shift+Enter",
+          "display": "Ctrl + Shift + ↵",
+          "label": "Generate secondary answer",
+          "description": "Generate an alternative AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Up",
+          "display": "Ctrl + ↑",
+          "label": "Previous message",
+          "description": "Select the previous message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-next-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Down",
+          "display": "Ctrl + ↓",
+          "label": "Next message",
+          "description": "Select the next message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-hide-overlay",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+H",
+          "display": "Ctrl + H",
+          "label": "Hide overlay",
+          "description": "Hide the floating overlay without ending the session.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Left",
+          "display": "Ctrl + ←",
+          "label": "Previous AI answer",
+          "description": "Show the previous AI answer.",
+          "registered": true
+        },
+        {
+          "action": "live-next-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Right",
+          "display": "Ctrl + →",
+          "label": "Next AI answer",
+          "description": "Show the next AI answer.",
+          "registered": true
+        }
+      ],
+      "hotkeyIssues": []
+    },
+    "clickThroughOn": {
+      "version": 1,
+      "opacity": 0.55,
+      "clickThrough": true,
+      "isPrivate": true,
+      "positionPreset": "top-right",
+      "bounds": {
+        "floating": {
+          "x": 579,
+          "y": 16,
+          "width": 706,
+          "height": 366
+        }
+      },
+      "hotkeys": {},
+      "activeModel": "anthropic/claude-haiku-4.5",
+      "platform": "win",
+      "settingsPath": "D:\\hireshade\\docs\\evidence\\stealth-wiring\\userdata\\overlay-settings.json",
+      "presets": [
+        "top-left",
+        "top-center",
+        "top-right",
+        "center",
+        "bottom-left",
+        "bottom-center",
+        "bottom-right"
+      ],
+      "resolvedHotkeys": [
+        {
+          "action": "toggle-overlay",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+H",
+          "display": "Ctrl + Shift + H",
+          "label": "Toggle overlay",
+          "description": "Show or hide the floating overlay.",
+          "registered": true
+        },
+        {
+          "action": "panic-hide",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+X",
+          "display": "Ctrl + Shift + X",
+          "label": "Panic hide",
+          "description": "Instantly hide every HireShade window.",
+          "registered": true
+        },
+        {
+          "action": "cycle-model",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+M",
+          "display": "Ctrl + Shift + M",
+          "label": "Cycle model",
+          "description": "Cycle the AI model used for the next answer.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-up",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Up",
+          "display": "Ctrl + Shift + ↑",
+          "label": "Nudge overlay up",
+          "description": "Move the floating overlay up by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-down",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Down",
+          "display": "Ctrl + Shift + ↓",
+          "label": "Nudge overlay down",
+          "description": "Move the floating overlay down by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-left",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Left",
+          "display": "Ctrl + Shift + ←",
+          "label": "Nudge overlay left",
+          "description": "Move the floating overlay left by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-right",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Right",
+          "display": "Ctrl + Shift + →",
+          "label": "Nudge overlay right",
+          "description": "Move the floating overlay right by one step.",
+          "registered": true
+        },
+        {
+          "action": "live-primary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Enter",
+          "display": "Ctrl + ↵",
+          "label": "Generate primary answer",
+          "description": "Generate the primary AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-secondary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Shift+Enter",
+          "display": "Ctrl + Shift + ↵",
+          "label": "Generate secondary answer",
+          "description": "Generate an alternative AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Up",
+          "display": "Ctrl + ↑",
+          "label": "Previous message",
+          "description": "Select the previous message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-next-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Down",
+          "display": "Ctrl + ↓",
+          "label": "Next message",
+          "description": "Select the next message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-hide-overlay",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+H",
+          "display": "Ctrl + H",
+          "label": "Hide overlay",
+          "description": "Hide the floating overlay without ending the session.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Left",
+          "display": "Ctrl + ←",
+          "label": "Previous AI answer",
+          "description": "Show the previous AI answer.",
+          "registered": true
+        },
+        {
+          "action": "live-next-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Right",
+          "display": "Ctrl + →",
+          "label": "Next AI answer",
+          "description": "Show the next AI answer.",
+          "registered": true
+        }
+      ],
+      "hotkeyIssues": []
+    },
+    "preset": {
+      "settings": {
+        "version": 1,
+        "opacity": 0.55,
+        "clickThrough": true,
+        "isPrivate": true,
+        "positionPreset": "top-right",
+        "bounds": {
+          "floating": {
+            "x": 578,
+            "y": 16,
+            "width": 707,
+            "height": 367
+          }
+        },
+        "hotkeys": {},
+        "activeModel": "anthropic/claude-haiku-4.5",
+        "platform": "win",
+        "settingsPath": "D:\\hireshade\\docs\\evidence\\stealth-wiring\\userdata\\overlay-settings.json",
+        "presets": [
+          "top-left",
+          "top-center",
+          "top-right",
+          "center",
+          "bottom-left",
+          "bottom-center",
+          "bottom-right"
+        ],
+        "resolvedHotkeys": [
+          {
+            "action": "toggle-overlay",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+H",
+            "display": "Ctrl + Shift + H",
+            "label": "Toggle overlay",
+            "description": "Show or hide the floating overlay.",
+            "registered": true
+          },
+          {
+            "action": "panic-hide",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+X",
+            "display": "Ctrl + Shift + X",
+            "label": "Panic hide",
+            "description": "Instantly hide every HireShade window.",
+            "registered": true
+          },
+          {
+            "action": "cycle-model",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+M",
+            "display": "Ctrl + Shift + M",
+            "label": "Cycle model",
+            "description": "Cycle the AI model used for the next answer.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-up",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Up",
+            "display": "Ctrl + Shift + ↑",
+            "label": "Nudge overlay up",
+            "description": "Move the floating overlay up by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-down",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Down",
+            "display": "Ctrl + Shift + ↓",
+            "label": "Nudge overlay down",
+            "description": "Move the floating overlay down by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-left",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Left",
+            "display": "Ctrl + Shift + ←",
+            "label": "Nudge overlay left",
+            "description": "Move the floating overlay left by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-right",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Right",
+            "display": "Ctrl + Shift + →",
+            "label": "Nudge overlay right",
+            "description": "Move the floating overlay right by one step.",
+            "registered": true
+          },
+          {
+            "action": "live-primary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Enter",
+            "display": "Ctrl + ↵",
+            "label": "Generate primary answer",
+            "description": "Generate the primary AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-secondary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Shift+Enter",
+            "display": "Ctrl + Shift + ↵",
+            "label": "Generate secondary answer",
+            "description": "Generate an alternative AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Up",
+            "display": "Ctrl + ↑",
+            "label": "Previous message",
+            "description": "Select the previous message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-next-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Down",
+            "display": "Ctrl + ↓",
+            "label": "Next message",
+            "description": "Select the next message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-hide-overlay",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+H",
+            "display": "Ctrl + H",
+            "label": "Hide overlay",
+            "description": "Hide the floating overlay without ending the session.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Left",
+            "display": "Ctrl + ←",
+            "label": "Previous AI answer",
+            "description": "Show the previous AI answer.",
+            "registered": true
+          },
+          {
+            "action": "live-next-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Right",
+            "display": "Ctrl + →",
+            "label": "Next AI answer",
+            "description": "Show the next AI answer.",
+            "registered": true
+          }
+        ],
+        "hotkeyIssues": []
+      },
+      "state": {
+        "windows": {
+          "floating": {
+            "exists": true,
+            "visible": true,
+            "focused": true,
+            "alwaysOnTop": true,
+            "opacity": 0.55,
+            "bounds": {
+              "x": 577,
+              "y": 15,
+              "width": 708,
+              "height": 368
+            }
+          },
+          "launcher": {
+            "exists": true,
+            "visible": true,
+            "focused": false,
+            "alwaysOnTop": true,
+            "opacity": 1,
+            "bounds": {
+              "x": 409,
+              "y": 2,
+              "width": 483,
+              "height": 683
+            }
+          }
+        },
+        "settings": {
+          "version": 1,
+          "opacity": 0.55,
+          "clickThrough": true,
+          "isPrivate": true,
+          "positionPreset": "top-right",
+          "bounds": {
+            "floating": {
+              "x": 578,
+              "y": 16,
+              "width": 707,
+              "height": 367
+            }
+          },
+          "hotkeys": {},
+          "activeModel": "anthropic/claude-haiku-4.5",
+          "platform": "win",
+          "settingsPath": "D:\\hireshade\\docs\\evidence\\stealth-wiring\\userdata\\overlay-settings.json",
+          "presets": [
+            "top-left",
+            "top-center",
+            "top-right",
+            "center",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+          ],
+          "resolvedHotkeys": [
+            {
+              "action": "toggle-overlay",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+H",
+              "display": "Ctrl + Shift + H",
+              "label": "Toggle overlay",
+              "description": "Show or hide the floating overlay.",
+              "registered": true
+            },
+            {
+              "action": "panic-hide",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+X",
+              "display": "Ctrl + Shift + X",
+              "label": "Panic hide",
+              "description": "Instantly hide every HireShade window.",
+              "registered": true
+            },
+            {
+              "action": "cycle-model",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+M",
+              "display": "Ctrl + Shift + M",
+              "label": "Cycle model",
+              "description": "Cycle the AI model used for the next answer.",
+              "registered": true
+            },
+            {
+              "action": "overlay-nudge-up",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+Up",
+              "display": "Ctrl + Shift + ↑",
+              "label": "Nudge overlay up",
+              "description": "Move the floating overlay up by one step.",
+              "registered": true
+            },
+            {
+              "action": "overlay-nudge-down",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+Down",
+              "display": "Ctrl + Shift + ↓",
+              "label": "Nudge overlay down",
+              "description": "Move the floating overlay down by one step.",
+              "registered": true
+            },
+            {
+              "action": "overlay-nudge-left",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+Left",
+              "display": "Ctrl + Shift + ←",
+              "label": "Nudge overlay left",
+              "description": "Move the floating overlay left by one step.",
+              "registered": true
+            },
+            {
+              "action": "overlay-nudge-right",
+              "set": "app",
+              "accelerator": "CommandOrControl+Shift+Right",
+              "display": "Ctrl + Shift + →",
+              "label": "Nudge overlay right",
+              "description": "Move the floating overlay right by one step.",
+              "registered": true
+            },
+            {
+              "action": "live-primary-answer",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Enter",
+              "display": "Ctrl + ↵",
+              "label": "Generate primary answer",
+              "description": "Generate the primary AI answer for the current question.",
+              "registered": true
+            },
+            {
+              "action": "live-secondary-answer",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Shift+Enter",
+              "display": "Ctrl + Shift + ↵",
+              "label": "Generate secondary answer",
+              "description": "Generate an alternative AI answer for the current question.",
+              "registered": true
+            },
+            {
+              "action": "live-prev-message",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Up",
+              "display": "Ctrl + ↑",
+              "label": "Previous message",
+              "description": "Select the previous message in the transcript.",
+              "registered": true
+            },
+            {
+              "action": "live-next-message",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Down",
+              "display": "Ctrl + ↓",
+              "label": "Next message",
+              "description": "Select the next message in the transcript.",
+              "registered": true
+            },
+            {
+              "action": "live-hide-overlay",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+H",
+              "display": "Ctrl + H",
+              "label": "Hide overlay",
+              "description": "Hide the floating overlay without ending the session.",
+              "registered": true
+            },
+            {
+              "action": "live-prev-ai-message",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Left",
+              "display": "Ctrl + ←",
+              "label": "Previous AI answer",
+              "description": "Show the previous AI answer.",
+              "registered": true
+            },
+            {
+              "action": "live-next-ai-message",
+              "set": "live-call",
+              "accelerator": "CommandOrControl+Right",
+              "display": "Ctrl + →",
+              "label": "Next AI answer",
+              "description": "Show the next AI answer.",
+              "registered": true
+            }
+          ],
+          "hotkeyIssues": []
+        },
+        "activeModel": "anthropic/claude-haiku-4.5",
+        "stealthEnabled": true,
+        "platform": "win",
+        "hotkeys": [
+          {
+            "action": "toggle-overlay",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+H",
+            "display": "Ctrl + Shift + H",
+            "label": "Toggle overlay",
+            "description": "Show or hide the floating overlay.",
+            "registered": true
+          },
+          {
+            "action": "panic-hide",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+X",
+            "display": "Ctrl + Shift + X",
+            "label": "Panic hide",
+            "description": "Instantly hide every HireShade window.",
+            "registered": true
+          },
+          {
+            "action": "cycle-model",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+M",
+            "display": "Ctrl + Shift + M",
+            "label": "Cycle model",
+            "description": "Cycle the AI model used for the next answer.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-up",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Up",
+            "display": "Ctrl + Shift + ↑",
+            "label": "Nudge overlay up",
+            "description": "Move the floating overlay up by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-down",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Down",
+            "display": "Ctrl + Shift + ↓",
+            "label": "Nudge overlay down",
+            "description": "Move the floating overlay down by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-left",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Left",
+            "display": "Ctrl + Shift + ←",
+            "label": "Nudge overlay left",
+            "description": "Move the floating overlay left by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-right",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Right",
+            "display": "Ctrl + Shift + →",
+            "label": "Nudge overlay right",
+            "description": "Move the floating overlay right by one step.",
+            "registered": true
+          },
+          {
+            "action": "live-primary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Enter",
+            "display": "Ctrl + ↵",
+            "label": "Generate primary answer",
+            "description": "Generate the primary AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-secondary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Shift+Enter",
+            "display": "Ctrl + Shift + ↵",
+            "label": "Generate secondary answer",
+            "description": "Generate an alternative AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Up",
+            "display": "Ctrl + ↑",
+            "label": "Previous message",
+            "description": "Select the previous message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-next-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Down",
+            "display": "Ctrl + ↓",
+            "label": "Next message",
+            "description": "Select the next message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-hide-overlay",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+H",
+            "display": "Ctrl + H",
+            "label": "Hide overlay",
+            "description": "Hide the floating overlay without ending the session.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Left",
+            "display": "Ctrl + ←",
+            "label": "Previous AI answer",
+            "description": "Show the previous AI answer.",
+            "registered": true
+          },
+          {
+            "action": "live-next-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Right",
+            "display": "Ctrl + →",
+            "label": "Next AI answer",
+            "description": "Show the next AI answer.",
+            "registered": true
+          }
+        ]
+      }
+    },
+    "privateOff": {
+      "version": 1,
+      "opacity": 0.55,
+      "clickThrough": true,
+      "isPrivate": false,
+      "positionPreset": "top-right",
+      "bounds": {
+        "floating": {
+          "x": 578,
+          "y": 16,
+          "width": 707,
+          "height": 367
+        }
+      },
+      "hotkeys": {},
+      "activeModel": "anthropic/claude-haiku-4.5",
+      "platform": "win",
+      "settingsPath": "D:\\hireshade\\docs\\evidence\\stealth-wiring\\userdata\\overlay-settings.json",
+      "presets": [
+        "top-left",
+        "top-center",
+        "top-right",
+        "center",
+        "bottom-left",
+        "bottom-center",
+        "bottom-right"
+      ],
+      "resolvedHotkeys": [
+        {
+          "action": "toggle-overlay",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+H",
+          "display": "Ctrl + Shift + H",
+          "label": "Toggle overlay",
+          "description": "Show or hide the floating overlay.",
+          "registered": true
+        },
+        {
+          "action": "panic-hide",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+X",
+          "display": "Ctrl + Shift + X",
+          "label": "Panic hide",
+          "description": "Instantly hide every HireShade window.",
+          "registered": true
+        },
+        {
+          "action": "cycle-model",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+M",
+          "display": "Ctrl + Shift + M",
+          "label": "Cycle model",
+          "description": "Cycle the AI model used for the next answer.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-up",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Up",
+          "display": "Ctrl + Shift + ↑",
+          "label": "Nudge overlay up",
+          "description": "Move the floating overlay up by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-down",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Down",
+          "display": "Ctrl + Shift + ↓",
+          "label": "Nudge overlay down",
+          "description": "Move the floating overlay down by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-left",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Left",
+          "display": "Ctrl + Shift + ←",
+          "label": "Nudge overlay left",
+          "description": "Move the floating overlay left by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-right",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Right",
+          "display": "Ctrl + Shift + →",
+          "label": "Nudge overlay right",
+          "description": "Move the floating overlay right by one step.",
+          "registered": true
+        },
+        {
+          "action": "live-primary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Enter",
+          "display": "Ctrl + ↵",
+          "label": "Generate primary answer",
+          "description": "Generate the primary AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-secondary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Shift+Enter",
+          "display": "Ctrl + Shift + ↵",
+          "label": "Generate secondary answer",
+          "description": "Generate an alternative AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Up",
+          "display": "Ctrl + ↑",
+          "label": "Previous message",
+          "description": "Select the previous message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-next-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Down",
+          "display": "Ctrl + ↓",
+          "label": "Next message",
+          "description": "Select the next message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-hide-overlay",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+H",
+          "display": "Ctrl + H",
+          "label": "Hide overlay",
+          "description": "Hide the floating overlay without ending the session.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Left",
+          "display": "Ctrl + ←",
+          "label": "Previous AI answer",
+          "description": "Show the previous AI answer.",
+          "registered": true
+        },
+        {
+          "action": "live-next-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Right",
+          "display": "Ctrl + →",
+          "label": "Next AI answer",
+          "description": "Show the next AI answer.",
+          "registered": true
+        }
+      ],
+      "hotkeyIssues": []
+    },
+    "privateOn": {
+      "version": 1,
+      "opacity": 0.55,
+      "clickThrough": true,
+      "isPrivate": true,
+      "positionPreset": "top-right",
+      "bounds": {
+        "floating": {
+          "x": 578,
+          "y": 16,
+          "width": 707,
+          "height": 367
+        }
+      },
+      "hotkeys": {},
+      "activeModel": "anthropic/claude-haiku-4.5",
+      "platform": "win",
+      "settingsPath": "D:\\hireshade\\docs\\evidence\\stealth-wiring\\userdata\\overlay-settings.json",
+      "presets": [
+        "top-left",
+        "top-center",
+        "top-right",
+        "center",
+        "bottom-left",
+        "bottom-center",
+        "bottom-right"
+      ],
+      "resolvedHotkeys": [
+        {
+          "action": "toggle-overlay",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+H",
+          "display": "Ctrl + Shift + H",
+          "label": "Toggle overlay",
+          "description": "Show or hide the floating overlay.",
+          "registered": true
+        },
+        {
+          "action": "panic-hide",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+X",
+          "display": "Ctrl + Shift + X",
+          "label": "Panic hide",
+          "description": "Instantly hide every HireShade window.",
+          "registered": true
+        },
+        {
+          "action": "cycle-model",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+M",
+          "display": "Ctrl + Shift + M",
+          "label": "Cycle model",
+          "description": "Cycle the AI model used for the next answer.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-up",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Up",
+          "display": "Ctrl + Shift + ↑",
+          "label": "Nudge overlay up",
+          "description": "Move the floating overlay up by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-down",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Down",
+          "display": "Ctrl + Shift + ↓",
+          "label": "Nudge overlay down",
+          "description": "Move the floating overlay down by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-left",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Left",
+          "display": "Ctrl + Shift + ←",
+          "label": "Nudge overlay left",
+          "description": "Move the floating overlay left by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-right",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Right",
+          "display": "Ctrl + Shift + →",
+          "label": "Nudge overlay right",
+          "description": "Move the floating overlay right by one step.",
+          "registered": true
+        },
+        {
+          "action": "live-primary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Enter",
+          "display": "Ctrl + ↵",
+          "label": "Generate primary answer",
+          "description": "Generate the primary AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-secondary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Shift+Enter",
+          "display": "Ctrl + Shift + ↵",
+          "label": "Generate secondary answer",
+          "description": "Generate an alternative AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Up",
+          "display": "Ctrl + ↑",
+          "label": "Previous message",
+          "description": "Select the previous message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-next-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Down",
+          "display": "Ctrl + ↓",
+          "label": "Next message",
+          "description": "Select the next message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-hide-overlay",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+H",
+          "display": "Ctrl + H",
+          "label": "Hide overlay",
+          "description": "Hide the floating overlay without ending the session.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Left",
+          "display": "Ctrl + ←",
+          "label": "Previous AI answer",
+          "description": "Show the previous AI answer.",
+          "registered": true
+        },
+        {
+          "action": "live-next-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Right",
+          "display": "Ctrl + →",
+          "label": "Next AI answer",
+          "description": "Show the next AI answer.",
+          "registered": true
+        }
+      ],
+      "hotkeyIssues": []
+    },
+    "final": {
+      "windows": {
+        "floating": {
+          "exists": true,
+          "visible": true,
+          "focused": true,
+          "alwaysOnTop": true,
+          "opacity": 0.55,
+          "bounds": {
+            "x": 577,
+            "y": 15,
+            "width": 708,
+            "height": 368
+          }
+        },
+        "launcher": {
+          "exists": true,
+          "visible": true,
+          "focused": false,
+          "alwaysOnTop": true,
+          "opacity": 1,
+          "bounds": {
+            "x": 409,
+            "y": 2,
+            "width": 483,
+            "height": 683
+          }
+        }
+      },
+      "settings": {
+        "version": 1,
+        "opacity": 0.55,
+        "clickThrough": true,
+        "isPrivate": true,
+        "positionPreset": "top-right",
+        "bounds": {
+          "floating": {
+            "x": 578,
+            "y": 16,
+            "width": 707,
+            "height": 367
+          }
+        },
+        "hotkeys": {},
+        "activeModel": "anthropic/claude-haiku-4.5",
+        "platform": "win",
+        "settingsPath": "D:\\hireshade\\docs\\evidence\\stealth-wiring\\userdata\\overlay-settings.json",
+        "presets": [
+          "top-left",
+          "top-center",
+          "top-right",
+          "center",
+          "bottom-left",
+          "bottom-center",
+          "bottom-right"
+        ],
+        "resolvedHotkeys": [
+          {
+            "action": "toggle-overlay",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+H",
+            "display": "Ctrl + Shift + H",
+            "label": "Toggle overlay",
+            "description": "Show or hide the floating overlay.",
+            "registered": true
+          },
+          {
+            "action": "panic-hide",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+X",
+            "display": "Ctrl + Shift + X",
+            "label": "Panic hide",
+            "description": "Instantly hide every HireShade window.",
+            "registered": true
+          },
+          {
+            "action": "cycle-model",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+M",
+            "display": "Ctrl + Shift + M",
+            "label": "Cycle model",
+            "description": "Cycle the AI model used for the next answer.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-up",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Up",
+            "display": "Ctrl + Shift + ↑",
+            "label": "Nudge overlay up",
+            "description": "Move the floating overlay up by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-down",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Down",
+            "display": "Ctrl + Shift + ↓",
+            "label": "Nudge overlay down",
+            "description": "Move the floating overlay down by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-left",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Left",
+            "display": "Ctrl + Shift + ←",
+            "label": "Nudge overlay left",
+            "description": "Move the floating overlay left by one step.",
+            "registered": true
+          },
+          {
+            "action": "overlay-nudge-right",
+            "set": "app",
+            "accelerator": "CommandOrControl+Shift+Right",
+            "display": "Ctrl + Shift + →",
+            "label": "Nudge overlay right",
+            "description": "Move the floating overlay right by one step.",
+            "registered": true
+          },
+          {
+            "action": "live-primary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Enter",
+            "display": "Ctrl + ↵",
+            "label": "Generate primary answer",
+            "description": "Generate the primary AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-secondary-answer",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Shift+Enter",
+            "display": "Ctrl + Shift + ↵",
+            "label": "Generate secondary answer",
+            "description": "Generate an alternative AI answer for the current question.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Up",
+            "display": "Ctrl + ↑",
+            "label": "Previous message",
+            "description": "Select the previous message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-next-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Down",
+            "display": "Ctrl + ↓",
+            "label": "Next message",
+            "description": "Select the next message in the transcript.",
+            "registered": true
+          },
+          {
+            "action": "live-hide-overlay",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+H",
+            "display": "Ctrl + H",
+            "label": "Hide overlay",
+            "description": "Hide the floating overlay without ending the session.",
+            "registered": true
+          },
+          {
+            "action": "live-prev-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Left",
+            "display": "Ctrl + ←",
+            "label": "Previous AI answer",
+            "description": "Show the previous AI answer.",
+            "registered": true
+          },
+          {
+            "action": "live-next-ai-message",
+            "set": "live-call",
+            "accelerator": "CommandOrControl+Right",
+            "display": "Ctrl + →",
+            "label": "Next AI answer",
+            "description": "Show the next AI answer.",
+            "registered": true
+          }
+        ],
+        "hotkeyIssues": []
+      },
+      "activeModel": "anthropic/claude-haiku-4.5",
+      "stealthEnabled": true,
+      "platform": "win",
+      "hotkeys": [
+        {
+          "action": "toggle-overlay",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+H",
+          "display": "Ctrl + Shift + H",
+          "label": "Toggle overlay",
+          "description": "Show or hide the floating overlay.",
+          "registered": true
+        },
+        {
+          "action": "panic-hide",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+X",
+          "display": "Ctrl + Shift + X",
+          "label": "Panic hide",
+          "description": "Instantly hide every HireShade window.",
+          "registered": true
+        },
+        {
+          "action": "cycle-model",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+M",
+          "display": "Ctrl + Shift + M",
+          "label": "Cycle model",
+          "description": "Cycle the AI model used for the next answer.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-up",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Up",
+          "display": "Ctrl + Shift + ↑",
+          "label": "Nudge overlay up",
+          "description": "Move the floating overlay up by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-down",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Down",
+          "display": "Ctrl + Shift + ↓",
+          "label": "Nudge overlay down",
+          "description": "Move the floating overlay down by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-left",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Left",
+          "display": "Ctrl + Shift + ←",
+          "label": "Nudge overlay left",
+          "description": "Move the floating overlay left by one step.",
+          "registered": true
+        },
+        {
+          "action": "overlay-nudge-right",
+          "set": "app",
+          "accelerator": "CommandOrControl+Shift+Right",
+          "display": "Ctrl + Shift + →",
+          "label": "Nudge overlay right",
+          "description": "Move the floating overlay right by one step.",
+          "registered": true
+        },
+        {
+          "action": "live-primary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Enter",
+          "display": "Ctrl + ↵",
+          "label": "Generate primary answer",
+          "description": "Generate the primary AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-secondary-answer",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Shift+Enter",
+          "display": "Ctrl + Shift + ↵",
+          "label": "Generate secondary answer",
+          "description": "Generate an alternative AI answer for the current question.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Up",
+          "display": "Ctrl + ↑",
+          "label": "Previous message",
+          "description": "Select the previous message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-next-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Down",
+          "display": "Ctrl + ↓",
+          "label": "Next message",
+          "description": "Select the next message in the transcript.",
+          "registered": true
+        },
+        {
+          "action": "live-hide-overlay",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+H",
+          "display": "Ctrl + H",
+          "label": "Hide overlay",
+          "description": "Hide the floating overlay without ending the session.",
+          "registered": true
+        },
+        {
+          "action": "live-prev-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Left",
+          "display": "Ctrl + ←",
+          "label": "Previous AI answer",
+          "description": "Show the previous AI answer.",
+          "registered": true
+        },
+        {
+          "action": "live-next-ai-message",
+          "set": "live-call",
+          "accelerator": "CommandOrControl+Right",
+          "display": "Ctrl + →",
+          "label": "Next AI answer",
+          "description": "Show the next AI answer.",
+          "registered": true
+        }
+      ]
+    }
+  },
+  "checks": [
+    {
+      "name": "preload bridge exposed with contextIsolation",
+      "ok": true,
+      "details": {
+        "isElectron": true,
+        "windowId": "floating",
+        "hasOnHotkey": true,
+        "nodeIntegrationLeak": false,
+        "screen": {
+          "width": 1301,
+          "availWidth": 1301,
+          "availHeight": 686,
+          "devicePixelRatio": 1.0499999523162842
+        }
+      }
+    },
+    {
+      "name": "no Node globals leak into the renderer",
+      "ok": true,
+      "details": {
+        "isElectron": true,
+        "windowId": "floating",
+        "hasOnHotkey": true,
+        "nodeIntegrationLeak": false,
+        "screen": {
+          "width": 1301,
+          "availWidth": 1301,
+          "availHeight": 686,
+          "devicePixelRatio": 1.0499999523162842
+        }
+      }
+    },
+    {
+      "name": "hotkey registered: CommandOrControl+Shift+H",
+      "ok": true,
+      "details": {
+        "action": "toggle-overlay",
+        "set": "app",
+        "accelerator": "CommandOrControl+Shift+H",
+        "display": "Ctrl + Shift + H",
+        "label": "Toggle overlay",
+        "description": "Show or hide the floating overlay.",
+        "registered": true
+      }
+    },
+    {
+      "name": "hotkey registered: CommandOrControl+Shift+X",
+      "ok": true,
+      "details": {
+        "action": "panic-hide",
+        "set": "app",
+        "accelerator": "CommandOrControl+Shift+X",
+        "display": "Ctrl + Shift + X",
+        "label": "Panic hide",
+        "description": "Instantly hide every HireShade window.",
+        "registered": true
+      }
+    },
+    {
+      "name": "hotkey registered: CommandOrControl+Shift+M",
+      "ok": true,
+      "details": {
+        "action": "cycle-model",
+        "set": "app",
+        "accelerator": "CommandOrControl+Shift+M",
+        "display": "Ctrl + Shift + M",
+        "label": "Cycle model",
+        "description": "Cycle the AI model used for the next answer.",
+        "registered": true
+      }
+    },
+    {
+      "name": "hotkey registered: CommandOrControl+Shift+Up",
+      "ok": true,
+      "details": {
+        "action": "overlay-nudge-up",
+        "set": "app",
+        "accelerator": "CommandOrControl+Shift+Up",
+        "display": "Ctrl + Shift + ↑",
+        "label": "Nudge overlay up",
+        "description": "Move the floating overlay up by one step.",
+        "registered": true
+      }
+    },
+    {
+      "name": "hotkey registered: CommandOrControl+Enter",
+      "ok": true,
+      "details": {
+        "action": "live-primary-answer",
+        "set": "live-call",
+        "accelerator": "CommandOrControl+Enter",
+        "display": "Ctrl + ↵",
+        "label": "Generate primary answer",
+        "description": "Generate the primary AI answer for the current question.",
+        "registered": true
+      }
+    },
+    {
+      "name": "hotkey registered: CommandOrControl+H",
+      "ok": true,
+      "details": {
+        "action": "live-hide-overlay",
+        "set": "live-call",
+        "accelerator": "CommandOrControl+H",
+        "display": "Ctrl + H",
+        "label": "Hide overlay",
+        "description": "Hide the floating overlay without ending the session.",
+        "registered": true
+      }
+    },
+    {
+      "name": "opacity persisted to settings",
+      "ok": true,
+      "details": 0.55
+    },
+    {
+      "name": "opacity applied to the floating window",
+      "ok": true,
+      "details": 0.55
+    },
+    {
+      "name": "dynamic click-through can be disabled",
+      "ok": true,
+      "details": false
+    },
+    {
+      "name": "dynamic click-through can be re-enabled",
+      "ok": true,
+      "details": true
+    },
+    {
+      "name": "position preset stored",
+      "ok": true,
+      "details": "top-right"
+    },
+    {
+      "name": "position preset moved the floating window to the top-right corner",
+      "ok": true,
+      "details": {
+        "bounds": {
+          "x": 577,
+          "y": 15,
+          "width": 708,
+          "height": 368
+        },
+        "initialX": 578,
+        "availWidth": 1301,
+        "rightGap": 16
+      }
+    },
+    {
+      "name": "private mode can be disabled",
+      "ok": true,
+      "details": false
+    },
+    {
+      "name": "private mode can be re-enabled",
+      "ok": true,
+      "details": true
+    }
+  ],
+  "failures": 0,
+  "result": "PASS"
+}
