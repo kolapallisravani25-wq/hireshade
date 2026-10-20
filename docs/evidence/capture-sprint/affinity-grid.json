@@ -1,0 +1,3 @@
+{
+  "fatal_error": "Error: S1 abort: affinity drifted during captures for reading-0x11: {\"captured_at\":\"2026-10-20T21:50:28.1315165+05:30\",\"expect\":\"0x11\",\"note\":\"S1 reading-0x11-after\",\"electron_pids\":[8236],\"windows\":[],\"matching\":[],\"pass\":false}\n    at main (file:///D:/hireshade/scripts/capture-matrix/run-affinity-grid.mjs:348:17)"
+}

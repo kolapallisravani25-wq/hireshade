@@ -1,0 +1,30 @@
+﻿{
+    "captured_at":  "2026-10-20T21:51:40.0468010+05:30",
+    "label":  "clean-reading-gdi-0x11",
+    "baseline":  "docs/evidence/overlay-size/gdi-reading-hidden-baseline-crop.png",
+    "on":  "docs/evidence/overlay-size/gdi-reading-stealth-on-crop.png",
+    "method":  "Per-edge pixel-ring analysis (threshold 12) of the GDI ON-vs-baseline crops; zoomed montages baseline|ON|diff saved for manual review",
+    "size":  {
+                 "height":  636,
+                 "width":  1258
+             },
+    "fractions":  {
+                      "edge_ring_1px":  0,
+                      "edge_ring_2px":  0,
+                      "edge_ring_4px":  0,
+                      "edge_ring_8px":  0,
+                      "interior_8px_inset":  0.00294
+                  },
+    "max_diff":  200,
+    "max_diff_edge_2px":  0,
+    "max_diff_interior":  200,
+    "contiguous_band_px":  {
+                               "left":  0,
+                               "right":  0,
+                               "top":  0,
+                               "bottom":  0,
+                               "max":  0
+                           },
+    "classification":  "INCONCLUSIVE",
+    "zoomed_images":  "docs/evidence/capture-sprint\\zoom-clean-reading-gdi-0x11-top.png;docs/evidence/capture-sprint\\zoom-clean-reading-gdi-0x11-bottom.png;docs/evidence/capture-sprint\\zoom-clean-reading-gdi-0x11-left.png;docs/evidence/capture-sprint\\zoom-clean-reading-gdi-0x11-right.png;docs/evidence/capture-sprint\\zoom-clean-reading-gdi-0x11-corner-topleft.png"
+}

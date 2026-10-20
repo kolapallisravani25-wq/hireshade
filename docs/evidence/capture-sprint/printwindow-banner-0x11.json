@@ -1,0 +1,18 @@
+﻿{
+    "captured_at":  "2026-10-20T21:48:51.3646187+05:30",
+    "label":  "banner-0x11",
+    "method":  "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+    "title":  "Floating Mini-Screen",
+    "hwnd":  "0x2D07A6",
+    "printwindow_ok":  true,
+    "flag_used":  0,
+    "path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\printwindow-banner-0x11.png",
+    "width":  1367,
+    "height":  252,
+    "stats":  {
+                  "mean_luma":  0,
+                  "std_luma":  0,
+                  "unique_colors_sampled":  1,
+                  "black_fraction":  1
+              }
+}

@@ -1,0 +1,18 @@
+﻿{
+    "captured_at":  "2026-10-20T21:50:59.9481555+05:30",
+    "label":  "rust-0x01",
+    "method":  "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+    "title":  "HireShade Affinity Probe",
+    "hwnd":  "0x860736",
+    "printwindow_ok":  true,
+    "flag_used":  0,
+    "path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\printwindow-rust-0x01.png",
+    "width":  520,
+    "height":  340,
+    "stats":  {
+                  "mean_luma":  0,
+                  "std_luma":  0,
+                  "unique_colors_sampled":  1,
+                  "black_fraction":  1
+              }
+}

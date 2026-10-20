@@ -1,0 +1,21 @@
+﻿{
+    "captured_at":  "2026-10-20T21:51:05.0364139+05:30",
+    "label":  "rust-0x11",
+    "note":  "Rust in-process affinity probe 0x11",
+    "method":  "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+    "bounds":  {
+                   "y":  120,
+                   "width":  520,
+                   "height":  340,
+                   "x":  120
+               },
+    "full_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x11-full.png",
+    "crop_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x11-crop.png",
+    "stats":  {
+                  "mean_luma":  30.78,
+                  "std_luma":  29.32,
+                  "unique_colors_sampled":  684,
+                  "high_contrast_fraction":  0.9222,
+                  "non_black_fraction":  0
+              }
+}

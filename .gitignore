@@ -48,6 +48,9 @@ artifacts/craft-vita/src-tauri/src/algo 6.txt
 artifacts/craft-vita/temp-tauri-launch.png
 .claude/settings.local.json
 
+# Rust build output created by diagnostic probes
+/scripts/capture-matrix/rust-affinity-probe/target/
+
 # External tool checkout (REA) with its own git history
 /rea/
 
@@ -60,6 +63,7 @@ artifacts/craft-vita/temp-tauri-launch.png
 # Electron user-data trees captured during stealth-wiring validation
 /docs/evidence/stealth-wiring/userdata/
 /docs/evidence/overlay-size/userdata*/
+/docs/evidence/capture-sprint/userdata*/
 
 # Large downloaded competitor artifacts (keep manifests, hashes, and scan output only)
 /docs/raw/desktop/mac-unpacked/

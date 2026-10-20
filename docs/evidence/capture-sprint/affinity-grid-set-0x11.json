@@ -1,0 +1,21 @@
+﻿{
+    "captured_at":  "2026-10-20T21:49:09.7421561+05:30",
+    "method":  "user32.SetWindowDisplayAffinity on the live overlay HWND (external S1 experiment)",
+    "title_filter":  "*",
+    "requested":  "0x11",
+    "matched":  1,
+    "matching":  [
+                     {
+                         "hwnd":  "0x2D07A6",
+                         "title":  "Floating Mini-Screen",
+                         "requested":  "0x11",
+                         "applied_ok":  false,
+                         "readback":  "0x11",
+                         "last_error":  5
+                     }
+                 ],
+    "ok":  true,
+    "last_error_codes":  [
+                             5
+                         ]
+}

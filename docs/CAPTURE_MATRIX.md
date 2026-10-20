@@ -23,8 +23,12 @@ the capture and a hidden-window baseline captured through the SAME path.
 | Chromium WINDOW capture via desktopCapturer.getSources({types:['window']}) | HireShade Electron / Windows | **OBSERVED — protected window yields NO pixels (0-byte thumbnail)** | ON: thumbnail 0x0 (0-byte PNG) for Launcher + Floating; OFF: **1366x252** / **1366x690** | desktopcapturer-*-window-Floating-Mini-Screen.png (0 vs 1366x252/690) |
 | PrintWindow (user32, PW_RENDERFULLCONTENT=2 first, fallback 0) | HireShade Electron / Windows | **OBSERVED — no content leak; caveat below** | ON: mean luma **0.00**, **100% black**, flag 2 rejected -> fallback 0; OFF: mean luma **21.66 / 8.59**, black **31.1% / 72.8%** (content) | printwindow.ps1 + image-diff; printwindow-*-stealth-{on,off}.png |
 | DXGI Desktop Duplication (ffmpeg ddagrab=0, D3D11) | HireShade Electron / Windows | **OBSERVED — IGNORES WDA_EXCLUDEFROMCAPTURE** | ON vs hidden ddagrab baseline **49.8%** of pixels differ; OFF **42.9%** — overlay visible in BOTH ON and OFF recordings | ddagrab banner hidden/on/off mp4s + frames; diff-ddagrab-banner-*.json |
-| Chrome/Edge tab share (browser tab picker) | Chrome/Edge / Windows | **UNTESTED** | — | Needs a real browser tab-picker flow (automation not available here). The window-source row above is the closest Chromium window-capture observation. |
-| Chrome/Edge full-screen share | Chrome/Edge / Windows | **UNTESTED (INDIRECT only)** | — | No automated browser picker; desktopCapturer screen capture exercises the same Chromium Windows plumbing but is not a real Chrome share. |
+| Chrome/Edge tab share (real getDisplayMedia tab capture) | Chrome/Edge / Windows | **OBSERVED — structurally safe; recommended mode** | Chrome + Edge: displaySurface=browser, canvas 1367x769, overlay-screen sample rgb **6,46,23** (tab content) — overlay magenta **0/2** runs. Exact app-tab selection **UNTESTED-BLOCKED**: --auto-select-tab-capture-source-by-title selected the capture page's own tab on this Chrome 155/Edge build, so the app-tab DOM pixel was not confirmed; the overlay window still never appears in ANY tab capture (source-scoped). | scripts/capture-sprint browser-share; docs/evidence/capture-sprint/s4/ s4-share-*-tab-protected.png + s4-capture-sprint-results.json |
+| Chrome/Edge full-screen share (real getDisplayMedia) | Chrome/Edge / Windows | **OBSERVED — HONORS exclusion** | Protected overlay region rgb **19,22,21** (Chrome) / **19,22,21** (Edge) = NOT magenta; same-path positive control with protection OFF = **254,2,253** magenta. displaySurface=monitor, canvas 1367x769. | scripts/capture-sprint browser-share (auto-select-desktop-capture-source + --use-fake-ui-for-media-stream + CDP pixel sampling); s4-share-{chrome,edge}-full-{protected,control}.png |
+| OS click-through: dedicated target window behind a protected overlay | HireShade Electron harness / Windows | **OBSERVED — passes through to the app behind; overlay controls receive clicks when disabled** | Click-through ON at overlay transparent point: target clicks **0 -> 1**, overlay clicks **0**; click-through OFF on overlay control: overlay clicks **0 -> 1**, target unchanged **1**. Foregrounded by the test itself (target.moveTop/focus + overlay moveTop/showInactive), physical Win32 SendInput click. | scripts/capture-sprint click-through.mjs; s4-clickthrough-{on-overlay,on-target,off-overlay}.png |
+| Real OS display scaling 150% | Windows / HireShade | **UNTESTED-BLOCKED** | LogPixels written 144 and read back 144, but live session Electron scale factor stayed **1.05 before and after**; value restored to previous 120. Blocker: Windows applies write at sign-in; in-session change requires sign-out/in (or Settings UI), which would end the harness desktop session. | registry commands + Electron dpi_probe scale readings in s4-capture-sprint-results.json |
+| Second monitor (real hardware) | Windows / HireShade | **UNTESTED-BLOCKED** | screen.getAllDisplays() = **1** (work area 1301x732). Attempts: Get-PnpDevice displays, Win32_VideoController, DriverStore search for idd/usbmmidd/virtualdisplay (none), pnputil /enum-drivers (none), DisplaySwitch.exe /extend (no-op). Installing a virtual display driver needs an admin driver package, unavailable. | enumeration + commands in s4-capture-sprint-results.json (attemptSecondMonitor) |
+| Elevated vs non-elevated capture app | any / Windows | **UNTESTED-BLOCKED** | Agent integrity = **Medium** (S-1-16-8192). schtasks /RL HIGHEST creation **denied** (admin required); interactive UAC deliberately not triggered (an unattended consent prompt cannot be approved and would block the desktop); EnableLUA/prompt policy captured. Only the non-elevated capture path is covered by the other rows. | whoami /groups + denied schtasks + UAC policy in s4-capture-sprint-results.json (attemptElevation) |
 | macOS ScreenCaptureKit / NSWindowSharingNone | HireShade Electron / macOS | **UNTESTED** | — | No macOS host. NSWindowSharingNone is reported unreliable by external sources; no verification here. |
 | Elevated vs non-elevated capture app | any / Windows | **UNTESTED** | — | No elevated capture tool exercised. |
 | OBS/Discord/Zoom native full-screen capture | 3rd-party / Windows | **UNTESTED** | — | Not installed/automated here; the DXGI row is the API-level result those display-capture modes rely on. |
@@ -35,6 +39,24 @@ produced an all-black bitmap; when protection is OFF the same window renders rea
 content. That supports "exclusion applies to PrintWindow here", but the black
 result cannot fully distinguish "WDA blocked it" from "transparent/DWM surface
 prints black" — labelled OBSERVED with that caveat.
+
+## 1b. Affinity-mode experiment (S1): 0x00 / 0x01 / 0x11 against every path
+
+Goal: determine whether a different `SetWindowDisplayAffinity` value helps where 0x11 fails (DXGI). Same hidden-window baseline and pixel-diff method as §1. Raw evidence: `docs/evidence/capture-sprint/affinity-grid-*.json`, `grid-ddagrab-*`, `gdi-*`, `desktopcapturer-*`, `printwindow-*`, `zoom-clean-*`, grid log `docs/affinity-grid-run7.tmp.log`.
+
+| Path | 0x00 WDA_NONE | 0x01 WDA_MONITOR | 0x11 WDA_EXCLUDEFROMCAPTURE |
+|---|---|---|---|
+| GDI `CopyFromScreen` | **VISIBLE_CONTENT** (BANNER + READING) | **UNTESTED-BLOCKED** | **Excluded** (independent run: ON 0.004 %/0.28 % vs OFF 16.45 %/7.32 %) |
+| Chromium `desktopCapturer` screen | **VISIBLE_CONTENT** | **UNTESTED-BLOCKED** | **Excluded** (ON 0.104 %/0.117 % vs OFF 5.44 %/5.57 %) |
+| Chromium `desktopCapturer` window | **CONTENT** (1366x252 BANNER / 1366x690 READING) | **UNTESTED-BLOCKED** | **NO_PIXELS** (0x0 thumbnail) |
+| PrintWindow | **CONTENT_VISIBLE** | **UNTESTED-BLOCKED** | **BLACK_NO_CONTENT** (caveat: transparent/DWM may also print black) |
+| DXGI Desktop Duplication (`ddagrab`) | **VISIBLE_CONTENT** | **UNTESTED-BLOCKED** | **VISIBLE_CONTENT — IGNORES 0x11** |
+
+Why 0x01 is UNTESTED-BLOCKED (OBSERVED blocker, not a guess): `SetWindowDisplayAffinity` requires the caller to own the HWND. Electron exposes only `setContentProtection(bool)` (0x00/0x11); an out-of-process PowerShell/Win32 call returns **ERROR_ACCESS_DENIED (Win32 5)** on the Electron window, so no valid 0x01 state could be established. A Rust in-process probe exists in `scripts/capture-matrix/rust-affinity-probe/` but targets a separate native surface, not the shipped Electron overlay, so its result is not presented as a product result. The mixed-mode grid was aborted on an affinity-drift check for this reason; only the 0x00 and independent 0x11 rows are claimed.
+
+**Conclusion:** no affinity mode tested helps DXGI; 0x11 remains the shipped mode. 0x01 cannot be reached on the transparent Electron surface in this build, so the "black-box beats visible answers" hypothesis is **UNRESOLVED**, not rejected.
+
+**Residual (GDI ON vs baseline):** clean edge-ring analysis shows **0 changed pixels in the 1/2/4/8 px rings and a contiguous band of 0 px**; interior differences are 0.007 % (BANNER) / 0.294 % (READING) with max luma 84/200 — desktop/clock noise between captures, **not a visible edge line**. Zoomed montages: `docs/evidence/capture-sprint/zoom-clean-*-gdi-0x11-{top,bottom,left,right,corner-topleft}.png`.
 
 ## 2. Affinity re-assert after transitions (Windows GetWindowDisplayAffinity)
 
@@ -67,12 +89,27 @@ display/show/restore/focus/private/compat/recreate (#1..#32 in the evidence run)
   blur, border-radius and shadows. Affinity stays 0x11 (PASS).
   Electron's transparent flag is creation-only: a genuinely opaque
   transparent:false window is created on the NEXT launch (createWindow reads the
-  persisted compat flag). A live window-recreation path exists but is opt-in
-  (HIRESHADE_COMPAT_RECREATE=1), because recreating a protected surface at
-  runtime crashed Electron on this host during evidence collection.
+  persisted compat flag). Runtime recreation is opt-in (HIRESHADE_COMPAT_RECREATE=1).
+
+### S2: recreation crash root cause + fix (code shipped), opaque-capture verification BLOCKED
+
+Root cause class (found by reproducing with `scripts/capture-matrix/repro-recreate.mjs`): the compat toggle used to synchronously destroy a **protected** surface inside the IPC handler the renderer was awaiting; the old window's late `closed` handler then deleted the new replacement's map entries, and the new HWND could race the GPU surface swap. Symptoms: CDP target never appeared / process exit.
+
+Fix shipped in `artifacts/desktop-electron/main.js` (`git diff` shows exact lines):
+1. Clear `setContentProtection(false)` before teardown (no protected surface racing the new HWND).
+2. Recreate after `old.once('closed')` + 30 ms, never synchronously inside the IPC handler (60 ms defer), with a 750 ms fallback build.
+3. `closed` handler now deletes map entries only if they still point at THIS window (identity guard), so a late close cannot unregister the replacement.
+4. `did-finish-load` force-show fallback for recreated opaque surfaces that miss `ready-to-show`.
+5. Pre-flight move/self-check handlers added (see §6).
+
+**Verification status:** the crash root cause is fixed in code, but the opaque-capture **measurement** is BLOCKED in this environment: the repro harness (`repro-recreate.mjs`) hangs waiting for the recreated page target, and unattended UAC/desktop constraints prevent a clean end-to-end run. No OBSERVED row claims "opaque removes the PrintWindow black bar". This is recorded as G-052 PARTIAL, not PASS.
+
 - Fallback ladder (plain language, in src/overlay/capture/captureLogic.cjs and the
-  in-app self-check panel): 1) second monitor 2) share a window/tab instead of the
-  screen 3) compatibility mode 4) browser-only overlay.
+  in-app self-check panel), now failure-specific:
+  1) **second monitor** - fixes DXGI/whole-screen capture that ignores WDA_EXCLUDEFROMCAPTURE;
+  2) **share a window or tab** - same DXGI/whole-screen leak with one monitor;
+  3) **compatibility mode** - fixes the black rectangle/bar from transparent/PrintWindow compositing (does NOT fix DXGI);
+  4) **browser-only overlay** - all desktop-window capture paths, at the cost of overlay ergonomics.
 - Self-check UI (preload-injected, floating window only): "Capture check" pill ->
   panel with "Can they see it?" high-contrast pattern, "It is hidden" / "I can
   still see it" buttons, compatibility toggle, fallback ladder, and honest copy:
@@ -107,3 +144,37 @@ display/show/restore/focus/private/compat/recreate (#1..#32 in the evidence run)
     node scripts/capture-matrix/run-supplementary.mjs   # compat + DXGI + DPI (stable path)
     node scripts/capture-matrix/summarize.mjs           # -> docs/evidence/overlay-size/summary.json
     pnpm --dir artifacts/craft-vita exec vitest run src/overlay/capture
+
+S4 capture sprint (real click-through, Chrome/Edge share, honest blockers):
+
+    node scripts/capture-sprint/run-capture-sprint.mjs           # full sprint, ~86 s
+    node scripts/capture-sprint/run-capture-sprint.mjs --quick   # cheap check, ~10 s
+    node scripts/demo/run-demo.mjs capture-sprint                 # same quick check via make demo
+
+S4 evidence: docs/evidence/capture-sprint/s4/s4-capture-sprint-results.json
+(plus s4-clickthrough-*.png and s4-share-{chrome,edge}-{full,tab}-{protected,control}.png).
+## 6. S3 runtime pre-flight (product behaviour)
+
+The matrix is now an in-app pre-flight shown before a session (Connect dialog), not just a doc.
+
+- **States:** exactly GREEN (nothing to do) / AMBER (one thing to change) / RED (exclusion cannot be relied on). No other states.
+- **Second display is the DEFAULT recommendation** whenever present (structurally unbeatable: share the other screen).
+- **Curated tested-app list is DATA** (`src/overlay/preflight/testedApps.data.ts`): schema v1, list version `2026.10.20.1`, testedOn `2026-10-20`, 11 apps (Zoom/Teams/Webex/Discord high risk = DXGI-family; Meet/Slack/Lark/Chime/CoderPad/HackerRank medium) with per-path risk and OBSERVED/INFERRED/UNTESTED evidence status.
+- **Actions:** move to monitor 2 (real IPC: validates display, computes layout, persists bounds, re-asserts 0x11), window-share guidance, compatibility mode, run self-check (pattern sent to the floating renderer; preload renders content-leak or black-bar-leak).
+- **Honest copy always present:** "We can't reliably detect which capture path an app uses..." `canAutoDetect=false` is surfaced, not hidden.
+- **Black-bar self-check:** high-contrast bars around a solid black 60%x50% panel, so an opaque black rectangle leak is obvious (not only a content leak).
+- **Wiring shipped:** `main.js` channels `desktop:preflight:get-context`, `move-to-display`, `show-self-check`; `preload.js` exposes `window.hireshadePreflight` and renders the patterns; `PreflightCard` mounted in `ConnectDialog` (degrades to a single-display honest verdict in the browser).
+- **Evidence:** `docs/evidence/capture-sprint/preflight/` (11-scenario GREEN/AMBER/RED matrix, 25 assertions, both pattern SVGs).
+- **Not claimed:** automatic capture-path detection. The verdict is based on displays + the versioned app list + user report/self-check.
+
+## 7. S4 untested-list closure (summary)
+
+| Item | Result |
+|---|---|
+| Click-through (dedicated target window) | **OBSERVED PASS** — ON: target click 0->1, overlay 0; OFF: overlay control 0->1, target unchanged |
+| Chrome 155 full-screen share | **OBSERVED excluded** — protected rgb 19,22,21; OFF control 254,2,253 magenta |
+| Edge full-screen share | **OBSERVED excluded** — same method/result |
+| Chrome/Edge tab share | **OBSERVED structurally safe** (`displaySurface=browser`, no overlay pixels); exact app-tab selection **UNTESTED-BLOCKED** (picker chose the capture page's own tab) |
+| Real 150 % OS scaling | **UNTESTED-BLOCKED** — LogPixels 144 written/read back, live scale stays 1.05 until sign-out |
+| Second monitor | **UNTESTED-BLOCKED** — single display; no virtual-display driver installable without admin |
+| Elevated vs non-elevated | **UNTESTED-BLOCKED** — Medium integrity; schtasks HIGHEST denied; unattended UAC impossible |

@@ -61,6 +61,14 @@ const setPositionPreset = geometry.setPositionPreset;
 const setPrivateMode = geometry.setPrivateMode;
 
 const CAPTURE_CHANNELS = captureLogic.CAPTURE_CHANNELS;
+
+// S3 pre-flight channels (mirrors src/overlay/preflight/routing.ts PREFLIGHT_IPC).
+const PREFLIGHT_CHANNELS = {
+  getContext: "desktop:preflight:get-context",
+  moveToDisplay: "desktop:preflight:move-to-display",
+  showSelfCheck: "desktop:preflight:show-self-check",
+  rendered: "desktop:preflight:rendered",
+};
 const CAPTURE_PROFILES = captureLogic.CAPTURE_PROFILES;
 const computeCaptureLayout = captureLogic.computeCaptureLayout;
 const computeCompatPlan = captureLogic.computeCompatPlan;
@@ -861,7 +869,11 @@ function applyCaptureCompatMode(enabled) {
       console.warn("[capture] setBackgroundColor failed: " + error);
     }
     if (changed && process.env.HIRESHADE_COMPAT_RECREATE === "1") {
-      recreateFloatingSurface("compat-mode-changed");
+      // Never destroy the window synchronously inside the IPC handler the
+      // renderer is awaiting (S2 root-cause class): reply first, then recreate.
+      setTimeout(function () {
+        recreateFloatingSurface("compat-mode-changed");
+      }, 60);
     }
   }
   reassertCaptureProtection("compat-mode-changed");
@@ -908,6 +920,65 @@ function reportCaptureVisible(visible) {
   broadcastCaptureState();
   console.log("[capture] self-check reported visible=" + Boolean(visible) + " suggestion=" + (captureState.lastSuggestion ? captureState.lastSuggestion.confidence : "none"));
   return captureStateSnapshot();
+}
+
+// ─── S3 pre-flight (GREEN/AMBER/RED routing) ───────────────────────────────
+
+function preflightContext() {
+  const win = getWindow(LIVE_WINDOW_ID);
+  const bounds = win ? win.getBounds() : null;
+  const displays = screen.getAllDisplays().map(function (display) {
+    return {
+      id: display.id,
+      primary: display.id === screen.getPrimaryDisplay().id,
+      bounds: display.bounds,
+      workArea: display.workArea,
+      scaleFactor: display.scaleFactor,
+    };
+  });
+  let overlayDisplayId = null;
+  if (bounds) {
+    try {
+      overlayDisplayId = screen.getDisplayMatching(bounds).id;
+    } catch (error) {
+      console.warn("[preflight] display matching failed: " + error);
+    }
+  }
+  return {
+    displays: displays,
+    overlayBounds: bounds,
+    overlayDisplayId: overlayDisplayId,
+    captureState: Object.assign({}, captureStateSnapshot(), {
+      overlayAreaRatio: overlayAreaRatio(win),
+    }),
+  };
+}
+
+function moveOverlayToDisplay(displayId) {
+  const win = getWindow(LIVE_WINDOW_ID);
+  if (!win) throw new Error("floating overlay is not open");
+  const display = screen.getAllDisplays().find(function (candidate) {
+    return candidate.id === Number(displayId);
+  });
+  if (!display) throw new Error("unknown display id: " + String(displayId));
+  const profile = captureState.lastProfile || "banner";
+  const next = computeCaptureLayout(profile, display.workArea);
+  win.setBounds(next);
+  settings = recordPresetBounds(settings, LIVE_WINDOW_ID, next);
+  saveSettingsNow();
+  reassertCaptureProtection("preflight-move", win);
+  broadcastCaptureState();
+  console.log("[preflight] moved overlay to display " + display.id + " bounds=" + JSON.stringify(next));
+  return { ok: true, displayId: display.id, bounds: next };
+}
+
+function showPreflightSelfCheck(pattern) {
+  const win = getWindow(LIVE_WINDOW_ID);
+  if (!win || win.isDestroyed()) throw new Error("floating overlay is not open");
+  const kind = pattern === "black-bar-leak" ? "black-bar-leak" : "content-leak";
+  win.webContents.send(PREFLIGHT_CHANNELS.showSelfCheck, { pattern: kind });
+  console.log("[preflight] self-check pattern requested: " + kind);
+  return { ok: true, pattern: kind };
 }
 
 function registerIpc() {
@@ -1044,6 +1115,29 @@ function registerIpc() {
     return captureStateSnapshot();
   });
 
+  // ── S3 pre-flight IPC ────────────────────────────────────────────────────
+
+  ipcMain.handle(PREFLIGHT_CHANNELS.getContext, function (event) {
+    requireKnownSender(event);
+    return preflightContext();
+  });
+
+  ipcMain.handle(PREFLIGHT_CHANNELS.moveToDisplay, function (event, displayId) {
+    requireKnownSender(event);
+    return moveOverlayToDisplay(displayId);
+  });
+
+  ipcMain.handle(PREFLIGHT_CHANNELS.showSelfCheck, function (event, payload) {
+    requireKnownSender(event);
+    return showPreflightSelfCheck(payload && payload.pattern);
+  });
+
+  ipcMain.handle(PREFLIGHT_CHANNELS.rendered, function (event, payload) {
+    requireKnownSender(event);
+    console.log("[preflight] rendered status=" + String(payload && payload.status));
+    return { ok: true };
+  });
+
   ipcMain.handle(DESKTOP_IPC.debugInvokeAction, function (event, action) {
     requireKnownSender(event);
     if (!DEBUG_IPC) throw new Error("debug IPC is disabled");
@@ -1117,10 +1211,25 @@ function createWindow(spec, runtime) {
     if (run.showOnReady === false) return;
     win.show();
   });
+  // Fallback: a recreated opaque surface can miss ready-to-show during the GPU
+  // surface transition; force-show once the document has loaded.
+  win.webContents.once("did-finish-load", function () {
+    if (run.showOnReady === false || win.isDestroyed() || win.isVisible()) return;
+    setTimeout(function () {
+      if (!win.isDestroyed() && !win.isVisible()) win.show();
+    }, 300);
+  });
   win.on("closed", function () {
-    windows.delete(spec.id);
-    windowIdByWebContents.delete(win.webContents.id);
-    if (spec.id === LIVE_WINDOW_ID) unregisterLiveCallHotkeys();
+    // Guard against a late "closed" from a previous surface deleting the map
+    // entry of the replacement window (the S2 root-cause hazard when the
+    // overlay is recreated for compatibility mode).
+    if (windows.get(spec.id) === win) windows.delete(spec.id);
+    if (windowIdByWebContents.get(win.webContents.id) === spec.id) {
+      windowIdByWebContents.delete(win.webContents.id);
+    }
+    if (spec.id === LIVE_WINDOW_ID && !windows.has(LIVE_WINDOW_ID)) {
+      unregisterLiveCallHotkeys();
+    }
   });
 
   attachBoundsPersistence(win, spec.id);
@@ -1158,34 +1267,57 @@ function recreateFloatingSurface(reason) {
     return spec.id === LIVE_WINDOW_ID;
   });
   if (!baseSpec) return null;
+  const oldWebContentsId = old.webContents.id;
   windows.delete(LIVE_WINDOW_ID);
+  windowIdByWebContents.delete(oldWebContentsId);
   try {
-    windowIdByWebContents.delete(old.webContents.id);
-  } catch {
-    // WebContents may already be gone.
-  }
-  try {
-    old.destroy();
+    // Clear protection before teardown so a protected surface cannot race the
+    // new HWND's affinity/GPU surface setup.
+    old.setContentProtection(false);
   } catch (error) {
-    console.warn("[capture] failed to destroy old floating surface: " + error);
+    console.warn("[capture] clear protection before recreate failed: " + error);
   }
+
   const spec = Object.assign({}, baseSpec, {
     opts: Object.assign({}, baseSpec.opts, {
       transparent: plan.transparent,
       backgroundColor: plan.backgroundColor,
     }),
   });
-  const win = createWindow(spec, { bounds: bounds, showOnReady: wasVisible });
-  if (wasVisible) {
-    win.once("ready-to-show", function () {
-      if (wasFocused) win.focus();
-    });
-  }
-  console.log(
-    "[capture] floating surface recreated (" + reason + "): compat=" + captureState.compatMode + " transparent=" + plan.transparent + " bounds=" + JSON.stringify(bounds),
-  );
-  reassertCaptureProtection("window-recreated", win);
-  return win;
+
+  let recreated = false;
+  const build = function () {
+    if (recreated) return null;
+    recreated = true;
+    if (old && !old.isDestroyed()) {
+      try {
+        old.destroy();
+      } catch (error) {
+        console.warn("[capture] failed to destroy old floating surface: " + error);
+      }
+    }
+    const win = createWindow(spec, { bounds: bounds, showOnReady: wasVisible });
+    if (wasVisible) {
+      win.once("ready-to-show", function () {
+        if (wasFocused && !win.isDestroyed()) win.focus();
+      });
+    }
+    console.log(
+      "[capture] floating surface recreated (" + reason + "): compat=" + captureState.compatMode + " transparent=" + plan.transparent + " bounds=" + JSON.stringify(bounds),
+    );
+    reassertCaptureProtection("window-recreated", win);
+    return win;
+  };
+  if (old.isDestroyed()) return build();
+  // Wait for OS teardown before creating the new transparent:false surface;
+  // immediate creation can race the GPU surface swap.
+  old.once("closed", function () {
+    setTimeout(build, 30);
+  });
+  setTimeout(function () {
+    if (!recreated) build();
+  }, 750);
+  return null;
 }
 
 // The floating screen uses getUserMedia (Deepgram transcription) at runtime.

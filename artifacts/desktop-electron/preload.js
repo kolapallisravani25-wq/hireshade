@@ -463,6 +463,78 @@ contextBridge.exposeInMainWorld("hireshadeDesktop", {
   onHotkey: subscribeHotkeys,
 });
 
+// ─── S3 pre-flight bridge ───────────────────────────────────────────────────
+// Mirrors src/overlay/preflight/routing.ts PREFLIGHT_IPC. The panel calls
+// getContext -> verdict, moveToDisplay -> main moves+persists+reasserts
+// protection, showSelfCheck -> black-bar/content-leak pattern rendered here.
+const PREFLIGHT_CHANNELS = {
+  getContext: "desktop:preflight:get-context",
+  moveToDisplay: "desktop:preflight:move-to-display",
+  showSelfCheck: "desktop:preflight:show-self-check",
+  rendered: "desktop:preflight:rendered",
+};
+
+function showPreflightPattern(kind) {
+  const existing = document.getElementById("hireshade-preflight-pattern");
+  if (existing) existing.remove();
+  const overlay = document.createElement("div");
+  overlay.id = "hireshade-preflight-pattern";
+  overlay.setAttribute("data-pattern", kind);
+  overlay.style.cssText =
+    "position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;" +
+    "background:" +
+    (kind === "black-bar-leak"
+      ? "repeating-linear-gradient(90deg,#ffffff 0 18px,#000000 18px 36px)"
+      : "repeating-linear-gradient(45deg,#ffffff 0 20px,#000000 20px 40px)") +
+    ";color:#000;font:600 16px/1.4 system-ui,sans-serif;pointer-events:auto;";
+  const box = document.createElement("div");
+  box.style.cssText =
+    "width:60%;height:50%;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;" +
+    "text-align:center;padding:24px;box-sizing:border-box;";
+  box.textContent =
+    kind === "black-bar-leak"
+      ? "If the interviewer can see this window, the black panel will appear as a black rectangle in their capture. Try compatibility mode, or share a window/tab."
+      : "If the interviewer can see this window, this high-contrast pattern will appear in their capture. Try compatibility mode, or share a window/tab.";
+  const done = document.createElement("button");
+  done.id = "hireshade-preflight-pattern-done";
+  done.textContent = "Done - hide pattern";
+  done.style.cssText =
+    "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:8px 14px;border-radius:8px;" +
+    "border:1px solid #333;background:#fff;color:#000;cursor:pointer;";
+  done.addEventListener("click", function () {
+    overlay.remove();
+  });
+  overlay.appendChild(box);
+  overlay.appendChild(done);
+  document.body.appendChild(overlay);
+  try {
+    ipcRenderer.invoke(PREFLIGHT_CHANNELS.rendered, { status: "pattern-shown", pattern: kind });
+  } catch (error) {
+    // Analytics-ish call only; never break the pattern.
+  }
+}
+
+ipcRenderer.on(PREFLIGHT_CHANNELS.showSelfCheck, function (_event, payload) {
+  showPreflightPattern(payload && payload.pattern === "black-bar-leak" ? "black-bar-leak" : "content-leak");
+});
+
+contextBridge.exposeInMainWorld("hireshadePreflight", {
+  isElectron: true,
+  windowId: windowId,
+  getContext: function () {
+    return ipcRenderer.invoke(PREFLIGHT_CHANNELS.getContext);
+  },
+  moveToDisplay: function (displayId) {
+    return ipcRenderer.invoke(PREFLIGHT_CHANNELS.moveToDisplay, displayId);
+  },
+  showSelfCheck: function (pattern) {
+    return ipcRenderer.invoke(PREFLIGHT_CHANNELS.showSelfCheck, { pattern: pattern });
+  },
+  notifyRendered: function (status) {
+    return ipcRenderer.invoke(PREFLIGHT_CHANNELS.rendered, { status: status });
+  },
+});
+
 contextBridge.exposeInMainWorld("hireshadeCapture", {
   isElectron: true,
   windowId: windowId,

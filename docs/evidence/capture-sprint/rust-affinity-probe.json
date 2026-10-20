@@ -1,0 +1,298 @@
+{
+  "generated_at": "2026-10-20T16:20:41.615Z",
+  "method": "Self-owned Win32 window (Rust, windows crate) sets SetWindowDisplayAffinity in-process, paints black/white stripes, then GDI/ddagrab/PrintWindow captures are compared between 0x00, 0x01 and 0x11 runs.",
+  "runs": [
+    {
+      "mode": "0x00",
+      "probe": {
+        "probe": "affinity-probe",
+        "requested": 0,
+        "set_ok": true,
+        "readback": 0,
+        "hwnd": 8718134,
+        "bounds": {
+          "x": 120,
+          "y": 120,
+          "width": 520,
+          "height": 340
+        },
+        "started_ms": 1792513241869,
+        "seconds": 8
+      },
+      "gdi": {
+        "captured_at": "2026-10-20T21:50:45.0006718+05:30",
+        "label": "rust-0x00",
+        "note": "Rust in-process affinity probe 0x00",
+        "method": "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+        "bounds": {
+          "y": 120,
+          "width": 520,
+          "height": 340,
+          "x": 120
+        },
+        "full_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x00-full.png",
+        "crop_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x00-crop.png",
+        "stats": {
+          "mean_luma": 108.69,
+          "std_luma": 122.01,
+          "unique_colors_sampled": 452,
+          "high_contrast_fraction": 0.9939,
+          "non_black_fraction": 0.4493
+        }
+      },
+      "printwindow": {
+        "captured_at": "2026-10-20T21:50:48.0740029+05:30",
+        "label": "rust-0x00",
+        "method": "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+        "title": "HireShade Affinity Probe",
+        "hwnd": "0x850736",
+        "printwindow_ok": true,
+        "flag_used": 2,
+        "path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\printwindow-rust-0x00.png",
+        "width": 520,
+        "height": 340,
+        "stats": {
+          "mean_luma": 107.18,
+          "std_luma": 123.03,
+          "unique_colors_sampled": 132,
+          "black_fraction": 0.5059
+        }
+      },
+      "ddagrab": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-ddagrab-rust-0x00.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-ddagrab-rust-0x00-frame.png"
+      },
+      "crop_stats": {
+        "captured_at": "2026-10-20T21:50:54.8298586+05:30",
+        "label": "rust-0x00",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x00-crop.png",
+        "rect": "{X=0,Y=0,Width=520,Height=340}",
+        "crop_path": null,
+        "width": null,
+        "height": null,
+        "mean_luma": 0,
+        "std_luma": 0,
+        "unique_colors_sampled": null,
+        "black_fraction": 0,
+        "high_contrast_fraction": 0
+      }
+    },
+    {
+      "mode": "0x01",
+      "probe": {
+        "probe": "affinity-probe",
+        "requested": 1,
+        "set_ok": true,
+        "readback": 1,
+        "hwnd": 8783670,
+        "bounds": {
+          "x": 120,
+          "y": 120,
+          "width": 520,
+          "height": 340
+        },
+        "started_ms": 1792513255729,
+        "seconds": 8
+      },
+      "gdi": {
+        "captured_at": "2026-10-20T21:50:58.4491299+05:30",
+        "label": "rust-0x01",
+        "note": "Rust in-process affinity probe 0x01",
+        "method": "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+        "bounds": {
+          "y": 120,
+          "width": 520,
+          "height": 340,
+          "x": 120
+        },
+        "full_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x01-full.png",
+        "crop_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x01-crop.png",
+        "stats": {
+          "mean_luma": 1.51,
+          "std_luma": 8.61,
+          "unique_colors_sampled": 322,
+          "high_contrast_fraction": 0.9965,
+          "non_black_fraction": 0.9433
+        }
+      },
+      "printwindow": {
+        "captured_at": "2026-10-20T21:50:59.9481555+05:30",
+        "label": "rust-0x01",
+        "method": "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+        "title": "HireShade Affinity Probe",
+        "hwnd": "0x860736",
+        "printwindow_ok": true,
+        "flag_used": 0,
+        "path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\printwindow-rust-0x01.png",
+        "width": 520,
+        "height": 340,
+        "stats": {
+          "mean_luma": 0,
+          "std_luma": 0,
+          "unique_colors_sampled": 1,
+          "black_fraction": 1
+        }
+      },
+      "ddagrab": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-ddagrab-rust-0x01.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-ddagrab-rust-0x01-frame.png"
+      },
+      "crop_stats": {
+        "captured_at": "2026-10-20T21:51:02.7013046+05:30",
+        "label": "rust-0x01",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x01-crop.png",
+        "rect": "{X=0,Y=0,Width=520,Height=340}",
+        "crop_path": null,
+        "width": null,
+        "height": null,
+        "mean_luma": 0,
+        "std_luma": 0,
+        "unique_colors_sampled": null,
+        "black_fraction": 0,
+        "high_contrast_fraction": 0
+      }
+    },
+    {
+      "mode": "0x11",
+      "probe": {
+        "probe": "affinity-probe",
+        "requested": 17,
+        "set_ok": true,
+        "readback": 17,
+        "hwnd": 8849206,
+        "bounds": {
+          "x": 120,
+          "y": 120,
+          "width": 520,
+          "height": 340
+        },
+        "started_ms": 1792513263259,
+        "seconds": 8
+      },
+      "gdi": {
+        "captured_at": "2026-10-20T21:51:05.0364139+05:30",
+        "label": "rust-0x11",
+        "note": "Rust in-process affinity probe 0x11",
+        "method": "GDI BitBlt (System.Drawing.Graphics.CopyFromScreen)",
+        "bounds": {
+          "y": 120,
+          "width": 520,
+          "height": 340,
+          "x": 120
+        },
+        "full_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x11-full.png",
+        "crop_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x11-crop.png",
+        "stats": {
+          "mean_luma": 30.78,
+          "std_luma": 29.32,
+          "unique_colors_sampled": 684,
+          "high_contrast_fraction": 0.9222,
+          "non_black_fraction": 0
+        }
+      },
+      "printwindow": {
+        "captured_at": "2026-10-20T21:51:06.3516435+05:30",
+        "label": "rust-0x11",
+        "method": "PrintWindow (user32!PrintWindow, PW_RENDERFULLCONTENT=2 first)",
+        "title": "HireShade Affinity Probe",
+        "hwnd": "0x870736",
+        "printwindow_ok": true,
+        "flag_used": 0,
+        "path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\printwindow-rust-0x11.png",
+        "width": 520,
+        "height": 340,
+        "stats": {
+          "mean_luma": 0,
+          "std_luma": 0,
+          "unique_colors_sampled": 1,
+          "black_fraction": 1
+        }
+      },
+      "ddagrab": {
+        "ok": true,
+        "mp4": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-ddagrab-rust-0x11.mp4",
+        "frame": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-ddagrab-rust-0x11-frame.png"
+      },
+      "crop_stats": {
+        "captured_at": "2026-10-20T21:51:09.1466408+05:30",
+        "label": "rust-0x11",
+        "input": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x11-crop.png",
+        "rect": "{X=0,Y=0,Width=520,Height=340}",
+        "crop_path": null,
+        "width": null,
+        "height": null,
+        "mean_luma": 0,
+        "std_luma": 0,
+        "unique_colors_sampled": null,
+        "black_fraction": 0,
+        "high_contrast_fraction": 0
+      }
+    }
+  ],
+  "comparisons": {
+    "gdi_0x01_vs_0x00": {
+      "captured_at": "2026-10-20T21:51:11.2610853+05:30",
+      "label": "gdi-0x01-vs-0x00",
+      "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x00-crop.png",
+      "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x01-crop.png",
+      "threshold": 16,
+      "width": 520,
+      "height": 340,
+      "rect": "",
+      "mean_abs_diff": 111.349,
+      "fraction_diff_gt_threshold": 0.49403,
+      "mean_diff_where_changed": 234.01,
+      "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-diff-gdi-0x01-vs-0x00.png"
+    },
+    "gdi_0x11_vs_0x00": {
+      "captured_at": "2026-10-20T21:51:12.5893454+05:30",
+      "label": "gdi-0x11-vs-0x00",
+      "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x00-crop.png",
+      "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x11-crop.png",
+      "threshold": 16,
+      "width": 520,
+      "height": 340,
+      "rect": "",
+      "mean_abs_diff": 112.242,
+      "fraction_diff_gt_threshold": 0.95456,
+      "mean_diff_where_changed": 122.36,
+      "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-diff-gdi-0x11-vs-0x00.png"
+    },
+    "ddagrab_0x01_vs_0x00": {
+      "captured_at": "2026-10-20T21:51:13.8200105+05:30",
+      "label": "ddagrab-0x01-vs-0x00",
+      "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-ddagrab-rust-0x00-frame.png",
+      "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-ddagrab-rust-0x01-frame.png",
+      "threshold": 16,
+      "width": 520,
+      "height": 340,
+      "rect": "120,120,520,340",
+      "mean_abs_diff": 111.242,
+      "fraction_diff_gt_threshold": 0.49493,
+      "mean_diff_where_changed": 233.23,
+      "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-diff-ddagrab-0x01-vs-0x00.png"
+    },
+    "ddagrab_0x11_vs_0x00": {
+      "captured_at": "2026-10-20T21:51:15.2356390+05:30",
+      "label": "ddagrab-0x11-vs-0x00",
+      "a": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-ddagrab-rust-0x00-frame.png",
+      "b": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-ddagrab-rust-0x11-frame.png",
+      "threshold": 16,
+      "width": 520,
+      "height": 340,
+      "rect": "120,120,520,340",
+      "mean_abs_diff": 112.043,
+      "fraction_diff_gt_threshold": 0.95399,
+      "mean_diff_where_changed": 121.96,
+      "diff_path": "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-diff-ddagrab-0x11-vs-0x00.png"
+    }
+  },
+  "conclusions": {
+    "0x01_set_on_self_owned_window": true,
+    "0x01_gdi_behaviour": "PARTIAL/CHANGED (review numbers)",
+    "0x01_dxgi_behaviour": "DXGI CHANGED with 0x01 (diff 0.49493; review frames)",
+    "0x11_dxgi_behaviour": "DXGI excludes 0x11 (diff 0.95399)"
+  }
+}

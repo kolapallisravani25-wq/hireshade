@@ -1,0 +1,14 @@
+﻿{
+    "captured_at":  "2026-10-20T21:48:21.6161061+05:30",
+    "label":  "banner-0x00-desktopcapturer-vs-baseline",
+    "a":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\desktopcapturer-banner-0x00-baseline-screen-0.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\desktopcapturer-banner-0x00-screen-0.png",
+    "threshold":  16,
+    "width":  1366,
+    "height":  768,
+    "rect":  "",
+    "mean_abs_diff":  38.617,
+    "fraction_diff_gt_threshold":  0.26916,
+    "mean_diff_where_changed":  194.75,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\diff-grid-banner-0x00-desktopcapturer-vs-baseline.png"
+}

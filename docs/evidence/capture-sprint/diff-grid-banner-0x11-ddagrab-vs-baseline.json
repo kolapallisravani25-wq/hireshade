@@ -1,0 +1,14 @@
+﻿{
+    "captured_at":  "2026-10-20T21:49:02.6578763+05:30",
+    "label":  "banner-0x11-ddagrab-vs-baseline",
+    "a":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\grid-ddagrab-banner-0x11-baseline-frame.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\grid-ddagrab-banner-0x11-frame.png",
+    "threshold":  16,
+    "width":  1366,
+    "height":  253,
+    "rect":  "0,16,1367,253",
+    "mean_abs_diff":  57.571,
+    "fraction_diff_gt_threshold":  1,
+    "mean_diff_where_changed":  94.86,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\diff-grid-banner-0x11-ddagrab-vs-baseline.png"
+}

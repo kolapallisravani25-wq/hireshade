@@ -56,30 +56,34 @@ const FALLBACK_LADDER = [
   {
     step: 1,
     id: "second-monitor",
+    addresses: "DXGI/whole-screen capture that ignores WDA_EXCLUDEFROMCAPTURE",
     title: "Use a second monitor for the meeting",
     detail:
-      "Share the meeting app's screen on the other monitor and keep HireShade on this one; full-screen shares of the other monitor do not contain the overlay.",
+      "Fixes the case where the interviewer's app captures with DXGI Desktop Duplication (it ignores the exclusion flag). Share the meeting app's screen on the OTHER monitor and keep HireShade on this one; a full-screen share of the other monitor cannot contain the overlay.",
   },
   {
     step: 2,
     id: "share-window-or-tab",
+    addresses: "whole-screen capture that ignores exclusion, without a second monitor",
     title: "Share a window or browser tab instead of the entire screen",
     detail:
-      "Window/tab shares capture only that surface. This avoids whole-screen capture paths that may ignore exclusion.",
+      "Fixes the same DXGI/whole-screen leak when you only have one monitor. Window/tab shares capture only that surface, so another app window cannot appear in the capture.",
   },
   {
     step: 3,
     id: "compatibility-mode",
+    addresses: "black rectangle / black bar in PrintWindow or transparent-compositing capture",
     title: "Turn on compatibility mode",
     detail:
-      "Opaque surface + solid colour scrim with no transparency/blur/rounded compositing. Slightly less pretty; more reliable in capture paths that ignore per-window exclusion.",
+      "Fixes the black-bar symptom (a transparent protected surface printing as black) by using an opaque surface + solid colour scrim with no blur or rounded compositing. It does NOT fix DXGI Desktop Duplication - use monitor 2 or window/tab share for that.",
   },
   {
     step: 4,
     id: "browser-only",
+    addresses: "all desktop-window capture paths, at the cost of overlay ergonomics",
     title: "Use the browser-only overlay",
     detail:
-      "Open the web app in a normal browser window instead of the desktop overlay. No per-window exclusion is claimed in that mode; keep the browser window off the shared screen.",
+      "Last resort for any desktop capture path. Open the web app in a normal browser window instead of the desktop overlay; no per-window exclusion is claimed in that mode, so keep the browser window off the shared screen.",
   },
 ];
 

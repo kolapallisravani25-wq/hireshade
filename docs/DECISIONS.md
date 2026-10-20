@@ -396,3 +396,71 @@ ADR-001 (engineering workflow) lives at `docs/adr/ADR-001-engineering-workflow.m
 **Consequences:** The CI gate can no longer catch a pure scheduler-induced latency regression, which is acceptable because the isolated collector does.
 
 **Evidence:** artifacts/craft-vita/src/gaze/latency.test.ts, docs/evidence/gaze/latency.json.
+
+---
+
+## ADR-024 — Affinity mode stays 0x11; 0x01 is unreachable for the product surface and is not shipped as a per-app switch (EXT G-051)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** WDA_EXCLUDEFROMCAPTURE (0x11) is the shipped mode, but DXGI Desktop Duplication ignores it. The sprint asked whether WDA_MONITOR (0x01) — which renders a black box — would be honoured where 0x11 is ignored.
+
+**Options:** (a) expose a per-app affinity picker; (b) test 0x01 in-process and switch globally if it wins; (c) keep 0x11, record 0x01 as unreachable/untested for the Electron surface, and solve DXGI with routing rather than a second affinity mode.
+
+**Decision:** (c). Electron exposes only setContentProtection(bool) (=0x00/0x11); an out-of-process SetWindowDisplayAffinity(0x01) is rejected with ERROR_ACCESS_DENIED because the window belongs to another process. Until an in-process native path is shipped and verified, 0x01 remains UNTESTED-BLOCKED. DXGI is documented as unfixable by affinity/opacity; routing (second monitor or window/tab share) is the mitigation.
+
+**Why:** Shipping an unverified mode picker would imply a protection we have not proven. The honest routing path is stronger than a black-box that cannot be reached.
+
+**Consequences:** No per-app affinity switch in this release; CAPTURE_MATRIX records the 0x01 blocker precisely; a native in-process experiment is a future task.
+
+**Evidence:** docs/CAPTURE_MATRIX.md 3x4 grid + UNTESTED notes, docs/evidence/capture-sprint/.
+
+---
+
+## ADR-025 — Runtime pre-flight returns exactly GREEN/AMBER/RED and never claims automatic capture detection (EXT G-053)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** The capture matrix showed different failure modes (DXGI ignores exclusion; black-bar on PrintWindow; excluded transparent surfaces can render black). A user about to sit an interview cannot read a markdown file, and the app cannot observe which capture API another process uses.
+
+**Options:** (a) claim automatic detection; (b) a generic warning banner; (c) a pre-flight evaluator with three plain-language verdicts driven by displays + a versioned tested-app list + user report, with one-click actions, honest 'cannot detect the path' copy, and a black-bar self-check pattern.
+
+**Decision:** (c). A second display is the default recommendation whenever present (structurally unbeatable). AMBER carries exactly one action; RED carries one or two. The tested-app list is data (versioned, tested-on date), not code. Compatibility mode is suggested for black-bar risk, window-share for DXGI risk.
+
+**Why:** It turns a documented limitation into an actionable setup decision without lying about detection.
+
+**Consequences:** The list needs periodic re-testing and a date stamp; self-check remains the human ground truth.
+
+**Evidence:** docs/evidence/capture-sprint/preflight/, src/overlay/preflight/.
+
+---
+
+## ADR-026 — Honest undetectability claim is a dated evidence statement, not a marketing number (EXT G-056)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** The target claims "100% undetectable". Our matrix shows a real DXGI failure and multiple untested paths.
+
+**Decision:** Publish docs/UNDETECTABILITY_CLAIM.md: proven rows with numbers, known failures, UNTESTED/BLOCKED list, and one defensible sentence. Never state a platform/path as protected unless a row with method exists.
+
+**Why:** A false invisibility claim is worse than a narrow true one for a product used in live interviews.
+
+**Consequences:** Every new capture path or platform must add a row + date before the claim can be widened.
+
+**Evidence:** docs/UNDETECTABILITY_CLAIM.md, docs/CAPTURE_MATRIX.md.
+
+---
+
+## ADR-027 — Recreation crash fixed structurally; opaque-capture claim withheld until measured (EXT G-052)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** Runtime recreation of the floating surface for compatibility mode crashed Electron, so the opaque path could only be reached on next launch. The crash was the blocker for verifying whether an opaque surface removes the PrintWindow black rectangle.
+
+**Root cause class:** destroying a protected surface synchronously inside the IPC handler the renderer awaited; the old window's late `closed` handler deleting the replacement's map entries; protected-surface/GPU swap race; recreated opaque window missing `ready-to-show`.
+
+**Decision/fix:** clear `setContentProtection(false)` before teardown; recreate only after `closed` + 30 ms (60 ms IPC defer, 750 ms fallback); identity-guard map deletions in `closed`; force-show on `did-finish-load`; keep recreation opt-in (`HIRESHADE_COMPAT_RECREATE=1`) until measured.
+
+**Claim status:** the root-cause fix is code-complete, but the opaque-capture measurement is BLOCKED (repro harness hangs waiting for the recreated page target). G-052 is PARTIAL; the PrintWindow black-bar limitation stays in CAPTURE_MATRIX and the claim doc.
+
+**Evidence:** `artifacts/desktop-electron/main.js` diff, `docs/CAPTURE_MATRIX.md` §3, `scripts/capture-matrix/repro-recreate.mjs`.

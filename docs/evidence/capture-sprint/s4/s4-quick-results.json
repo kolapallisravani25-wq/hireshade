@@ -1,0 +1,211 @@
+{
+  "generatedAt": "2026-10-20T17:14:46.968Z",
+  "quick": true,
+  "environment": {
+    "platform": "win32",
+    "node": "v24.19.0",
+    "electron": "37.10.3",
+    "host": "DESKTOP-MN7G02P"
+  },
+  "sections": {
+    "clickThrough": {
+      "assertions": [
+        {
+          "name": "click-through-on-target-received-click",
+          "pass": true,
+          "detail": {
+            "targetClicks": 1
+          }
+        },
+        {
+          "name": "click-through-on-overlay-did-not-receive-click",
+          "pass": true,
+          "detail": {
+            "overlayClicks": 0
+          }
+        },
+        {
+          "name": "click-through-off-overlay-control-received-click",
+          "pass": true,
+          "detail": {
+            "overlayBefore": 0,
+            "overlayAfter": 1
+          }
+        },
+        {
+          "name": "click-through-off-target-did-not-receive-click",
+          "pass": true,
+          "detail": {
+            "targetBefore": 1,
+            "targetAfter": 1
+          }
+        }
+      ],
+      "screenshots": [
+        {
+          "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-clickthrough-on-overlay.png",
+          "bytes": 11826
+        },
+        {
+          "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-clickthrough-on-target.png",
+          "bytes": 13746
+        },
+        {
+          "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-clickthrough-off-overlay.png",
+          "bytes": 11460
+        }
+      ],
+      "timings": {
+        "launchMs": 3508,
+        "clickOnMs": 2176,
+        "clickOffMs": 1635,
+        "totalMs": 9482
+      },
+      "on": {
+        "info": {
+          "mode": "click",
+          "stealth": false,
+          "clickThrough": true,
+          "scaleFactor": 1.0499999523162842,
+          "displayBounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1301,
+            "height": 732
+          },
+          "targetBounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1303,
+            "height": 688
+          },
+          "overlayBounds": {
+            "x": 199,
+            "y": 109,
+            "width": 763,
+            "height": 465
+          },
+          "transparentPointDip": {
+            "x": 229,
+            "y": 139
+          },
+          "transparentPointPhysical": {
+            "x": 240,
+            "y": 146
+          },
+          "overlayCenterRelativeToDisplay": {
+            "xRel": 0.44619523443504994,
+            "yRel": 0.46653005464480873
+          },
+          "foregroundTitleHint": "target"
+        },
+        "point": {
+          "x": 240,
+          "y": 146
+        },
+        "injected": {
+          "ok": true,
+          "status": 0,
+          "stderr": "",
+          "foregroundBefore": "S4 click target",
+          "foregroundAfter": "S4 click target"
+        },
+        "overlayClicks": 0,
+        "targetClicks": 1,
+        "lastTargetClick": {
+          "x": 228,
+          "y": 139,
+          "at": 1792516493573
+        }
+      },
+      "off": {
+        "buttonRect": {
+          "x": 287.9761962890625,
+          "y": 178.5416717529297,
+          "width": 187.85716247558594,
+          "height": 52.73809814453125
+        },
+        "point": {
+          "x": 610,
+          "y": 330
+        },
+        "injected": {
+          "ok": true,
+          "status": 0,
+          "stderr": "",
+          "foregroundBefore": "S4 click target",
+          "foregroundAfter": "S4 protected overlay"
+        },
+        "overlayClicks": 1,
+        "targetClicks": 1
+      },
+      "pass": true
+    },
+    "displays": {
+      "status": "UNTESTED-BLOCKED",
+      "displayCount": 1,
+      "displays": [
+        {
+          "id": 1125993197,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1301,
+            "height": 732
+          },
+          "workArea": {
+            "x": 0,
+            "y": 0,
+            "width": 1301,
+            "height": 686
+          },
+          "scaleFactor": 1.0499999523162842,
+          "primary": true
+        }
+      ],
+      "blocker": "Single-display host; full second-monitor test runs in the non-quick sprint."
+    },
+    "elevationQuick": {
+      "integrity": {
+        "command": "powershell -NoProfile -Command whoami /groups | Select-String -Pattern 'S-1-16-' | Out-String",
+        "status": 0,
+        "stdout": "Mandatory Label\\Medium Mandatory Level                        Label            S-1-16-8192",
+        "stderr": "",
+        "error": null,
+        "durationMs": 619
+      },
+      "elevated": false,
+      "status": "UNTESTED-BLOCKED"
+    }
+  },
+  "assertions": [
+    {
+      "name": "click-through-proof",
+      "pass": true,
+      "detail": {
+        "launchMs": 3508,
+        "clickOnMs": 2176,
+        "clickOffMs": 1635,
+        "totalMs": 9482
+      }
+    },
+    {
+      "name": "quick-display-enumerated",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "name": "quick-elevation-readable",
+      "pass": true,
+      "detail": 0
+    }
+  ],
+  "pass": true,
+  "sectionStatus": {
+    "clickThrough": "PASS",
+    "displays": "PASS",
+    "elevationQuick": "PASS"
+  },
+  "durationMs": 11143,
+  "evidenceFile": "docs/evidence/capture-sprint/s4/s4-quick-results.json"
+}

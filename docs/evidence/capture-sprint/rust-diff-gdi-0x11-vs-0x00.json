@@ -1,0 +1,14 @@
+﻿{
+    "captured_at":  "2026-10-20T21:51:12.5893454+05:30",
+    "label":  "gdi-0x11-vs-0x00",
+    "a":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x00-crop.png",
+    "b":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x11-crop.png",
+    "threshold":  16,
+    "width":  520,
+    "height":  340,
+    "rect":  "",
+    "mean_abs_diff":  112.242,
+    "fraction_diff_gt_threshold":  0.95456,
+    "mean_diff_where_changed":  122.36,
+    "diff_path":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\rust-diff-gdi-0x11-vs-0x00.png"
+}

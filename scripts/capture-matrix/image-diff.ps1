@@ -3,7 +3,8 @@ param(
   [Parameter(Mandatory = $true)][string]$B,
   [string]$OutFile = "",
   [int]$Threshold = 16,
-  [string]$Label = ""
+  [string]$Label = "",
+  [string]$Rect = ""
 )
 
 Add-Type -AssemblyName System.Drawing
@@ -22,9 +23,23 @@ public class O2DiffResult {
 }
 
 public class O2Diff {
-    public static O2DiffResult Compare(string aPath, string bPath, int threshold, string diffPath) {
-        using (var a = new Bitmap(aPath))
-        using (var b = new Bitmap(bPath)) {
+    public static O2DiffResult Compare(string aPath, string bPath, int threshold, string diffPath, Rectangle? crop) {
+        using (var rawA = new Bitmap(aPath))
+        using (var rawB = new Bitmap(bPath)) {
+            Bitmap a = rawA;
+            Bitmap b = rawB;
+            if (crop.HasValue) {
+                var r = crop.Value;
+                int maxW = Math.Min(rawA.Width, rawB.Width);
+                int maxH = Math.Min(rawA.Height, rawB.Height);
+                var safe = new Rectangle(
+                    Math.Max(0, Math.Min(r.X, maxW - 1)),
+                    Math.Max(0, Math.Min(r.Y, maxH - 1)),
+                    Math.Max(1, Math.Min(r.Width, maxW - Math.Max(0, r.X))),
+                    Math.Max(1, Math.Min(r.Height, maxH - Math.Max(0, r.Y))));
+                a = rawA.Clone(safe, rawA.PixelFormat);
+                b = rawB.Clone(safe, rawB.PixelFormat);
+            }
             int w = Math.Min(a.Width, b.Width);
             int h = Math.Min(a.Height, b.Height);
             long sum = 0;
@@ -49,6 +64,7 @@ public class O2Diff {
                 }
                 if (heat != null) heat.Save(diffPath, ImageFormat.Png);
             }
+            if (crop.HasValue) { a.Dispose(); b.Dispose(); }
             long pixels = (long)w * h;
             var result = new O2DiffResult();
             result.width = w; result.height = h;
@@ -70,7 +86,14 @@ if ($OutFile) {
     if ($diffDir) { New-Item -ItemType Directory -Force -Path $diffDir | Out-Null }
     $diffPath = [System.IO.Path]::ChangeExtension($OutFile, ".png")
 }
-$result = [O2Diff]::Compare((Resolve-Path $A).Path, (Resolve-Path $B).Path, $Threshold, $diffPath)
+$cropRect = $null
+if ($Rect) {
+    $parts = $Rect.Split(",")
+    if ($parts.Count -eq 4) {
+        $cropRect = New-Object System.Drawing.Rectangle([int]$parts[0], [int]$parts[1], [int]$parts[2], [int]$parts[3])
+    }
+}
+$result = [O2Diff]::Compare((Resolve-Path $A).Path, (Resolve-Path $B).Path, $Threshold, $diffPath, $cropRect)
 $payload = [ordered]@{
     captured_at = (Get-Date).ToString("o")
     label = $Label
@@ -79,6 +102,7 @@ $payload = [ordered]@{
     threshold = $Threshold
     width = $result.width
     height = $result.height
+    rect = $Rect
     mean_abs_diff = [Math]::Round($result.mean_abs_diff, 3)
     fraction_diff_gt_threshold = [Math]::Round($result.fraction_diff_gt_threshold, 5)
     mean_diff_where_changed = [Math]::Round($result.mean_diff_where_changed, 2)

@@ -1,0 +1,1221 @@
+{
+  "generatedAt": "2026-10-20T16:17:11.646Z",
+  "quick": false,
+  "environment": {
+    "platform": "win32",
+    "node": "v24.19.0",
+    "electron": "37.10.3",
+    "host": "DESKTOP-MN7G02P"
+  },
+  "sections": {
+    "clickThrough": {
+      "assertions": [
+        {
+          "name": "click-through-on-target-received-click",
+          "pass": true,
+          "detail": {
+            "targetClicks": 1
+          }
+        },
+        {
+          "name": "click-through-on-overlay-did-not-receive-click",
+          "pass": true,
+          "detail": {
+            "overlayClicks": 0
+          }
+        },
+        {
+          "name": "click-through-off-overlay-control-received-click",
+          "pass": true,
+          "detail": {
+            "overlayBefore": 0,
+            "overlayAfter": 1
+          }
+        },
+        {
+          "name": "click-through-off-target-did-not-receive-click",
+          "pass": true,
+          "detail": {
+            "targetBefore": 1,
+            "targetAfter": 1
+          }
+        }
+      ],
+      "screenshots": [
+        {
+          "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-clickthrough-on-overlay.png",
+          "bytes": 11826
+        },
+        {
+          "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-clickthrough-on-target.png",
+          "bytes": 13746
+        },
+        {
+          "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-clickthrough-off-overlay.png",
+          "bytes": 11460
+        }
+      ],
+      "timings": {
+        "launchMs": 1924,
+        "clickOnMs": 2845,
+        "clickOffMs": 2229,
+        "totalMs": 9236
+      },
+      "on": {
+        "info": {
+          "mode": "click",
+          "stealth": false,
+          "clickThrough": true,
+          "scaleFactor": 1.0499999523162842,
+          "displayBounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1301,
+            "height": 732
+          },
+          "targetBounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1303,
+            "height": 688
+          },
+          "overlayBounds": {
+            "x": 199,
+            "y": 109,
+            "width": 763,
+            "height": 465
+          },
+          "transparentPointDip": {
+            "x": 229,
+            "y": 139
+          },
+          "transparentPointPhysical": {
+            "x": 240,
+            "y": 146
+          },
+          "overlayCenterRelativeToDisplay": {
+            "xRel": 0.44619523443504994,
+            "yRel": 0.46653005464480873
+          },
+          "foregroundTitleHint": "overlay"
+        },
+        "point": {
+          "x": 240,
+          "y": 146
+        },
+        "injected": {
+          "ok": true,
+          "status": 0,
+          "stderr": "",
+          "foregroundBefore": "S4 click target",
+          "foregroundAfter": "S4 click target"
+        },
+        "overlayClicks": 0,
+        "targetClicks": 1,
+        "lastTargetClick": {
+          "x": 228,
+          "y": 139,
+          "at": 1792513036449
+        }
+      },
+      "off": {
+        "buttonRect": {
+          "x": 287.9761962890625,
+          "y": 178.5416717529297,
+          "width": 187.85716247558594,
+          "height": 52.73809814453125
+        },
+        "point": {
+          "x": 610,
+          "y": 330
+        },
+        "injected": {
+          "ok": true,
+          "status": 0,
+          "stderr": "",
+          "foregroundBefore": "S4 click target",
+          "foregroundAfter": "S4 protected overlay"
+        },
+        "overlayClicks": 1,
+        "targetClicks": 1
+      },
+      "pass": true
+    },
+    "browserShareProtected": {
+      "section": "browserShareProtected",
+      "browsers": [
+        {
+          "name": "Chrome",
+          "exe": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "name": "Edge",
+          "exe": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        }
+      ],
+      "runs": [
+        {
+          "browser": "Chrome",
+          "mode": "full",
+          "protectedOverlay": true,
+          "sourceVariant": "Entire screen",
+          "capture": {
+            "ok": true,
+            "displaySurface": "monitor",
+            "canvas": [
+              1367,
+              769
+            ],
+            "settings": {
+              "aspectRatio": 1.777633289986996,
+              "cursor": "never",
+              "deviceId": "screen:0:0",
+              "displaySurface": "monitor",
+              "frameRate": 5,
+              "height": 769,
+              "logicalSurface": true,
+              "resizeMode": "crop-and-scale",
+              "width": 1367
+            }
+          },
+          "screenshot": {
+            "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-share-chrome-full-protected.png",
+            "bytes": 35746
+          },
+          "durationMs": 6776,
+          "assertions": [
+            {
+              "name": "full-share-overlay-region-excluded",
+              "pass": true,
+              "detail": {
+                "rgb": [
+                  19,
+                  22,
+                  21
+                ],
+                "magenta": false
+              }
+            },
+            {
+              "name": "full-share-captured-real-pixels",
+              "pass": true,
+              "detail": [
+                39,
+                26,
+                40
+              ]
+            }
+          ],
+          "classification": {
+            "samples": [
+              {
+                "name": "overlay",
+                "xRel": 0.44619523443504994,
+                "yRel": 0.46653005464480873,
+                "x": 610,
+                "y": 359,
+                "rgb": [
+                  19,
+                  22,
+                  21
+                ],
+                "alpha": 255
+              },
+              {
+                "name": "control",
+                "xRel": 0.9,
+                "yRel": 0.92,
+                "x": 1230,
+                "y": 707,
+                "rgb": [
+                  39,
+                  26,
+                  40
+                ],
+                "alpha": 255
+              }
+            ],
+            "overlaySample": {
+              "name": "overlay",
+              "xRel": 0.44619523443504994,
+              "yRel": 0.46653005464480873,
+              "x": 610,
+              "y": 359,
+              "rgb": [
+                19,
+                22,
+                21
+              ],
+              "alpha": 255
+            },
+            "controlSample": {
+              "name": "control",
+              "xRel": 0.9,
+              "yRel": 0.92,
+              "x": 1230,
+              "y": 707,
+              "rgb": [
+                39,
+                26,
+                40
+              ],
+              "alpha": 255
+            },
+            "overlayIsMagenta": false,
+            "overlayIsBlue": false,
+            "controlNonBlack": true
+          },
+          "status": "OBSERVED"
+        },
+        {
+          "browser": "Chrome",
+          "mode": "tab",
+          "protectedOverlay": true,
+          "sourceVariant": null,
+          "capture": {
+            "ok": true,
+            "displaySurface": "browser",
+            "canvas": [
+              1367,
+              769
+            ],
+            "settings": {
+              "aspectRatio": 1.777633289986996,
+              "cursor": "never",
+              "deviceId": "web-contents-media-stream://7:1",
+              "displaySurface": "browser",
+              "frameRate": 5,
+              "height": 769,
+              "logicalSurface": true,
+              "resizeMode": "crop-and-scale",
+              "width": 1367
+            }
+          },
+          "screenshot": {
+            "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-share-chrome-tab-protected.png",
+            "bytes": 2384
+          },
+          "durationMs": 7273,
+          "assertions": [
+            {
+              "name": "tab-share-has-no-overlay-pixels",
+              "pass": true,
+              "detail": {
+                "overlayRgb": [
+                  6,
+                  46,
+                  23
+                ],
+                "controlRgb": [
+                  6,
+                  46,
+                  23
+                ],
+                "magenta": false
+              }
+            }
+          ],
+          "classification": {
+            "samples": [
+              {
+                "name": "overlay",
+                "xRel": 0.44619523443504994,
+                "yRel": 0.46653005464480873,
+                "x": 610,
+                "y": 359,
+                "rgb": [
+                  6,
+                  46,
+                  23
+                ],
+                "alpha": 255
+              },
+              {
+                "name": "control",
+                "xRel": 0.9,
+                "yRel": 0.92,
+                "x": 1230,
+                "y": 707,
+                "rgb": [
+                  6,
+                  46,
+                  23
+                ],
+                "alpha": 255
+              }
+            ],
+            "overlaySample": {
+              "name": "overlay",
+              "xRel": 0.44619523443504994,
+              "yRel": 0.46653005464480873,
+              "x": 610,
+              "y": 359,
+              "rgb": [
+                6,
+                46,
+                23
+              ],
+              "alpha": 255
+            },
+            "controlSample": {
+              "name": "control",
+              "xRel": 0.9,
+              "yRel": 0.92,
+              "x": 1230,
+              "y": 707,
+              "rgb": [
+                6,
+                46,
+                23
+              ],
+              "alpha": 255
+            },
+            "overlayIsMagenta": false,
+            "overlayIsBlue": false,
+            "controlNonBlack": true
+          },
+          "appTabTargeting": {
+            "status": "UNTESTED-BLOCKED",
+            "detail": "Capture source is a browser tab (displaySurface=browser) and contains zero overlay pixels, but the auto-select-tab-capture-source-by-title flag selected the capture page's own tab instead of the titled app tab on this Chrome/Edge build.",
+            "chromeTabRgb": [
+              6,
+              46,
+              23
+            ],
+            "expectedAppTab": {
+              "markerBlue": [
+                29,
+                78,
+                216
+              ],
+              "backgroundPurple": [
+                59,
+                7,
+                100
+              ]
+            }
+          },
+          "status": "OBSERVED",
+          "tabStrategy": "multi-tab",
+          "screenshotError": null
+        },
+        {
+          "browser": "Edge",
+          "mode": "full",
+          "protectedOverlay": true,
+          "sourceVariant": "Entire screen",
+          "capture": {
+            "ok": true,
+            "displaySurface": "monitor",
+            "canvas": [
+              1367,
+              769
+            ],
+            "settings": {
+              "aspectRatio": 1.777633289986996,
+              "cursor": "never",
+              "deviceId": "screen:0:0",
+              "displaySurface": "monitor",
+              "frameRate": 5,
+              "height": 769,
+              "logicalSurface": true,
+              "resizeMode": "crop-and-scale",
+              "width": 1367
+            }
+          },
+          "screenshot": {
+            "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-share-edge-full-protected.png",
+            "bytes": 36306
+          },
+          "durationMs": 8041,
+          "assertions": [
+            {
+              "name": "full-share-overlay-region-excluded",
+              "pass": true,
+              "detail": {
+                "rgb": [
+                  19,
+                  22,
+                  21
+                ],
+                "magenta": false
+              }
+            },
+            {
+              "name": "full-share-captured-real-pixels",
+              "pass": true,
+              "detail": [
+                39,
+                26,
+                40
+              ]
+            }
+          ],
+          "classification": {
+            "samples": [
+              {
+                "name": "overlay",
+                "xRel": 0.44619523443504994,
+                "yRel": 0.46653005464480873,
+                "x": 610,
+                "y": 359,
+                "rgb": [
+                  19,
+                  22,
+                  21
+                ],
+                "alpha": 255
+              },
+              {
+                "name": "control",
+                "xRel": 0.9,
+                "yRel": 0.92,
+                "x": 1230,
+                "y": 707,
+                "rgb": [
+                  39,
+                  26,
+                  40
+                ],
+                "alpha": 255
+              }
+            ],
+            "overlaySample": {
+              "name": "overlay",
+              "xRel": 0.44619523443504994,
+              "yRel": 0.46653005464480873,
+              "x": 610,
+              "y": 359,
+              "rgb": [
+                19,
+                22,
+                21
+              ],
+              "alpha": 255
+            },
+            "controlSample": {
+              "name": "control",
+              "xRel": 0.9,
+              "yRel": 0.92,
+              "x": 1230,
+              "y": 707,
+              "rgb": [
+                39,
+                26,
+                40
+              ],
+              "alpha": 255
+            },
+            "overlayIsMagenta": false,
+            "overlayIsBlue": false,
+            "controlNonBlack": true
+          },
+          "status": "OBSERVED"
+        },
+        {
+          "browser": "Edge",
+          "mode": "tab",
+          "protectedOverlay": true,
+          "sourceVariant": null,
+          "capture": {
+            "ok": true,
+            "displaySurface": "browser",
+            "canvas": [
+              1367,
+              769
+            ],
+            "settings": {
+              "aspectRatio": 1.777633289986996,
+              "cursor": "never",
+              "deviceId": "web-contents-media-stream://6:1",
+              "displaySurface": "browser",
+              "frameRate": 5,
+              "height": 769,
+              "logicalSurface": true,
+              "resizeMode": "crop-and-scale",
+              "width": 1367
+            }
+          },
+          "screenshot": {
+            "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-share-edge-tab-protected.png",
+            "bytes": 2369
+          },
+          "durationMs": 10266,
+          "assertions": [
+            {
+              "name": "tab-share-has-no-overlay-pixels",
+              "pass": true,
+              "detail": {
+                "overlayRgb": [
+                  6,
+                  46,
+                  23
+                ],
+                "controlRgb": [
+                  6,
+                  46,
+                  23
+                ],
+                "magenta": false
+              }
+            }
+          ],
+          "classification": {
+            "samples": [
+              {
+                "name": "overlay",
+                "xRel": 0.44619523443504994,
+                "yRel": 0.46653005464480873,
+                "x": 610,
+                "y": 359,
+                "rgb": [
+                  6,
+                  46,
+                  23
+                ],
+                "alpha": 255
+              },
+              {
+                "name": "control",
+                "xRel": 0.9,
+                "yRel": 0.92,
+                "x": 1230,
+                "y": 707,
+                "rgb": [
+                  6,
+                  46,
+                  23
+                ],
+                "alpha": 255
+              }
+            ],
+            "overlaySample": {
+              "name": "overlay",
+              "xRel": 0.44619523443504994,
+              "yRel": 0.46653005464480873,
+              "x": 610,
+              "y": 359,
+              "rgb": [
+                6,
+                46,
+                23
+              ],
+              "alpha": 255
+            },
+            "controlSample": {
+              "name": "control",
+              "xRel": 0.9,
+              "yRel": 0.92,
+              "x": 1230,
+              "y": 707,
+              "rgb": [
+                6,
+                46,
+                23
+              ],
+              "alpha": 255
+            },
+            "overlayIsMagenta": false,
+            "overlayIsBlue": false,
+            "controlNonBlack": true
+          },
+          "appTabTargeting": {
+            "status": "UNTESTED-BLOCKED",
+            "detail": "Capture source is a browser tab (displaySurface=browser) and contains zero overlay pixels, but the auto-select-tab-capture-source-by-title flag selected the capture page's own tab instead of the titled app tab on this Chrome/Edge build.",
+            "chromeTabRgb": [
+              6,
+              46,
+              23
+            ],
+            "expectedAppTab": {
+              "markerBlue": [
+                29,
+                78,
+                216
+              ],
+              "backgroundPurple": [
+                59,
+                7,
+                100
+              ]
+            }
+          },
+          "status": "OBSERVED",
+          "tabStrategy": "multi-tab",
+          "screenshotError": null
+        }
+      ],
+      "failures": [],
+      "untested": [],
+      "pass": true,
+      "overlay": {
+        "mode": "overlay",
+        "stealth": true,
+        "scaleFactor": 1.0499999523162842,
+        "displayBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 732
+        },
+        "overlayBounds": {
+          "x": 199,
+          "y": 109,
+          "width": 763,
+          "height": 465
+        },
+        "overlayCenterRelativeToDisplay": {
+          "xRel": 0.44619523443504994,
+          "yRel": 0.46653005464480873
+        }
+      }
+    },
+    "browserShareControl": {
+      "section": "browserShareControl",
+      "runs": [
+        {
+          "browser": "Chrome",
+          "mode": "full",
+          "protectedOverlay": false,
+          "sourceVariant": "Entire screen",
+          "capture": {
+            "ok": true,
+            "displaySurface": "monitor",
+            "canvas": [
+              1367,
+              769
+            ],
+            "settings": {
+              "aspectRatio": 1.777633289986996,
+              "cursor": "never",
+              "deviceId": "screen:0:0",
+              "displaySurface": "monitor",
+              "frameRate": 5,
+              "height": 769,
+              "logicalSurface": true,
+              "resizeMode": "crop-and-scale",
+              "width": 1367
+            }
+          },
+          "screenshot": {
+            "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-share-chrome-full-control.png",
+            "bytes": 33772
+          },
+          "durationMs": 6838,
+          "assertions": [
+            {
+              "name": "full-share-control-shows-overlay",
+              "pass": true,
+              "detail": {
+                "rgb": [
+                  254,
+                  2,
+                  253
+                ],
+                "magenta": true
+              }
+            }
+          ],
+          "classification": {
+            "samples": [
+              {
+                "name": "overlay",
+                "xRel": 0.44619523443504994,
+                "yRel": 0.46653005464480873,
+                "x": 610,
+                "y": 359,
+                "rgb": [
+                  254,
+                  2,
+                  253
+                ],
+                "alpha": 255
+              },
+              {
+                "name": "control",
+                "xRel": 0.9,
+                "yRel": 0.92,
+                "x": 1230,
+                "y": 707,
+                "rgb": [
+                  39,
+                  26,
+                  40
+                ],
+                "alpha": 255
+              }
+            ],
+            "overlaySample": {
+              "name": "overlay",
+              "xRel": 0.44619523443504994,
+              "yRel": 0.46653005464480873,
+              "x": 610,
+              "y": 359,
+              "rgb": [
+                254,
+                2,
+                253
+              ],
+              "alpha": 255
+            },
+            "controlSample": {
+              "name": "control",
+              "xRel": 0.9,
+              "yRel": 0.92,
+              "x": 1230,
+              "y": 707,
+              "rgb": [
+                39,
+                26,
+                40
+              ],
+              "alpha": 255
+            },
+            "overlayIsMagenta": true,
+            "overlayIsBlue": false,
+            "controlNonBlack": true
+          },
+          "status": "OBSERVED"
+        },
+        {
+          "browser": "Edge",
+          "mode": "full",
+          "protectedOverlay": false,
+          "sourceVariant": "Entire screen",
+          "capture": {
+            "ok": true,
+            "displaySurface": "monitor",
+            "canvas": [
+              1367,
+              769
+            ],
+            "settings": {
+              "aspectRatio": 1.777633289986996,
+              "cursor": "never",
+              "deviceId": "screen:0:0",
+              "displaySurface": "monitor",
+              "frameRate": 5,
+              "height": 769,
+              "logicalSurface": true,
+              "resizeMode": "crop-and-scale",
+              "width": 1367
+            }
+          },
+          "screenshot": {
+            "file": "D:\\hireshade\\docs\\evidence\\capture-sprint\\s4\\s4-share-edge-full-control.png",
+            "bytes": 33527
+          },
+          "durationMs": 9349,
+          "assertions": [
+            {
+              "name": "full-share-control-shows-overlay",
+              "pass": true,
+              "detail": {
+                "rgb": [
+                  254,
+                  2,
+                  253
+                ],
+                "magenta": true
+              }
+            }
+          ],
+          "classification": {
+            "samples": [
+              {
+                "name": "overlay",
+                "xRel": 0.44619523443504994,
+                "yRel": 0.46653005464480873,
+                "x": 610,
+                "y": 359,
+                "rgb": [
+                  254,
+                  2,
+                  253
+                ],
+                "alpha": 255
+              },
+              {
+                "name": "control",
+                "xRel": 0.9,
+                "yRel": 0.92,
+                "x": 1230,
+                "y": 707,
+                "rgb": [
+                  39,
+                  26,
+                  40
+                ],
+                "alpha": 255
+              }
+            ],
+            "overlaySample": {
+              "name": "overlay",
+              "xRel": 0.44619523443504994,
+              "yRel": 0.46653005464480873,
+              "x": 610,
+              "y": 359,
+              "rgb": [
+                254,
+                2,
+                253
+              ],
+              "alpha": 255
+            },
+            "controlSample": {
+              "name": "control",
+              "xRel": 0.9,
+              "yRel": 0.92,
+              "x": 1230,
+              "y": 707,
+              "rgb": [
+                39,
+                26,
+                40
+              ],
+              "alpha": 255
+            },
+            "overlayIsMagenta": true,
+            "overlayIsBlue": false,
+            "controlNonBlack": true
+          },
+          "status": "OBSERVED"
+        }
+      ],
+      "failures": [],
+      "untested": [],
+      "pass": true
+    },
+    "dpiScaling": {
+      "status": "UNTESTED-BLOCKED",
+      "requestedScaling": "150% (LogPixels=144)",
+      "previousLogPixels": 120,
+      "registryRead": {
+        "command": "powershell -NoProfile -Command Get-ItemProperty 'HKCU:\\Control Panel\\Desktop' -Name LogPixels,Win8DpiScaling -ErrorAction SilentlyContinue | ConvertTo-Json -Compress",
+        "status": 0,
+        "stdout": "{\"LogPixels\":120,\"Win8DpiScaling\":0,\"PSPath\":\"Microsoft.PowerShell.Core\\\\Registry::HKEY_CURRENT_USER\\\\Control Panel\\\\Desktop\",\"PSParentPath\":\"Microsoft.PowerShell.Core\\\\Registry::HKEY_CURRENT_USER\\\\Control Panel\",\"PSChildName\":\"Desktop\",\"PSDrive\":{\"CurrentLocation\":\"\",\"Name\":\"HKCU\",\"Provider\":{\"ImplementingType\":\"Microsoft.PowerShell.Commands.RegistryProvider\",\"HelpFile\":\"System.Management.Automation.dll-Help.xml\",\"Name\":\"Registry\",\"PSSnapIn\":\"Microsoft.PowerShell.Core\",\"ModuleName\":\"Microsoft.PowerShell.Core\",\"Module\":null,\"Description\":\"\",\"Capabilities\":80,\"Home\":\"\",\"Drives\":\"HKLM HKCU\"},\"Root\":\"HKEY_CURRENT_USER\",\"Description\":\"The software settings for the current user\",\"MaximumSize\":null,\"Credential\":{\"UserName\":null,\"Password\":null},\"DisplayRoot\":null},\"PSProvider\":{\"ImplementingType\":{\"Module\":\"System.Management.Automation.dll\",\"Assembly\":\"System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35\",\"TypeHandle\":\"System.RuntimeTypeHandle\",\"DeclaringMethod\":null,\"BaseType\":\"System.Management.Automation.Provider.NavigationCmdletProvider\",\"UnderlyingSystemType\":\"Microsoft.PowerShell.Commands.RegistryProvider\",\"FullName\":\"Microsoft.PowerShell.Commands.RegistryProvider\",\"AssemblyQualifiedName\":\"Microsoft.PowerShell.Commands.RegistryProvider, System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35\",\"Namespace\":\"Microsoft.PowerShell.Commands\",\"GUID\":\"73bf32d8-72d5-30bf-ba65-7d5b72919e2f\",\"IsEnum\":false,\"GenericParameterAttributes\":null,\"IsSecurityCritical\":true,\"IsSecuritySafeCritical\":false,\"IsSecurityTransparent\":false,\"IsGenericTypeDefinition\":false,\"IsGenericParameter\":false,\"GenericParameterPosition\":null,\"IsGenericType\":false,\"IsConstructedGenericType\":false,\"ContainsGenericParameters\":false,\"StructLayoutAttribute\":\"System.Runtime.InteropServices.StructLayoutAttribute\",\"Name\":\"RegistryProvider\",\"MemberType\":32,\"DeclaringType\":null,\"ReflectedType\":null,\"MetadataToken\":33556337,\"GenericTypeParameters\":\"\",\"DeclaredConstructors\":\"Void .ctor() Void .cctor()\",\"DeclaredEvents\":\"\",\"DeclaredFields\":\"System.Management.Automation.PSTraceSource tracer System.String[] hiveNames System.String[] hiveShortNames Microsoft.Win32.RegistryKey[] wellKnownHives Microsoft.PowerShell.Commands.Internal.TransactedRegistryKey[] wellKnownHivesTx System.String ProviderName System.String charactersThatNeedEscaping\",\"DeclaredMembers\":\"System.Management.Automation.PSDriveInfo NewDrive(System.Management.Automation.PSDriveInfo) Void GetItem(System.String) System.Object SetItemDynamicParameters(System.String, System.Object) Void GetChildNames(System.String, System.Management.Automation.ReturnContainers) Boolean ItemExists(System.String) Boolean HasChildItems(System.String) Boolean IsItemContainer(System.String) Void MoveRegistryItem(System.String, System.String) System.Object SetPropertyDynamicParameters(System.String, System.Management.Automation.PSObject) System.Object GetPropertyDynamicParameters(System.String, System.Collections.ObjectModel.Collection`1[System.String]) System.Object ClearPropertyDynamicParameters(System.String, System.Collections.ObjectModel.Collection`1[System.String]) System.String GetParentPath(System.String, System.String) System.String GetChildName(System.String) System.Object NewPropertyDynamicParameters(System.String, System.String, System.String, System.Object) System.Object RemovePropertyDynamicParameters(System.String, System.String) System.Object RenamePropertyDynamicParameters(System.String, System.String, System.String) System.Object CopyPropertyDynamicParameters(System.String, System.String, System.String, System.String) System.Object MovePropertyDynamicParameters(System.String, System.String, System.String, System.String) Void CopyProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String, Boolean) Void MoveProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String) System.String NormalizePath(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetHiveRoot(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetRegkeyForPathWriteIfError(System.String, Boolean) Void SetRegistryValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.Object, Microsoft.Win32.RegistryValueKind, System.String) Void SetRegistryValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.Object, Microsoft.Win32.RegistryValueKind, System.String, Boolean) Microsoft.Win32.RegistryValueKind GetValueKindForProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) System.Object ReadExistingKeyValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Void GetSecurityDescriptor(System.String, System.Security.AccessControl.AccessControlSections) Void SetSecurityDescriptor(System.String, System.Security.AccessControl.ObjectSecurity) System.Security.AccessControl.ObjectSecurity NewSecurityDescriptorFromPath(System.String, System.Security.AccessControl.AccessControlSections) System.Security.AccessControl.ObjectSecurity NewSecurityDescriptorOfType(System.String, System.Security.AccessControl.AccessControlSections) System.Collections.ObjectModel.Collection`1[System.Management.Automation.PSDriveInfo] InitializeDefaultDrives() Boolean IsValidPath(System.String) Void SetItem(System.String, System.Object) Void ClearItem(System.String) Void GetChildItems(System.String, Boolean, UInt32) System.String EscapeSpecialChars(System.String) System.String EscapeChildName(System.String) Void RenameItem(System.String, System.String) Void NewItem(System.String, System.String, System.Object) Void RemoveItem(System.String, Boolean) Void CopyItem(System.String, System.String, Boolean) Boolean CopyRegistryKey(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String, Boolean, Boolean, Boolean) Boolean ErrorIfDestinationIsSourceOrChildOfSource(System.String, System.String) Void MoveItem(System.String, System.String) Void GetProperty(System.String, System.Collections.ObjectModel.Collection`1[System.String]) Void SetProperty(System.String, System.Management.Automation.PSObject) Void ClearProperty(System.String, System.Collections.ObjectModel.Collection`1[System.String]) Void NewProperty(System.String, System.String, System.String, System.Object) Void RemoveProperty(System.String, System.String) Void RenameProperty(System.String, System.String, System.String) Void CopyProperty(System.String, System.String, System.String, System.String) Void MoveProperty(System.String, System.String, System.String, System.String) System.String EnsureDriveIsRooted(System.String) Boolean HasRelativePathTokens(System.String) Void GetFilteredRegistryKeyProperties(System.String, System.Collections.ObjectModel.Collection`1[System.String], Boolean, Boolean, Microsoft.PowerShell.Commands.IRegistryWrapper ByRef, System.Collections.ObjectModel.Collection`1[System.String] ByRef) Void WriteErrorIfPerfectMatchNotFound(Boolean, System.String, System.String) System.Object ResetRegistryKeyValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Boolean IsHiveContainer(System.String) Boolean CheckOperationNotAllowedOnHiveContainer(System.String) Boolean CheckOperationNotAllowedOnHiveContainer(System.String, System.String) Boolean CreateIntermediateKeys(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetRegkeyForPath(System.String, Boolean) Void WriteWrappedPropertyObject(System.Object, System.String, System.String) System.Object ConvertValueToKind(System.Object, Microsoft.Win32.RegistryValueKind) Microsoft.Win32.RegistryValueKind GetValueKindFromObject(System.Object) Void WriteRegistryItemObject(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Boolean ParseKind(System.String, Microsoft.Win32.RegistryValueKind ByRef) System.String GetLocalizedDefaultToken() System.String GetPropertyName(System.String) Void .ctor() Void .cctor() System.Management.Automation.PSTraceSource tracer System.String[] hiveNames System.String[] hiveShortNames Microsoft.Win32.RegistryKey[] wellKnownHives Microsoft.PowerShell.Commands.Internal.TransactedRegistryKey[] wellKnownHivesTx System.String ProviderName System.String charactersThatNeedEscaping\",\"DeclaredMethods\":\"System.Management.Automation.PSDriveInfo NewDrive(System.Management.Automation.PSDriveInfo) Void GetItem(System.String) System.Object SetItemDynamicParameters(System.String, System.Object) Void GetChildNames(System.String, System.Management.Automation.ReturnContainers) Boolean ItemExists(System.String) Boolean HasChildItems(System.String) Boolean IsItemContainer(System.String) Void MoveRegistryItem(System.String, System.String) System.Object SetPropertyDynamicParameters(System.String, System.Management.Automation.PSObject) System.Object GetPropertyDynamicParameters(System.String, System.Collections.ObjectModel.Collection`1[System.String]) System.Object ClearPropertyDynamicParameters(System.String, System.Collections.ObjectModel.Collection`1[System.String]) System.String GetParentPath(System.String, System.String) System.String GetChildName(System.String) System.Object NewPropertyDynamicParameters(System.String, System.String, System.String, System.Object) System.Object RemovePropertyDynamicParameters(System.String, System.String) System.Object RenamePropertyDynamicParameters(System.String, System.String, System.String) System.Object CopyPropertyDynamicParameters(System.String, System.String, System.String, System.String) System.Object MovePropertyDynamicParameters(System.String, System.String, System.String, System.String) Void CopyProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String, Boolean) Void MoveProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String) System.String NormalizePath(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetHiveRoot(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetRegkeyForPathWriteIfError(System.String, Boolean) Void SetRegistryValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.Object, Microsoft.Win32.RegistryValueKind, System.String) Void SetRegistryValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.Object, Microsoft.Win32.RegistryValueKind, System.String, Boolean) Microsoft.Win32.RegistryValueKind GetValueKindForProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) System.Object ReadExistingKeyValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Void GetSecurityDescriptor(System.String, System.Security.AccessControl.AccessControlSections) Void SetSecurityDescriptor(System.String, System.Security.AccessControl.ObjectSecurity) System.Security.AccessControl.ObjectSecurity NewSecurityDescriptorFromPath(System.String, System.Security.AccessControl.AccessControlSections) System.Security.AccessControl.ObjectSecurity NewSecurityDescriptorOfType(System.String, System.Security.AccessControl.AccessControlSections) System.Collections.ObjectModel.Collection`1[System.Management.Automation.PSDriveInfo] InitializeDefaultDrives() Boolean IsValidPath(System.String) Void SetItem(System.String, System.Object) Void ClearItem(System.String) Void GetChildItems(System.String, Boolean, UInt32) System.String EscapeSpecialChars(System.String) System.String EscapeChildName(System.String) Void RenameItem(System.String, System.String) Void NewItem(System.String, System.String, System.Object) Void RemoveItem(System.String, Boolean) Void CopyItem(System.String, System.String, Boolean) Boolean CopyRegistryKey(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String, Boolean, Boolean, Boolean) Boolean ErrorIfDestinationIsSourceOrChildOfSource(System.String, System.String) Void MoveItem(System.String, System.String) Void GetProperty(System.String, System.Collections.ObjectModel.Collection`1[System.String]) Void SetProperty(System.String, System.Management.Automation.PSObject) Void ClearProperty(System.String, System.Collections.ObjectModel.Collection`1[System.String]) Void NewProperty(System.String, System.String, System.String, System.Object) Void RemoveProperty(System.String, System.String) Void RenameProperty(System.String, System.String, System.String) Void CopyProperty(System.String, System.String, System.String, System.String) Void MoveProperty(System.String, System.String, System.String, System.String) System.String EnsureDriveIsRooted(System.String) Boolean HasRelativePathTokens(System.String) Void GetFilteredRegistryKeyProperties(System.String, System.Collections.ObjectModel.Collection`1[System.String], Boolean, Boolean, Microsoft.PowerShell.Commands.IRegistryWrapper ByRef, System.Collections.ObjectModel.Collection`1[System.String] ByRef) Void WriteErrorIfPerfectMatchNotFound(Boolean, System.String, System.String) System.Object ResetRegistryKeyValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Boolean IsHiveContainer(System.String) Boolean CheckOperationNotAllowedOnHiveContainer(System.String) Boolean CheckOperationNotAllowedOnHiveContainer(System.String, System.String) Boolean CreateIntermediateKeys(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetRegkeyForPath(System.String, Boolean) Void WriteWrappedPropertyObject(System.Object, System.String, System.String) System.Object ConvertValueToKind(System.Object, Microsoft.Win32.RegistryValueKind) Microsoft.Win32.RegistryValueKind GetValueKindFromObject(System.Object) Void WriteRegistryItemObject(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Boolean ParseKind(System.String, Microsoft.Win32.RegistryValueKind ByRef) System.String GetLocalizedDefaultToken() System.String GetPropertyName(System.String)\",\"DeclaredNestedTypes\":\"\",\"DeclaredProperties\":\"\",\"ImplementedInterfaces\":\"System.Management.Automation.IResourceSupplier System.Management.Automation.Provider.IPropertyCmdletProvider System.Management.Automation.Provider.IDynamicPropertyCmdletProvider System.Management.Automation.Provider.ISecurityDescriptorCmdletProvider\",\"TypeInitializer\":\"Void .cctor()\",\"IsNested\":false,\"Attributes\":1048833,\"IsVisible\":true,\"IsNotPublic\":false,\"IsPublic\":true,\"IsNestedPublic\":false,\"IsNestedPrivate\":false,\"IsNestedFamily\":false,\"IsNestedAssembly\":false,\"IsNestedFamANDAssem\":false,\"IsNestedFamORAssem\":false,\"IsAutoLayout\":true,\"IsLayoutSequential\":false,\"IsExplicitLayout\":false,\"IsClass\":true,\"IsInterface\":false,\"IsValueType\":false,\"IsAbstract\":false,\"IsSealed\":true,\"IsSpecialName\":false,\"IsImport\":false,\"IsSerializable\":false,\"IsAnsiClass\":true,\"IsUnicodeClass\":false,\"IsAutoClass\":false,\"IsArray\":false,\"IsByRef\":false,\"IsPointer\":false,\"IsPrimitive\":false,\"IsCOMObject\":false,\"HasElementType\":false,\"IsContextful\":false,\"IsMarshalByRef\":false,\"GenericTypeArguments\":\"\",\"CustomAttributes\":\"[System.Management.Automation.OutputTypeAttribute(typeof(System.String), ProviderCmdlet = \\\"Move-ItemProperty\\\")] [System.Management.Automation.Provider.CmdletProviderAttribute(\\\"Registry\\\", (System.Management.Automation.Provider.ProviderCapabilities)80)] [System.Management.Automation.OutputTypeAttribute(new Type[2] { typeof(Microsoft.Win32.RegistryKey), typeof(System.String) }, ProviderCmdlet = \\\"Get-ChildItem\\\")] [System.Management.Automation.OutputTypeAttribute(typeof(Microsoft.Win32.RegistryKey), ProviderCmdlet = \\\"Get-Item\\\")] [System.Management.Automation.OutputTypeAttribute(typeof(System.Security.AccessControl.RegistrySecurity), ProviderCmdlet = \\\"Get-Acl\\\")] [System.Management.Automation.OutputTypeAttribute(typeof(Microsoft.Win32.RegistryKey), ProviderCmdlet = \\\"Get-ChildItem\\\")] [System.Management.Automation.OutputTypeAttribute(typeof(Microsoft.Win32.RegistryKey), ProviderCmdlet = \\\"Get-Item\\\")] [System.Management.Automation.OutputTypeAttribute(new Type[4] { typeof(Microsoft.Win32.RegistryKey), typeof(System.String), typeof(System.Int32), typeof(System.Int64) }, ProviderCmdlet = \\\"Get-ItemProperty\\\")] [System.Management.Automation.OutputTypeAttribute(typeof(Microsoft.Win32.RegistryKey), ProviderCmdlet = \\\"New-Item\\\")]\"},\"HelpFile\":\"System.Management.Automation.dll-Help.xml\",\"Name\":\"Registry\",\"PSSnapIn\":{\"Name\":\"Microsoft.PowerShell.Core\",\"IsDefault\":true,\"ApplicationBase\":\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\",\"AssemblyName\":\"System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, ProcessorArchitecture=MSIL\",\"ModuleName\":\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\System.Management.Automation.dll\",\"PSVersion\":\"5.1.26100.9711\",\"Version\":\"3.0.0.0\",\"Types\":\"types.ps1xml typesv3.ps1xml\",\"Formats\":\"Certificate.format.ps1xml DotNetTypes.format.ps1xml FileSystem.format.ps1xml Help.format.ps1xml HelpV3.format.ps1xml PowerShellCore.format.ps1xml PowerShellTrace.format.ps1xml Registry.format.ps1xml\",\"Description\":\"This Windows PowerShell snap-in contains cmdlets used to manage components of Windows PowerShell.\",\"Vendor\":\"Microsoft Corporation\",\"LogPipelineExecutionDetails\":false},\"ModuleName\":\"Microsoft.PowerShell.Core\",\"Module\":null,\"Description\":\"\",\"Capabilities\":80,\"Home\":\"\",\"Drives\":[\"HKLM\",\"HKCU\"]}}",
+        "stderr": "",
+        "error": null,
+        "durationMs": 1011
+      },
+      "setCommand": {
+        "command": "powershell -NoProfile -Command reg add 'HKCU:\\Control Panel\\Desktop' /v LogPixels /t REG_DWORD /d 144 /f",
+        "status": 1,
+        "stdout": "",
+        "stderr": "ERROR: Invalid key name.\r\nType \"REG ADD /?\" for usage.",
+        "error": null,
+        "durationMs": 714
+      },
+      "readback": {
+        "command": "powershell -NoProfile -Command Get-ItemProperty 'HKCU:\\Control Panel\\Desktop' -Name LogPixels | Select-Object -ExpandProperty LogPixels",
+        "status": 0,
+        "stdout": "120",
+        "stderr": "",
+        "error": null,
+        "durationMs": 848
+      },
+      "before": {
+        "mode": "dpi_probe",
+        "scaleFactor": 1.0499999523162842,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 732
+        },
+        "workArea": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 686
+        },
+        "displays": [
+          {
+            "id": 1125993197,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1301,
+              "height": 732
+            },
+            "workArea": {
+              "x": 0,
+              "y": 0,
+              "width": 1301,
+              "height": 686
+            },
+            "scaleFactor": 1.0499999523162842,
+            "primary": true
+          }
+        ]
+      },
+      "after": {
+        "mode": "dpi_probe",
+        "scaleFactor": 1.0499999523162842,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 732
+        },
+        "workArea": {
+          "x": 0,
+          "y": 0,
+          "width": 1301,
+          "height": 686
+        },
+        "displays": [
+          {
+            "id": 1125993197,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1301,
+              "height": 732
+            },
+            "workArea": {
+              "x": 0,
+              "y": 0,
+              "width": 1301,
+              "height": 686
+            },
+            "scaleFactor": 1.0499999523162842,
+            "primary": true
+          }
+        ]
+      },
+      "restoreCommand": {
+        "command": "powershell -NoProfile -Command reg add 'HKCU:\\Control Panel\\Desktop' /v LogPixels /t REG_DWORD /d 120 /f",
+        "status": 1,
+        "stdout": "",
+        "stderr": "ERROR: Invalid key name.\r\nType \"REG ADD /?\" for usage.",
+        "error": null,
+        "durationMs": 653
+      },
+      "restoredLogPixels": 120,
+      "blocker": "Windows applies HKCU\\Control Panel\\Desktop\\LogPixels at sign-in; the live session's display scale factor did not change (1.0499999523162842 before and after). Applying 150% requires sign-out/sign-in (or per-monitor Settings UI), which the harness cannot do without ending its own desktop session.",
+      "note": "Registry write is reverted immediately; no persistent change left behind."
+    },
+    "secondMonitor": {
+      "status": "UNTESTED-BLOCKED",
+      "displayCount": 1,
+      "displays": [
+        {
+          "id": 1125993197,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1301,
+            "height": 732
+          },
+          "workArea": {
+            "x": 0,
+            "y": 0,
+            "width": 1301,
+            "height": 686
+          },
+          "scaleFactor": 1.0499999523162842,
+          "primary": true
+        }
+      ],
+      "pnp": {
+        "command": "powershell -NoProfile -Command Get-PnpDevice -Class Display -ErrorAction SilentlyContinue | Select-Object Status,FriendlyName,InstanceId | ConvertTo-Json -Compress",
+        "status": 0,
+        "stdout": "[{\"Status\":\"Unknown\",\"FriendlyName\":\"Microsoft Basic Display Adapter\",\"InstanceId\":\"PCI\\\\VEN_8086\\u0026DEV_3EA0\\u0026SUBSYS_08BD1028\\u0026REV_02\\\\3\\u002611583659\\u00260\\u002610\"},{\"Status\":\"OK\",\"FriendlyName\":\"Intel(R) UHD Graphics 620\",\"InstanceId\":\"PCI\\\\VEN_8086\\u0026DEV_3EA0\\u0026SUBSYS_08BC1028\\u0026REV_02\\\\3\\u002611583659\\u00260\\u002610\"}]",
+        "stderr": "",
+        "error": null,
+        "durationMs": 2595
+      },
+      "adapters": {
+        "command": "powershell -NoProfile -Command Get-CimInstance Win32_VideoController | Select-Object Name,CurrentHorizontalResolution,CurrentVerticalResolution | ConvertTo-Json -Compress",
+        "status": 0,
+        "stdout": "{\"Name\":\"Intel(R) UHD Graphics 620\",\"CurrentHorizontalResolution\":1366,\"CurrentVerticalResolution\":768}",
+        "stderr": "",
+        "error": null,
+        "durationMs": 1202
+      },
+      "virtualDriverSearch": {
+        "driverStore": {
+          "command": "powershell -NoProfile -Command Get-ChildItem 'C:\\Windows\\System32\\DriverStore\\FileRepository' -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'idd|usbmmidd|virtualdisplay|indirect' } | Select-Object -ExpandProperty Name",
+          "status": 0,
+          "stdout": "hiddigi.inf_amd64_a4b2eba0d2a070a9\r\nrdpidd.inf_amd64_36f79fe5ab97e785\r\nusbcciddriver.inf_amd64_52974b727733202c\r\nwudfusbcciddriver.inf_amd64_d220d13a55b0700d",
+          "stderr": "",
+          "error": null,
+          "durationMs": 956
+        },
+        "pnputil": {
+          "command": "powershell -NoProfile -Command pnputil /enum-drivers | Select-String -Pattern 'idd|virtual display|indirect display' | Select-Object -First 10 | Out-String",
+          "status": 0,
+          "stdout": "",
+          "stderr": "",
+          "error": null,
+          "durationMs": 1109
+        },
+        "found": true
+      },
+      "displaySwitchAttempt": {
+        "command": "powershell -NoProfile -Command DisplaySwitch.exe /extend; Start-Sleep -Milliseconds 300; Write-Output 'DisplaySwitch /extend invoked'",
+        "status": 0,
+        "stdout": "DisplaySwitch /extend invoked",
+        "stderr": "",
+        "error": null,
+        "durationMs": 1240
+      },
+      "blocker": "Single physical display (1301x732). No second monitor is attached; no virtual display driver (usbmmidd/IddSampleDriver/Indirect Display) is installed or signed on this host, and installing one needs an admin driver install + driver package, which is unavailable to this agent. The second-moditor recommendation therefore remains UNVERIFIED on real hardware.",
+      "attempts": [
+        "electron screen.getAllDisplays()",
+        "Get-PnpDevice -Class Display",
+        "Win32_VideoController enumeration",
+        "DriverStore search for idd/usbmmidd/virtualdisplay",
+        "pnputil /enum-drivers",
+        "DisplaySwitch.exe /extend"
+      ]
+    },
+    "elevation": {
+      "status": "UNTESTED-BLOCKED",
+      "integrityLevel": "Medium",
+      "integrity": {
+        "command": "powershell -NoProfile -Command whoami /groups | Select-String -Pattern 'S-1-16-' | Out-String",
+        "status": 0,
+        "stdout": "Mandatory Label\\Medium Mandatory Level                        Label            S-1-16-8192",
+        "stderr": "",
+        "error": null,
+        "durationMs": 950
+      },
+      "netSessionDenial": {
+        "command": "powershell -NoProfile -Command net session",
+        "status": 1,
+        "stdout": "",
+        "stderr": "System error 5 has occurred.\r\n\r\nAccess is denied.",
+        "error": null,
+        "durationMs": 1091
+      },
+      "highestPrivilegesTaskAttempt": {
+        "command": "powershell -NoProfile -Command schtasks /Create /TN S4ElevatedCaptureProbe /SC ONCE /ST 23:59 /RL HIGHEST /TR cmd.exe /F",
+        "status": 1,
+        "stdout": "",
+        "stderr": "ERROR: Access is denied.",
+        "error": null,
+        "durationMs": 713
+      },
+      "uacPolicy": {
+        "command": "powershell -NoProfile -Command Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name EnableLUA,ConsentPromptBehaviorAdmin,PromptOnSecureDesktop -ErrorAction SilentlyContinue | ConvertTo-Json -Compress",
+        "status": 0,
+        "stdout": "{\"EnableLUA\":1,\"ConsentPromptBehaviorAdmin\":5,\"PromptOnSecureDesktop\":1,\"PSPath\":\"Microsoft.PowerShell.Core\\\\Registry::HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Policies\\\\System\",\"PSParentPath\":\"Microsoft.PowerShell.Core\\\\Registry::HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Policies\",\"PSChildName\":\"System\",\"PSDrive\":{\"CurrentLocation\":\"\",\"Name\":\"HKLM\",\"Provider\":{\"ImplementingType\":\"Microsoft.PowerShell.Commands.RegistryProvider\",\"HelpFile\":\"System.Management.Automation.dll-Help.xml\",\"Name\":\"Registry\",\"PSSnapIn\":\"Microsoft.PowerShell.Core\",\"ModuleName\":\"Microsoft.PowerShell.Core\",\"Module\":null,\"Description\":\"\",\"Capabilities\":80,\"Home\":\"\",\"Drives\":\"HKLM HKCU\"},\"Root\":\"HKEY_LOCAL_MACHINE\",\"Description\":\"The configuration settings for the local computer\",\"MaximumSize\":null,\"Credential\":{\"UserName\":null,\"Password\":null},\"DisplayRoot\":null},\"PSProvider\":{\"ImplementingType\":{\"Module\":\"System.Management.Automation.dll\",\"Assembly\":\"System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35\",\"TypeHandle\":\"System.RuntimeTypeHandle\",\"DeclaringMethod\":null,\"BaseType\":\"System.Management.Automation.Provider.NavigationCmdletProvider\",\"UnderlyingSystemType\":\"Microsoft.PowerShell.Commands.RegistryProvider\",\"FullName\":\"Microsoft.PowerShell.Commands.RegistryProvider\",\"AssemblyQualifiedName\":\"Microsoft.PowerShell.Commands.RegistryProvider, System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35\",\"Namespace\":\"Microsoft.PowerShell.Commands\",\"GUID\":\"73bf32d8-72d5-30bf-ba65-7d5b72919e2f\",\"IsEnum\":false,\"GenericParameterAttributes\":null,\"IsSecurityCritical\":true,\"IsSecuritySafeCritical\":false,\"IsSecurityTransparent\":false,\"IsGenericTypeDefinition\":false,\"IsGenericParameter\":false,\"GenericParameterPosition\":null,\"IsGenericType\":false,\"IsConstructedGenericType\":false,\"ContainsGenericParameters\":false,\"StructLayoutAttribute\":\"System.Runtime.InteropServices.StructLayoutAttribute\",\"Name\":\"RegistryProvider\",\"MemberType\":32,\"DeclaringType\":null,\"ReflectedType\":null,\"MetadataToken\":33556337,\"GenericTypeParameters\":\"\",\"DeclaredConstructors\":\"Void .ctor() Void .cctor()\",\"DeclaredEvents\":\"\",\"DeclaredFields\":\"System.Management.Automation.PSTraceSource tracer System.String[] hiveNames System.String[] hiveShortNames Microsoft.Win32.RegistryKey[] wellKnownHives Microsoft.PowerShell.Commands.Internal.TransactedRegistryKey[] wellKnownHivesTx System.String ProviderName System.String charactersThatNeedEscaping\",\"DeclaredMembers\":\"System.Management.Automation.PSDriveInfo NewDrive(System.Management.Automation.PSDriveInfo) Void GetItem(System.String) System.Object SetItemDynamicParameters(System.String, System.Object) Void GetChildNames(System.String, System.Management.Automation.ReturnContainers) Boolean ItemExists(System.String) Boolean HasChildItems(System.String) Boolean IsItemContainer(System.String) Void MoveRegistryItem(System.String, System.String) System.Object SetPropertyDynamicParameters(System.String, System.Management.Automation.PSObject) System.Object GetPropertyDynamicParameters(System.String, System.Collections.ObjectModel.Collection`1[System.String]) System.Object ClearPropertyDynamicParameters(System.String, System.Collections.ObjectModel.Collection`1[System.String]) System.String GetParentPath(System.String, System.String) System.String GetChildName(System.String) System.Object NewPropertyDynamicParameters(System.String, System.String, System.String, System.Object) System.Object RemovePropertyDynamicParameters(System.String, System.String) System.Object RenamePropertyDynamicParameters(System.String, System.String, System.String) System.Object CopyPropertyDynamicParameters(System.String, System.String, System.String, System.String) System.Object MovePropertyDynamicParameters(System.String, System.String, System.String, System.String) Void CopyProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String, Boolean) Void MoveProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String) System.String NormalizePath(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetHiveRoot(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetRegkeyForPathWriteIfError(System.String, Boolean) Void SetRegistryValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.Object, Microsoft.Win32.RegistryValueKind, System.String) Void SetRegistryValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.Object, Microsoft.Win32.RegistryValueKind, System.String, Boolean) Microsoft.Win32.RegistryValueKind GetValueKindForProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) System.Object ReadExistingKeyValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Void GetSecurityDescriptor(System.String, System.Security.AccessControl.AccessControlSections) Void SetSecurityDescriptor(System.String, System.Security.AccessControl.ObjectSecurity) System.Security.AccessControl.ObjectSecurity NewSecurityDescriptorFromPath(System.String, System.Security.AccessControl.AccessControlSections) System.Security.AccessControl.ObjectSecurity NewSecurityDescriptorOfType(System.String, System.Security.AccessControl.AccessControlSections) System.Collections.ObjectModel.Collection`1[System.Management.Automation.PSDriveInfo] InitializeDefaultDrives() Boolean IsValidPath(System.String) Void SetItem(System.String, System.Object) Void ClearItem(System.String) Void GetChildItems(System.String, Boolean, UInt32) System.String EscapeSpecialChars(System.String) System.String EscapeChildName(System.String) Void RenameItem(System.String, System.String) Void NewItem(System.String, System.String, System.Object) Void RemoveItem(System.String, Boolean) Void CopyItem(System.String, System.String, Boolean) Boolean CopyRegistryKey(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String, Boolean, Boolean, Boolean) Boolean ErrorIfDestinationIsSourceOrChildOfSource(System.String, System.String) Void MoveItem(System.String, System.String) Void GetProperty(System.String, System.Collections.ObjectModel.Collection`1[System.String]) Void SetProperty(System.String, System.Management.Automation.PSObject) Void ClearProperty(System.String, System.Collections.ObjectModel.Collection`1[System.String]) Void NewProperty(System.String, System.String, System.String, System.Object) Void RemoveProperty(System.String, System.String) Void RenameProperty(System.String, System.String, System.String) Void CopyProperty(System.String, System.String, System.String, System.String) Void MoveProperty(System.String, System.String, System.String, System.String) System.String EnsureDriveIsRooted(System.String) Boolean HasRelativePathTokens(System.String) Void GetFilteredRegistryKeyProperties(System.String, System.Collections.ObjectModel.Collection`1[System.String], Boolean, Boolean, Microsoft.PowerShell.Commands.IRegistryWrapper ByRef, System.Collections.ObjectModel.Collection`1[System.String] ByRef) Void WriteErrorIfPerfectMatchNotFound(Boolean, System.String, System.String) System.Object ResetRegistryKeyValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Boolean IsHiveContainer(System.String) Boolean CheckOperationNotAllowedOnHiveContainer(System.String) Boolean CheckOperationNotAllowedOnHiveContainer(System.String, System.String) Boolean CreateIntermediateKeys(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetRegkeyForPath(System.String, Boolean) Void WriteWrappedPropertyObject(System.Object, System.String, System.String) System.Object ConvertValueToKind(System.Object, Microsoft.Win32.RegistryValueKind) Microsoft.Win32.RegistryValueKind GetValueKindFromObject(System.Object) Void WriteRegistryItemObject(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Boolean ParseKind(System.String, Microsoft.Win32.RegistryValueKind ByRef) System.String GetLocalizedDefaultToken() System.String GetPropertyName(System.String) Void .ctor() Void .cctor() System.Management.Automation.PSTraceSource tracer System.String[] hiveNames System.String[] hiveShortNames Microsoft.Win32.RegistryKey[] wellKnownHives Microsoft.PowerShell.Commands.Internal.TransactedRegistryKey[] wellKnownHivesTx System.String ProviderName System.String charactersThatNeedEscaping\",\"DeclaredMethods\":\"System.Management.Automation.PSDriveInfo NewDrive(System.Management.Automation.PSDriveInfo) Void GetItem(System.String) System.Object SetItemDynamicParameters(System.String, System.Object) Void GetChildNames(System.String, System.Management.Automation.ReturnContainers) Boolean ItemExists(System.String) Boolean HasChildItems(System.String) Boolean IsItemContainer(System.String) Void MoveRegistryItem(System.String, System.String) System.Object SetPropertyDynamicParameters(System.String, System.Management.Automation.PSObject) System.Object GetPropertyDynamicParameters(System.String, System.Collections.ObjectModel.Collection`1[System.String]) System.Object ClearPropertyDynamicParameters(System.String, System.Collections.ObjectModel.Collection`1[System.String]) System.String GetParentPath(System.String, System.String) System.String GetChildName(System.String) System.Object NewPropertyDynamicParameters(System.String, System.String, System.String, System.Object) System.Object RemovePropertyDynamicParameters(System.String, System.String) System.Object RenamePropertyDynamicParameters(System.String, System.String, System.String) System.Object CopyPropertyDynamicParameters(System.String, System.String, System.String, System.String) System.Object MovePropertyDynamicParameters(System.String, System.String, System.String, System.String) Void CopyProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String, Boolean) Void MoveProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String) System.String NormalizePath(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetHiveRoot(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetRegkeyForPathWriteIfError(System.String, Boolean) Void SetRegistryValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.Object, Microsoft.Win32.RegistryValueKind, System.String) Void SetRegistryValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.Object, Microsoft.Win32.RegistryValueKind, System.String, Boolean) Microsoft.Win32.RegistryValueKind GetValueKindForProperty(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) System.Object ReadExistingKeyValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Void GetSecurityDescriptor(System.String, System.Security.AccessControl.AccessControlSections) Void SetSecurityDescriptor(System.String, System.Security.AccessControl.ObjectSecurity) System.Security.AccessControl.ObjectSecurity NewSecurityDescriptorFromPath(System.String, System.Security.AccessControl.AccessControlSections) System.Security.AccessControl.ObjectSecurity NewSecurityDescriptorOfType(System.String, System.Security.AccessControl.AccessControlSections) System.Collections.ObjectModel.Collection`1[System.Management.Automation.PSDriveInfo] InitializeDefaultDrives() Boolean IsValidPath(System.String) Void SetItem(System.String, System.Object) Void ClearItem(System.String) Void GetChildItems(System.String, Boolean, UInt32) System.String EscapeSpecialChars(System.String) System.String EscapeChildName(System.String) Void RenameItem(System.String, System.String) Void NewItem(System.String, System.String, System.Object) Void RemoveItem(System.String, Boolean) Void CopyItem(System.String, System.String, Boolean) Boolean CopyRegistryKey(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String, System.String, Boolean, Boolean, Boolean) Boolean ErrorIfDestinationIsSourceOrChildOfSource(System.String, System.String) Void MoveItem(System.String, System.String) Void GetProperty(System.String, System.Collections.ObjectModel.Collection`1[System.String]) Void SetProperty(System.String, System.Management.Automation.PSObject) Void ClearProperty(System.String, System.Collections.ObjectModel.Collection`1[System.String]) Void NewProperty(System.String, System.String, System.String, System.Object) Void RemoveProperty(System.String, System.String) Void RenameProperty(System.String, System.String, System.String) Void CopyProperty(System.String, System.String, System.String, System.String) Void MoveProperty(System.String, System.String, System.String, System.String) System.String EnsureDriveIsRooted(System.String) Boolean HasRelativePathTokens(System.String) Void GetFilteredRegistryKeyProperties(System.String, System.Collections.ObjectModel.Collection`1[System.String], Boolean, Boolean, Microsoft.PowerShell.Commands.IRegistryWrapper ByRef, System.Collections.ObjectModel.Collection`1[System.String] ByRef) Void WriteErrorIfPerfectMatchNotFound(Boolean, System.String, System.String) System.Object ResetRegistryKeyValue(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Boolean IsHiveContainer(System.String) Boolean CheckOperationNotAllowedOnHiveContainer(System.String) Boolean CheckOperationNotAllowedOnHiveContainer(System.String, System.String) Boolean CreateIntermediateKeys(System.String) Microsoft.PowerShell.Commands.IRegistryWrapper GetRegkeyForPath(System.String, Boolean) Void WriteWrappedPropertyObject(System.Object, System.String, System.String) System.Object ConvertValueToKind(System.Object, Microsoft.Win32.RegistryValueKind) Microsoft.Win32.RegistryValueKind GetValueKindFromObject(System.Object) Void WriteRegistryItemObject(Microsoft.PowerShell.Commands.IRegistryWrapper, System.String) Boolean ParseKind(System.String, Microsoft.Win32.RegistryValueKind ByRef) System.String GetLocalizedDefaultToken() System.String GetPropertyName(System.String)\",\"DeclaredNestedTypes\":\"\",\"DeclaredProperties\":\"\",\"ImplementedInterfaces\":\"System.Management.Automation.IResourceSupplier System.Management.Automation.Provider.IPropertyCmdletProvider System.Management.Automation.Provider.IDynamicPropertyCmdletProvider System.Management.Automation.Provider.ISecurityDescriptorCmdletProvider\",\"TypeInitializer\":\"Void .cctor()\",\"IsNested\":false,\"Attributes\":1048833,\"IsVisible\":true,\"IsNotPublic\":false,\"IsPublic\":true,\"IsNestedPublic\":false,\"IsNestedPrivate\":false,\"IsNestedFamily\":false,\"IsNestedAssembly\":false,\"IsNestedFamANDAssem\":false,\"IsNestedFamORAssem\":false,\"IsAutoLayout\":true,\"IsLayoutSequential\":false,\"IsExplicitLayout\":false,\"IsClass\":true,\"IsInterface\":false,\"IsValueType\":false,\"IsAbstract\":false,\"IsSealed\":true,\"IsSpecialName\":false,\"IsImport\":false,\"IsSerializable\":false,\"IsAnsiClass\":true,\"IsUnicodeClass\":false,\"IsAutoClass\":false,\"IsArray\":false,\"IsByRef\":false,\"IsPointer\":false,\"IsPrimitive\":false,\"IsCOMObject\":false,\"HasElementType\":false,\"IsContextful\":false,\"IsMarshalByRef\":false,\"GenericTypeArguments\":\"\",\"CustomAttributes\":\"[System.Management.Automation.OutputTypeAttribute(typeof(System.String), ProviderCmdlet = \\\"Move-ItemProperty\\\")] [System.Management.Automation.Provider.CmdletProviderAttribute(\\\"Registry\\\", (System.Management.Automation.Provider.ProviderCapabilities)80)] [System.Management.Automation.OutputTypeAttribute(new Type[2] { typeof(Microsoft.Win32.RegistryKey), typeof(System.String) }, ProviderCmdlet = \\\"Get-ChildItem\\\")] [System.Management.Automation.OutputTypeAttribute(typeof(Microsoft.Win32.RegistryKey), ProviderCmdlet = \\\"Get-Item\\\")] [System.Management.Automation.OutputTypeAttribute(typeof(System.Security.AccessControl.RegistrySecurity), ProviderCmdlet = \\\"Get-Acl\\\")] [System.Management.Automation.OutputTypeAttribute(typeof(Microsoft.Win32.RegistryKey), ProviderCmdlet = \\\"Get-ChildItem\\\")] [System.Management.Automation.OutputTypeAttribute(typeof(Microsoft.Win32.RegistryKey), ProviderCmdlet = \\\"Get-Item\\\")] [System.Management.Automation.OutputTypeAttribute(new Type[4] { typeof(Microsoft.Win32.RegistryKey), typeof(System.String), typeof(System.Int32), typeof(System.Int64) }, ProviderCmdlet = \\\"Get-ItemProperty\\\")] [System.Management.Automation.OutputTypeAttribute(typeof(Microsoft.Win32.RegistryKey), ProviderCmdlet = \\\"New-Item\\\")]\"},\"HelpFile\":\"System.Management.Automation.dll-Help.xml\",\"Name\":\"Registry\",\"PSSnapIn\":{\"Name\":\"Microsoft.PowerShell.Core\",\"IsDefault\":true,\"ApplicationBase\":\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\",\"AssemblyName\":\"System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, ProcessorArchitecture=MSIL\",\"ModuleName\":\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\System.Management.Automation.dll\",\"PSVersion\":\"5.1.26100.9711\",\"Version\":\"3.0.0.0\",\"Types\":\"types.ps1xml typesv3.ps1xml\",\"Formats\":\"Certificate.format.ps1xml DotNetTypes.format.ps1xml FileSystem.format.ps1xml Help.format.ps1xml HelpV3.format.ps1xml PowerShellCore.format.ps1xml PowerShellTrace.format.ps1xml Registry.format.ps1xml\",\"Description\":\"This Windows PowerShell snap-in contains cmdlets used to manage components of Windows PowerShell.\",\"Vendor\":\"Microsoft Corporation\",\"LogPipelineExecutionDetails\":false},\"ModuleName\":\"Microsoft.PowerShell.Core\",\"Module\":null,\"Description\":\"\",\"Capabilities\":80,\"Home\":\"\",\"Drives\":[\"HKLM\",\"HKCU\"]}}",
+        "stderr": "",
+        "error": null,
+        "durationMs": 1079
+      },
+      "interactiveRunAsAttempt": {
+        "attempted": false,
+        "reason": "Start-Process -Verb RunAs was deliberately not triggered: an unattended UAC consent prompt cannot be approved by the agent and would block the interactive desktop. The denied HIGHEST-privilege scheduled-task channel above is the recorded elevation attempt."
+      },
+      "elevatedCaptureTested": false,
+      "blocker": "The agent process runs at Medium integrity. Creating an elevated capture process requires a UAC consent prompt on the interactive desktop; the harness cannot approve UAC (approval prompts are unavailable to the agent), and scheduled-task creation at HIGHEST run level is denied. Elevated-vs-non-elevated capture behaviour remains UNTESTED; only the non-elevated path is covered by the other rows.",
+      "attempts": [
+        "whoami /groups integrity level",
+        "net session (admin-only)",
+        "schtasks /RL HIGHEST creation attempt",
+        "UAC policy read (EnableLUA/ConsentPromptBehaviorAdmin/PromptOnSecureDesktop)"
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "name": "click-through-proof",
+      "pass": true,
+      "detail": {
+        "launchMs": 1924,
+        "clickOnMs": 2845,
+        "clickOffMs": 2229,
+        "totalMs": 9236
+      }
+    },
+    {
+      "name": "browser-share-observed",
+      "pass": true,
+      "detail": [
+        {
+          "browser": "Chrome",
+          "mode": "full",
+          "status": "OBSERVED"
+        },
+        {
+          "browser": "Chrome",
+          "mode": "tab",
+          "status": "OBSERVED"
+        },
+        {
+          "browser": "Edge",
+          "mode": "full",
+          "status": "OBSERVED"
+        },
+        {
+          "browser": "Edge",
+          "mode": "tab",
+          "status": "OBSERVED"
+        }
+      ]
+    },
+    {
+      "name": "browser-share-no-failures",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "browser-share-control-observed",
+      "pass": true,
+      "detail": [
+        {
+          "browser": "Chrome",
+          "status": "OBSERVED"
+        },
+        {
+          "browser": "Edge",
+          "status": "OBSERVED"
+        }
+      ]
+    },
+    {
+      "name": "browser-share-control-no-failures",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "dpi-scaling-honest",
+      "pass": true,
+      "detail": {
+        "status": "UNTESTED-BLOCKED",
+        "blocker": "Windows applies HKCU\\Control Panel\\Desktop\\LogPixels at sign-in; the live session's display scale factor did not change (1.0499999523162842 before and after). Applying 150% requires sign-out/sign-in (or per-monitor Settings UI), which the harness cannot do without ending its own desktop session."
+      }
+    },
+    {
+      "name": "second-monitor-honest",
+      "pass": true,
+      "detail": {
+        "displayCount": 1,
+        "blocker": "Single physical display (1301x732). No second monitor is attached; no virtual display driver (usbmmidd/IddSampleDriver/Indirect Display) is installed or signed on this host, and installing one needs an admin driver install + driver package, which is unavailable to this agent. The second-moditor recommendation therefore remains UNVERIFIED on real hardware."
+      }
+    },
+    {
+      "name": "elevation-honest",
+      "pass": true,
+      "detail": {
+        "status": "UNTESTED-BLOCKED",
+        "integrity": "Medium",
+        "blocker": "The agent process runs at Medium integrity. Creating an elevated capture process requires a UAC consent prompt on the interactive desktop; the harness cannot approve UAC (approval prompts are unavailable to the agent), and scheduled-task creation at HIGHEST run level is denied. Elevated-vs-non-elevated capture behaviour remains UNTESTED; only the non-elevated path is covered by the other rows."
+      }
+    }
+  ],
+  "pass": true,
+  "sectionStatus": {
+    "clickThrough": "PASS",
+    "browserShareProtected": "PASS",
+    "browserShareControl": "PASS",
+    "dpiScaling": "PASS",
+    "secondMonitor": "PASS",
+    "elevation": "PASS"
+  },
+  "durationMs": 85895,
+  "evidenceFile": "docs/evidence/capture-sprint/s4/s4-capture-sprint-results.json"
+}

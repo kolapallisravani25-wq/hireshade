@@ -9,6 +9,7 @@
  *   node scripts/demo/run-demo.mjs pipeline    # latency proof + docs/evidence/demo/*
  *   node scripts/demo/run-demo.mjs e2e         # Electron overlay CDP DOM proof
  *   node scripts/demo/run-demo.mjs size        # O3 preset/readability acceptance (all presets)
+ *   node scripts/demo/run-demo.mjs capture-sprint  # S4 quick OS click-through + environment check
  *   node scripts/demo/run-demo.mjs help
  *
  * Extra args are forwarded to the pipeline step, e.g.:
@@ -189,6 +190,20 @@ function stepE2e(env) {
  * readability/speakability, persistence, re-layout and click-through with the
  * keyless environment (no provider keys involved).
  */
+/**
+ * S4: cheap capture-sprint check (OS click-through proof + environment probes).
+ * The full Chrome/Edge share + blocker sprint is run separately:
+ *   node scripts/capture-sprint/run-capture-sprint.mjs
+ */
+function stepCaptureSprint(env) {
+  return run(
+    "capture sprint (S4) quick: OS click-through + environment",
+    process.execPath,
+    [path.join(here, "..", "capture-sprint", "run-capture-sprint.mjs"), "--quick"],
+    { cwd: root, env },
+  );
+}
+
 function stepSize(env) {
   return run(
     "overlay-size acceptance (5 presets x DPI 100/125/150/200 + readability/speakability)",
@@ -208,6 +223,7 @@ function help() {
   node scripts/demo/run-demo.mjs e2e         Electron overlay CDP DOM proof + screenshot
   node scripts/demo/run-demo.mjs extensions  W1 pronunciation + W2 auto-scroll + W3 Razorpay mock + W4 gaze
   node scripts/demo/run-demo.mjs size        O3 overlay-size acceptance: 5 presets x DPI 100/125/150/200
+  node scripts/demo/run-demo.mjs capture-sprint  S4 quick: OS click-through + environment
   node scripts/demo/run-demo.mjs help
 
 All steps run with DEMO_MODE=1 and every provider key removed.`);
@@ -249,6 +265,9 @@ function main() {
     case "size":
       status = stepSize(env);
       break;
+    case "capture-sprint":
+      status = stepCaptureSprint(env);
+      break;
     case "demo": {
       status = stepFixtures(env);
       if (status === 0) status = stepTests(env);
@@ -256,6 +275,7 @@ function main() {
       if (status === 0) status = stepExtensions(env);
       if (status === 0) status = stepE2e(env);
       if (status === 0) status = stepSize(env);
+      if (status === 0) status = stepCaptureSprint(env);
       break;
     }
     default:

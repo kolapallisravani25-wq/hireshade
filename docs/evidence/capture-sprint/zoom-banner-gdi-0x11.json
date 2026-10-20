@@ -1,0 +1,30 @@
+﻿{
+    "captured_at":  "2026-10-20T21:49:08.2619402+05:30",
+    "label":  "banner-gdi-0x11",
+    "baseline":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-banner-0x11-baseline-crop.png",
+    "on":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-banner-0x11-crop.png",
+    "method":  "Per-edge pixel-ring analysis (threshold 12) of the GDI ON-vs-baseline crops; zoomed montages baseline|ON|diff saved for manual review",
+    "size":  {
+                 "height":  253,
+                 "width":  1366
+             },
+    "fractions":  {
+                      "edge_ring_1px":  1,
+                      "edge_ring_2px":  1,
+                      "edge_ring_4px":  1,
+                      "edge_ring_8px":  1,
+                      "interior_8px_inset":  1
+                  },
+    "max_diff":  250,
+    "max_diff_edge_2px":  244,
+    "max_diff_interior":  250,
+    "contiguous_band_px":  {
+                               "left":  8,
+                               "right":  8,
+                               "top":  8,
+                               "bottom":  8,
+                               "max":  8
+                           },
+    "classification":  "VISIBLE_EDGE_BAND (changed pixels form a band of 8 px at the window edge)",
+    "zoomed_images":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\zoom-banner-gdi-0x11-top.png;D:\\hireshade\\docs\\evidence\\capture-sprint\\zoom-banner-gdi-0x11-bottom.png;D:\\hireshade\\docs\\evidence\\capture-sprint\\zoom-banner-gdi-0x11-left.png;D:\\hireshade\\docs\\evidence\\capture-sprint\\zoom-banner-gdi-0x11-right.png;D:\\hireshade\\docs\\evidence\\capture-sprint\\zoom-banner-gdi-0x11-corner-topleft.png"
+}

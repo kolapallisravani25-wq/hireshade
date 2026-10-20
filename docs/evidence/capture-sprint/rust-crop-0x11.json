@@ -1,0 +1,14 @@
+﻿{
+    "captured_at":  "2026-10-20T21:51:09.1466408+05:30",
+    "label":  "rust-0x11",
+    "input":  "D:\\hireshade\\docs\\evidence\\capture-sprint\\gdi-rust-0x11-crop.png",
+    "rect":  "{X=0,Y=0,Width=520,Height=340}",
+    "crop_path":  null,
+    "width":  null,
+    "height":  null,
+    "mean_luma":  0,
+    "std_luma":  0,
+    "unique_colors_sampled":  null,
+    "black_fraction":  0,
+    "high_contrast_fraction":  0
+}

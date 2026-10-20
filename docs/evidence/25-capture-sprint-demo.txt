@@ -1,0 +1,24 @@
+[demo] target=capture-sprint node=v24.19.0 platform=win32
+[demo] DEMO_MODE=1 NODE_ENV=development
+[demo] provider keys removed for children: ELECTRON_RUN_AS_NODE
+
+[demo] == capture sprint (S4) quick: OS click-through + environment ==
+[demo] $ C:\Program Files\nodejs\node.exe D:\hireshade\scripts\capture-sprint\run-capture-sprint.mjs --quick
+[s4] serving http://127.0.0.1:49345 (quick: click-through + environment)
+
+[s4] == 1. OS click-through (dedicated click-target window) ==
+[s4]   PASS click-through-on-target-received-click ({"targetClicks":1})
+[s4]   PASS click-through-on-overlay-did-not-receive-click ({"overlayClicks":0})
+[s4]   PASS click-through-off-overlay-control-received-click ({"overlayBefore":0,"overlayAfter":1})
+[s4]   PASS click-through-off-target-did-not-receive-click ({"targetBefore":1,"targetAfter":1})
+[s4]   PASS click-through-proof ({"launchMs":3508,"clickOnMs":2176,"clickOffMs":1635,"totalMs":9482})
+
+[s4] == quick environment checks ==
+[s4]   PASS quick-display-enumerated (1)
+[s4]   PASS quick-elevation-readable (0)
+
+[s4] section status: {"clickThrough":"PASS","displays":"PASS","elevationQuick":"PASS"}
+[s4] overall PASS -> D:\hireshade\docs\evidence\capture-sprint\s4\s4-quick-results.json (11.1 s)
+
+[demo] ALL GREEN - keyless demo + latency budget + extensions (W1-W4) + overlay DOM proof passed.
+[demo] evidence: docs/evidence/demo/*, docs/evidence/overlay-scroll/*, docs/evidence/overlay-size/*, docs/evidence/gaze/*, docs/evidence/pronunciation/*, docs/evidence/razorpay/*

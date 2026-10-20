@@ -41,6 +41,7 @@ import { getAuthHeaders } from "@/lib/globalAuth";
 import { ModelSelector } from "@/pages/Sessions/ActiveSession/components/ModelSelector";
 import { BuyCreditsDialog } from "@/components/Billing/BuyCreditsDialog";
 import { MockInterviewDialog } from "@/components/Sessions/MockInterview/MockInterviewDialog";
+import { PreflightCard } from "@/components/Sessions/PreflightCard";
 import { getLanguageName, languageSelectOptions } from "@/lib/languages";
 import {
   Popover,
@@ -198,6 +199,8 @@ export function ConnectDialog({
         </DialogHeader>
 
         <div className="min-h-0 overflow-y-auto overscroll-contain px-7 pb-7 pt-3 space-y-5">
+          {/* Runtime capture pre-flight: GREEN / AMBER / RED before the session */}
+          <PreflightCard />
           {/* Context Summary */}
           <p className="text-sm text-muted-foreground leading-relaxed">
             This is an Interview Session at{" "}

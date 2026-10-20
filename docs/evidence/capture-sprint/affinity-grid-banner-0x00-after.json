@@ -1,0 +1,95 @@
+﻿{
+    "captured_at":  "2026-10-20T21:48:29.4433839+05:30",
+    "expect":  "0x0",
+    "note":  "S1 banner-0x00-after",
+    "electron_pids":  [
+                          8236
+                      ],
+    "windows":  [
+                    {
+                        "title":  "Floating Mini-Screen",
+                        "hwnd":  "0x2D07A6",
+                        "pid":  8236,
+                        "visible":  true,
+                        "affinity":  "0x0",
+                        "bounds":  {
+                                       "y":  16,
+                                       "width":  1367,
+                                       "height":  252,
+                                       "x":  0
+                                   }
+                    },
+                    {
+                        "title":  "Launcher",
+                        "hwnd":  "0x70848",
+                        "pid":  8236,
+                        "visible":  false,
+                        "affinity":  "0x0",
+                        "bounds":  {
+                                       "y":  3,
+                                       "width":  506,
+                                       "height":  716,
+                                       "x":  430
+                                   }
+                    },
+                    {
+                        "title":  "MSCTFIME UI",
+                        "hwnd":  "0xA07AC",
+                        "pid":  8236,
+                        "visible":  false,
+                        "affinity":  "0x0",
+                        "bounds":  {
+                                       "y":  0,
+                                       "width":  0,
+                                       "height":  0,
+                                       "x":  0
+                                   }
+                    },
+                    {
+                        "title":  "Default IME",
+                        "hwnd":  "0x4107E4",
+                        "pid":  8236,
+                        "visible":  false,
+                        "affinity":  "0x0",
+                        "bounds":  {
+                                       "y":  0,
+                                       "width":  0,
+                                       "height":  0,
+                                       "x":  0
+                                   }
+                    }
+                ],
+    "matching":  [
+                     {
+                         "title":  "Floating Mini-Screen",
+                         "hwnd":  "0x2D07A6",
+                         "pid":  8236,
+                         "visible":  true,
+                         "affinity":  "0x0",
+                         "bounds":  {
+                                        "y":  16,
+                                        "width":  1367,
+                                        "height":  252,
+                                        "x":  0
+                                    },
+                         "expected":  "0x0",
+                         "pass":  true
+                     },
+                     {
+                         "title":  "Launcher",
+                         "hwnd":  "0x70848",
+                         "pid":  8236,
+                         "visible":  false,
+                         "affinity":  "0x0",
+                         "bounds":  {
+                                        "y":  3,
+                                        "width":  506,
+                                        "height":  716,
+                                        "x":  430
+                                    },
+                         "expected":  "0x0",
+                         "pass":  true
+                     }
+                 ],
+    "pass":  true
+}

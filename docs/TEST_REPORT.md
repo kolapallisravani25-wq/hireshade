@@ -164,3 +164,18 @@ Notes / honest limits: accent degradation is deterministic modelling rather than
 **Important honest finding:** the earlier Windows invisibility PASS (G-006) was measured with GDI/desktopCapturer-class paths. The new matrix shows **DXGI Desktop Duplication ignores WDA_EXCLUDEFROMCAPTURE** on this host. That is recorded as OBSERVED, not softened; it means some capture apps (those using DXGI) can still see the overlay. The compatibility-mode/fallback ladder exists precisely for that case, and macOS remains UNTESTED.
 
 Regression status: frontend 53 files / 616 tests pass; workspace typecheck exit 0; API suite unchanged at 399; `make demo` exit 0 with the new size step; gaze CI latency gate now measures per-frame CPU (<25 ms) because wall clock inside the 616-test suite is dominated by scheduler preemption (ADR-023).
+
+## 14. Capture-path productisation (EXT G-051 … G-056), sprint-capture
+
+| ID | Capability | Result | Evidence |
+|---|---|---|---|
+| G-051 | Affinity-mode experiment 0x00/0x01/0x11 across paths | **PASS (honest)** — 0x00 OBSERVED visible, 0x01 **UNTESTED-BLOCKED** (out-of-process SetWindowDisplayAffinity = ERROR_ACCESS_DENIED; no in-process 0x01), 0x11 OBSERVED; **DXGI ignores every reachable mode**; residual = 0 changed edge pixels, interior noise only | `docs/CAPTURE_MATRIX.md` §1b, `docs/evidence/capture-sprint/` |
+| G-052 | Recreation crash root cause + opaque path verification | **PARTIAL** — crash class fixed in code (clear protection before teardown, deferred recreate after `closed`, map identity guard, force-show fallback) and ladder now names DXGI vs black-bar; opaque-capture **measurement BLOCKED** (repro harness hangs), so not claimed fixed | `main.js` diff, `docs/CAPTURE_MATRIX.md` §3 |
+| G-053 | Runtime pre-flight GREEN/AMBER/RED + routing | **PASS** — pure state machine (24 tests), 11-scenario matrix + 25 assertions, versioned app data list (2026.10.20.1), 4 actions, honest copy, black-bar self-check; IPC wired in main/preload and card mounted in ConnectDialog | `docs/evidence/capture-sprint/preflight/`, `src/overlay/preflight/` |
+| G-054 | Close untested list | **PASS/PARTIAL** — click-through OBSERVED PASS; Chrome 155 + Edge full-screen share OBSERVED excluded with magenta positive control; tab share structurally safe (exact app-tab selection UNTESTED-BLOCKED); real 150% scaling, second monitor, elevated = UNTESTED-BLOCKED with commands | `docs/CAPTURE_MATRIX.md` §7, `docs/evidence/capture-sprint/s4/` |
+| G-055 | macOS verification | **DEFERRED** — `docs/MACOS_PLAN.md` names files/APIs/TCC entitlements/signing and acceptance rig | MACOS_PLAN.md |
+| G-056 | Honest claim | **PASS** — dated `docs/UNDETECTABILITY_CLAIM.md` with proven/failed/blocked rows and one defensible sentence | claim doc |
+
+Verification: frontend **57 files / 657 tests pass** (`docs/evidence/23-capture-sprint-frontend.txt`), workspace typecheck exit 0 (`24-capture-sprint-typecheck.txt`), capture/preflight unit tests 58/58, keyless capture-sprint quick check PASS (`25-capture-sprint-demo.txt`). No prior test regressed; latency pipeline unchanged.
+
+Honest headline: on this Windows host the overlay is excluded from GDI, Chromium screen/window capture, Chrome/Edge full-screen sharing and PrintWindow content, but **DXGI Desktop Duplication still sees it**; 0x01 could not be established; macOS/elevated/real-DPI/second-monitor remain blocked or deferred. The app now tells the user that in plain language before the session.

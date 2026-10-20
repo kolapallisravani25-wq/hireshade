@@ -1,0 +1,15 @@
+﻿{
+    "captured_at":  "2026-10-20T21:50:28.1315165+05:30",
+    "expect":  "0x11",
+    "note":  "S1 reading-0x11-after",
+    "electron_pids":  [
+                          8236
+                      ],
+    "windows":  [
+
+                ],
+    "matching":  [
+
+                 ],
+    "pass":  false
+}
