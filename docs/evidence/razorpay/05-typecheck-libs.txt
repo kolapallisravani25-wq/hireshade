@@ -1,0 +1,7 @@
+﻿node.exe : $ tsc --build
+At C:\Program Files\nodejs\pnpm.ps1:16 char:5
++     & "$basedir/node$exe"  "$basedir/node_modules/corepack/dist/pnpm. ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ($ tsc --build:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

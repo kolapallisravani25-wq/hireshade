@@ -556,3 +556,132 @@ export const stripeWebhookEventsTable = pgTable(
 );
 
 export type StripeWebhookEvent = typeof stripeWebhookEventsTable.$inferSelect;
+
+
+// ── Razorpay Webhook Events (X-Razorpay-Event-Id idempotency) ────────────────
+// Mirrors stripe_webhook_events: the event id header is the PRIMARY KEY, the
+// first delivery claims the row, and replays/duplicates short-circuit with 200.
+// Razorpay retries webhooks until it receives a 2xx and can deliver the same
+// event id more than once in parallel.
+export const razorpayWebhookEventsTable = pgTable(
+  "razorpay_webhook_events",
+  {
+    id: text("id").primaryKey(), // X-Razorpay-Event-Id (e.g. evt_..., UUID)
+    type: text("type").notNull(),
+    // processing | processed | ignored | failed
+    status: text("status").notNull().default("processing"),
+    objectId: text("object_id"), // payment / order / subscription / refund / invoice id
+    payload: jsonb("payload"),
+    error: text("error"),
+    receivedAt: timestamp("received_at").notNull().defaultNow(),
+    processedAt: timestamp("processed_at"),
+  },
+  (t) => [index("razorpay_webhook_events_status_idx").on(t.status)],
+);
+
+export type RazorpayWebhookEventRow = typeof razorpayWebhookEventsTable.$inferSelect;
+
+// ── Billing Subscriptions / Entitlements (gateway-neutral) ───────────────────
+// One row per provider subscription. Canonical planCode comes from the shared
+// plan mapping table (lib/razorpayPlans.ts), so Stripe and Razorpay equivalent
+// plans grant identical entitlements. The issuing gateway is stored so
+// management/cancel requests can be routed to the right provider.
+//
+// Entitlement lifecycle: halted/paused sets entitlementState='paused' WITHOUT
+// deleting the row or revoking history; resumed restores 'active'. Terminal
+// states (cancelled/completed) are never overwritten by stale retries.
+export const billingSubscriptionsTable = pgTable(
+  "billing_subscriptions",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    gateway: text("gateway").notNull(), // razorpay | stripe
+    planCode: text("plan_code").notNull(),
+    providerSubscriptionId: text("provider_subscription_id").notNull(),
+    providerPlanId: text("provider_plan_id"),
+    providerCustomerId: text("provider_customer_id"),
+    // created | authenticated | active | pending | halted | paused | cancelled | completed
+    status: text("status").notNull().default("created"),
+    // active | paused | cancelled | completed
+    entitlementState: text("entitlement_state").notNull().default("active"),
+    mandateId: text("mandate_id"),
+    mandateMethod: text("mandate_method"), // upi | card | emandate | unknown
+    currency: text("currency").notNull().default("INR"),
+    amountMinor: integer("amount_minor"),
+    interval: text("interval"), // week | month | year
+    totalCount: integer("total_count"),
+    paidCount: integer("paid_count"),
+    currentPeriodStart: timestamp("current_period_start"),
+    currentPeriodEnd: timestamp("current_period_end"),
+    nextChargeAt: timestamp("next_charge_at"),
+    // Mandate pre-debit notification: notify at = nextChargeAt - window hours.
+    preDebitNotifyAt: timestamp("pre_debit_notify_at"),
+    preDebitWindowHours: integer("pre_debit_window_hours").notNull().default(24),
+    haltedAt: timestamp("halted_at"),
+    resumedAt: timestamp("resumed_at"),
+    cancelledAt: timestamp("cancelled_at"),
+    completedAt: timestamp("completed_at"),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("billing_subscriptions_user_id_idx").on(t.userId),
+    index("billing_subscriptions_status_idx").on(t.status),
+    uniqueIndex("billing_subscriptions_provider_idx").on(
+      t.gateway,
+      t.providerSubscriptionId,
+    ),
+  ],
+);
+
+export type BillingSubscription = typeof billingSubscriptionsTable.$inferSelect;
+
+// ── Billing Invoices (GST single-source) ─────────────────────────────────────
+// One row per checkout order / subscription charge. Tax breakdown is computed
+// by lib/razorpayGst.ts (the single source) and persisted so the invoice is
+// reproducible and auditable. Amounts are integer minor units (paise/cents).
+export const billingInvoicesTable = pgTable(
+  "billing_invoices",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    gateway: text("gateway").notNull(), // razorpay | stripe
+    planCode: text("plan_code").notNull(),
+    providerOrderId: text("provider_order_id"),
+    providerPaymentId: text("provider_payment_id"),
+    providerInvoiceId: text("provider_invoice_id"),
+    providerSubscriptionId: text("provider_subscription_id"),
+    gstin: text("gstin"),
+    placeOfSupplyStateCode: text("place_of_supply_state_code"),
+    // CGST_SGST (intra-state) | IGST (inter-state) | NONE
+    taxType: text("tax_type").notNull().default("NONE"),
+    taxRateBps: integer("tax_rate_bps").notNull().default(0),
+    subtotalMinor: integer("subtotal_minor").notNull(),
+    taxMinor: integer("tax_minor").notNull().default(0),
+    cgstMinor: integer("cgst_minor").notNull().default(0),
+    sgstMinor: integer("sgst_minor").notNull().default(0),
+    igstMinor: integer("igst_minor").notNull().default(0),
+    totalMinor: integer("total_minor").notNull(),
+    currency: text("currency").notNull().default("INR"),
+    // pending | paid | refunded | void
+    status: text("status").notNull().default("pending"),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("billing_invoices_user_id_idx").on(t.userId),
+    index("billing_invoices_subscription_idx").on(t.providerSubscriptionId),
+    uniqueIndex("billing_invoices_provider_order_idx").on(
+      t.gateway,
+      t.providerOrderId,
+    ),
+  ],
+);
+
+export type BillingInvoice = typeof billingInvoicesTable.$inferSelect;

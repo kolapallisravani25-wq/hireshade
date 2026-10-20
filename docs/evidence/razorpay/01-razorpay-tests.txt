@@ -1,0 +1,193 @@
+﻿
+ RUN  v4.1.9 D:/hireshade/artifacts/api-server
+
+[20:51:09.882] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "cce856a0-4679-46da-b86e-266d27deffa1"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_830c3c98cf60b08602593339"
+[20:51:11.705] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "39ea9e0e-4e15-416f-8786-dcd437814970"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_73a61209bf839b4538a056c5"
+[20:51:12.657] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "4ad7ddeb-fc18-4608-8505-a087bc4d5f14"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_98c89d53e15369eee9c014b4"
+[20:51:13.763] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "82d235f6-4933-4a62-9369-ddc4993a5d39"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_01647fffdd8796717e9f59c1"
+[20:51:14.527] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "6711870f-0efa-4218-a5ee-e21a406d101e"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_65d8adb262f66a927c1eb3e0"
+[20:51:15.376] [33mWARN[39m (25092): [36m[razorpay] webhook signature rejected[39m
+    [35mreason[39m: "signature_mismatch"
+[20:51:15.383] [33mWARN[39m (25092): [36m[razorpay] webhook signature rejected[39m
+    [35mreason[39m: "signature_mismatch"
+[20:51:15.390] [33mWARN[39m (25092): [36m[razorpay] webhook signature rejected[39m
+    [35mreason[39m: "signature_mismatch"
+[20:51:15.762] [31mERROR[39m (25092): [36m[razorpay] webhook received but no webhook secret is configured[39m
+[20:51:16.565] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "ee258d3e-0b70-4443-bddb-3d975b17e7dc"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_3733a9eb339a642e692464e4"
+[20:51:19.333] [32mINFO[39m (25092): [36m[razorpay] purchase marked failed (no credits granted)[39m
+    [35mpurchaseId[39m: "1836ee85-c7ca-418b-ac0b-334123d5db17"
+    [35mreason[39m: "payment.failed"
+[20:51:19.745] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "1836ee85-c7ca-418b-ac0b-334123d5db17"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_7ddbcadea9ecb642f27ce09b"
+[20:51:20.503] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "56c66afd-8ce5-4348-8d83-8610df1d05c1"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_a46d87f52b636b41c548114b"
+[20:51:21.630] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "d83b9e89-3e00-4d92-9899-a57a7af4543c"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_legacy_123"
+[20:51:22.207] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "424b36f2-a9be-4f88-9d00-fc9f94cec9be"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_2f03c5582b923f9fb0e6e229"
+[20:51:22.547] [32mINFO[39m (25092): [36m[razorpay] purchase refund compensated in ledger[39m
+    [35mpurchaseId[39m: "424b36f2-a9be-4f88-9d00-fc9f94cec9be"
+    [35mrefundCredits[39m: 6
+    [35mpartial[39m: false
+[20:51:23.397] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "f23cce9e-8762-4c65-8e9b-2fbec987dc69"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_94fbfae9b95ccb21d25e21ee"
+[20:51:23.548] [32mINFO[39m (25092): [36m[razorpay] purchase refund compensated in ledger[39m
+    [35mpurchaseId[39m: "f23cce9e-8762-4c65-8e9b-2fbec987dc69"
+    [35mrefundCredits[39m: 3
+    [35mpartial[39m: true
+[20:51:24.159] [32mINFO[39m (25092): [36m[razorpay] purchase refund compensated in ledger[39m
+    [35mpurchaseId[39m: "f23cce9e-8762-4c65-8e9b-2fbec987dc69"
+    [35mrefundCredits[39m: 3
+    [35mpartial[39m: true
+[20:51:26.305] [32mINFO[39m (25092): [36m[razorpay] purchase settled[39m
+    [35mpurchaseId[39m: "0bab6a33-c441-4014-962f-7f28349a9b8b"
+    [35mcredits[39m: 6
+    [35morderId[39m: "order_mock_c57362ea5bb372bbc8a786d4"
+[20:51:26.505] [32mINFO[39m (25092): [36m[razorpay] purchase refund compensated in ledger[39m
+    [35mpurchaseId[39m: "0bab6a33-c441-4014-962f-7f28349a9b8b"
+    [35mrefundCredits[39m: 6
+    [35mpartial[39m: false
+[20:51:27.630] [31mERROR[39m (25092): [36m[razorpay] subscription plan id not configured[39m
+    [35mplanCode[39m: "subscription_monthly"
+[20:51:28.067] [32mINFO[39m (25092): [36m[razorpay] subscription provisioned[39m
+    [35msubscriptionId[39m: "sub_out_of_order_1"
+    [35mstatus[39m: "active"
+    [35mentitlementState[39m: "active"
+    [35mplanCode[39m: "subscription_monthly"
+[20:51:28.654] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "created"
+    [35mto[39m: "authenticated"
+    [35mentitlementState[39m: "active"
+[20:51:28.784] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "authenticated"
+    [35mto[39m: "active"
+    [35mentitlementState[39m: "active"
+[20:51:29.024] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "active"
+    [35mto[39m: "pending"
+    [35mentitlementState[39m: "active"
+[20:51:30.953] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "created"
+    [35mto[39m: "authenticated"
+    [35mentitlementState[39m: "active"
+[20:51:31.105] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "authenticated"
+    [35mto[39m: "active"
+    [35mentitlementState[39m: "active"
+[20:51:31.273] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "active"
+    [35mto[39m: "halted"
+    [35mentitlementState[39m: "paused"
+[20:51:31.414] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "halted"
+    [35mto[39m: "active"
+    [35mentitlementState[39m: "active"
+[20:51:31.935] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "created"
+    [35mto[39m: "authenticated"
+    [35mentitlementState[39m: "active"
+[20:51:32.064] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "authenticated"
+    [35mto[39m: "active"
+    [35mentitlementState[39m: "active"
+[20:51:32.193] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "active"
+    [35mto[39m: "cancelled"
+    [35mentitlementState[39m: "cancelled"
+[20:51:32.755] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "created"
+    [35mto[39m: "authenticated"
+    [35mentitlementState[39m: "active"
+[20:51:32.951] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "authenticated"
+    [35mto[39m: "active"
+    [35mentitlementState[39m: "active"
+[20:51:33.069] [32mINFO[39m (25092): [36m[razorpay] subscription transition applied[39m
+    [35msubscriptionId[39m: "sub_mock_34c73a2d32185be969d3b5b4"
+    [35mfrom[39m: "active"
+    [35mto[39m: "active"
+    [35mentitlementState[39m: "active"
+ ✓ tests/razorpay.integration.test.ts (39 tests) 29500ms
+     ✓ creates a server-priced order in integer paise with a GST invoice  393ms
+     ✓ ignores client-supplied amounts/credits/currency  351ms
+     ✓ computes IGST for an inter-state buyer GSTIN and persists it  682ms
+     ✓ rejects an invalid GSTIN and unknown/subscription plan codes  358ms
+     ✓ supports one-time plan products (lifetime) with zero credits  373ms
+     ✓ fails closed with 503 in production when unconfigured  538ms
+     ✓ never exposes secrets through the config endpoint  478ms
+     ✓ verifies the checkout signature and settles exactly once  532ms
+     ✓ rejects a bad signature and a webhook-style signature  531ms
+     ✓ rejects missing parameters and another user's order  511ms
+     ✓ settles a captured payment exactly once and marks the invoice paid  836ms
+     ✓ never double-credits replayed deliveries of the same event id  1210ms
+     ✓ settles exactly once under concurrent duplicate deliveries  793ms
+     ✓ settles exactly once across different event ids for the same order  902ms
+     ✓ rejects an invalid signature, a tampered body, a checkout-style signature  676ms
+     ✓ requires X-Razorpay-Event-Id and the webhook secret  374ms
+     ✓ records payment.authorized without crediting; capture credits  938ms
+     ✓ marks payment.failed without credit, then credits a later capture  3099ms
+     ✓ settles order.paid alone, then ignores the later capture  840ms
+     ✓ acknowledges unknown orders without crediting  456ms
+     ✓ settles a legacy credits.ts purchase (no metadata.provider)  569ms
+     ✓ reverses a full refund exactly once (refund.processed)  1111ms
+     ✓ appends proportional compensating entries for partial refunds  1451ms
+     ✓ durably blocks a refund that arrives before capture  1520ms
+     ✓ creates the refund via the API and compensates immediately (idempotent)  835ms
+     ✓ fails closed when the internal refund token is not configured  337ms
+     ✓ creates a subscription with the configured dashboard plan id  339ms
+     ✓ rejects unknown/subscription plan codes and missing dashboard plan ids  360ms
+     ✓ provisions out-of-order from webhook notes, then applies activation  535ms
+     ✓ stores the pre-debit notification window on pending mandates  957ms
+     ✓ halted PAUSES entitlement without deleting the row; resumed restores it  2332ms
+     ✓ cancelled is terminal: stale activated events are ignored  861ms
+     ✓ subscription.charged and invoice.paid advance the billing period + GST invoice  957ms
+     ✓ ignores subscriptions whose plan cannot be resolved  313ms
+     ✓ cancels a Razorpay-issued subscription  386ms
+     ✓ records grants and refunds as ledger rows with no zero deltas  731ms
+ ✓ tests/razorpay.unit.test.ts (45 tests) 84ms
+
+ Test Files  2 passed (2)
+      Tests  84 passed (84)
+   Start at  20:51:01
+   Duration  33.77s (transform 842ms, setup 96ms, import 3.31s, tests 29.58s, environment 0ms)
+

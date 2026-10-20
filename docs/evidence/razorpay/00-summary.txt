@@ -1,0 +1,29 @@
+﻿# Razorpay W3 evidence summary (2026-10-20)
+
+Branch feat-4 (base 7a19f34). Not committed.
+
+Dedicated DB: hireshade_razorpay_test on hireshade-postgres:5433 (POSTGRES_USER=hireshade_dev).
+Created with docker exec psql; schema pushed with pnpm --filter @workspace/db run push-force.
+The integration test hard-guards DATABASE_URL to hireshade_razorpay_test and refuses hireshade_dev.
+
+1) 01-razorpay-tests.txt
+   pnpm --dir artifacts/api-server exec vitest run tests/razorpay.unit.test.ts tests/razorpay.integration.test.ts
+   -> 2 files passed, 84/84 tests passed (45 unit + 39 DB integration), exit 0.
+
+2) 02-stripe-regression.txt
+   pnpm --dir artifacts/api-server exec vitest run tests/stripe.unit.test.ts tests/stripe.integration.test.ts
+   -> 2 files passed, 70/70 tests passed, exit 0 (hireshade_stripe_test).
+
+3) 03-api-unit-suite.txt
+   pnpm --dir artifacts/api-server exec vitest run --exclude sessions/stripe/razorpay DB integration suites
+   -> 34 files passed, 262/262 tests passed, exit 0.
+
+4) 04-build.txt
+   pnpm --dir artifacts/api-server run build -> exit 0.
+
+5) 05-typecheck-libs.txt / 06-typecheck-full.txt / 07-typecheck-scoped.txt
+   pnpm run typecheck:libs -> exit 0
+   pnpm --filter @workspace/api-server run typecheck -> exit 0
+   scoped tsc over the Razorpay modules + app.ts/routes/index.ts -> exit 0
+
+6) git diff --check on modified tracked files -> exit 0.

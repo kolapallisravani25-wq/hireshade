@@ -1,0 +1,43 @@
+﻿
+ RUN  v4.1.9 D:/hireshade/artifacts/api-server
+
+ ✓ tests/sessionCredits.test.ts (6 tests) 1347ms
+ ✓ src/lib/mocks/demoRoutes.test.ts (6 tests) 159ms
+ ✓ tests/clerkAuth.test.ts (6 tests) 184ms
+ ✓ tests/openrouterDiagnostics.test.ts (6 tests) 106ms
+ ✓ tests/razorpay.unit.test.ts (45 tests) 93ms
+ ✓ src/lib/mocks/demoChat.test.ts (3 tests) 83ms
+ ✓ src/lib/mocks/llmOpenRouter.test.ts (2 tests) 87ms
+ ✓ tests/stripe.unit.test.ts (35 tests) 110ms
+ ✓ src/lib/mocks/llmRouter.test.ts (6 tests) 46ms
+ ✓ tests/groundingGuard.extended.test.ts (4 tests) 26ms
+ ✓ tests/sessionGenerationLock.test.ts (6 tests) 11ms
+ ✓ tests/groundingGuard.structural.test.ts (12 tests) 26ms
+ ✓ tests/languages.test.ts (9 tests) 25ms
+ ✓ src/lib/mocks/demoMode.test.ts (6 tests) 13ms
+ ✓ src/lib/mocks/mockLlm.test.ts (8 tests) 21ms
+ ✓ tests/groundingGuard.test.ts (6 tests) 22ms
+ ✓ src/lib/mocks/mockAsr.test.ts (6 tests) 19ms
+ ✓ src/lib/mocks/targetContracts.test.ts (10 tests) 20ms
+ ✓ tests/questionReadiness.test.ts (9 tests) 19ms
+ ✓ src/lib/mocks/providerSet.test.ts (3 tests) 19ms
+ ✓ src/lib/mocks/mockTts.test.ts (4 tests) 17ms
+ ✓ tests/answeredQuestionMemory.test.ts (13 tests) 19ms
+ ✓ tests/openrouterModelSlug.test.ts (7 tests) 17ms
+ ✓ src/lib/mocks/asrDeepgram.test.ts (6 tests) 21ms
+ ✓ tests/interviewPrompt.test.ts (7 tests) 10ms
+ ✓ tests/economicAiBoundaries.test.ts (3 tests) 11ms
+ ✓ tests/instructions.test.ts (7 tests) 10ms
+ ✓ tests/desktopManifest.test.ts (2 tests) 10ms
+ ✓ tests/aiRateLimit.test.ts (2 tests) 11ms
+ ✓ tests/sensitiveLogging.test.ts (3 tests) 14ms
+ ✓ tests/codingMode.test.ts (6 tests) 9ms
+ ✓ tests/uploadValidation.test.ts (3 tests) 8ms
+ ✓ tests/corsPolicy.test.ts (3 tests) 11ms
+ ✓ tests/projectUpdates.test.ts (2 tests) 7ms
+
+ Test Files  34 passed (34)
+      Tests  262 passed (262)
+   Start at  20:51:56
+   Duration  20.73s (transform 1.26s, setup 499ms, import 3.18s, tests 2.61s, environment 8ms)
+

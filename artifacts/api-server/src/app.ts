@@ -41,6 +41,9 @@ app.use("/api/credits/webhook/razorpay", express.raw({ type: () => true }));
 // JSON parser would destroy byte-exact verification. Must stay before
 // express.json().
 app.use("/api/stripe/webhook", express.raw({ type: () => true }));
+// Razorpay webhooks are HMAC-SHA256 over the RAW request body
+// (X-Razorpay-Signature), so the same raw-body-before-JSON rule applies.
+app.use("/api/razorpay/webhook", express.raw({ type: () => true }));
 // 1mb (default 100kb): /ai-answer and /save-message carry full live-session
 // transcripts — a long interview comfortably exceeds 100kb, which turned
 // into opaque 413s exactly at the point users need answers most (deep into a
