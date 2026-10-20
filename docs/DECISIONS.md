@@ -254,3 +254,93 @@ ADR-001 (engineering workflow) lives at `docs/adr/ADR-001-engineering-workflow.m
 **Consequences:** Any automation that launches Electron must scrub the variable first.
 
 **Evidence:** Electron launch logs; `artifacts/desktop-electron/scripts/`; runbook.
+
+---
+
+## ADR-016 — Pronunciation robustness: vocabulary-first, phonetic rescue, repair only when confidence is low, hedge over guess (W1 / EXT G-039)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** Real interview failures concentrate on proper nouns and tech terms (Kubernetes, PostgreSQL, Nguyen, cache vs cash, SQL vs sequel) spoken with accents or dropped syllables. A confidently wrong answer is worse than a hedge.
+
+**Options:** (a) always run an LLM repair on every segment; (b) vocabulary boosting + phonetic matching only; (c) layered: ASR keyword/n-best contract -> phonetic rescue against a domain vocabulary -> LLM repair ONLY for low-confidence segments (<150 ms budget) -> confidence gate that hedges or asks.
+
+**Decision:** (c). High-confidence tokens are immutable; the repair pass is test-enforced to never mutate them. Unresolved material ambiguity produces a two-reading hedge or a 'heard X — did you mean Y?' overlay prompt, never a confident guess.
+
+**Why:** Deterministic layers handle the bulk; the LLM is reserved for cases that need resume/JD context and is bounded, preserving the first-token budget.
+
+**Consequences:** A 150+ utterance corpus and CI gate are required; residual wrong rescues are measured as the false-answer rate (<0.03) rather than assumed away.
+
+**Evidence:** docs/PRONUNCIATION.md, corpus tests, repair-latency measurement.
+
+---
+
+## ADR-017 — Overlay auto-scroll is a framework-free state machine with a DOM adapter (W2 / EXT G-040)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** Scroll logic mixed with rendering is where 'fighting the user' bugs live, and the old behavior was manual-only and untestable headlessly.
+
+**Options:** (a) a React hook with effects; (b) a DOM-library scroll component; (c) a pure state machine (lock/unlock/pill/new-question/reset/persist) plus a thin DOM adapter driven by ResizeObserver and transform.
+
+**Decision:** (c). Unlock is instant and total above a 24 px threshold; re-lock happens on pill click or manual return to bottom; layout is measured with ResizeObserver, never a polling timer; animation is transform-based and respects prefers-reduced-motion; the answer pane is ARIA live polite.
+
+**Why:** Deterministic unit tests for every transition, one integration seam, no dependency.
+
+**Consequences:** The demo overlay and the floating session pane share the same core; future UI must wire the adapter instead of reimplementing scroll math.
+
+**Evidence:** docs/OVERLAY_SCROLL.md, headless 200-token test, recording under docs/evidence/.
+
+---
+
+## ADR-018 — Razorpay and Stripe share one entitlement ledger; gateway is data, not a code path (W3 / EXT G-041)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** Stripe is the parity gateway from the target; Razorpay was already implemented and tested. Users must never double-spend across gateways and equivalent plans must grant identical entitlements.
+
+**Options:** (a) separate balances per gateway; (b) replace Razorpay with Stripe; (c) one append-only ledger, exactly-once settlement keyed by provider event id, a plan-mapping table, and a gateway field on subscriptions so management/cancel routes to the issuer.
+
+**Decision:** (c). Two distinct signature verifications are separate functions with separate secrets: checkout (order_id|payment_id HMAC) and webhook (raw-body HMAC from X-Razorpay-Signature). GST is computed in one module. Test-mode webhooks are documented with a localhost tunnel step.
+
+**Why:** A shared ledger makes cross-gateway double-spend impossible by construction; keeping signature semantics separate avoids the common conflation.
+
+**Consequences:** Schema gains gateway-scoped event tables; refunds become compensating ledger entries; existing Razorpay routes stay compatible.
+
+**Evidence:** docs/RAZORPAY.md, dedicated-DB tests, cross-gateway entitlements test.
+
+---
+
+## ADR-019 — Gaze correction ships as a local MVP with a preview fallback; virtual-camera registration may be DEFERRED (W4 / EXT G-042)
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** The target build contains NO gaze or virtual-camera code (T-17, observed absence), so this is new IP. GAN redirection, head-pose, teeth/hair, multi-face, 4K and >30 fps are explicitly out of scope. DirectShow registration needs elevation and an MSVC build; macOS CMIO DAL needs a host we do not have.
+
+**Options:** (a) attempt a full virtual-camera driver (high risk of blocking the release); (b) build nothing; (c) local warp+EMA pipeline with deterministic synthetic tests, a virtual-camera sink interface plus preview-only fallback, and platform registration documented or DEFERRED with exact reasons.
+
+**Decision:** (c). Frames never leave the device; detector failure passes the frame through byte-identically; output resolution/fps is fixed; the effect is toggleable and strength-adjustable; reading mode boosts strength while tokens stream.
+
+**Why:** The risky platform integration must not block W1-W3. A preview-only fallback with a working pipeline is honest; a half-registered COM filter is not.
+
+**Consequences:** W4 is PARTIAL/DEFERRED where the OS device is not registered; the pipeline and tests still ship.
+
+**Evidence:** docs/GAZE.md, synthetic displacement/jitter/latency tests, docs/raw/desktop/gaze-scan.json (target absence).
+
+---
+
+## ADR-020 — Extensions are tagged EXT and excluded from the parity score
+
+**Date:** 2026-10-20 · **Status:** accepted
+
+**Context:** The mission adds four capabilities beyond the target. Mixing them into the parity PASS count would inflate the score dishonestly.
+
+**Options:** (a) add them as ordinary rows; (b) separate document; (c) same GAP_MATRIX with new IDs (G-039+) and an EXT tag, counted separately.
+
+**Decision:** (c). Parity remains 21 PASS / 12 PARTIAL / 5 DEFERRED for G-001..G-038; extension status is reported separately for G-039..G-042.
+
+**Why:** One work queue, honest scoring.
+
+**Consequences:** docs/TEST_REPORT.md shows both tallies.
+
+**Evidence:** docs/GAP_MATRIX.md, docs/TEST_REPORT.md.

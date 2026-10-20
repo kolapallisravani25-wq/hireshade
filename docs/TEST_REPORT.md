@@ -10,10 +10,10 @@
 |---|---|
 | Workspace typecheck | **PASS** — exit 0 (`docs/evidence/12-workspace-typecheck.txt`) |
 | Web/API build | **PASS** — exit 0; Vite 7.3.3, 5,427 modules, built in 1m57s; API esbuild 2.9 MB (`docs/evidence/13-build.txt`) |
-| Frontend unit tests | **PASS — 32 files / 376 tests, 0 failed** (`docs/evidence/11-frontend-full-suite.txt`) |
-| API unit + integration tests | **PASS — 35 files / 315 tests, 0 failed** (`docs/evidence/10-api-full-suite.txt`) |
+| Frontend unit tests | **PASS — 47 files / 511 tests, 0 failed** (`docs/evidence/15-ext-frontend-suite.txt`) |
+| API unit + integration tests | **PASS — 37 files / 399 tests, 0 failed** (`docs/evidence/16-ext-api-suite.txt`) |
 | Rust check | **PASS** — `cargo check` exit 0, 0 warnings after stealth repair; `cargo test --lib` 14/14 (`docs/evidence/14-cargo-check.txt`) |
-| Keyless end-to-end demo | **PASS** — `make demo` exit 0, 3 models × 3 runs, every latency budget met, zero provider keys (`docs/evidence/make-demo.txt`) |
+| Keyless end-to-end demo | **PASS** — `make demo` exit 0, 3 models × 3 runs, every latency budget met, zero provider keys, and all four extensions exercised (`docs/evidence/18-ext-make-demo.txt`) |
 | Overlay e2e (Electron + CDP) | **PASS** — 9/9 DOM/timing assertions; answer visible 1,648 ms (`docs/evidence/demo/overlay-dom.json`) |
 | Classifier precision/recall | **PASS** — 1.000 / 1.000 on the 120-utterance labeled set; untouched check 0.909 / 1.000 (`docs/evidence/classifier/report.md`) |
 | Windows screen-capture exclusion | **PASS** — affinity `0x11`; A/B recordings show the UI captured when off, absent when on (`docs/evidence/stealth/README.md`) |
@@ -132,3 +132,19 @@ make demo                                   # same, if GNU make is installed
 ```
 
 Evidence files: `docs/evidence/{10-api-full-suite,11-frontend-full-suite,12-workspace-typecheck,13-build,make-demo}.txt`, `docs/evidence/classifier/`, `docs/evidence/demo/`, `docs/evidence/stealth/`, `docs/evidence/stealth-wiring/`.
+
+## 12. Extensions (EXT G-039 … G-043)
+
+Four capabilities beyond the target were added on branch `feat-4`; they are tagged **EXT** and are not counted in the parity tally above.
+
+| ID | Capability | Result | Evidence |
+|---|---|---|---|
+| G-039 | Pronunciation-robust understanding | **PASS** — 192 degraded utterances × 4 accent profiles: intent accuracy **53.65% → 96.88%** (target ≥92%), false-answer rate **46.35% → 0.00%** (target <3%); 0/192 high-confidence mutations; repair budget 18 ms p100 (<150 ms) | `docs/PRONUNCIATION.md`, `docs/evidence/pronunciation/` |
+| G-040 | Overlay auto-scroll UX | **PASS** — 31/31 Electron/CDP assertions: 200-token stream pinned 0.00 px, unlock in one frame, pill re-lock, reopen restore, reduced motion, keyboard, ARIA polite; recording 4.5 s / 30 fps | `docs/OVERLAY_SCROLL.md`, `docs/evidence/overlay-scroll/` |
+| G-041 | Razorpay billing parity | **PASS** — 84/84 Razorpay tests (45 unit + 39 dedicated-DB), 70/70 Stripe regression; two distinct signature schemes; X-Razorpay-Event-Id replay/concurrency; halt→pause→resume; refunds as compensating ledger rows; cross-gateway plan entitlements; GST rows | `docs/RAZORPAY.md`, `docs/evidence/razorpay/` |
+| G-042 | Local gaze correction MVP | **PASS** — synthetic displacement reduction **81.3%/81.6%** (≥70%), jitter **0.366 px** (<1), extra latency **p50 3.54 / p95 6.30 ms** at 720p30 (<25), byte-identical pass-through, 57 tests | `docs/GAZE.md`, `docs/evidence/gaze/` |
+| G-043 | Virtual-camera output device | **DEFERRED** — DirectShow filter needs an MSVC-built COM DLL + elevated `regsvr32`; macOS CMIO DAL / Linux v4l2loopback need hosts. Preview-only sink ships with exact registration steps | `docs/GAZE.md` §6 |
+
+Extension test totals: frontend **511 tests (47 files)**, API **399 tests (37 files)**, workspace typecheck exit 0 (`docs/evidence/17-ext-typecheck.txt`), `make demo` exit 0 with a new `extensions` stage running W1/W2/W3/W4 checks (`docs/evidence/18-ext-make-demo.txt`).
+
+Notes / honest limits: accent degradation is deterministic modelling rather than audio; Razorpay's live API was not contacted (no keys — injected-fetch adapter tests + real HMACs); gaze runs on synthetic faces only (no camera/model bundled); virtual-camera registration is deferred. None of these change the parity score.

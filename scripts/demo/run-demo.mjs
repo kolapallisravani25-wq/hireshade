@@ -58,6 +58,10 @@ function sanitizedEnv() {
   }
   env.NODE_ENV = "development";
   env.DEMO_MODE = "1";
+  // Extension flags: the keyless demo exercises W4 gaze and W1 pronunciation
+  // stages; both are off by default outside make demo so existing output is stable.
+  env.DEMO_GAZE = "1";
+  env.DEMO_PRONUNCIATION = "1";
   return { env, removed };
 }
 
@@ -142,6 +146,36 @@ function stepPipeline(env, passthrough) {
   );
 }
 
+function stepExtensions(env) {
+  const craftVita = path.join(root, "artifacts", "craft-vita");
+  const apiServer = path.join(root, "artifacts", "api-server");
+  const craftVitest = findVitestCwd(craftVita);
+  const apiVitest = findVitestCwd(apiServer);
+
+  const craft = run(
+    "extensions - W1 pronunciation + W2 auto-scroll + W4 gaze tests (craft-vita)",
+    process.execPath,
+    [craftVitest, "run", "src/features/pronunciation", "src/fixtures/pronunciation", "src/overlay/autoscroll", "src/gaze", "--reporter=dot"],
+    { cwd: craftVita, env },
+  );
+  if (craft !== 0) return craft;
+
+  const scroll = run(
+    "extensions - W2 auto-scroll Electron/CDP proof",
+    process.execPath,
+    [path.join(here, "..", "scroll", "overlay-scroll-e2e.mjs")],
+    { cwd: root, env },
+  );
+  if (scroll !== 0) return scroll;
+
+  return run(
+    "extensions - W3 Razorpay unit suite (no DB, mock adapter)",
+    process.execPath,
+    [apiVitest, "run", "tests/razorpay.unit.test.ts", "--reporter=dot"],
+    { cwd: apiServer, env },
+  );
+}
+
 function stepE2e(env) {
   return run("overlay e2e (Electron + CDP DOM)", process.execPath, [path.join(here, "overlay-e2e.mjs")], {
     cwd: root,
@@ -157,6 +191,7 @@ function help() {
   node scripts/demo/run-demo.mjs tests       unit tests for every new module
   node scripts/demo/run-demo.mjs pipeline    latency budget + docs/evidence/demo/* (accepts --runs=N --models=a,b)
   node scripts/demo/run-demo.mjs e2e         Electron overlay CDP DOM proof + screenshot
+  node scripts/demo/run-demo.mjs extensions  W1 pronunciation + W2 auto-scroll + W3 Razorpay mock + W4 gaze
   node scripts/demo/run-demo.mjs help
 
 All steps run with DEMO_MODE=1 and every provider key removed.`);
@@ -192,10 +227,14 @@ function main() {
     case "e2e":
       status = stepE2e(env);
       break;
+    case "extensions":
+      status = stepExtensions(env);
+      break;
     case "demo": {
       status = stepFixtures(env);
       if (status === 0) status = stepTests(env);
       if (status === 0) status = stepPipeline(env, passthrough);
+      if (status === 0) status = stepExtensions(env);
       if (status === 0) status = stepE2e(env);
       break;
     }
@@ -207,8 +246,8 @@ function main() {
 
   console.log("");
   if (status === 0) {
-    console.log("[demo] ALL GREEN - keyless demo + latency budget + overlay DOM proof passed.");
-    console.log("[demo] evidence: docs/evidence/demo/demo-latency.json, demo-transcript.md, demo-events.jsonl, demo-overlay.json, overlay-answer.png, overlay-dom.json");
+    console.log("[demo] ALL GREEN - keyless demo + latency budget + extensions (W1-W4) + overlay DOM proof passed.");
+    console.log("[demo] evidence: docs/evidence/demo/*, docs/evidence/overlay-scroll/*, docs/evidence/gaze/*, docs/evidence/pronunciation/*, docs/evidence/razorpay/*");
   } else {
     console.error("[demo] FAILED (exit " + status + ")");
   }

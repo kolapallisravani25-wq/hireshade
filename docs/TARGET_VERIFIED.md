@@ -91,9 +91,11 @@ Use these for byte-exact jumps; `target-scan.json` gives character positions for
 | `x-parakeet-desktop-app-version` | renderer.js | 2224845 |
 | `useInstructionsDraft=function` | renderer.js | 1717395 |
 
+| **T-17** | **Gaze correction / virtual camera** | **Absent.** No gaze, eye-contact, iris/pupil tracking, face-landmark, ONNX/mediapipe, DirectShow/CoreMediaIO/v4l2loopback, or virtual-camera capability exists in the shipped desktop build. The only camera-related API usage is audio `getUserMedia` for microphone capture. | `docs/raw/desktop/gaze-scan.json` (zero matches in `main.js`, `preload.js`, `renderer.js`; `strings` scan of all four `parakeetai-native*.node` addons found only audio/resampler strings); `docs/raw/desktop/asar-filelist.txt` has no camera/gaze/ONNX modules; `docs/raw/desktop/gaze-scan.mjs` is the reproducible scan | **OBSERVED (absence)** | W4 is **new IP, not parity**. There is no sibling mechanism to mirror, so the design is ours and must be labeled EXT in GAP_MATRIX. Do not claim the target has this feature. |
+
 ## Summary counts
 
-- **OBSERVED:** T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-10, T-12, T-13, T-15, T-16 → **14**
+- **OBSERVED:** T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-10, T-12, T-13, T-15, T-16, T-17 (observed absence) → **15**
 - **PARTIAL (mechanism observed, one sub-claim not observable):** T-11 (prompt assembly), T-14 (language count) → **2**
 - **UNKNOWN:** 0 rows; sub-claims explicitly flagged UNKNOWN: server-side system prompt text, resume→prompt rendering, exact `/api/chat` body schema, total supported-language count.
 
