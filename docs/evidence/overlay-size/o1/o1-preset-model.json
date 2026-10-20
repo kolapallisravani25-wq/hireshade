@@ -1,0 +1,2273 @@
+{
+  "generatedAt": "2026-10-20T15:51:05.983Z",
+  "module": "artifacts/craft-vita/src/overlay/presets/index.ts",
+  "generatedAtUtc": "2026-10-20T15:51:05.984Z",
+  "presetTable": [
+    {
+      "id": "compact",
+      "label": "Compact",
+      "geometry": {
+        "widthRatio": 0.36,
+        "minWidthPx": 360,
+        "maxWidthPx": 560,
+        "heightRatio": 0.24,
+        "minHeightPx": 170,
+        "maxHeightRatio": 0.3,
+        "anchor": "top-right",
+        "marginPx": 16
+      },
+      "typography": {
+        "minFontPx": 16,
+        "baseFontPx": 19,
+        "maxFontPx": 24,
+        "lineHeightRatio": 1.55,
+        "maxCh": 62,
+        "hookScale": 1.15
+      },
+      "defaultOpacity": 0.84,
+      "scrimAlpha": 0.82,
+      "scrimColor": "#05070c",
+      "answerViewportMaxPx": 180,
+      "dragAreaPx": 44,
+      "resizeHandlePx": 28,
+      "fullScreenScrimAlpha": 0
+    },
+    {
+      "id": "banner",
+      "label": "Banner",
+      "geometry": {
+        "widthRatio": 1,
+        "minWidthPx": 420,
+        "heightRatio": 0.38,
+        "minHeightPx": 240,
+        "maxHeightRatio": 0.4,
+        "anchor": "bottom-center",
+        "marginPx": 24
+      },
+      "typography": {
+        "minFontPx": 16,
+        "baseFontPx": 22,
+        "maxFontPx": 28,
+        "lineHeightRatio": 1.55,
+        "maxCh": 75,
+        "hookScale": 1.2
+      },
+      "defaultOpacity": 0.86,
+      "scrimAlpha": 0.8,
+      "scrimColor": "#05070c",
+      "answerViewportMaxPx": 300,
+      "dragAreaPx": 44,
+      "resizeHandlePx": 28,
+      "fullScreenScrimAlpha": 0
+    },
+    {
+      "id": "teleprompter",
+      "label": "Teleprompter",
+      "geometry": {
+        "widthRatio": 0.72,
+        "minWidthPx": 480,
+        "maxWidthPx": 1120,
+        "heightRatio": 0.26,
+        "minHeightPx": 170,
+        "maxHeightRatio": 0.3,
+        "anchor": "top-center",
+        "marginPx": 12
+      },
+      "typography": {
+        "minFontPx": 16,
+        "baseFontPx": 26,
+        "maxFontPx": 34,
+        "lineHeightRatio": 1.5,
+        "maxCh": 64,
+        "hookScale": 1.15
+      },
+      "defaultOpacity": 0.88,
+      "scrimAlpha": 0.84,
+      "scrimColor": "#04060a",
+      "answerViewportMaxPx": 220,
+      "dragAreaPx": 48,
+      "resizeHandlePx": 30,
+      "fullScreenScrimAlpha": 0
+    },
+    {
+      "id": "side-column",
+      "label": "Side column",
+      "geometry": {
+        "widthRatio": 0.32,
+        "minWidthPx": 300,
+        "minWidthRatio": 0.3,
+        "maxWidthRatio": 0.35,
+        "heightRatio": 0.9,
+        "minHeightPx": 420,
+        "maxHeightRatio": 0.94,
+        "anchor": "side-right",
+        "marginPx": 16,
+        "side": "right"
+      },
+      "typography": {
+        "minFontPx": 16,
+        "baseFontPx": 21,
+        "maxFontPx": 26,
+        "lineHeightRatio": 1.55,
+        "maxCh": 58,
+        "hookScale": 1.15
+      },
+      "defaultOpacity": 0.9,
+      "scrimAlpha": 0.82,
+      "scrimColor": "#05070c",
+      "answerViewportMaxPx": 380,
+      "dragAreaPx": 44,
+      "resizeHandlePx": 28,
+      "fullScreenScrimAlpha": 0
+    },
+    {
+      "id": "reading",
+      "label": "Reading",
+      "geometry": {
+        "widthRatio": 0.94,
+        "minWidthPx": 640,
+        "heightRatio": 0.9,
+        "minHeightPx": 520,
+        "maxHeightRatio": 0.92,
+        "anchor": "center",
+        "marginPx": 24
+      },
+      "typography": {
+        "minFontPx": 16,
+        "baseFontPx": 22,
+        "maxFontPx": 30,
+        "lineHeightRatio": 1.6,
+        "maxCh": 75,
+        "hookScale": 1.2
+      },
+      "defaultOpacity": 0.96,
+      "scrimAlpha": 0.72,
+      "scrimColor": "#03050a",
+      "answerViewportMaxPx": 720,
+      "dragAreaPx": 44,
+      "resizeHandlePx": 28,
+      "fullScreenScrimAlpha": 0.55
+    }
+  ],
+  "readability": {
+    "minFontCssPx": 16,
+    "minLineHeight": 1.5,
+    "maxMeasureCh": 75,
+    "minContrastRatio": 7
+  },
+  "speakable": {
+    "hook": "I led the rate-limiter redesign for a high-traffic public API.",
+    "bullets": [
+      "I used a Redis token bucket per key",
+      "The trade-off was a small amount of clock skew"
+    ],
+    "pushback": "Would you like me to walk through the trade-offs?",
+    "plainText": "I led the rate-limiter redesign for a high-traffic public API.\n- I used a Redis token bucket per key\n- The trade-off was a small amount of clock skew\nWould you like me to walk through the trade-offs?",
+    "wordCount": 64,
+    "screenfulWords": 36,
+    "hadMarkdown": false,
+    "keptEmoji": false
+  },
+  "matrix": [
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1,
+      "preset": "compact",
+      "bounds": {
+        "x": 1344,
+        "y": 16,
+        "width": 560,
+        "height": 259
+      },
+      "fontCssPx": 19,
+      "fontDevicePx": 19,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 19,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1853
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 646,
+        "width": 1872,
+        "height": 410
+      },
+      "fontCssPx": 22,
+      "fontDevicePx": 22,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 22,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1385
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 400,
+        "y": 12,
+        "width": 1120,
+        "height": 281
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 26,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1755
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1,
+      "preset": "side-column",
+      "bounds": {
+        "x": 1290,
+        "y": 54,
+        "width": 614,
+        "height": 972
+      },
+      "fontCssPx": 21,
+      "fontDevicePx": 21,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 21,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1,
+      "preset": "reading",
+      "bounds": {
+        "x": 58,
+        "y": 54,
+        "width": 1805,
+        "height": 972
+      },
+      "fontCssPx": 22,
+      "fontDevicePx": 22,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 22,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1.25,
+      "preset": "compact",
+      "bounds": {
+        "x": 1344,
+        "y": 16,
+        "width": 560,
+        "height": 259
+      },
+      "fontCssPx": 19,
+      "fontDevicePx": 23.75,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 19,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1853
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1.25,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 646,
+        "width": 1872,
+        "height": 410
+      },
+      "fontCssPx": 22,
+      "fontDevicePx": 27.5,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 22,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1385
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1.25,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 400,
+        "y": 12,
+        "width": 1120,
+        "height": 281
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 32.5,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1755
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1.25,
+      "preset": "side-column",
+      "bounds": {
+        "x": 1290,
+        "y": 54,
+        "width": 614,
+        "height": 972
+      },
+      "fontCssPx": 21,
+      "fontDevicePx": 26.25,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 21,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1.25,
+      "preset": "reading",
+      "bounds": {
+        "x": 58,
+        "y": 54,
+        "width": 1805,
+        "height": 972
+      },
+      "fontCssPx": 22,
+      "fontDevicePx": 27.5,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 22,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1.5,
+      "preset": "compact",
+      "bounds": {
+        "x": 1344,
+        "y": 16,
+        "width": 560,
+        "height": 259
+      },
+      "fontCssPx": 19,
+      "fontDevicePx": 28.5,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 19,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1853
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1.5,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 646,
+        "width": 1872,
+        "height": 410
+      },
+      "fontCssPx": 22,
+      "fontDevicePx": 33,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 22,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1385
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1.5,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 400,
+        "y": 12,
+        "width": 1120,
+        "height": 281
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 39,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1755
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1.5,
+      "preset": "side-column",
+      "bounds": {
+        "x": 1290,
+        "y": 54,
+        "width": 614,
+        "height": 972
+      },
+      "fontCssPx": 21,
+      "fontDevicePx": 31.5,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 21,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 1.5,
+      "preset": "reading",
+      "bounds": {
+        "x": 58,
+        "y": 54,
+        "width": 1805,
+        "height": 972
+      },
+      "fontCssPx": 22,
+      "fontDevicePx": 33,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 22,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 2,
+      "preset": "compact",
+      "bounds": {
+        "x": 1344,
+        "y": 16,
+        "width": 560,
+        "height": 259
+      },
+      "fontCssPx": 19,
+      "fontDevicePx": 38,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 19,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1853
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 2,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 646,
+        "width": 1872,
+        "height": 410
+      },
+      "fontCssPx": 22,
+      "fontDevicePx": 44,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 22,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1385
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 2,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 400,
+        "y": 12,
+        "width": 1120,
+        "height": 281
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 52,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1755
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 2,
+      "preset": "side-column",
+      "bounds": {
+        "x": 1290,
+        "y": 54,
+        "width": 614,
+        "height": 972
+      },
+      "fontCssPx": 21,
+      "fontDevicePx": 42,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 21,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpi": 2,
+      "preset": "reading",
+      "bounds": {
+        "x": 58,
+        "y": 54,
+        "width": 1805,
+        "height": 972
+      },
+      "fontCssPx": 22,
+      "fontDevicePx": 44,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 22,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1,
+      "preset": "compact",
+      "bounds": {
+        "x": 1984,
+        "y": 16,
+        "width": 560,
+        "height": 346
+      },
+      "fontCssPx": 24,
+      "fontDevicePx": 24,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 23,
+        "lines": 5
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1820
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 869,
+        "width": 2512,
+        "height": 547
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 28,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1375
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 720,
+        "y": 12,
+        "width": 1120,
+        "height": 374
+      },
+      "fontCssPx": 33,
+      "fontDevicePx": 33,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 33,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1700
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1,
+      "preset": "side-column",
+      "bounds": {
+        "x": 1725,
+        "y": 72,
+        "width": 819,
+        "height": 1296
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 26,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1,
+      "preset": "reading",
+      "bounds": {
+        "x": 77,
+        "y": 72,
+        "width": 2406,
+        "height": 1296
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 28,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1.25,
+      "preset": "compact",
+      "bounds": {
+        "x": 1984,
+        "y": 16,
+        "width": 560,
+        "height": 346
+      },
+      "fontCssPx": 24,
+      "fontDevicePx": 30,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 23,
+        "lines": 5
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1820
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1.25,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 869,
+        "width": 2512,
+        "height": 547
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 35,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1375
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1.25,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 720,
+        "y": 12,
+        "width": 1120,
+        "height": 374
+      },
+      "fontCssPx": 33,
+      "fontDevicePx": 41.25,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 33,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1700
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1.25,
+      "preset": "side-column",
+      "bounds": {
+        "x": 1725,
+        "y": 72,
+        "width": 819,
+        "height": 1296
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 32.5,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1.25,
+      "preset": "reading",
+      "bounds": {
+        "x": 77,
+        "y": 72,
+        "width": 2406,
+        "height": 1296
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 35,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1.5,
+      "preset": "compact",
+      "bounds": {
+        "x": 1984,
+        "y": 16,
+        "width": 560,
+        "height": 346
+      },
+      "fontCssPx": 24,
+      "fontDevicePx": 36,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 23,
+        "lines": 5
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1820
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1.5,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 869,
+        "width": 2512,
+        "height": 547
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 42,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1375
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1.5,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 720,
+        "y": 12,
+        "width": 1120,
+        "height": 374
+      },
+      "fontCssPx": 33,
+      "fontDevicePx": 49.5,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 33,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1700
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1.5,
+      "preset": "side-column",
+      "bounds": {
+        "x": 1725,
+        "y": 72,
+        "width": 819,
+        "height": 1296
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 39,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 1.5,
+      "preset": "reading",
+      "bounds": {
+        "x": 77,
+        "y": 72,
+        "width": 2406,
+        "height": 1296
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 42,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 2,
+      "preset": "compact",
+      "bounds": {
+        "x": 1984,
+        "y": 16,
+        "width": 560,
+        "height": 346
+      },
+      "fontCssPx": 24,
+      "fontDevicePx": 48,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 23,
+        "lines": 5
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1820
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 2,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 869,
+        "width": 2512,
+        "height": 547
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 56,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1375
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 2,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 720,
+        "y": 12,
+        "width": 1120,
+        "height": 374
+      },
+      "fontCssPx": 33,
+      "fontDevicePx": 66,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 33,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1700
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 2,
+      "preset": "side-column",
+      "bounds": {
+        "x": 1725,
+        "y": 72,
+        "width": 819,
+        "height": 1296
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 52,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 2560,
+        "height": 1440
+      },
+      "dpi": 2,
+      "preset": "reading",
+      "bounds": {
+        "x": 77,
+        "y": 72,
+        "width": 2406,
+        "height": 1296
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 56,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1,
+      "preset": "compact",
+      "bounds": {
+        "x": 3264,
+        "y": 16,
+        "width": 560,
+        "height": 518
+      },
+      "fontCssPx": 24,
+      "fontDevicePx": 24,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 23,
+        "lines": 5
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1820
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 1315,
+        "width": 3792,
+        "height": 821
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 28,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1375
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 1360,
+        "y": 12,
+        "width": 1120,
+        "height": 562
+      },
+      "fontCssPx": 33,
+      "fontDevicePx": 33,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 33,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1700
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1,
+      "preset": "side-column",
+      "bounds": {
+        "x": 2595,
+        "y": 108,
+        "width": 1229,
+        "height": 1944
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 26,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1,
+      "preset": "reading",
+      "bounds": {
+        "x": 115,
+        "y": 108,
+        "width": 3610,
+        "height": 1944
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 28,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1.25,
+      "preset": "compact",
+      "bounds": {
+        "x": 3264,
+        "y": 16,
+        "width": 560,
+        "height": 518
+      },
+      "fontCssPx": 24,
+      "fontDevicePx": 30,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 23,
+        "lines": 5
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1820
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1.25,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 1315,
+        "width": 3792,
+        "height": 821
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 35,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1375
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1.25,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 1360,
+        "y": 12,
+        "width": 1120,
+        "height": 562
+      },
+      "fontCssPx": 33,
+      "fontDevicePx": 41.25,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 33,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1700
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1.25,
+      "preset": "side-column",
+      "bounds": {
+        "x": 2595,
+        "y": 108,
+        "width": 1229,
+        "height": 1944
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 32.5,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1.25,
+      "preset": "reading",
+      "bounds": {
+        "x": 115,
+        "y": 108,
+        "width": 3610,
+        "height": 1944
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 35,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1.5,
+      "preset": "compact",
+      "bounds": {
+        "x": 3264,
+        "y": 16,
+        "width": 560,
+        "height": 518
+      },
+      "fontCssPx": 24,
+      "fontDevicePx": 36,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 23,
+        "lines": 5
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1820
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1.5,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 1315,
+        "width": 3792,
+        "height": 821
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 42,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1375
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1.5,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 1360,
+        "y": 12,
+        "width": 1120,
+        "height": 562
+      },
+      "fontCssPx": 33,
+      "fontDevicePx": 49.5,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 33,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1700
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1.5,
+      "preset": "side-column",
+      "bounds": {
+        "x": 2595,
+        "y": 108,
+        "width": 1229,
+        "height": 1944
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 39,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 1.5,
+      "preset": "reading",
+      "bounds": {
+        "x": 115,
+        "y": 108,
+        "width": 3610,
+        "height": 1944
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 42,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 2,
+      "preset": "compact",
+      "bounds": {
+        "x": 3264,
+        "y": 16,
+        "width": 560,
+        "height": 518
+      },
+      "fontCssPx": 24,
+      "fontDevicePx": 48,
+      "lineHeightRatio": 1.55,
+      "maxCh": 62,
+      "minContrastRatio": 11.97,
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 23,
+        "lines": 5
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1820
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 2,
+      "preset": "banner",
+      "bounds": {
+        "x": 24,
+        "y": 1315,
+        "width": 3792,
+        "height": 821
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 56,
+      "lineHeightRatio": 1.55,
+      "maxCh": 75,
+      "minContrastRatio": 11.11,
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1375
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 2,
+      "preset": "teleprompter",
+      "bounds": {
+        "x": 1360,
+        "y": 12,
+        "width": 1120,
+        "height": 562
+      },
+      "fontCssPx": 33,
+      "fontDevicePx": 66,
+      "lineHeightRatio": 1.5,
+      "maxCh": 64,
+      "minContrastRatio": 13.13,
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 33,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 80,
+        "overflowPx": 1700
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 2,
+      "preset": "side-column",
+      "bounds": {
+        "x": 2595,
+        "y": 108,
+        "width": 1229,
+        "height": 1944
+      },
+      "fontCssPx": 26,
+      "fontDevicePx": 52,
+      "lineHeightRatio": 1.55,
+      "maxCh": 58,
+      "minContrastRatio": 11.97,
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 26,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 100,
+        "overflowPx": 2120
+      },
+      "pass": true
+    },
+    {
+      "viewport": {
+        "width": 3840,
+        "height": 2160
+      },
+      "dpi": 2,
+      "preset": "reading",
+      "bounds": {
+        "x": 115,
+        "y": 108,
+        "width": 3610,
+        "height": 1944
+      },
+      "fontCssPx": 28,
+      "fontDevicePx": 56,
+      "lineHeightRatio": 1.6,
+      "maxCh": 75,
+      "minContrastRatio": 8.41,
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "formattedScreenful": {
+        "words": 36,
+        "fits": true,
+        "fontPxWhenFitted": 28,
+        "lines": 4
+      },
+      "raw400Words": {
+        "fitsWithoutScroll": false,
+        "fontPx": 16,
+        "lines": 67,
+        "overflowPx": 1022
+      },
+      "pass": true
+    }
+  ],
+  "assertions": [
+    {
+      "name": "default-preset-is-banner",
+      "pass": true,
+      "detail": "banner"
+    },
+    {
+      "name": "five-presets",
+      "pass": true,
+      "detail": [
+        "compact",
+        "banner",
+        "teleprompter",
+        "side-column",
+        "reading"
+      ]
+    },
+    {
+      "name": "speakable-hook-12w",
+      "pass": true,
+      "detail": "I led the rate-limiter redesign for a high-traffic public API."
+    },
+    {
+      "name": "speakable-screenful-40w",
+      "pass": true,
+      "detail": 36
+    },
+    {
+      "name": "speakable-bullets-2-4",
+      "pass": true,
+      "detail": 2
+    },
+    {
+      "name": "matrix-all-cells-pass",
+      "pass": true,
+      "detail": "60 cells"
+    },
+    {
+      "name": "per-preset-persistence",
+      "pass": true,
+      "detail": [
+        "compact",
+        "banner",
+        "teleprompter",
+        "side-column",
+        "reading"
+      ]
+    },
+    {
+      "name": "transform-only-position",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "patch-whitelisted",
+      "pass": true,
+      "detail": 24
+    }
+  ],
+  "pass": true
+}

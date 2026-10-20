@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HireShade Overlay Demo</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: rgba(13, 16, 23, 0.94);
+        --card: rgba(255, 255, 255, 0.06);
+        --line: rgba(255, 255, 255, 0.11);
+        --text: #eef2fb;
+        --muted: #9aa6bd;
+        --accent: #7c5cff;
+        --accent-2: #22d3a7;
+        --warn: #ffb545;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: transparent;
+        font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+        color: var(--text);
+      }
+      body {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 20px;
+        overflow: hidden;
+      }
+      .card {
+        width: min(900px, calc(100vw - 40px));
+        background: linear-gradient(180deg, rgba(24, 29, 41, 0.96), var(--bg));
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(124, 92, 255, 0.08) inset;
+        backdrop-filter: blur(18px) saturate(140%);
+        overflow: hidden;
+      }
+      .accent-bar {
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), #38bdf8 55%, var(--accent-2));
+      }
+      .inner { padding: 18px 22px 16px; }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .brand { display: flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: 0.2px; }
+      .logo {
+        width: 24px; height: 24px; border-radius: 8px;
+        background: linear-gradient(135deg, var(--accent), #38bdf8);
+        box-shadow: 0 0 16px rgba(124, 92, 255, 0.55);
+      }
+      .badge {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--accent-2);
+        border: 1px solid rgba(34, 211, 167, 0.4);
+        background: rgba(34, 211, 167, 0.08);
+        padding: 3px 7px; border-radius: 999px;
+      }
+      .spacer { flex: 1; }
+      .model {
+        font-size: 11px; color: var(--muted);
+        border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px;
+        font-variant-numeric: tabular-nums;
+      }
+      .status {
+        font-size: 11px; font-weight: 600;
+        padding: 4px 10px; border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--muted);
+        min-width: 120px; text-align: center;
+      }
+      .status[data-state="listening"] { color: #9ad7ff; border-color: rgba(56, 189, 248, 0.4); }
+      .status[data-state="question"] { color: var(--warn); border-color: rgba(255, 181, 69, 0.4); }
+      .status[data-state="streaming"] { color: #c9b8ff; border-color: rgba(124, 92, 255, 0.5); }
+      .status[data-state="complete"] { color: var(--accent-2); border-color: rgba(34, 211, 167, 0.5); }
+      .streams { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+      .stream {
+        display: flex; align-items: center; gap: 7px;
+        font-size: 11px; color: var(--muted);
+        background: var(--card); border: 1px solid var(--line);
+        border-radius: 999px; padding: 4px 10px;
+      }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: #4b5568; }
+      .stream[data-active="true"] .dot { background: var(--accent-2); box-shadow: 0 0 8px var(--accent-2); }
+      .partial {
+        min-height: 20px;
+        font-size: 13px; color: var(--muted); font-style: italic;
+        margin-bottom: 10px;
+        white-space: pre-wrap;
+      }
+      .panel {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+      }
+      .panel-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+        color: var(--muted); margin-bottom: 6px;
+      }
+      .question { font-size: 15px; font-weight: 600; line-height: 1.45; }
+      .question:empty::after { content: "Waiting for a question…"; color: var(--muted); font-weight: 400; }
+      /* Virtual scroll host: the adapter translates .scroll-content with a
+         transform, so the browser scrollbar is never shown or fought over. */
+      .scroll-viewport {
+        position: relative;
+        height: 300px;
+        max-height: 300px;
+        overflow: hidden;
+        padding: 0;
+      }
+      .scroll-content { padding: 12px 14px; }
+      .scroll-content .panel-label.answer-label { margin-top: 12px; }
+      .jump-pill {
+        position: absolute;
+        right: 12px;
+        bottom: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font: 600 11px/1 "Segoe UI", Inter, system-ui, sans-serif;
+        color: #eef2fb;
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.95), rgba(56, 189, 248, 0.9));
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+        padding: 7px 12px;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 120ms ease, transform 120ms ease;
+        pointer-events: none;
+      }
+      .jump-pill:not([hidden]) { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      .jump-pill[hidden] { display: none !important; }
+      @media (prefers-reduced-motion: reduce) {
+        .jump-pill { transition: none; }
+      }
+      .answer {
+        font-size: 14px; line-height: 1.62; color: #e4e9f4;
+        white-space: pre-wrap;
+      }
+      .answer:empty::after { content: "Answer will stream here."; color: var(--muted); }
+      .answer strong { color: #fff; }
+      .answer code {
+        font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px;
+        background: rgba(124, 92, 255, 0.16); border: 1px solid rgba(124, 92, 255, 0.25);
+        border-radius: 5px; padding: 1px 5px;
+      }
+      .answer .li { display: block; padding-left: 16px; position: relative; }
+      .answer .li::before { content: "•"; position: absolute; left: 2px; color: var(--accent); }
+      footer {
+        display: flex; align-items: center; gap: 14px;
+        border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px;
+        font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums;
+      }
+      .timings { margin-left: auto; }
+      .cursor {
+        display: inline-block; width: 7px; height: 15px; margin-left: 2px;
+        background: var(--accent); border-radius: 2px; vertical-align: -2px;
+        animation: blink 1s steps(2, start) infinite;
+      }
+      @keyframes blink { to { visibility: hidden; } }
+      /* ── O1 overlay presets + readability (G-044) ─────────────────────── */
+      :root {
+        --overlay-font-px: 20px;
+        --overlay-hook-font-px: 24px;
+        --overlay-bullet-font-px: 19px;
+        --overlay-line-height-px: 31px;
+        --overlay-line-height-ratio: 1.55;
+        --overlay-max-ch: 75;
+        --overlay-scrim: rgba(3, 5, 10, 0.8);
+        --overlay-scrim-color: #05070c;
+        --overlay-scrim-alpha: 0.8;
+        --overlay-text: #f7faff;
+        --overlay-drag-area: 44px;
+        --overlay-resize-handle: 28px;
+        --overlay-viewport-max: 300px;
+        --overlay-padding: 20px;
+        --overlay-full-scrim: transparent;
+      }
+      body { display: block; padding: 0; }
+      .preset-scrim {
+        position: fixed;
+        inset: 0;
+        background: var(--overlay-full-scrim, transparent);
+        pointer-events: none;
+        z-index: 1;
+      }
+      .preset-camera {
+        position: fixed;
+        border: 2px dashed rgba(255, 181, 69, 0.85);
+        border-radius: 12px;
+        background: rgba(255, 181, 69, 0.08);
+        pointer-events: none;
+        z-index: 3;
+      }
+      .preset-camera[hidden] { display: none !important; }
+      .card[data-overlay-surface] {
+        position: fixed;
+        left: 0;
+        top: 0;
+        will-change: transform;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        color: var(--overlay-text);
+      }
+      .card[data-overlay-surface] .inner {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: var(--overlay-padding);
+      }
+      .card[data-overlay-preset] .scroll-viewport { flex: 1 1 auto; min-height: 90px; }
+      .card[data-overlay-preset] .answer {
+        font-size: var(--overlay-font-px);
+        line-height: var(--overlay-line-height-px);
+        max-width: calc(var(--overlay-max-ch) * 1ch);
+        overflow-wrap: anywhere;
+        word-break: normal;
+        hyphens: none;
+      }
+      .card[data-overlay-preset] .answer .hook {
+        display: block;
+        font-size: var(--overlay-hook-font-px);
+        font-weight: 700;
+        line-height: calc(var(--overlay-line-height-px) * 0.95);
+        margin-bottom: 6px;
+      }
+      .card[data-overlay-preset] .answer ul.speakable-bullets {
+        margin: 0;
+        padding-left: 1.2em;
+      }
+      .card[data-overlay-preset] .answer ul.speakable-bullets li {
+        font-size: var(--overlay-bullet-font-px);
+        line-height: var(--overlay-line-height-px);
+        margin: 0 0 0.25em 0;
+      }
+      .card[data-overlay-preset] .answer .speakable-pushback {
+        margin-top: 0.4em;
+        color: #9ad7ff;
+      }
+      .card[data-overlay-preset="compact"] .streams,
+      .card[data-overlay-preset="compact"] footer { display: none; }
+      .card[data-overlay-preset="teleprompter"] .streams { display: none; }
+      .card[data-overlay-preset="reading"] .streams { display: none; }
+      .drag-handle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--overlay-drag-area);
+        cursor: grab;
+        z-index: 6;
+        -webkit-app-region: no-drag;
+      }
+      .drag-handle:active { cursor: grabbing; }
+      .resize-handle {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: var(--overlay-resize-handle);
+        height: var(--overlay-resize-handle);
+        cursor: nwse-resize;
+        z-index: 6;
+        background: linear-gradient(135deg, transparent 52%, rgba(255, 255, 255, 0.3));
+        border-bottom-right-radius: inherit;
+      }
+      .preset-controls {
+        position: fixed;
+        left: 12px;
+        bottom: 12px;
+        z-index: 20;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        max-width: calc(100vw - 24px);
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(8, 10, 16, 0.86);
+        color: #e6ecf8;
+        font: 600 11px/1.25 "Segoe UI", Inter, system-ui, sans-serif;
+        backdrop-filter: blur(12px);
+      }
+      .preset-controls button {
+        font: inherit;
+        color: inherit;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 8px;
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+      .preset-controls button[aria-pressed="true"] {
+        background: rgba(124, 92, 255, 0.45);
+        border-color: rgba(124, 92, 255, 0.8);
+      }
+      .preset-controls .preset-state {
+        font: 500 10px/1.3 "Cascadia Code", Consolas, monospace;
+        color: #9aa6bd;
+        max-width: 100%;
+      }
+      .preset-controls .opacity-label { display: flex; align-items: center; gap: 6px; }
+      .preset-controls input[type="range"] { width: 92px; accent-color: #7c5cff; }
+      .hidden { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <div class="preset-scrim" data-testid="full-scrim" aria-hidden="true"></div>
+    <div class="preset-camera" data-testid="camera-preview" aria-hidden="true" hidden></div>
+    <div class="card" data-overlay-surface data-testid="overlay-card" data-overlay-preset="banner">
+      <div class="drag-handle" data-testid="drag-handle" title="Drag overlay" aria-hidden="true"></div>
+      <div class="accent-bar"></div>
+      <div class="inner">
+        <header>
+          <div class="brand"><span class="logo"></span>HireShade</div>
+          <span class="badge">zero-key demo</span>
+          <div class="spacer"></div>
+          <span class="model" data-testid="model"></span>
+          <span class="status" data-testid="status" data-state="listening">Listening</span>
+        </header>
+
+        <div class="streams">
+          <span class="stream" data-testid="stream-screen" data-active="true"><span class="dot"></span>Screen share · interviewer</span>
+          <span class="stream" data-testid="stream-mic" data-active="false"><span class="dot"></span>Microphone · candidate</span>
+        </div>
+
+        <div class="partial" data-testid="partial"></div>
+        <div class="partial hidden" data-testid="mic-partial"></div>
+
+        <div class="panel scroll-viewport" data-testid="scroll-viewport">
+          <div class="scroll-content" data-testid="scroll-content">
+            <div class="panel-label">Detected question</div>
+            <div class="question" data-testid="question"></div>
+            <div class="panel-label answer-label">Answer</div>
+            <div class="answer" data-testid="answer-text" role="log" aria-live="polite" aria-atomic="false"></div>
+          </div>
+          <button class="jump-pill" data-testid="jump-pill" type="button" aria-label="Jump to latest answer" hidden>Jump to latest ↓</button>
+        </div>
+
+        <footer>
+          <span>ASR: WebSocket · pcm_f32le · 16 kHz</span>
+          <span class="timings" data-testid="timings">waiting for stream…</span>
+        </footer>
+        <div class="resize-handle" data-testid="resize-handle" title="Resize overlay" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="preset-controls" data-testid="preset-controls">
+      <div role="group" aria-label="Overlay preset">
+        <button type="button" tabindex="-1" data-testid="preset-compact" data-preset="compact">Compact</button>
+        <button type="button" tabindex="-1" data-testid="preset-banner" data-preset="banner">Banner</button>
+        <button type="button" tabindex="-1" data-testid="preset-teleprompter" data-preset="teleprompter">Teleprompter</button>
+        <button type="button" tabindex="-1" data-testid="preset-side-column" data-preset="side-column">Side</button>
+        <button type="button" tabindex="-1" data-testid="preset-reading" data-preset="reading">Reading</button>
+      </div>
+      <label class="opacity-label">Opacity
+        <input type="range" min="20" max="100" step="1" value="86" tabindex="-1" data-testid="opacity-slider" aria-label="Overlay opacity" />
+      </label>
+      <button type="button" tabindex="-1" data-testid="click-through-toggle">Click-through</button>
+      <button type="button" tabindex="-1" data-testid="suggest-display">Second display?</button>
+      <span data-testid="display-suggestion" class="preset-state"></span>
+      <button type="button" tabindex="-1" data-testid="camera-avoid">Avoid camera</button>
+      <span data-testid="preset-state" class="preset-state"></span>
+    </div>
+
+    <!-- Framework-free auto-scroll runtime (built from src/overlay/autoscroll by
+         node scripts/scroll/build-runtime.mjs). Classic script: file:// blocks ESM. -->
+    <script src="../overlay/autoscroll/overlay-autoscroll.iife.js"></script>
+    <!-- O1 preset runtime (built from src/overlay/presets by
+         node scripts/overlay/build-presets-runtime.mjs). Installs
+         window.HireShadeOverlayPresetsApi for the Electron main process (O2). -->
+    <script src="../overlay/presets/overlay-presets.iife.js"></script>
+    <script>
+      // Injected by scripts/demo/overlay-e2e.mjs (a JSON {frames, meta} replay).
+      window.__OVERLAY_DATA__ = {"frames":[{"atMs":0,"status":"question","question":"Design a rate limiter for a public API.","partial":"","answer":"","questionAtMs":0},{"atMs":10,"status":"streaming","question":"Design a rate limiter for a public API.","partial":"I led the rate-limiter r","answer":"I led the rate-limiter redesign for a high-traffic public API. I used a Redis token bucket per key and kept the hot path to one atomic increment. The trade-off was a small amount of clock skew, which I bounded with a short TTL. I measured p95 latency before and after and documented the rollback plan. Would you like me to walk through the trade-offs?","firstTokenAtMs":10},{"atMs":20,"status":"complete","question":"Design a rate limiter for a public API.","partial":"","answer":"I led the rate-limiter redesign for a high-traffic public API. I used a Redis token bucket per key and kept the hot path to one atomic increment. The trade-off was a small amount of clock skew, which I bounded with a short TTL. I measured p95 latency before and after and documented the rollback plan. Would you like me to walk through the trade-offs?","answerComplete":true,"completeAtMs":20}],"meta":{"sessionId":"o1-presets-demo"}};
+      window.__OVERLAY_DONE__ = false;
+      window.__OVERLAY_FRAMES_APPLIED__ = 0;
+      window.__OVERLAY_TIMINGS__ = { startedAt: performance.now() };
+
+      (function () {
+        const data = window.__OVERLAY_DATA__;
+        const answerEl = document.querySelector('[data-testid="answer-text"]');
+        const questionEl = document.querySelector('[data-testid="question"]');
+        const partialEl = document.querySelector('[data-testid="partial"]');
+        const micEl = document.querySelector('[data-testid="mic-partial"]');
+        const statusEl = document.querySelector('[data-testid="status"]');
+        const modelEl = document.querySelector('[data-testid="model"]');
+        const timingsEl = document.querySelector('[data-testid="timings"]');
+        const streamScreen = document.querySelector('[data-testid="stream-screen"]');
+        const streamMic = document.querySelector('[data-testid="stream-mic"]');
+
+        // ── Auto-scroll integration (framework-free runtime) ──────────────────
+        // The controller owns sticky-bottom streaming, the 24px unlock, the
+        // jump-to-latest pill, keyboard scrolling, persistence and ARIA. The
+        // page only mutates DOM and tells it content changed.
+        const scrollViewport = document.querySelector('[data-testid="scroll-viewport"]');
+        const scrollContent = document.querySelector('[data-testid="scroll-content"]');
+        const jumpPill = document.querySelector('[data-testid="jump-pill"]');
+        const MAX_SCROLL_VIEWPORT_PX = 300;
+        const sessionId = (data && data.meta && data.meta.sessionId) || "demo-session";
+        // The preset model owns the answer pane's max height via
+        // --overlay-viewport-max; the pane also shrinks to fit the content and
+        // to whatever vertical room the active preset leaves. This keeps the
+        // auto-scroll behavior (short answer -> no overflow; long -> virtual
+        // scroll) inside every preset.
+        function presetViewportMax() {
+          const fromCss = parseFloat(
+            getComputedStyle(scrollViewport).getPropertyValue("--overlay-viewport-max"),
+          );
+          return Number.isFinite(fromCss) && fromCss > 0 ? fromCss : MAX_SCROLL_VIEWPORT_PX;
+        }
+        function availableViewportRoom() {
+          const inner = scrollViewport.parentElement;
+          if (!inner || !inner.clientHeight) return MAX_SCROLL_VIEWPORT_PX;
+          let siblings = 0;
+          for (const child of inner.children) {
+            if (child === scrollViewport) continue;
+            siblings += child.offsetHeight || 0;
+          }
+          return Math.max(90, inner.clientHeight - siblings - 14);
+        }
+        function syncScrollViewportHeight() {
+          // Short answers shrink the pane (no empty gap, no scrollbar); long
+          // answers are clipped at the preset/available height and scrolled by
+          // the adapter. Add the border back so clientHeight >= scrollHeight for
+          // the short-answer case (exactly 0 maxOffset, no phantom overflow).
+          const border = Math.max(0, scrollViewport.offsetHeight - scrollViewport.clientHeight);
+          const height = Math.min(
+            presetViewportMax(),
+            availableViewportRoom(),
+            Math.max(96, scrollContent.scrollHeight),
+          );
+          scrollViewport.style.height = height + border + "px";
+        }
+        const autoScroll =
+          window.HireShadeAutoScroll && window.HireShadeAutoScroll.createOverlayAutoScroll
+            ? window.HireShadeAutoScroll.createOverlayAutoScroll({
+                sessionId,
+                elements: {
+                  viewport: scrollViewport,
+                  content: scrollContent,
+                  question: questionEl,
+                  answer: answerEl,
+                  pill: jumpPill,
+                },
+              })
+            : null;
+        window.__overlayAutoScroll = autoScroll;
+        window.__overlayDemo = {
+          sessionId,
+          autoScroll,
+          syncScrollViewportHeight,
+          elements: { answerEl, questionEl, scrollViewport, scrollContent, jumpPill, statusEl },
+        };
+        // ── O1 preset controls + CDP-assertable state ─────────────────────
+        // The preset model owns geometry/typography/scrim; this block only
+        // wires the demo controls and exposes deterministic state to the
+        // Electron/CDP harness. Electron main (O2) can call the same adapter:
+        //   window.HireShadeOverlayPresetsApi.applyPreset('banner')
+        const presetApi = window.HireShadeOverlayPresetsApi;
+        window.__overlayPresetApi = presetApi || null;
+        const presetStateEl = document.querySelector('[data-testid="preset-state"]');
+        const displaySuggestionEl = document.querySelector('[data-testid="display-suggestion"]');
+        const opacitySlider = document.querySelector('[data-testid="opacity-slider"]');
+        const clickThroughBtn = document.querySelector('[data-testid="click-through-toggle"]');
+        const presetButtons = Array.prototype.slice.call(
+          document.querySelectorAll('[data-testid^="preset-"][data-preset]'),
+        );
+        let simulatedCamera = null;
+
+        function refreshPresetUi() {
+          if (!presetApi) return;
+          const state = presetApi.getState();
+          window.__overlayPresetState = state;
+          presetButtons.forEach(function (button) {
+            button.setAttribute(
+              'aria-pressed',
+              String(button.getAttribute('data-preset') === state.preset),
+            );
+          });
+          if (presetStateEl) {
+            presetStateEl.textContent =
+              'preset=' + state.preset +
+              ' bounds=' + state.layout.bounds.width + 'x' + state.layout.bounds.height +
+              '@' + state.layout.bounds.x + ',' + state.layout.bounds.y +
+              ' font=' + state.typography.fontPx + 'px' +
+              ' lh=' + state.typography.lineHeightPx + 'px' +
+              ' maxCh=' + state.typography.maxCh +
+              ' opacity=' + state.opacity +
+              ' scrim=' + state.scrimAlpha +
+              ' clickThrough=' + state.clickThrough;
+          }
+          if (opacitySlider) opacitySlider.value = String(Math.round(state.opacity * 100));
+          if (clickThroughBtn) {
+            clickThroughBtn.textContent =
+              'Click-through: ' + (state.clickThrough ? 'on' : 'off');
+          }
+          const fit = presetApi.refitAnswer && presetApi.refitAnswer();
+          if (fit && presetStateEl) {
+            presetStateEl.setAttribute(
+              'data-answer-fit',
+              JSON.stringify({ fontPx: fit.fontPx, lines: fit.lines, fits: fit.fits, overflowPx: fit.overflowPx, maxLineChars: fit.maxLineChars }),
+            );
+          }
+          syncScrollViewportHeight();
+          if (autoScroll) autoScroll.notifyContentChanged();
+        }
+
+        if (presetApi) {
+          refreshPresetUi();
+          window.addEventListener('hireshade:overlay-preset-changed', refreshPresetUi);
+          presetButtons.forEach(function (button) {
+            button.addEventListener('pointerdown', function (event) {
+              event.preventDefault();
+            });
+            button.addEventListener('click', function () {
+              presetApi.applyPreset(button.getAttribute('data-preset'));
+              refreshPresetUi();
+            });
+          });
+          if (opacitySlider) {
+            opacitySlider.addEventListener('input', function () {
+              presetApi.setOpacity(Number(opacitySlider.value) / 100);
+              refreshPresetUi();
+            });
+          }
+          if (clickThroughBtn) {
+            clickThroughBtn.addEventListener('pointerdown', function (event) {
+              event.preventDefault();
+            });
+            clickThroughBtn.addEventListener('click', function () {
+              presetApi.toggleClickThrough();
+              refreshPresetUi();
+            });
+          }
+          const suggestion = presetApi.suggestSecondaryDisplay([
+            { id: 'primary', primary: true, width: 1920, height: 1080 },
+            { id: 'secondary', primary: false, width: 1920, height: 1080 },
+          ]);
+          if (displaySuggestionEl) displaySuggestionEl.textContent = suggestion.copy;
+          const suggestBtn = document.querySelector('[data-testid="suggest-display"]');
+          if (suggestBtn) {
+            suggestBtn.addEventListener('pointerdown', function (event) {
+              event.preventDefault();
+            });
+            suggestBtn.addEventListener('click', function () {
+              if (displaySuggestionEl) displaySuggestionEl.textContent = suggestion.shortCopy;
+            });
+          }
+          const cameraBtn = document.querySelector('[data-testid="camera-avoid"]');
+          const cameraEl = document.querySelector('[data-testid="camera-preview"]');
+          if (cameraBtn) {
+            cameraBtn.addEventListener('pointerdown', function (event) {
+              event.preventDefault();
+            });
+            cameraBtn.addEventListener('click', function () {
+              if (!simulatedCamera) {
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+                simulatedCamera = {
+                  x: Math.round((vw - Math.round(vw * 0.26)) / 2),
+                  y: 8,
+                  width: Math.round(vw * 0.26),
+                  height: Math.round(vh * 0.22),
+                };
+                if (cameraEl) {
+                  cameraEl.hidden = false;
+                  cameraEl.style.left = simulatedCamera.x + 'px';
+                  cameraEl.style.top = simulatedCamera.y + 'px';
+                  cameraEl.style.width = simulatedCamera.width + 'px';
+                  cameraEl.style.height = simulatedCamera.height + 'px';
+                }
+                presetApi.avoidCamera(simulatedCamera);
+                cameraBtn.textContent = 'Camera preview: avoided';
+              } else {
+                simulatedCamera = null;
+                if (cameraEl) cameraEl.hidden = true;
+                presetApi.applyPreset(presetApi.getState().preset);
+                cameraBtn.textContent = 'Avoid camera';
+              }
+              refreshPresetUi();
+            });
+          }
+          const dragHandle = document.querySelector('[data-testid="drag-handle"]');
+          if (dragHandle) {
+            dragHandle.addEventListener('pointerdown', function (event) {
+              event.preventDefault();
+              const start = presetApi.getState().layout.bounds;
+              const startX = event.clientX;
+              const startY = event.clientY;
+              function move(moveEvent) {
+                presetApi.moveTo(
+                  start.x + (moveEvent.clientX - startX),
+                  start.y + (moveEvent.clientY - startY),
+                );
+              }
+              function up() {
+                dragHandle.removeEventListener('pointermove', move);
+                dragHandle.removeEventListener('pointerup', up);
+                refreshPresetUi();
+              }
+              dragHandle.addEventListener('pointermove', move);
+              dragHandle.addEventListener('pointerup', up);
+            });
+          }
+          const resizeHandle = document.querySelector('[data-testid="resize-handle"]');
+          if (resizeHandle) {
+            resizeHandle.addEventListener('pointerdown', function (event) {
+              event.preventDefault();
+              let lastX = event.clientX;
+              let lastY = event.clientY;
+              function move(moveEvent) {
+                presetApi.resizeBy(moveEvent.clientX - lastX, moveEvent.clientY - lastY);
+                lastX = moveEvent.clientX;
+                lastY = moveEvent.clientY;
+              }
+              function up() {
+                resizeHandle.removeEventListener('pointermove', move);
+                resizeHandle.removeEventListener('pointerup', up);
+                refreshPresetUi();
+              }
+              resizeHandle.addEventListener('pointermove', move);
+              resizeHandle.addEventListener('pointerup', up);
+            });
+          }
+          window.addEventListener('resize', function () {
+            presetApi.applyPreset(presetApi.getState().preset);
+            refreshPresetUi();
+          });
+        }
+
+
+        if (!data || !Array.isArray(data.frames) || !data.frames.length) {
+          questionEl.textContent = "No overlay replay data injected.";
+          return;
+        }
+
+        function escapeHtml(value) {
+          return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+
+        function renderMarkdown(text) {
+          const lines = escapeHtml(text).split("\n");
+          return lines
+            .map(function (line) {
+              const bullet = line.match(/^\s*[-*]\s+(.*)$/);
+              const body = bullet ? bullet[1] : line;
+              const formatted = body
+                .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+                .replace(/`([^`]+)`/g, "<code>$1</code>");
+              return bullet ? '<span class="li">' + formatted + "</span>" : formatted;
+            })
+            .join("\n");
+        }
+
+        const statusLabels = {
+          listening: "Listening",
+          question: "Question detected",
+          streaming: "Answering",
+          complete: "Complete",
+        };
+
+        let previousAnswer = "";
+        let previousQuestion = null;
+        let answerBaseline = "";
+
+        function render(frame) {
+          partialEl.textContent = frame.partial || "";
+          if (frame.micPartial) {
+            micEl.textContent = "mic: " + frame.micPartial;
+            micEl.classList.remove("hidden");
+          } else {
+            micEl.textContent = "";
+            micEl.classList.add("hidden");
+          }
+
+          const question = frame.question || "";
+          const questionChanged = question !== previousQuestion;
+          if (questionChanged) {
+            previousQuestion = question;
+            // The replay stream is cumulative across questions; remember the
+            // old answer length so the pane can be reset for the new question.
+            answerBaseline = frame.answer || "";
+            answerEl.innerHTML = "";
+            if (autoScroll) autoScroll.notifyQuestionChanged();
+          }
+          questionEl.textContent = question;
+
+          if (frame.answer !== previousAnswer) {
+            let display;
+            if (frame.answerComplete === true && frame.answer === answerBaseline) {
+              // The new answer finished with the same text as the previous one
+              // (mock provider): treat the completion as a fresh full answer.
+              answerBaseline = "";
+              display = frame.answer;
+            } else if (frame.answer.startsWith(answerBaseline)) {
+              display = frame.answer.slice(answerBaseline.length);
+            } else {
+              // The stream reset the answer (new question): render it whole.
+              answerBaseline = "";
+              display = frame.answer;
+            }
+            answerEl.innerHTML = renderMarkdown(display || "");
+            previousAnswer = frame.answer;
+          }
+          const label = statusLabels[frame.status] || frame.status;
+          statusEl.textContent = label;
+          statusEl.setAttribute("data-state", frame.status);
+          if (frame.model) modelEl.textContent = frame.model;
+          // The screen-share socket is the interviewer channel and stays active
+          // for the whole session; the mic chip lights up while the candidate talks.
+          streamScreen.setAttribute("data-active", "true");
+          streamMic.setAttribute("data-active", frame.micPartial ? "true" : "false");
+          const timingParts = [];
+          timingParts.push("question at " + (frame.questionAtMs != null ? Math.round(frame.questionAtMs) + " ms" : "—"));
+          timingParts.push("first token " + (frame.firstTokenAtMs != null ? Math.round(frame.firstTokenAtMs - (frame.questionAtMs || 0)) + " ms" : "—"));
+          timingParts.push("answer visible " + (frame.completeAtMs != null ? Math.round(frame.completeAtMs - (frame.questionAtMs || 0)) + " ms" : "—"));
+          timingsEl.textContent = timingParts.join("  ·  ");
+          syncScrollViewportHeight();
+          if (autoScroll) autoScroll.notifyContentChanged();
+          // Re-fit the answer inside the active preset once the answer is
+          // complete (or when the question changed), so 400-word answers never
+          // clip or ellipsize. During streaming the previous fit is kept.
+          if (frame.answerComplete === true || questionChanged) {
+            if (typeof refreshPresetUi === "function") refreshPresetUi();
+          }
+          window.__OVERLAY_FRAMES_APPLIED__ += 1;
+        }
+
+        const startedAt = performance.now();
+        window.__OVERLAY_TIMINGS__.startedAt = startedAt;
+        const frames = data.frames;
+        let index = 0;
+
+        function step() {
+          if (index >= frames.length) {
+            const last = frames[frames.length - 1];
+            window.__OVERLAY_TIMINGS__.frames = frames.length;
+            window.__OVERLAY_TIMINGS__.questionAtMs = last.questionAtMs;
+            window.__OVERLAY_TIMINGS__.firstTokenAtMs = last.firstTokenAtMs;
+            window.__OVERLAY_TIMINGS__.completeAtMs = last.completeAtMs;
+            window.__OVERLAY_TIMINGS__.replayElapsedMs = performance.now() - startedAt;
+            window.__OVERLAY_DONE__ = true;
+            return;
+          }
+          const frame = frames[index++];
+          render(frame);
+          const next = frames[index];
+          if (!next) {
+            setTimeout(step, 0);
+            return;
+          }
+          const delay = Math.max(0, next.atMs - frame.atMs);
+          setTimeout(step, delay);
+        }
+
+        step();
+      })();
+    </script>
+  </body>
+</html>

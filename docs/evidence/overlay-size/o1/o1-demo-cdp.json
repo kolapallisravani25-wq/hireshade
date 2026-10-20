@@ -1,0 +1,612 @@
+{
+  "generatedAt": "2026-10-20T15:51:09.166Z",
+  "surface": {
+    "page": "artifacts/craft-vita/src/demo/o1-presets.generated.html",
+    "electron": "37.10.3",
+    "cdpPort": 9350
+  },
+  "assertions": [
+    {
+      "name": "all-five-presets-applied",
+      "pass": true,
+      "detail": [
+        "compact",
+        "banner",
+        "teleprompter",
+        "side-column",
+        "reading"
+      ]
+    },
+    {
+      "name": "banner-full-width-minus-margins",
+      "pass": true,
+      "detail": {
+        "x": 24,
+        "y": 340,
+        "width": 936,
+        "height": 240
+      }
+    },
+    {
+      "name": "banner-35-40pct-height",
+      "pass": true,
+      "detail": 0.3973509933774834
+    },
+    {
+      "name": "banner-docked-bottom",
+      "pass": true,
+      "detail": 24
+    },
+    {
+      "name": "teleprompter-top-center",
+      "pass": true,
+      "detail": {
+        "x": 138,
+        "y": 12,
+        "width": 708,
+        "height": 170
+      }
+    },
+    {
+      "name": "side-column-30-35pct",
+      "pass": true,
+      "detail": 0.3201219512195122
+    },
+    {
+      "name": "reading-near-fullscreen",
+      "pass": true,
+      "detail": {
+        "x": 30,
+        "y": 30,
+        "width": 925,
+        "height": 544
+      }
+    },
+    {
+      "name": "compact-smallest",
+      "pass": true,
+      "detail": {
+        "compact": {
+          "x": 608,
+          "y": 16,
+          "width": 360,
+          "height": 170
+        },
+        "reading": {
+          "x": 30,
+          "y": 30,
+          "width": 925,
+          "height": 544
+        }
+      }
+    },
+    {
+      "name": "font-floor-all-presets",
+      "pass": true,
+      "detail": {
+        "compact": 17,
+        "banner": 20,
+        "teleprompter": 23,
+        "side-column": 19,
+        "reading": 20
+      }
+    },
+    {
+      "name": "line-height-all-presets",
+      "pass": true,
+      "detail": {
+        "compact": 1.53,
+        "banner": 1.55,
+        "teleprompter": 1.52,
+        "side-column": 1.53,
+        "reading": 1.6
+      }
+    },
+    {
+      "name": "measure-75ch-all-presets",
+      "pass": true,
+      "detail": {
+        "compact": 61.9,
+        "banner": 74.9,
+        "teleprompter": 63.9,
+        "side-column": 58,
+        "reading": 74.9
+      }
+    },
+    {
+      "name": "contrast-7to1-all-presets",
+      "pass": true,
+      "detail": {
+        "compact": 10.54,
+        "banner": 9.79,
+        "teleprompter": 11.32,
+        "side-column": 10.54,
+        "reading": 7.17
+      }
+    },
+    {
+      "name": "semi-transparent-defaults",
+      "pass": true,
+      "detail": {
+        "compact": 0.84,
+        "banner": 0.86,
+        "teleprompter": 0.88,
+        "side-column": 0.9,
+        "reading": 0.96
+      }
+    },
+    {
+      "name": "applied-synchronously",
+      "pass": true,
+      "detail": {
+        "compact": 2.899999976158142,
+        "banner": 4.100000023841858,
+        "teleprompter": 3.300000011920929,
+        "side-column": 2.799999952316284,
+        "reading": 2.300000011920929
+      }
+    },
+    {
+      "name": "speakable-first-screenful-fits",
+      "pass": true,
+      "detail": {
+        "screenfulWords": 36,
+        "fit": {
+          "banner": {
+            "fits": true,
+            "fontPx": 19,
+            "lines": 4,
+            "plainText": "I led the rate-limiter redesign for a high-traffic public API.\n- I used a Redis token bucket per key\n- The trade-off was a small amount of clock skew\nWould you like me to walk through the trade-offs?"
+          },
+          "side-column": {
+            "fits": true,
+            "fontPx": 19,
+            "lines": 8,
+            "plainText": "I led the rate-limiter redesign for a high-traffic public API.\n- I used a Redis token bucket per key\n- The trade-off was a small amount of clock skew\nWould you like me to walk through the trade-offs?"
+          },
+          "reading": {
+            "fits": true,
+            "fontPx": 20,
+            "lines": 4,
+            "plainText": "I led the rate-limiter redesign for a high-traffic public API.\n- I used a Redis token bucket per key\n- The trade-off was a small amount of clock skew\nWould you like me to walk through the trade-offs?"
+          }
+        }
+      }
+    },
+    {
+      "name": "no-horizontal-overflow",
+      "pass": true,
+      "detail": {
+        "compact": 0,
+        "banner": 0,
+        "teleprompter": 0,
+        "side-column": 0,
+        "reading": 0
+      }
+    },
+    {
+      "name": "no-ellipsis-or-clamp",
+      "pass": true,
+      "detail": {
+        "compact": {
+          "scrollWidth": 264,
+          "clientWidth": 264,
+          "scrollHeight": 208,
+          "clientHeight": 208,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none",
+          "whiteSpace": "pre-wrap"
+        },
+        "banner": {
+          "scrollWidth": 809,
+          "clientWidth": 809,
+          "scrollHeight": 124,
+          "clientHeight": 124,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none",
+          "whiteSpace": "pre-wrap"
+        },
+        "teleprompter": {
+          "scrollWidth": 604,
+          "clientWidth": 604,
+          "scrollHeight": 140,
+          "clientHeight": 140,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none",
+          "whiteSpace": "pre-wrap"
+        },
+        "side-column": {
+          "scrollWidth": 211,
+          "clientWidth": 211,
+          "scrollHeight": 319,
+          "clientHeight": 319,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none",
+          "whiteSpace": "pre-wrap"
+        },
+        "reading": {
+          "scrollWidth": 797,
+          "clientWidth": 797,
+          "scrollHeight": 128,
+          "clientHeight": 128,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none",
+          "whiteSpace": "pre-wrap"
+        }
+      }
+    },
+    {
+      "name": "raw-400w-no-hscroll-or-ellipsis",
+      "pass": true,
+      "detail": {
+        "reading": {
+          "fit": {
+            "fontPx": 16,
+            "hookFontPx": 19,
+            "bulletFontPx": 16,
+            "lineHeightPx": 26,
+            "lineHeightRatio": 1.6,
+            "maxCh": 75,
+            "lines": 67,
+            "contentHeightPx": 1742,
+            "fits": false,
+            "overflowPx": 1326,
+            "maxLineChars": 83
+          },
+          "scrollWidth": 264,
+          "clientWidth": 264,
+          "overflow": "clip",
+          "clamp": "none"
+        },
+        "compact": {
+          "fit": {
+            "fontPx": 16,
+            "hookFontPx": 19,
+            "bulletFontPx": 16,
+            "lineHeightPx": 25,
+            "lineHeightRatio": 1.55,
+            "maxCh": 62,
+            "lines": 134,
+            "contentHeightPx": 3350,
+            "fits": false,
+            "overflowPx": 3292,
+            "maxLineChars": 41
+          },
+          "scrollWidth": 264,
+          "clientWidth": 264,
+          "overflow": "clip",
+          "clamp": "none"
+        }
+      }
+    },
+    {
+      "name": "drag-and-resize-affordances",
+      "pass": true,
+      "detail": {
+        "compact": {
+          "drag": 44,
+          "resize": 28
+        },
+        "banner": {
+          "drag": 44,
+          "resize": 28
+        },
+        "teleprompter": {
+          "drag": 48,
+          "resize": 30
+        },
+        "side-column": {
+          "drag": 44,
+          "resize": 28
+        },
+        "reading": {
+          "drag": 44,
+          "resize": 28
+        }
+      }
+    },
+    {
+      "name": "click-through-state-exposed",
+      "pass": true,
+      "detail": "true"
+    },
+    {
+      "name": "state-hook-present",
+      "pass": true,
+      "detail": "preset=banner bounds=936x240@24,340 font=20px lh=31px maxCh=75 opacity=0.86 scrim=0.8 clickThrough=true"
+    },
+    {
+      "name": "per-preset-persistence-written",
+      "pass": true,
+      "detail": "{\n  \"version\": 1,\n  \"active\": \"reading\",\n  \"perPreset\": {\n    \"compact\": {\n      \"preset\": \"compact\",\n      \"xRatio\": 0.61789,\n      \"yRatio\": 0.02649,\n      \"w"
+    }
+  ],
+  "pass": true,
+  "presets": {
+    "compact": {
+      "appliedMs": 2.899999976158142,
+      "movedSynchronously": true,
+      "rect": {
+        "x": 608,
+        "y": 16,
+        "width": 360,
+        "height": 170
+      },
+      "viewport": {
+        "width": 984,
+        "height": 604
+      },
+      "dataPreset": "compact",
+      "dataFits": "false",
+      "opacity": 0.84,
+      "scrimAlpha": 0.82,
+      "fontSize": 17,
+      "lineHeightRatio": 1.53,
+      "maxWidthPx": 568,
+      "longestLineCh": 61.9,
+      "contrastWhite": 10.54,
+      "contrastBlack": 16.85,
+      "overflow": {
+        "scrollWidth": 264,
+        "clientWidth": 264,
+        "scrollHeight": 208,
+        "clientHeight": 208,
+        "textOverflow": "clip",
+        "webkitLineClamp": "none",
+        "whiteSpace": "pre-wrap"
+      },
+      "fit": {
+        "fontPx": 16,
+        "fits": false,
+        "lines": 7,
+        "overflowPx": 117,
+        "maxLineChars": 43
+      },
+      "stateText": "preset=compact bounds=360x170@608,16 font=17px lh=26px maxCh=62 opacity=0.84 scrim=0.82 clickThrough=true",
+      "dragAreaPx": 44,
+      "resizeHandlePx": 28,
+      "clickThrough": "true"
+    },
+    "banner": {
+      "appliedMs": 4.100000023841858,
+      "movedSynchronously": true,
+      "rect": {
+        "x": 24,
+        "y": 340,
+        "width": 936,
+        "height": 240
+      },
+      "viewport": {
+        "width": 984,
+        "height": 604
+      },
+      "dataPreset": "banner",
+      "dataFits": "true",
+      "opacity": 0.86,
+      "scrimAlpha": 0.8,
+      "fontSize": 20,
+      "lineHeightRatio": 1.55,
+      "maxWidthPx": 809,
+      "longestLineCh": 74.9,
+      "contrastWhite": 9.79,
+      "contrastBlack": 16.86,
+      "overflow": {
+        "scrollWidth": 809,
+        "clientWidth": 809,
+        "scrollHeight": 124,
+        "clientHeight": 124,
+        "textOverflow": "clip",
+        "webkitLineClamp": "none",
+        "whiteSpace": "pre-wrap"
+      },
+      "fit": {
+        "fontPx": 19,
+        "fits": true,
+        "lines": 4,
+        "overflowPx": 0,
+        "maxLineChars": 62
+      },
+      "stateText": "preset=banner bounds=936x240@24,340 font=20px lh=31px maxCh=75 opacity=0.86 scrim=0.8 clickThrough=true",
+      "dragAreaPx": 44,
+      "resizeHandlePx": 28,
+      "clickThrough": "true"
+    },
+    "teleprompter": {
+      "appliedMs": 3.300000011920929,
+      "movedSynchronously": true,
+      "rect": {
+        "x": 138,
+        "y": 12,
+        "width": 708,
+        "height": 170
+      },
+      "viewport": {
+        "width": 984,
+        "height": 604
+      },
+      "dataPreset": "teleprompter",
+      "dataFits": "false",
+      "opacity": 0.88,
+      "scrimAlpha": 0.84,
+      "fontSize": 23,
+      "lineHeightRatio": 1.52,
+      "maxWidthPx": 794,
+      "longestLineCh": 63.9,
+      "contrastWhite": 11.32,
+      "contrastBlack": 16.84,
+      "overflow": {
+        "scrollWidth": 604,
+        "clientWidth": 604,
+        "scrollHeight": 140,
+        "clientHeight": 140,
+        "textOverflow": "clip",
+        "webkitLineClamp": "none",
+        "whiteSpace": "pre-wrap"
+      },
+      "fit": {
+        "fontPx": 16,
+        "fits": false,
+        "lines": 4,
+        "overflowPx": 42,
+        "maxLineChars": 62
+      },
+      "stateText": "preset=teleprompter bounds=708x170@138,12 font=23px lh=35px maxCh=64 opacity=0.88 scrim=0.84 clickThrough=true",
+      "dragAreaPx": 48,
+      "resizeHandlePx": 30,
+      "clickThrough": "true"
+    },
+    "side-column": {
+      "appliedMs": 2.799999952316284,
+      "movedSynchronously": true,
+      "rect": {
+        "x": 653,
+        "y": 30,
+        "width": 315,
+        "height": 544
+      },
+      "viewport": {
+        "width": 984,
+        "height": 604
+      },
+      "dataPreset": "side-column",
+      "dataFits": "true",
+      "opacity": 0.9,
+      "scrimAlpha": 0.82,
+      "fontSize": 19,
+      "lineHeightRatio": 1.53,
+      "maxWidthPx": 594,
+      "longestLineCh": 58,
+      "contrastWhite": 10.54,
+      "contrastBlack": 16.85,
+      "overflow": {
+        "scrollWidth": 211,
+        "clientWidth": 211,
+        "scrollHeight": 319,
+        "clientHeight": 319,
+        "textOverflow": "clip",
+        "webkitLineClamp": "none",
+        "whiteSpace": "pre-wrap"
+      },
+      "fit": {
+        "fontPx": 19,
+        "fits": true,
+        "lines": 8,
+        "overflowPx": 0,
+        "maxLineChars": 35
+      },
+      "stateText": "preset=side-column bounds=315x544@653,30 font=19px lh=29px maxCh=58 opacity=0.9 scrim=0.82 clickThrough=true",
+      "dragAreaPx": 44,
+      "resizeHandlePx": 28,
+      "clickThrough": "true"
+    },
+    "reading": {
+      "appliedMs": 2.300000011920929,
+      "movedSynchronously": true,
+      "rect": {
+        "x": 30,
+        "y": 30,
+        "width": 925,
+        "height": 544
+      },
+      "viewport": {
+        "width": 984,
+        "height": 604
+      },
+      "dataPreset": "reading",
+      "dataFits": "true",
+      "opacity": 0.96,
+      "scrimAlpha": 0.72,
+      "fontSize": 20,
+      "lineHeightRatio": 1.6,
+      "maxWidthPx": 809,
+      "longestLineCh": 74.9,
+      "contrastWhite": 7.17,
+      "contrastBlack": 16.9,
+      "overflow": {
+        "scrollWidth": 797,
+        "clientWidth": 797,
+        "scrollHeight": 128,
+        "clientHeight": 128,
+        "textOverflow": "clip",
+        "webkitLineClamp": "none",
+        "whiteSpace": "pre-wrap"
+      },
+      "fit": {
+        "fontPx": 20,
+        "fits": true,
+        "lines": 4,
+        "overflowPx": 0,
+        "maxLineChars": 62
+      },
+      "stateText": "preset=reading bounds=925x544@30,30 font=20px lh=32px maxCh=75 opacity=0.96 scrim=0.72 clickThrough=true",
+      "dragAreaPx": 44,
+      "resizeHandlePx": 28,
+      "clickThrough": "true"
+    }
+  },
+  "speakableScreenful": {
+    "words": 36,
+    "plainText": "I led the rate-limiter redesign for a high-traffic public API.\n- I used a Redis token bucket per key\n- The trade-off was a small amount of clock skew\nWould you like me to walk through the trade-offs?",
+    "fit": {
+      "banner": {
+        "fits": true,
+        "fontPx": 19,
+        "lines": 4,
+        "plainText": "I led the rate-limiter redesign for a high-traffic public API.\n- I used a Redis token bucket per key\n- The trade-off was a small amount of clock skew\nWould you like me to walk through the trade-offs?"
+      },
+      "side-column": {
+        "fits": true,
+        "fontPx": 19,
+        "lines": 8,
+        "plainText": "I led the rate-limiter redesign for a high-traffic public API.\n- I used a Redis token bucket per key\n- The trade-off was a small amount of clock skew\nWould you like me to walk through the trade-offs?"
+      },
+      "reading": {
+        "fits": true,
+        "fontPx": 20,
+        "lines": 4,
+        "plainText": "I led the rate-limiter redesign for a high-traffic public API.\n- I used a Redis token bucket per key\n- The trade-off was a small amount of clock skew\nWould you like me to walk through the trade-offs?"
+      }
+    }
+  },
+  "raw400Words": {
+    "reading": {
+      "fit": {
+        "fontPx": 16,
+        "hookFontPx": 19,
+        "bulletFontPx": 16,
+        "lineHeightPx": 26,
+        "lineHeightRatio": 1.6,
+        "maxCh": 75,
+        "lines": 67,
+        "contentHeightPx": 1742,
+        "fits": false,
+        "overflowPx": 1326,
+        "maxLineChars": 83
+      },
+      "scrollWidth": 264,
+      "clientWidth": 264,
+      "overflow": "clip",
+      "clamp": "none"
+    },
+    "compact": {
+      "fit": {
+        "fontPx": 16,
+        "hookFontPx": 19,
+        "bulletFontPx": 16,
+        "lineHeightPx": 25,
+        "lineHeightRatio": 1.55,
+        "maxCh": 62,
+        "lines": 134,
+        "contentHeightPx": 3350,
+        "fits": false,
+        "overflowPx": 3292,
+        "maxLineChars": 41
+      },
+      "scrollWidth": 264,
+      "clientWidth": 264,
+      "overflow": "clip",
+      "clamp": "none"
+    }
+  },
+  "screenshot": "docs/evidence/overlay-size/o1/o1-demo-banner.png"
+}
