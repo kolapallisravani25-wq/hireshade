@@ -119,10 +119,11 @@ OBSERVED rows (this Windows host, Electron 37.10.3, single display):
 4. WS_EX_LAYERED stayed set (exstyle 0x80128) for the frameless window in BOTH transparent and compat runs,
    so EXSTYLE is not a valid proxy for Electron's transparent:false. Do not use it as proof.
 5. GDI (same-run hidden baseline): runtime recreation 0.00% pixels differ; startup-opaque 3.74%.
-   DXGI ddagrab vs hidden baseline: runtime 0.95%, startup-opaque 0.02% - i.e. DXGI did NOT show the
-   overlay in these runs, while the earlier banner run measured 49.8%. DXGI behaviour is therefore
-   INCONSISTENT on this host/build: do not claim a confirmed "always ignores" here, and do not claim
-   compatibility mode fixes DXGI (it cannot by design).
+   DXGI ddagrab vs hidden baseline: runtime 0.95%, startup-opaque 0.02% - these low deltas mean the
+   overlay was NOT visible in the U2 runs (recreated surface hidden / opaque startup not shown), so
+   they are not a DXGI-honours-exclusion result. The authoritative controlled DXGI test is §1b, where a
+   visible overlay measured 27.39 luma under 0x11 vs 0.01 under 0x01. Do not claim compatibility mode
+   fixes DXGI (it cannot by design).
 
 **Exact blocker (one row):** runtime-recreated surface is created transparent:false and receives affinity
 0x11, but it is not shown and its renderer/CDP target disappears after the swap; PrintWindow/GDI/DXGI then
