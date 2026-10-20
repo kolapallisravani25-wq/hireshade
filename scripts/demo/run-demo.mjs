@@ -8,6 +8,7 @@
  *   node scripts/demo/run-demo.mjs tests       # unit tests for every new module (both packages)
  *   node scripts/demo/run-demo.mjs pipeline    # latency proof + docs/evidence/demo/*
  *   node scripts/demo/run-demo.mjs e2e         # Electron overlay CDP DOM proof
+ *   node scripts/demo/run-demo.mjs size        # O3 preset/readability acceptance (all presets)
  *   node scripts/demo/run-demo.mjs help
  *
  * Extra args are forwarded to the pipeline step, e.g.:
@@ -183,6 +184,20 @@ function stepE2e(env) {
   });
 }
 
+/**
+ * O3: overlay-size acceptance. Exercises all five presets x DPI matrix,
+ * readability/speakability, persistence, re-layout and click-through with the
+ * keyless environment (no provider keys involved).
+ */
+function stepSize(env) {
+  return run(
+    "overlay-size acceptance (5 presets x DPI 100/125/150/200 + readability/speakability)",
+    process.execPath,
+    [path.join(here, "..", "overlay-size", "run-size-acceptance.mjs")],
+    { cwd: root, env },
+  );
+}
+
 function help() {
   console.log(`HireShade zero-key demo
 
@@ -192,6 +207,7 @@ function help() {
   node scripts/demo/run-demo.mjs pipeline    latency budget + docs/evidence/demo/* (accepts --runs=N --models=a,b)
   node scripts/demo/run-demo.mjs e2e         Electron overlay CDP DOM proof + screenshot
   node scripts/demo/run-demo.mjs extensions  W1 pronunciation + W2 auto-scroll + W3 Razorpay mock + W4 gaze
+  node scripts/demo/run-demo.mjs size        O3 overlay-size acceptance: 5 presets x DPI 100/125/150/200
   node scripts/demo/run-demo.mjs help
 
 All steps run with DEMO_MODE=1 and every provider key removed.`);
@@ -230,12 +246,16 @@ function main() {
     case "extensions":
       status = stepExtensions(env);
       break;
+    case "size":
+      status = stepSize(env);
+      break;
     case "demo": {
       status = stepFixtures(env);
       if (status === 0) status = stepTests(env);
       if (status === 0) status = stepPipeline(env, passthrough);
       if (status === 0) status = stepExtensions(env);
       if (status === 0) status = stepE2e(env);
+      if (status === 0) status = stepSize(env);
       break;
     }
     default:
@@ -247,7 +267,7 @@ function main() {
   console.log("");
   if (status === 0) {
     console.log("[demo] ALL GREEN - keyless demo + latency budget + extensions (W1-W4) + overlay DOM proof passed.");
-    console.log("[demo] evidence: docs/evidence/demo/*, docs/evidence/overlay-scroll/*, docs/evidence/gaze/*, docs/evidence/pronunciation/*, docs/evidence/razorpay/*");
+    console.log("[demo] evidence: docs/evidence/demo/*, docs/evidence/overlay-scroll/*, docs/evidence/overlay-size/*, docs/evidence/gaze/*, docs/evidence/pronunciation/*, docs/evidence/razorpay/*");
   } else {
     console.error("[demo] FAILED (exit " + status + ")");
   }

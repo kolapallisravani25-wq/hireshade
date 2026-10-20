@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8" /><title>Size acceptance background app</title>
+<style>
+html,body{height:100%;margin:0;font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);color:#e2e8f0;}
+body{display:flex;align-items:center;justify-content:center;}
+.panel{text-align:center;}
+#bg-clicks{font-size:56px;font-weight:800;color:#7dd3fc;}
+p{opacity:.7;max-width:520px;}
+</style></head><body>
+<div class="panel"><h1>Background application</h1><div id="bg-clicks">0</div><p>OS-level clicks that pass through the overlay land here.</p></div>
+<script>
+window.__bgClicks = 0;
+document.addEventListener('click', function (event) { window.__bgClicks += 1; document.getElementById('bg-clicks').textContent = String(window.__bgClicks); window.__bgLastClick = { x: event.clientX, y: event.clientY, at: Date.now() }; });
+window.__bgReady = true;
+</script></body></html>

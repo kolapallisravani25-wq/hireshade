@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T15:33:12.694Z",
+  "generatedAt": "2026-10-20T15:56:31.833Z",
   "pass": true,
   "surface": {
     "kind": "electron-overlay",
@@ -23,11 +23,11 @@
     "answerPreview": "Here's how I'd answer that in a real interview.\n\nI'd start by framing the problem in one sentence, then walk through the design decisions. In my last role I built a Redis-backed rate limiter for an Express API: a fixed w",
     "framesApplied": 85,
     "timings": {
-      "startedAt": 227.89999997615814,
-      "questionAtMs": 4008.0933999999997,
-      "firstTokenAtMs": 4518.5566,
-      "completeAtMs": 5613.8668,
-      "answerVisibleMs": 1605.7734
+      "startedAt": 264.10000002384186,
+      "questionAtMs": 4009.7817000000005,
+      "firstTokenAtMs": 4525.5536,
+      "completeAtMs": 5662.182,
+      "answerVisibleMs": 1652.4002999999993
     }
   },
   "assertions": [
@@ -64,7 +64,7 @@
     {
       "name": "answer-visible-within-budget",
       "pass": true,
-      "detail": "1605.8 ms (budget 5000 ms)"
+      "detail": "1652.4 ms (budget 5000 ms)"
     },
     {
       "name": "frames-applied",
@@ -80,7 +80,7 @@
   "screenshot": "docs/evidence/demo/overlay-answer.png",
   "electronLogs": {
     "stdout": "\r\n[overlay-main] loaded D:\\hireshade\\docs\\evidence\\demo\\overlay.generated.html (cdp port 9333)\n",
-    "stderr": "\r\nDevTools listening on ws://127.0.0.1:9333/devtools/browser/fb4ae16d-4598-4e5d-8e7c-16056f8a7c87\r\n"
+    "stderr": "\r\nDevTools listening on ws://127.0.0.1:9333/devtools/browser/01058989-0b47-40d9-9ac9-c773863ea54e\r\n"
   },
   "consoleMessages": []
 }

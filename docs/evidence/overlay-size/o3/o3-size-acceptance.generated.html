@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>HireShade overlay size acceptance</title>
+  <style>
+
+      :root {
+        color-scheme: dark;
+        --bg: rgba(13, 16, 23, 0.94);
+        --card: rgba(255, 255, 255, 0.06);
+        --line: rgba(255, 255, 255, 0.11);
+        --text: #eef2fb;
+        --muted: #9aa6bd;
+        --accent: #7c5cff;
+        --accent-2: #22d3a7;
+        --warn: #ffb545;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: transparent;
+        font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+        color: var(--text);
+      }
+      body {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 20px;
+        overflow: hidden;
+      }
+      .card {
+        width: min(900px, calc(100vw - 40px));
+        background: linear-gradient(180deg, rgba(24, 29, 41, 0.96), var(--bg));
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(124, 92, 255, 0.08) inset;
+        backdrop-filter: blur(18px) saturate(140%);
+        overflow: hidden;
+      }
+      .accent-bar {
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), #38bdf8 55%, var(--accent-2));
+      }
+      .inner { padding: 18px 22px 16px; }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .brand { display: flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: 0.2px; }
+      .logo {
+        width: 24px; height: 24px; border-radius: 8px;
+        background: linear-gradient(135deg, var(--accent), #38bdf8);
+        box-shadow: 0 0 16px rgba(124, 92, 255, 0.55);
+      }
+      .badge {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--accent-2);
+        border: 1px solid rgba(34, 211, 167, 0.4);
+        background: rgba(34, 211, 167, 0.08);
+        padding: 3px 7px; border-radius: 999px;
+      }
+      .spacer { flex: 1; }
+      .model {
+        font-size: 11px; color: var(--muted);
+        border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px;
+        font-variant-numeric: tabular-nums;
+      }
+      .status {
+        font-size: 11px; font-weight: 600;
+        padding: 4px 10px; border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--muted);
+        min-width: 120px; text-align: center;
+      }
+      .status[data-state="listening"] { color: #9ad7ff; border-color: rgba(56, 189, 248, 0.4); }
+      .status[data-state="question"] { color: var(--warn); border-color: rgba(255, 181, 69, 0.4); }
+      .status[data-state="streaming"] { color: #c9b8ff; border-color: rgba(124, 92, 255, 0.5); }
+      .status[data-state="complete"] { color: var(--accent-2); border-color: rgba(34, 211, 167, 0.5); }
+      .streams { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+      .stream {
+        display: flex; align-items: center; gap: 7px;
+        font-size: 11px; color: var(--muted);
+        background: var(--card); border: 1px solid var(--line);
+        border-radius: 999px; padding: 4px 10px;
+      }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: #4b5568; }
+      .stream[data-active="true"] .dot { background: var(--accent-2); box-shadow: 0 0 8px var(--accent-2); }
+      .partial {
+        min-height: 20px;
+        font-size: 13px; color: var(--muted); font-style: italic;
+        margin-bottom: 10px;
+        white-space: pre-wrap;
+      }
+      .panel {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+      }
+      .panel-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+        color: var(--muted); margin-bottom: 6px;
+      }
+      .question { font-size: 15px; font-weight: 600; line-height: 1.45; }
+      .question:empty::after { content: "Waiting for a question…"; color: var(--muted); font-weight: 400; }
+      /* Virtual scroll host: the adapter translates .scroll-content with a
+         transform, so the browser scrollbar is never shown or fought over. */
+      .scroll-viewport {
+        position: relative;
+        height: 300px;
+        max-height: 300px;
+        overflow: hidden;
+        padding: 0;
+      }
+      .scroll-content { padding: 12px 14px; }
+      .scroll-content .panel-label.answer-label { margin-top: 12px; }
+      .jump-pill {
+        position: absolute;
+        right: 12px;
+        bottom: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font: 600 11px/1 "Segoe UI", Inter, system-ui, sans-serif;
+        color: #eef2fb;
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.95), rgba(56, 189, 248, 0.9));
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+        padding: 7px 12px;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 120ms ease, transform 120ms ease;
+        pointer-events: none;
+      }
+      .jump-pill:not([hidden]) { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      .jump-pill[hidden] { display: none !important; }
+      @media (prefers-reduced-motion: reduce) {
+        .jump-pill { transition: none; }
+      }
+      .answer {
+        font-size: 14px; line-height: 1.62; color: #e4e9f4;
+        white-space: pre-wrap;
+      }
+      .answer:empty::after { content: "Answer will stream here."; color: var(--muted); }
+      .answer strong { color: #fff; }
+      .answer code {
+        font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px;
+        background: rgba(124, 92, 255, 0.16); border: 1px solid rgba(124, 92, 255, 0.25);
+        border-radius: 5px; padding: 1px 5px;
+      }
+      .answer .li { display: block; padding-left: 16px; position: relative; }
+      .answer .li::before { content: "•"; position: absolute; left: 2px; color: var(--accent); }
+      footer {
+        display: flex; align-items: center; gap: 14px;
+        border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px;
+        font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums;
+      }
+      .timings { margin-left: auto; }
+      .cursor {
+        display: inline-block; width: 7px; height: 15px; margin-left: 2px;
+        background: var(--accent); border-radius: 2px; vertical-align: -2px;
+        animation: blink 1s steps(2, start) infinite;
+      }
+      @keyframes blink { to { visibility: hidden; } }
+      /* ── O1 overlay presets + readability (G-044) ─────────────────────── */
+      :root {
+        --overlay-font-px: 20px;
+        --overlay-hook-font-px: 24px;
+        --overlay-bullet-font-px: 19px;
+        --overlay-line-height-px: 31px;
+        --overlay-line-height-ratio: 1.55;
+        --overlay-max-ch: 75;
+        --overlay-scrim: rgba(3, 5, 10, 0.8);
+        --overlay-scrim-color: #05070c;
+        --overlay-scrim-alpha: 0.8;
+        --overlay-text: #f7faff;
+        --overlay-drag-area: 44px;
+        --overlay-resize-handle: 28px;
+        --overlay-viewport-max: 300px;
+        --overlay-padding: 20px;
+        --overlay-full-scrim: transparent;
+      }
+      body { display: block; padding: 0; }
+      .preset-scrim {
+        position: fixed;
+        inset: 0;
+        background: var(--overlay-full-scrim, transparent);
+        pointer-events: none;
+        z-index: 1;
+      }
+      .preset-camera {
+        position: fixed;
+        border: 2px dashed rgba(255, 181, 69, 0.85);
+        border-radius: 12px;
+        background: rgba(255, 181, 69, 0.08);
+        pointer-events: none;
+        z-index: 3;
+      }
+      .preset-camera[hidden] { display: none !important; }
+      .card[data-overlay-surface] {
+        position: fixed;
+        left: 0;
+        top: 0;
+        will-change: transform;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        color: var(--overlay-text);
+      }
+      .card[data-overlay-surface] .inner {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: var(--overlay-padding);
+      }
+      .card[data-overlay-preset] .scroll-viewport { flex: 1 1 auto; min-height: 90px; }
+      .card[data-overlay-preset] .answer {
+        font-size: var(--overlay-font-px);
+        line-height: var(--overlay-line-height-px);
+        max-width: calc(var(--overlay-max-ch) * 1ch);
+        overflow-wrap: anywhere;
+        word-break: normal;
+        hyphens: none;
+      }
+      .card[data-overlay-preset] .answer .hook {
+        display: block;
+        font-size: var(--overlay-hook-font-px);
+        font-weight: 700;
+        line-height: calc(var(--overlay-line-height-px) * 0.95);
+        margin-bottom: 6px;
+      }
+      .card[data-overlay-preset] .answer ul.speakable-bullets {
+        margin: 0;
+        padding-left: 1.2em;
+      }
+      .card[data-overlay-preset] .answer ul.speakable-bullets li {
+        font-size: var(--overlay-bullet-font-px);
+        line-height: var(--overlay-line-height-px);
+        margin: 0 0 0.25em 0;
+      }
+      .card[data-overlay-preset] .answer .speakable-pushback {
+        margin-top: 0.4em;
+        color: #9ad7ff;
+      }
+      .card[data-overlay-preset="compact"] .streams,
+      .card[data-overlay-preset="compact"] footer { display: none; }
+      .card[data-overlay-preset="teleprompter"] .streams { display: none; }
+      .card[data-overlay-preset="reading"] .streams { display: none; }
+      .drag-handle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--overlay-drag-area);
+        cursor: grab;
+        z-index: 6;
+        -webkit-app-region: no-drag;
+      }
+      .drag-handle:active { cursor: grabbing; }
+      .resize-handle {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: var(--overlay-resize-handle);
+        height: var(--overlay-resize-handle);
+        cursor: nwse-resize;
+        z-index: 6;
+        background: linear-gradient(135deg, transparent 52%, rgba(255, 255, 255, 0.3));
+        border-bottom-right-radius: inherit;
+      }
+      .preset-controls {
+        position: fixed;
+        left: 12px;
+        bottom: 12px;
+        z-index: 20;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        max-width: calc(100vw - 24px);
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(8, 10, 16, 0.86);
+        color: #e6ecf8;
+        font: 600 11px/1.25 "Segoe UI", Inter, system-ui, sans-serif;
+        backdrop-filter: blur(12px);
+      }
+      .preset-controls button {
+        font: inherit;
+        color: inherit;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 8px;
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+      .preset-controls button[aria-pressed="true"] {
+        background: rgba(124, 92, 255, 0.45);
+        border-color: rgba(124, 92, 255, 0.8);
+      }
+      .preset-controls .preset-state {
+        font: 500 10px/1.3 "Cascadia Code", Consolas, monospace;
+        color: #9aa6bd;
+        max-width: 100%;
+      }
+      .preset-controls .opacity-label { display: flex; align-items: center; gap: 6px; }
+      .preset-controls input[type="range"] { width: 92px; accent-color: #7c5cff; }
+      .hidden { display: none !important; }
+    
+  </style>
+  <style>
+    html, body { height: 100%; margin: 0; overflow: hidden; background: #6b7280; }
+    #desktop-backdrop { position: fixed; inset: 0; background: var(--desktop-backdrop, #6b7280); z-index: 0; }
+    #size-card {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      box-sizing: border-box; padding: 16px 18px; overflow: hidden;
+      background: var(--scrim, rgba(8,10,16,0.8)); color: #f4f7ff;
+      border: 1px solid rgba(255,255,255,0.14); border-radius: 16px;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.5); z-index: 2;
+      font-family: 'Segoe UI', Inter, system-ui, sans-serif;
+    }
+    #size-card .size-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    #size-card .size-brand { font-weight: 700; font-size: 13px; letter-spacing: 0.2px; }
+    #size-card .size-preset-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75; }
+    #answer-viewport { position: relative; overflow: hidden; }
+    #answer-content { will-change: transform; }
+    #answer-text {
+      font-size: var(--answer-font-size); line-height: var(--answer-line-height);
+      color: #f4f7ff; max-width: calc(var(--answer-max-ch) * 1ch);
+      overflow-wrap: break-word; word-break: normal; text-overflow: clip;
+      white-space: normal;
+    }
+    #answer-text .answer-bullets { margin: 8px 0 0 18px; padding: 0; }
+    #answer-text .answer-bullets li { margin-bottom: 4px; }
+    #answer-text .answer-heading { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.7; margin-bottom: 6px; }
+    #answer-text code { font-family: Consolas, monospace; }
+    #size-card[data-preset] { }
+#size-card[data-preset="compact"] {
+  width: 461px;
+  height: 192px;
+  --scrim: rgba(5, 7, 12, 0.82);
+  --answer-font-size: 17px;
+  --answer-line-height: 1.55;
+  --answer-max-ch: 62;
+}
+#size-card[data-preset="banner"] {
+  width: 1232px;
+  height: 304px;
+  --scrim: rgba(5, 7, 12, 0.8);
+  --answer-font-size: 20px;
+  --answer-line-height: 1.55;
+  --answer-max-ch: 75;
+}
+#size-card[data-preset="teleprompter"] {
+  width: 922px;
+  height: 208px;
+  --scrim: rgba(4, 6, 10, 0.84);
+  --answer-font-size: 23px;
+  --answer-line-height: 1.5;
+  --answer-max-ch: 64;
+}
+#size-card[data-preset="side-column"] {
+  width: 410px;
+  height: 720px;
+  --scrim: rgba(5, 7, 12, 0.82);
+  --answer-font-size: 19px;
+  --answer-line-height: 1.55;
+  --answer-max-ch: 58;
+}
+#size-card[data-preset="reading"] {
+  width: 1203px;
+  height: 720px;
+  --scrim: rgba(3, 5, 10, 0.72);
+  --answer-font-size: 20px;
+  --answer-line-height: 1.6;
+  --answer-max-ch: 75;
+}
+  </style>
+</head>
+<body>
+  <div id="desktop-backdrop"></div>
+  <div id="size-card" data-preset="banner">
+    <div class="size-head"><span class="size-brand">HireShade</span><span class="size-preset-label" id="preset-label"></span></div>
+    <div id="answer-viewport"><div id="answer-content"><div id="answer-text" data-testid="answer-text"></div></div></div>
+  </div>
+<script>
+window.__SIZE_PRESETS__ = [{"id":"compact","label":"Compact","widthPx":461,"heightPx":192,"fontCssPx":17,"lineHeight":1.55,"maxCh":62,"scrim":"rgba(5, 7, 12, 0.82)","description":"Small card in the top-right corner; least intrusive.","sourceGeometry":{"x":803,"y":16,"widthRatio":0.36,"heightRatio":0.24,"anchor":"top-right"}},{"id":"banner","label":"Banner","widthPx":1232,"heightPx":304,"fontCssPx":20,"lineHeight":1.55,"maxCh":75,"scrim":"rgba(5, 7, 12, 0.8)","description":"Full width minus margins, 35-40% screen height, docked bottom.","sourceGeometry":{"x":24,"y":472,"widthRatio":1,"heightRatio":0.38,"anchor":"bottom-center"}},{"id":"teleprompter","label":"Teleprompter","widthPx":922,"heightPx":208,"fontCssPx":23,"lineHeight":1.5,"maxCh":64,"scrim":"rgba(4, 6, 10, 0.84)","description":"Band at top-center, as close to the webcam as possible.","sourceGeometry":{"x":179,"y":12,"widthRatio":0.72,"heightRatio":0.26,"anchor":"top-center"}},{"id":"side-column","label":"Side column","widthPx":410,"heightPx":720,"fontCssPx":19,"lineHeight":1.55,"maxCh":58,"scrim":"rgba(5, 7, 12, 0.82)","description":"Narrow column (30-35% width) docked left or right, near full height.","sourceGeometry":{"x":854,"y":40,"widthRatio":0.32,"heightRatio":0.9,"anchor":"side-right"}},{"id":"reading","label":"Reading","widthPx":1203,"heightPx":720,"fontCssPx":20,"lineHeight":1.6,"maxCh":75,"scrim":"rgba(3, 5, 10, 0.72)","description":"Near full-screen with a dimmed scrim for long answers.","sourceGeometry":{"x":39,"y":40,"widthRatio":0.94,"heightRatio":0.9,"anchor":"center"}}];
+window.__SIZE_FLOORS__ = {"minFontCssPx":16,"minDevicePx":16,"maxLineCh":75,"minLineHeight":1.5,"minContrastRatio":7};
+window.__SIZE_PRESET_SOURCE__ = "o1";
+window.__SIZE_STORAGE_KEY__ = 'hireshade.overlay.preset.v1:size-demo';
+window.__SIZE_DEFAULT_PRESET__ = "banner";
+window.__bgClicks = 0;
+window.__overlayClicks = 0;
+(function () {
+  'use strict';
+  var PRESETS = window.__SIZE_PRESETS__;
+  var FLOORS = window.__SIZE_FLOORS__;
+  var STORAGE_KEY = window.__SIZE_STORAGE_KEY__;
+  var DEFAULT_PRESET = window.__SIZE_DEFAULT_PRESET__;
+  var card = document.getElementById('size-card');
+  var answerText = document.getElementById('answer-text');
+  var answerViewport = document.getElementById('answer-viewport');
+  var answerContent = document.getElementById('answer-content');
+  var presetLabel = document.getElementById('preset-label');
+  var state = { preset: null, fitFontPx: null, storedOnBoot: null };
+  function presetInfo(id) { for (var i = 0; i < PRESETS.length; i++) if (PRESETS[i].id === id) return PRESETS[i]; return null; }
+  function countWords(text) { var value = String(text || '').trim(); return value ? value.split(/\s+/).filter(Boolean).length : 0; }
+  function detectTokens(text) {
+    var source = String(text || ''); var tokens = [];
+    if (/\*\*[^*]+\*\*/.test(source)) tokens.push('**bold**');
+    if (/^#{1,6}\s/m.test(source)) tokens.push('# heading');
+    if (source.indexOf(String.fromCharCode(96)) !== -1) tokens.push('backtick code');
+    if (/^\s*[-*+]\s/m.test(source)) tokens.push('- bullet marker');
+    if (/\[[^\]]*\]\([^)]*\)/.test(source)) tokens.push('[link](url)');
+    return tokens;
+  }
+  function applyPreset(id) {
+    var preset = presetInfo(id); if (!preset) throw new Error('unknown preset ' + id);
+    var t0 = performance.now();
+    card.setAttribute('data-preset', id);
+    // Preset change must reset any inline auto-fit font override so the
+    // preset's own typography applies immediately (one-frame re-layout).
+    answerText.style.fontSize = '';
+    presetLabel.textContent = preset.label || id;
+    // Size the answer viewport from the ACTUAL card box (O1 geometry may be
+    // small at 1280x800); never let the viewport overflow the card.
+    var head = card.querySelector('.size-head');
+    var available = card.clientHeight - (head ? head.offsetHeight : 0) - 32;
+    answerViewport.style.height = Math.max(60, Math.round(available)) + 'px';
+    void card.offsetHeight;
+    void answerText.offsetHeight;
+    var t1 = performance.now();
+    state.preset = id;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ preset: id, updatedAt: Date.now() })); } catch (error) {}
+    return { id: id, applyMs: t1 - t0 };
+  }
+  function storedPreset() {
+    try { var raw = localStorage.getItem(STORAGE_KEY); if (!raw) return null; var parsed = JSON.parse(raw); return parsed && parsed.preset ? parsed.preset : null; } catch (error) { return null; }
+  }
+  function bootPreset() {
+    state.storedOnBoot = storedPreset();
+    var id = state.storedOnBoot && presetInfo(state.storedOnBoot) ? state.storedOnBoot : DEFAULT_PRESET;
+    return applyPreset(id);
+  }
+  function setBackdrop(color) { document.documentElement.style.setProperty('--desktop-backdrop', color); return color; }
+  function autoFit() {
+    var preset = presetInfo(state.preset); var base = preset ? preset.fontCssPx : 16;
+    var size = base; answerText.style.fontSize = size + 'px'; var guard = 0;
+    while (guard++ < 80) {
+      var fitsWidth = answerText.scrollWidth <= answerViewport.clientWidth + 1;
+      var fitsHeight = answerText.scrollHeight <= answerViewport.clientHeight + 1;
+      if (fitsWidth && fitsHeight) break;
+      if (size <= FLOORS.minFontCssPx) break;
+      size = Math.max(FLOORS.minFontCssPx, size - 0.5);
+      answerText.style.fontSize = size + 'px';
+    }
+    state.fitFontPx = size;
+    return { fontSize: size, iterations: guard, fitsWidth: answerText.scrollWidth <= answerViewport.clientWidth + 1, fitsHeight: answerText.scrollHeight <= answerViewport.clientHeight + 1 };
+  }
+  function inline(text) {
+    var escaped = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    var bt = String.fromCharCode(96);
+    var re = new RegExp(bt + '([^' + bt + ']+)' + bt, 'g');
+    escaped = escaped.replace(re, '<code>$1</code>');
+    return escaped;
+  }
+  function renderMarkdown(markdown) {
+    var lines = String(markdown).split('\n'); var out = []; var inList = false; var hookRendered = false;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      var bullet = line.match(/^\s*[-*+]\s+(.*)$/);
+      if (bullet) { if (!inList) { out.push('<ul class="answer-bullets">'); inList = true; } out.push('<li>' + inline(bullet[1]) + '</li>'); continue; }
+      if (inList) { out.push('</ul>'); inList = false; }
+      var heading = line.match(/^#{1,6}\s+(.*)$/);
+      if (heading) { out.push('<div class="answer-heading">' + inline(heading[1]) + '</div>'); continue; }
+      if (!line.trim()) continue;
+      if (!hookRendered) { out.push('<div class="answer-hook" data-testid="answer-hook">' + inline(line) + '</div>'); hookRendered = true; }
+      else out.push('<div class="answer-paragraph">' + inline(line) + '</div>');
+    }
+    if (inList) out.push('</ul>');
+    answerText.innerHTML = out.join('');
+    return autoFit();
+  }
+  function setAnswer(text) { answerText.textContent = String(text); return autoFit(); }
+  function setAnswerMarkdown(markdown) { return renderMarkdown(markdown); }
+  function parseColor(input) {
+    var match = String(input || '').match(/rgba?\(([^)]+)\)/);
+    if (!match) return null;
+    var parts = match[1].split(',').map(function (value) { return parseFloat(value.trim()); });
+    return { r: parts[0], g: parts[1], b: parts[2], a: parts.length > 3 ? parts[3] : 1 };
+  }
+  function hexToRgb(hex) {
+    var value = String(hex || '#ffffff').replace('#', '');
+    if (value.length === 3) value = value[0] + value[0] + value[1] + value[1] + value[2] + value[2];
+    return { r: parseInt(value.slice(0, 2), 16), g: parseInt(value.slice(2, 4), 16), b: parseInt(value.slice(4, 6), 16), a: 1 };
+  }
+  function composite(foreground, background) {
+    var alpha = foreground.a + background.a * (1 - foreground.a);
+    if (alpha === 0) return { r: 0, g: 0, b: 0, a: 1 };
+    return {
+      r: (foreground.r * foreground.a + background.r * background.a * (1 - foreground.a)) / alpha,
+      g: (foreground.g * foreground.a + background.g * background.a * (1 - foreground.a)) / alpha,
+      b: (foreground.b * foreground.a + background.b * background.a * (1 - foreground.a)) / alpha,
+      a: 1,
+    };
+  }
+  function channel(value) { var c = value / 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+  function luminosity(color) { return 0.2126 * channel(color.r) + 0.7152 * channel(color.g) + 0.0722 * channel(color.b); }
+  function contrastRatio(a, b) { var la = luminosity(a); var lb = luminosity(b); var hi = Math.max(la, lb); var lo = Math.min(la, lb); return (hi + 0.05) / (lo + 0.05); }
+  function measureCh(fontSize, family, weight, style) {
+    if (!measureCh.canvas) measureCh.canvas = document.createElement('canvas');
+    var ctx = measureCh.canvas.getContext('2d');
+    ctx.font = (style || 'normal') + ' ' + (weight || '400') + ' ' + fontSize + 'px ' + family;
+    var width = ctx.measureText('0000000000').width / 10;
+    return width > 0 ? width : fontSize * 0.5;
+  }
+  function countVisibleWords(root, viewportRect) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var visible = 0; var node;
+    while ((node = walker.nextNode())) {
+      var text = node.nodeValue || ''; var regex = /\S+/g; var match;
+      while ((match = regex.exec(text))) {
+        var range = document.createRange();
+        range.setStart(node, match.index); range.setEnd(node, match.index + match[0].length);
+        var rect = range.getBoundingClientRect();
+        if (rect.height === 0) continue;
+        if (rect.top < viewportRect.bottom && rect.bottom > viewportRect.top) visible++;
+      }
+    }
+    return visible;
+  }
+  function getMetrics(backdropHex) {
+    var cs = getComputedStyle(answerText);
+    var cardCs = getComputedStyle(card);
+    var fontSize = parseFloat(cs.fontSize);
+    var lineHeightPx = parseFloat(cs.lineHeight);
+    var ch = measureCh(fontSize, cs.fontFamily, cs.fontWeight, cs.fontStyle);
+    var textColor = parseColor(cs.color);
+    var scrim = parseColor(cardCs.backgroundColor);
+    var backdrop = hexToRgb(backdropHex || '#ffffff');
+    var composited = scrim && scrim.a < 1 ? composite(scrim, backdrop) : (scrim || backdrop);
+    var viewportRect = answerViewport.getBoundingClientRect();
+    var maxWidthPx = cs.maxWidth && cs.maxWidth !== 'none' ? parseFloat(cs.maxWidth) : answerText.clientWidth;
+    var hook = answerText.querySelector('[data-testid="answer-hook"]');
+    var docScrollWidth = document.scrollingElement ? document.scrollingElement.scrollWidth : document.documentElement.scrollWidth;
+    return {
+      preset: state.preset, presetSource: window.__SIZE_PRESET_SOURCE__, dpr: window.devicePixelRatio,
+      fontSizeCssPx: fontSize, lineHeightPx: lineHeightPx, lineHeightRatio: fontSize > 0 ? lineHeightPx / fontSize : 0,
+      maxWidthPx: maxWidthPx, maxLineChCss: ch > 0 ? maxWidthPx / ch : 0, longestLineCh: ch > 0 ? answerText.clientWidth / ch : 0,
+      contrast: { ratio: textColor ? contrastRatio(textColor, composited) : 0, backdrop: backdropHex || '#ffffff', textColor: cs.color, scrim: cardCs.backgroundColor },
+      layout: {
+        answerClientWidth: answerText.clientWidth, answerScrollWidth: answerText.scrollWidth,
+        answerClientHeight: answerText.clientHeight, answerScrollHeight: answerText.scrollHeight,
+        viewportClientHeight: answerViewport.clientHeight, contentHeight: answerContent.getBoundingClientRect().height,
+        docScrollWidth: docScrollWidth, innerWidth: window.innerWidth, textOverflow: cs.textOverflow,
+        overflowWrap: cs.overflowWrap, wordBreak: cs.wordBreak, webkitLineClamp: cs.webkitLineClamp || 'none', whiteSpace: cs.whiteSpace,
+      },
+      text: { chars: answerText.textContent.length, words: countWords(answerText.textContent) },
+      speakability: {
+        hookWords: hook ? countWords(hook.textContent) : null,
+        firstBulletWords: (function () { var li = answerText.querySelector('li'); return li ? countWords(li.textContent) : 0; })(),
+        firstScreenfulWords: (hook ? countWords(hook.textContent) : 0) + (function () { var li = answerText.querySelector('li'); return li ? countWords(li.textContent) : 0; })(),
+        viewportVisibleWords: countVisibleWords(answerText, viewportRect),
+        bulletCount: answerText.querySelectorAll('li').length,
+        markdownTokens: detectTokens(answerText.textContent),
+      },
+      fitFontPx: state.fitFontPx,
+      clicks: { overlay: window.__overlayClicks, background: window.__bgClicks },
+    };
+  }
+  function relayoutTo(id) {
+    return new Promise(function (resolve) {
+      var t0 = performance.now();
+      var applied = applyPreset(id);
+      requestAnimationFrame(function () {
+        var t1 = performance.now();
+        resolve({ id: id, applyMs: applied.applyMs, frameMs: t1 - t0, preset: state.preset, fontSize: parseFloat(getComputedStyle(answerText).fontSize) });
+      });
+    });
+  }
+  document.addEventListener('click', function () { window.__overlayClicks += 1; });
+  window.__sizeHarness = {
+    constants: FLOORS, presets: PRESETS, presetSource: window.__SIZE_PRESET_SOURCE__,
+    bootPreset: bootPreset, applyPreset: applyPreset, relayoutTo: relayoutTo, getPreset: function () { return state.preset; },
+    getStoredPreset: storedPreset, setBackdrop: setBackdrop, setAnswer: setAnswer, setAnswerMarkdown: setAnswerMarkdown,
+    autoFit: autoFit, getMetrics: getMetrics, getClicks: function () { return { overlay: window.__overlayClicks, background: window.__bgClicks }; },
+    resetClicks: function () { window.__overlayClicks = 0; window.__bgClicks = 0; },
+    getFitFontPx: function () { return state.fitFontPx; },
+    getStoredRaw: function () { try { return localStorage.getItem(STORAGE_KEY); } catch (error) { return null; } },
+  };
+  // A reopened overlay restores its persisted preset before first paint.
+  bootPreset();
+  window.__sizeReady = true;
+})();
+</script>
+</body>
+</html>

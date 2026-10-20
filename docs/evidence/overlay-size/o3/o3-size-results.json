@@ -1,0 +1,1518 @@
+{
+  "generatedAt": "2026-10-20T15:58:04.026Z",
+  "pass": true,
+  "kind": "overlay-size-acceptance",
+  "environment": {
+    "platform": "win32",
+    "node": "v24.19.0",
+    "electron": "37.10.3",
+    "hostScaleFactor": 1.0499999523162842,
+    "window": {
+      "width": 1000,
+      "height": 760,
+      "frame": false,
+      "transparent": true,
+      "alwaysOnTop": true
+    },
+    "dpiValues": [
+      1,
+      1.25,
+      1.5,
+      2
+    ],
+    "dpiMethod": "CDP Emulation.setDeviceMetricsOverride deviceScaleFactor (emulation, not physical monitor scaling)"
+  },
+  "sources": {
+    "presetContract": {
+      "source": "o1",
+      "presetsPath": "D:\\hireshade\\artifacts\\craft-vita\\src\\overlay\\presets\\index.ts",
+      "warnings": []
+    },
+    "answerFormatter": {
+      "source": "o1",
+      "formatPath": "D:\\hireshade\\artifacts\\craft-vita\\src\\overlay\\answerFormat.ts",
+      "warnings": [],
+      "usedInSpeakability": true,
+      "usage": {
+        "o1": 20,
+        "contract-fallback": 0
+      }
+    }
+  },
+  "floors": {
+    "minFontCssPx": 16,
+    "minDevicePx": 16,
+    "maxLineCh": 75,
+    "minLineHeight": 1.5,
+    "minContrastRatio": 7
+  },
+  "presets": [
+    {
+      "id": "compact",
+      "label": "Compact",
+      "widthPx": 461,
+      "heightPx": 192,
+      "fontCssPx": 17,
+      "lineHeight": 1.55,
+      "maxCh": 62,
+      "scrim": "rgba(5, 7, 12, 0.82)",
+      "description": "Small card in the top-right corner; least intrusive.",
+      "sourceGeometry": {
+        "x": 803,
+        "y": 16,
+        "widthRatio": 0.36,
+        "heightRatio": 0.24,
+        "anchor": "top-right"
+      }
+    },
+    {
+      "id": "banner",
+      "label": "Banner",
+      "widthPx": 1232,
+      "heightPx": 304,
+      "fontCssPx": 20,
+      "lineHeight": 1.55,
+      "maxCh": 75,
+      "scrim": "rgba(5, 7, 12, 0.8)",
+      "description": "Full width minus margins, 35-40% screen height, docked bottom.",
+      "sourceGeometry": {
+        "x": 24,
+        "y": 472,
+        "widthRatio": 1,
+        "heightRatio": 0.38,
+        "anchor": "bottom-center"
+      }
+    },
+    {
+      "id": "teleprompter",
+      "label": "Teleprompter",
+      "widthPx": 922,
+      "heightPx": 208,
+      "fontCssPx": 23,
+      "lineHeight": 1.5,
+      "maxCh": 64,
+      "scrim": "rgba(4, 6, 10, 0.84)",
+      "description": "Band at top-center, as close to the webcam as possible.",
+      "sourceGeometry": {
+        "x": 179,
+        "y": 12,
+        "widthRatio": 0.72,
+        "heightRatio": 0.26,
+        "anchor": "top-center"
+      }
+    },
+    {
+      "id": "side-column",
+      "label": "Side column",
+      "widthPx": 410,
+      "heightPx": 720,
+      "fontCssPx": 19,
+      "lineHeight": 1.55,
+      "maxCh": 58,
+      "scrim": "rgba(5, 7, 12, 0.82)",
+      "description": "Narrow column (30-35% width) docked left or right, near full height.",
+      "sourceGeometry": {
+        "x": 854,
+        "y": 40,
+        "widthRatio": 0.32,
+        "heightRatio": 0.9,
+        "anchor": "side-right"
+      }
+    },
+    {
+      "id": "reading",
+      "label": "Reading",
+      "widthPx": 1203,
+      "heightPx": 720,
+      "fontCssPx": 20,
+      "lineHeight": 1.6,
+      "maxCh": 75,
+      "scrim": "rgba(3, 5, 10, 0.72)",
+      "description": "Near full-screen with a dimmed scrim for long answers.",
+      "sourceGeometry": {
+        "x": 39,
+        "y": 40,
+        "widthRatio": 0.94,
+        "heightRatio": 0.9,
+        "anchor": "center"
+      }
+    }
+  ],
+  "matrix": {
+    "rows": [
+      {
+        "preset": "compact",
+        "presetLabel": "Compact",
+        "dpi": 1,
+        "fontCssPx": 16,
+        "fontDevicePx": 16.000000322432697,
+        "presetFontCssPx": 17,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 49.04347826086956,
+        "maxLineChCss": 61.96313043478261,
+        "contrast": {
+          "whiteBackdrop": 11.684424037547876,
+          "blackBackdrop": 18.94098157745224,
+          "min": 11.684424037547876,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 423,
+          "answerClientWidth": 423,
+          "answerScrollHeight": 2479,
+          "answerClientHeight": 2479,
+          "contentHeight": 2479.166748046875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "banner",
+        "presetLabel": "Banner",
+        "dpi": 1,
+        "fontCssPx": 16,
+        "fontDevicePx": 16.000000322432697,
+        "presetFontCssPx": 20,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 74.89855072463769,
+        "maxLineChCss": 74.95536231884059,
+        "contrast": {
+          "whiteBackdrop": 10.847848714166124,
+          "blackBackdrop": 18.956411681900445,
+          "min": 10.847848714166124,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.8)"
+        },
+        "overflow": {
+          "answerScrollWidth": 646,
+          "answerClientWidth": 646,
+          "answerScrollHeight": 1661,
+          "answerClientHeight": 1661,
+          "contentHeight": 1661.041748046875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "teleprompter",
+        "presetLabel": "Teleprompter",
+        "dpi": 1,
+        "fontCssPx": 16,
+        "fontDevicePx": 16.000000322432697,
+        "presetFontCssPx": 23,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.5,
+        "longestLineCh": 64,
+        "maxLineChCss": 63.96185507246378,
+        "contrast": {
+          "whiteBackdrop": 12.717403906988228,
+          "blackBackdrop": 19.026046585307643,
+          "min": 12.717403906988228,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(4, 6, 10, 0.84)"
+        },
+        "overflow": {
+          "answerScrollWidth": 552,
+          "answerClientWidth": 552,
+          "answerScrollHeight": 1919,
+          "answerClientHeight": 1919,
+          "contentHeight": 1919.0477294921875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "side-column",
+        "presetLabel": "Side column",
+        "dpi": 1,
+        "fontCssPx": 16,
+        "fontDevicePx": 16.000000322432697,
+        "presetFontCssPx": 19,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 43.130434782608695,
+        "maxLineChCss": 57.96544927536232,
+        "contrast": {
+          "whiteBackdrop": 11.684424037547876,
+          "blackBackdrop": 18.94098157745224,
+          "min": 11.684424037547876,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 372,
+          "answerClientWidth": 372,
+          "answerScrollHeight": 3322,
+          "answerClientHeight": 3322,
+          "contentHeight": 3322.08349609375,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "reading",
+        "presetLabel": "Reading",
+        "dpi": 1,
+        "fontCssPx": 16,
+        "fontDevicePx": 16.000000322432697,
+        "presetFontCssPx": 20,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.6,
+        "longestLineCh": 74.89855072463769,
+        "maxLineChCss": 74.95536231884059,
+        "contrast": {
+          "whiteBackdrop": 8.144664956166839,
+          "blackBackdrop": 19.181124153490117,
+          "min": 8.144664956166839,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(3, 5, 10, 0.72)"
+        },
+        "overflow": {
+          "answerScrollWidth": 646,
+          "answerClientWidth": 646,
+          "answerScrollHeight": 1715,
+          "answerClientHeight": 1715,
+          "contentHeight": 1714.881103515625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "compact",
+        "presetLabel": "Compact",
+        "dpi": 1.25,
+        "fontCssPx": 16,
+        "fontDevicePx": 20.000000903719865,
+        "presetFontCssPx": 17,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 49.04347826086956,
+        "maxLineChCss": 61.96313043478261,
+        "contrast": {
+          "whiteBackdrop": 11.684424037547876,
+          "blackBackdrop": 18.94098157745224,
+          "min": 11.684424037547876,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 423,
+          "answerClientWidth": 423,
+          "answerScrollHeight": 2479,
+          "answerClientHeight": 2479,
+          "contentHeight": 2479.166748046875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "banner",
+        "presetLabel": "Banner",
+        "dpi": 1.25,
+        "fontCssPx": 16,
+        "fontDevicePx": 20.000000903719865,
+        "presetFontCssPx": 20,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 74.89855072463769,
+        "maxLineChCss": 74.95536231884059,
+        "contrast": {
+          "whiteBackdrop": 10.847848714166124,
+          "blackBackdrop": 18.956411681900445,
+          "min": 10.847848714166124,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.8)"
+        },
+        "overflow": {
+          "answerScrollWidth": 646,
+          "answerClientWidth": 646,
+          "answerScrollHeight": 1661,
+          "answerClientHeight": 1661,
+          "contentHeight": 1661.041748046875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "teleprompter",
+        "presetLabel": "Teleprompter",
+        "dpi": 1.25,
+        "fontCssPx": 16,
+        "fontDevicePx": 20.000000903719865,
+        "presetFontCssPx": 23,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.5,
+        "longestLineCh": 64,
+        "maxLineChCss": 63.96185507246378,
+        "contrast": {
+          "whiteBackdrop": 12.717403906988228,
+          "blackBackdrop": 19.026046585307643,
+          "min": 12.717403906988228,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(4, 6, 10, 0.84)"
+        },
+        "overflow": {
+          "answerScrollWidth": 552,
+          "answerClientWidth": 552,
+          "answerScrollHeight": 1919,
+          "answerClientHeight": 1919,
+          "contentHeight": 1919.0477294921875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "side-column",
+        "presetLabel": "Side column",
+        "dpi": 1.25,
+        "fontCssPx": 16,
+        "fontDevicePx": 20.000000903719865,
+        "presetFontCssPx": 19,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 43.130434782608695,
+        "maxLineChCss": 57.96544927536232,
+        "contrast": {
+          "whiteBackdrop": 11.684424037547876,
+          "blackBackdrop": 18.94098157745224,
+          "min": 11.684424037547876,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 372,
+          "answerClientWidth": 372,
+          "answerScrollHeight": 3322,
+          "answerClientHeight": 3322,
+          "contentHeight": 3322.08349609375,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "reading",
+        "presetLabel": "Reading",
+        "dpi": 1.25,
+        "fontCssPx": 16,
+        "fontDevicePx": 20.000000903719865,
+        "presetFontCssPx": 20,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.6,
+        "longestLineCh": 74.89855072463769,
+        "maxLineChCss": 74.95536231884059,
+        "contrast": {
+          "whiteBackdrop": 8.144664956166839,
+          "blackBackdrop": 19.181124153490117,
+          "min": 8.144664956166839,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(3, 5, 10, 0.72)"
+        },
+        "overflow": {
+          "answerScrollWidth": 646,
+          "answerClientWidth": 646,
+          "answerScrollHeight": 1715,
+          "answerClientHeight": 1715,
+          "contentHeight": 1714.881103515625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "compact",
+        "presetLabel": "Compact",
+        "dpi": 1.5,
+        "fontCssPx": 16,
+        "fontDevicePx": 23.99999948229106,
+        "presetFontCssPx": 17,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 49.04347826086956,
+        "maxLineChCss": 61.96313043478261,
+        "contrast": {
+          "whiteBackdrop": 11.684424037547876,
+          "blackBackdrop": 18.94098157745224,
+          "min": 11.684424037547876,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 423,
+          "answerClientWidth": 423,
+          "answerScrollHeight": 2479,
+          "answerClientHeight": 2479,
+          "contentHeight": 2479.166748046875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "banner",
+        "presetLabel": "Banner",
+        "dpi": 1.5,
+        "fontCssPx": 16,
+        "fontDevicePx": 23.99999948229106,
+        "presetFontCssPx": 20,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 74.89855072463769,
+        "maxLineChCss": 74.95536231884059,
+        "contrast": {
+          "whiteBackdrop": 10.847848714166124,
+          "blackBackdrop": 18.956411681900445,
+          "min": 10.847848714166124,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.8)"
+        },
+        "overflow": {
+          "answerScrollWidth": 646,
+          "answerClientWidth": 646,
+          "answerScrollHeight": 1661,
+          "answerClientHeight": 1661,
+          "contentHeight": 1661.041748046875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "teleprompter",
+        "presetLabel": "Teleprompter",
+        "dpi": 1.5,
+        "fontCssPx": 16,
+        "fontDevicePx": 23.99999948229106,
+        "presetFontCssPx": 23,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.5,
+        "longestLineCh": 64,
+        "maxLineChCss": 63.96185507246378,
+        "contrast": {
+          "whiteBackdrop": 12.717403906988228,
+          "blackBackdrop": 19.026046585307643,
+          "min": 12.717403906988228,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(4, 6, 10, 0.84)"
+        },
+        "overflow": {
+          "answerScrollWidth": 552,
+          "answerClientWidth": 552,
+          "answerScrollHeight": 1919,
+          "answerClientHeight": 1919,
+          "contentHeight": 1919.0477294921875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "side-column",
+        "presetLabel": "Side column",
+        "dpi": 1.5,
+        "fontCssPx": 16,
+        "fontDevicePx": 23.99999948229106,
+        "presetFontCssPx": 19,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 43.130434782608695,
+        "maxLineChCss": 57.96544927536232,
+        "contrast": {
+          "whiteBackdrop": 11.684424037547876,
+          "blackBackdrop": 18.94098157745224,
+          "min": 11.684424037547876,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 372,
+          "answerClientWidth": 372,
+          "answerScrollHeight": 3322,
+          "answerClientHeight": 3322,
+          "contentHeight": 3322.08349609375,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "reading",
+        "presetLabel": "Reading",
+        "dpi": 1.5,
+        "fontCssPx": 16,
+        "fontDevicePx": 23.99999948229106,
+        "presetFontCssPx": 20,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.6,
+        "longestLineCh": 74.89855072463769,
+        "maxLineChCss": 74.95536231884059,
+        "contrast": {
+          "whiteBackdrop": 8.144664956166839,
+          "blackBackdrop": 19.181124153490117,
+          "min": 8.144664956166839,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(3, 5, 10, 0.72)"
+        },
+        "overflow": {
+          "answerScrollWidth": 646,
+          "answerClientWidth": 646,
+          "answerScrollHeight": 1715,
+          "answerClientHeight": 1715,
+          "contentHeight": 1714.881103515625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "compact",
+        "presetLabel": "Compact",
+        "dpi": 2,
+        "fontCssPx": 16,
+        "fontDevicePx": 32.000000644865395,
+        "presetFontCssPx": 17,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 49.04347826086956,
+        "maxLineChCss": 61.96313043478261,
+        "contrast": {
+          "whiteBackdrop": 11.684424037547876,
+          "blackBackdrop": 18.94098157745224,
+          "min": 11.684424037547876,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 423,
+          "answerClientWidth": 423,
+          "answerScrollHeight": 2479,
+          "answerClientHeight": 2479,
+          "contentHeight": 2479.166748046875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "banner",
+        "presetLabel": "Banner",
+        "dpi": 2,
+        "fontCssPx": 16,
+        "fontDevicePx": 32.000000644865395,
+        "presetFontCssPx": 20,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 74.89855072463769,
+        "maxLineChCss": 74.95536231884059,
+        "contrast": {
+          "whiteBackdrop": 10.847848714166124,
+          "blackBackdrop": 18.956411681900445,
+          "min": 10.847848714166124,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.8)"
+        },
+        "overflow": {
+          "answerScrollWidth": 646,
+          "answerClientWidth": 646,
+          "answerScrollHeight": 1661,
+          "answerClientHeight": 1661,
+          "contentHeight": 1661.041748046875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "teleprompter",
+        "presetLabel": "Teleprompter",
+        "dpi": 2,
+        "fontCssPx": 16,
+        "fontDevicePx": 32.000000644865395,
+        "presetFontCssPx": 23,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.5,
+        "longestLineCh": 64,
+        "maxLineChCss": 63.96185507246378,
+        "contrast": {
+          "whiteBackdrop": 12.717403906988228,
+          "blackBackdrop": 19.026046585307643,
+          "min": 12.717403906988228,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(4, 6, 10, 0.84)"
+        },
+        "overflow": {
+          "answerScrollWidth": 552,
+          "answerClientWidth": 552,
+          "answerScrollHeight": 1919,
+          "answerClientHeight": 1919,
+          "contentHeight": 1919.0477294921875,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "side-column",
+        "presetLabel": "Side column",
+        "dpi": 2,
+        "fontCssPx": 16,
+        "fontDevicePx": 32.000000644865395,
+        "presetFontCssPx": 19,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.55,
+        "longestLineCh": 43.130434782608695,
+        "maxLineChCss": 57.96544927536232,
+        "contrast": {
+          "whiteBackdrop": 11.684424037547876,
+          "blackBackdrop": 18.94098157745224,
+          "min": 11.684424037547876,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(5, 7, 12, 0.82)"
+        },
+        "overflow": {
+          "answerScrollWidth": 372,
+          "answerClientWidth": 372,
+          "answerScrollHeight": 3322,
+          "answerClientHeight": 3322,
+          "contentHeight": 3322.08349609375,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      },
+      {
+        "preset": "reading",
+        "presetLabel": "Reading",
+        "dpi": 2,
+        "fontCssPx": 16,
+        "fontDevicePx": 32.000000644865395,
+        "presetFontCssPx": 20,
+        "fitFontPx": 16,
+        "lineHeightRatio": 1.6,
+        "longestLineCh": 74.89855072463769,
+        "maxLineChCss": 74.95536231884059,
+        "contrast": {
+          "whiteBackdrop": 8.144664956166839,
+          "blackBackdrop": 19.181124153490117,
+          "min": 8.144664956166839,
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(3, 5, 10, 0.72)"
+        },
+        "overflow": {
+          "answerScrollWidth": 646,
+          "answerClientWidth": 646,
+          "answerScrollHeight": 1715,
+          "answerClientHeight": 1715,
+          "contentHeight": 1714.881103515625,
+          "docScrollWidth": 1280,
+          "innerWidth": 1280,
+          "textOverflow": "clip",
+          "webkitLineClamp": "none"
+        },
+        "text": {
+          "chars": 5599,
+          "words": 400
+        },
+        "expectedWords": 400,
+        "failures": [],
+        "pass": true
+      }
+    ],
+    "aggregate": {
+      "cells": 20,
+      "failingCells": 0,
+      "minContrast": 8.144664956166839,
+      "minFontCssPx": 16,
+      "minFontDevicePx": 16.000000322432697,
+      "minLineHeightRatio": 1.5,
+      "maxLineCh": 74.89855072463769
+    }
+  },
+  "speakability": {
+    "thresholds": {
+      "hookMaxWords": 12,
+      "firstScreenfulMaxWords": 40,
+      "bulletsMin": 2,
+      "bulletsMax": 4
+    },
+    "firstScreenfulDefinition": "hook + first bullet (the spoken lead-in), not every viewport-visible word",
+    "rows": [
+      {
+        "id": "speak-01",
+        "formatterSource": "o1",
+        "hook": "Answer 1 I built a Redis rate limiter for a high-traffic API.",
+        "hookWords": 12,
+        "formatterHookWords": 12,
+        "firstScreenfulWords": 26,
+        "viewportVisibleWords": 39,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-02",
+        "formatterSource": "o1",
+        "hook": "Answer 2 Short answer: I would use a sliding window counter.",
+        "hookWords": 11,
+        "formatterHookWords": 11,
+        "firstScreenfulWords": 16,
+        "viewportVisibleWords": 26,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-03",
+        "formatterSource": "o1",
+        "hook": "Answer 3 In my last role I owned the payments retry pipeline.",
+        "hookWords": 12,
+        "formatterHookWords": 12,
+        "firstScreenfulWords": 21,
+        "viewportVisibleWords": 25,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-04",
+        "formatterSource": "o1",
+        "hook": "Answer 4 The trade-off is simplicity versus burst tolerance.",
+        "hookWords": 9,
+        "formatterHookWords": 9,
+        "firstScreenfulWords": 18,
+        "viewportVisibleWords": 29,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-05",
+        "formatterSource": "o1",
+        "hook": "Answer 5 I would start with requirements, then choose the design.",
+        "hookWords": 11,
+        "formatterHookWords": 11,
+        "firstScreenfulWords": 25,
+        "viewportVisibleWords": 38,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-06",
+        "formatterSource": "o1",
+        "hook": "Answer 6 My approach is measure first, then optimize the bottleneck.",
+        "hookWords": 11,
+        "formatterHookWords": 11,
+        "firstScreenfulWords": 16,
+        "viewportVisibleWords": 26,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-07",
+        "formatterSource": "o1",
+        "hook": "Answer 7 We handled this with an idempotency key and a queue.",
+        "hookWords": 12,
+        "formatterHookWords": 12,
+        "firstScreenfulWords": 21,
+        "viewportVisibleWords": 25,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-08",
+        "formatterSource": "o1",
+        "hook": "Answer 8 I would isolate the hot path behind a cache.",
+        "hookWords": 11,
+        "formatterHookWords": 11,
+        "firstScreenfulWords": 20,
+        "viewportVisibleWords": 31,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-09",
+        "formatterSource": "o1",
+        "hook": "Answer 9 The failure mode matters more than the happy path.",
+        "hookWords": 11,
+        "formatterHookWords": 11,
+        "firstScreenfulWords": 25,
+        "viewportVisibleWords": 38,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-10",
+        "formatterSource": "o1",
+        "hook": "Answer 10 I shipped this by rolling out behind a feature flag.",
+        "hookWords": 12,
+        "formatterHookWords": 12,
+        "firstScreenfulWords": 17,
+        "viewportVisibleWords": 21,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-11",
+        "formatterSource": "o1",
+        "hook": "Answer 11 Honestly, I would test the constraint before designing.",
+        "hookWords": 10,
+        "formatterHookWords": 10,
+        "firstScreenfulWords": 19,
+        "viewportVisibleWords": 23,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-12",
+        "formatterSource": "o1",
+        "hook": "Answer 12 We reduced p99 latency by batching the writes.",
+        "hookWords": 10,
+        "formatterHookWords": 10,
+        "firstScreenfulWords": 19,
+        "viewportVisibleWords": 30,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-13",
+        "formatterSource": "o1",
+        "hook": "Answer 13 My rule is keep the state machine explicit and small.",
+        "hookWords": 12,
+        "formatterHookWords": 12,
+        "firstScreenfulWords": 26,
+        "viewportVisibleWords": 39,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-14",
+        "formatterSource": "o1",
+        "hook": "Answer 14 I would make the fallback degrade, never fail open.",
+        "hookWords": 11,
+        "formatterHookWords": 11,
+        "firstScreenfulWords": 16,
+        "viewportVisibleWords": 26,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-15",
+        "formatterSource": "o1",
+        "hook": "Answer 15 Start with a bounded queue and backpressure signals.",
+        "hookWords": 10,
+        "formatterHookWords": 10,
+        "firstScreenfulWords": 19,
+        "viewportVisibleWords": 23,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-16",
+        "formatterSource": "o1",
+        "hook": "Answer 16 I have debugged this exact incident on call before.",
+        "hookWords": 11,
+        "formatterHookWords": 11,
+        "firstScreenfulWords": 20,
+        "viewportVisibleWords": 31,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-17",
+        "formatterSource": "o1",
+        "hook": "Answer 17 The key detail is idempotency across retries.",
+        "hookWords": 9,
+        "formatterHookWords": 9,
+        "firstScreenfulWords": 23,
+        "viewportVisibleWords": 36,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-18",
+        "formatterSource": "o1",
+        "hook": "Answer 18 I would model the data before touching the API.",
+        "hookWords": 11,
+        "formatterHookWords": 11,
+        "firstScreenfulWords": 16,
+        "viewportVisibleWords": 26,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-19",
+        "formatterSource": "o1",
+        "hook": "Answer 19 We split reads and writes to scale independently.",
+        "hookWords": 10,
+        "formatterHookWords": 10,
+        "firstScreenfulWords": 19,
+        "viewportVisibleWords": 23,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "speak-20",
+        "formatterSource": "o1",
+        "hook": "Answer 20 My answer is concrete: measure, isolate, then cache.",
+        "hookWords": 10,
+        "formatterHookWords": 10,
+        "firstScreenfulWords": 19,
+        "viewportVisibleWords": 30,
+        "bulletCount": 2,
+        "expectedBullets": 2,
+        "markdownTokens": [],
+        "pass": true,
+        "failures": []
+      }
+    ],
+    "aggregate": {
+      "answers": 20,
+      "failing": 0,
+      "maxHookWords": 12,
+      "maxFirstScreenfulWords": 26,
+      "markdownTokenViolations": 0
+    }
+  },
+  "relayout": {
+    "samples": [
+      {
+        "id": "teleprompter",
+        "applyMs": 4,
+        "frameMs": 16.200000047683716,
+        "preset": "teleprompter",
+        "fontSize": 23
+      },
+      {
+        "id": "compact",
+        "applyMs": 3.599999964237213,
+        "frameMs": 13.5,
+        "preset": "compact",
+        "fontSize": 17
+      },
+      {
+        "id": "reading",
+        "applyMs": 0.800000011920929,
+        "frameMs": 13.599999964237213,
+        "preset": "reading",
+        "fontSize": 20
+      }
+    ],
+    "medianApplyMs": 3.599999964237213,
+    "maxApplyMs": 4,
+    "frameMs": 13.599999964237213,
+    "preset": "reading",
+    "fontSize": 20,
+    "method": "median of 3 preset switches; applyMs = attribute + forced style/layout read; frameMs = until next rAF"
+  },
+  "persistence": {
+    "persisted": {
+      "stored": "reading",
+      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792511819190}"
+    },
+    "restored": {
+      "preset": "reading",
+      "stored": "reading",
+      "raw": "{\"preset\":\"reading\",\"updatedAt\":1792511839766}",
+      "metrics": {
+        "preset": "reading",
+        "presetSource": "o1",
+        "dpr": 1.0499999523162842,
+        "fontSizeCssPx": 20,
+        "lineHeightPx": 32,
+        "lineHeightRatio": 1.6,
+        "maxWidthPx": 808.594,
+        "maxLineChCss": 75.0000231884058,
+        "longestLineCh": 75.03768115942029,
+        "contrast": {
+          "ratio": 8.144664956166839,
+          "backdrop": "#ffffff",
+          "textColor": "rgb(244, 247, 255)",
+          "scrim": "rgba(3, 5, 10, 0.72)"
+        },
+        "layout": {
+          "answerClientWidth": 809,
+          "answerScrollWidth": 809,
+          "answerClientHeight": 0,
+          "answerScrollHeight": 0,
+          "viewportClientHeight": 669,
+          "contentHeight": 0,
+          "docScrollWidth": 1104,
+          "innerWidth": 1004,
+          "textOverflow": "clip",
+          "overflowWrap": "break-word",
+          "wordBreak": "normal",
+          "webkitLineClamp": "none",
+          "whiteSpace": "normal"
+        },
+        "text": {
+          "chars": 0,
+          "words": 0
+        },
+        "speakability": {
+          "hookWords": null,
+          "firstBulletWords": 0,
+          "firstScreenfulWords": 0,
+          "viewportVisibleWords": 0,
+          "bulletCount": 0,
+          "markdownTokens": []
+        },
+        "fitFontPx": null,
+        "clicks": {
+          "overlay": 0,
+          "background": 0
+        }
+      }
+    },
+    "restarts": 1
+  },
+  "clickThrough": {
+    "physicalPoint": {
+      "x": 651,
+      "y": 399
+    },
+    "pointDip": {
+      "x": 620,
+      "y": 380
+    },
+    "scaleFactor": 1.0499999523162842,
+    "overlayClicks": 0,
+    "backgroundClicks": 0,
+    "backgroundLastClick": null,
+    "injection": {
+      "ok": true,
+      "status": 0,
+      "stderr": "",
+      "foregroundBefore": "HireShade overlay size acceptance",
+      "foregroundAfter": "# MISSION You are a — DeepSeek Harness"
+    },
+    "foregroundBefore": "HireShade overlay size acceptance",
+    "foregroundAfter": "# MISSION You are a — DeepSeek Harness",
+    "status": "UNTESTED"
+  },
+  "assertions": [
+    {
+      "name": "matrix-font-floor-all",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": "20 cells"
+    },
+    {
+      "name": "matrix-contrast-7to1-all",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "min": 8.144664956166839
+      }
+    },
+    {
+      "name": "matrix-line-height-all",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "min": 1.5
+      }
+    },
+    {
+      "name": "matrix-line-length-75ch-all",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "max": 74.89855072463769
+      }
+    },
+    {
+      "name": "matrix-no-overflow-400w-all",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": "0 failing cells"
+    },
+    {
+      "name": "speakability-20-answers",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "answers": 20,
+        "failing": 0
+      }
+    },
+    {
+      "name": "speakability-hook-12w",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "max": 12
+      }
+    },
+    {
+      "name": "speakability-first-screenful-40w",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "max": 26
+      }
+    },
+    {
+      "name": "speakability-no-markdown-tokens",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": "20 answers"
+    },
+    {
+      "name": "speakability-bullets-rendered",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "min": 2,
+        "max": 2
+      }
+    },
+    {
+      "name": "relayout-median-under-16ms",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "medianApplyMs": 3.599999964237213,
+        "samples": [
+          0.800000011920929,
+          3.599999964237213,
+          4
+        ]
+      }
+    },
+    {
+      "name": "relayout-next-frame-applied",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "preset": "reading",
+        "fontSize": 20,
+        "expectedFont": 20,
+        "frameMs": 13.599999964237213
+      }
+    },
+    {
+      "name": "persistence-stored-reading",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": "reading"
+    },
+    {
+      "name": "persistence-restored-after-restart",
+      "pass": true,
+      "status": "PASS",
+      "required": true,
+      "detail": {
+        "preset": "reading",
+        "font": 20,
+        "expectedFont": 20
+      }
+    },
+    {
+      "name": "click-through-reaches-background-app",
+      "pass": false,
+      "status": "UNTESTED",
+      "required": false,
+      "detail": {
+        "reason": "OS did not deliver the synthetic click (no interactive desktop / injection blocked)",
+        "physicalPoint": {
+          "x": 651,
+          "y": 399
+        },
+        "pointDip": {
+          "x": 620,
+          "y": 380
+        },
+        "scaleFactor": 1.0499999523162842,
+        "overlayClicks": 0,
+        "backgroundClicks": 0,
+        "backgroundLastClick": null,
+        "injection": {
+          "ok": true,
+          "status": 0,
+          "stderr": "",
+          "foregroundBefore": "HireShade overlay size acceptance",
+          "foregroundAfter": "# MISSION You are a — DeepSeek Harness"
+        },
+        "foregroundBefore": "HireShade overlay size acceptance",
+        "foregroundAfter": "# MISSION You are a — DeepSeek Harness",
+        "status": "UNTESTED"
+      }
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "docs/evidence/overlay-size/o3/o3-preset-compact-dpi125.png",
+      "bytes": 62896
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3/o3-preset-banner-dpi125.png",
+      "bytes": 109650
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3/o3-preset-teleprompter-dpi125.png",
+      "bytes": 76352
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3/o3-preset-side-column-dpi125.png",
+      "bytes": 172429
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3/o3-preset-reading-dpi125.png",
+      "bytes": 242125
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3/o3-overflow-400words-compact-dpi200.png",
+      "bytes": 89955
+    },
+    {
+      "file": "docs/evidence/overlay-size/o3/o3-click-through-overlay.png",
+      "bytes": 4543
+    }
+  ],
+  "honestLabels": {
+    "contrast": "Text color vs scrim composited over solid #ffffff and #000000 extremes; contrast over real video/desktop content is UNTESTED (no video fixture in this harness).",
+    "dpi": "deviceScaleFactor emulation via CDP; physical monitor scaling not measured.",
+    "clickThrough": "Win32 SendInput at physical screen coordinates on this Windows host; macOS/Linux click-through is UNTESTED.",
+    "multiMonitor": "Pure selection-logic unit tests live in artifacts/craft-vita/src/overlay/size.test.ts; no multi-monitor hardware available here.",
+    "verticalOverflow": "400-word answers may scroll vertically in the overlay (virtual scroll); clipping is asserted via preserved word count + content height, not by requiring everything to fit on one screen."
+  },
+  "commands": {
+    "run": "node scripts/overlay-size/run-size-acceptance.mjs",
+    "unitTests": "pnpm --dir artifacts/craft-vita exec vitest run src/overlay/size.test.ts",
+    "viaDemo": "node scripts/demo/run-demo.mjs size",
+    "viaMake": "make demo (runs the size step)",
+    "evidence": "docs/evidence/overlay-size/o3/o3-size-results.json"
+  },
+  "artifacts": {
+    "pageBytes": 28812
+  }
+}

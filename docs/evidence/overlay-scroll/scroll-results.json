@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T15:32:40.882Z",
+  "generatedAt": "2026-10-20T15:55:59.449Z",
   "pass": true,
   "environment": {
     "platform": "win32",
@@ -32,21 +32,21 @@
       "maxDistanceFromBottomPx": 0,
       "finalDistanceFromBottomPx": 0,
       "frameStats": {
-        "frames": 99,
-        "maxUpdateMs": 0.19999998807907104,
-        "maxFrameIntervalMs": 2297,
-        "lastUpdateMs": 0,
-        "lastFrameIntervalMs": 16.600000023841858
+        "frames": 148,
+        "maxUpdateMs": 0.5,
+        "maxFrameIntervalMs": 1950.7999999523163,
+        "lastUpdateMs": 0.10000002384185791,
+        "lastFrameIntervalMs": 15.699999988079071
       }
     },
     "unlock": {
-      "beforeOffset": 184,
-      "afterOffset": 144,
+      "beforeOffset": 573,
+      "afterOffset": 533,
       "unlockedWithinFrames": 1,
-      "noSnapBackOffset": 144
+      "noSnapBackOffset": 533
     },
     "relock": {
-      "offset": 229,
+      "offset": 697,
       "distanceFromBottom": 0
     },
     "newQuestion": {
@@ -56,12 +56,12 @@
     },
     "reopen": {
       "saved": {
-        "offset": 172,
+        "offset": 648,
         "pinned": false,
-        "updatedAt": 12526
+        "updatedAt": 13198
       },
-      "restoredOffset": 172,
-      "maxOffsetAfterRender": 320
+      "restoredOffset": 648,
+      "maxOffsetAfterRender": 821
     },
     "reducedMotion": {
       "instantOffset": 0,
@@ -73,14 +73,14 @@
       "pillVisible": false
     },
     "keyboard": {
-      "pageUpOffset": 229,
-      "endOffset": 229,
+      "pageUpOffset": 666,
+      "endOffset": 666,
       "homeOffset": 0,
-      "spaceOffset": 229,
-      "pageDownOffset": 229,
+      "spaceOffset": 268,
+      "pageDownOffset": 536,
       "activeElement": {
         "tag": "BODY",
-        "text": "\n    \n      \n      \n        \n          HireShade\n          zero-key demo\n       ",
+        "text": "\n    \n    \n    \n      \n      \n      \n        \n          HireShade\n          zero",
         "isBody": true
       }
     }
@@ -104,12 +104,12 @@
     {
       "name": "frame-update-work-under-16ms",
       "pass": true,
-      "detail": 0.2
+      "detail": 0.5
     },
     {
       "name": "frame-updates-counted",
       "pass": true,
-      "detail": 99
+      "detail": 148
     },
     {
       "name": "unlock-pinned-false",
@@ -128,15 +128,15 @@
       "name": "unlock-offset-moved",
       "pass": true,
       "detail": {
-        "before": 184,
-        "after": 144
+        "before": 573,
+        "after": 533
       }
     },
     {
       "name": "no-snap-back-after-unlock",
       "pass": true,
       "detail": {
-        "offset": 144,
+        "offset": 533,
         "pinned": false
       }
     },
@@ -187,18 +187,18 @@
       "name": "persisted-unlocked-position",
       "pass": true,
       "detail": {
-        "offset": 172,
+        "offset": 648,
         "pinned": false,
-        "updatedAt": 12526
+        "updatedAt": 13198
       }
     },
     {
       "name": "reopen-restores-offset",
       "pass": true,
       "detail": {
-        "saved": 172,
-        "restored": 172,
-        "clampedExpected": 172
+        "saved": 648,
+        "restored": 648,
+        "clampedExpected": 648
       }
     },
     {
@@ -267,14 +267,14 @@
     {
       "name": "keyboard-space-pages-down",
       "pass": true,
-      "detail": 229
+      "detail": 268
     },
     {
       "name": "keyboard-pagedown-moves",
       "pass": true,
       "detail": {
-        "before": 229,
-        "after": 229
+        "before": 268,
+        "after": 536
       }
     },
     {
@@ -282,29 +282,29 @@
       "pass": true,
       "detail": {
         "tag": "BODY",
-        "text": "\n    \n      \n      \n        \n          HireShade\n          zero-key demo\n       ",
+        "text": "\n    \n    \n    \n      \n      \n      \n        \n          HireShade\n          zero",
         "isBody": true
       }
     }
   ],
   "capture": {
     "ok": true,
-    "frames": 234,
-    "durationSeconds": 4.52,
+    "frames": 223,
+    "durationSeconds": 4.45,
     "fps": 30,
-    "bytes": 661850,
+    "bytes": 783188,
     "file": "docs/evidence/overlay-scroll/overlay-scroll-capture.mp4",
     "screenshots": [
       "docs/evidence/overlay-scroll/overlay-scroll-pinned.png",
       "docs/evidence/overlay-scroll/overlay-scroll-unlocked-pill.png"
     ],
     "screenshotBytes": [
-      242927,
-      260675
+      238864,
+      257548
     ]
   },
   "electronLogs": {
-    "stdout": "\r\n[overlay-scroll-main] loaded http://127.0.0.1:56004/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:56004/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:56004/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:56004/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:56004/scroll-demo.html (cdp port 9333)\n",
-    "stderr": "\r\nDevTools listening on ws://127.0.0.1:9333/devtools/browser/e0b9a7de-3501-427e-bc39-fcbb45ca7e86\r\n"
+    "stdout": "\r\n[overlay-scroll-main] loaded http://127.0.0.1:58734/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:58734/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:58734/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:58734/scroll-demo.html (cdp port 9333)\n[overlay-scroll-main] loaded http://127.0.0.1:58734/scroll-demo.html (cdp port 9333)\n",
+    "stderr": "\r\nDevTools listening on ws://127.0.0.1:9333/devtools/browser/b71378f6-1752-4119-8eb0-ad0bf1c1a41f\r\n"
   }
 }
