@@ -242,7 +242,7 @@ Workflow + Swift SCK probe authored. `gh workflow run` -> HTTP 404 (workflow not
 
 ### V4 — click-through 20x (gated, no false passes)
 
-Harness now checks Electron tracked ignore-mouse, `WS_EX_TRANSPARENT` (0x20), and `GetForegroundWindow` in a bounded poll, and sends input only if all match. Fixed `setIgnoreMouseEvents(false,{forward:true})` -> plain false and reaped stale Electron processes between iterations. **20 launches / 20 succeeded; 19/20 fully valid click-through passes (95 %).** The single failure was a launch/evaluate null timeout before any phase; all 19 valid runs had correct ON and OFF states. **No 20/20 claim; one harness launch timeout remains.** Evidence: `s4/u4v-clickthrough-20x.json`.
+Harness now checks Electron tracked ignore-mouse, `WS_EX_TRANSPARENT` (0x20), `GetForegroundWindow`, and `WindowFromPoint` hit-test in one bounded Win32 gate, and injects physical SendInput only if all match. Fixed `setIgnoreMouseEvents(false,{forward:true})` -> plain false, reset counters per phase, isolated per-run ports, and targeted S4-only cleanup. **20/20 valid iterations, 20/20 launches first attempt, 0 gate failures (100 %).** ON: target 0->1 / overlay 0; OFF: overlay control 0->1 / target 0. Gate medians 365 ms (ON) / 362 ms (OFF), per-iteration median 9.06 s. Evidence: `s4/u4v-clickthrough-20x.json`.
 
 ### Gates
 
