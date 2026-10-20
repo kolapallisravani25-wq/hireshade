@@ -1,0 +1,83 @@
+{
+  "schema": "hireshade.pronunciation.metrics.v1",
+  "generatedAt": "2026-10-20T15:28:08.237Z",
+  "testCommand": "pnpm --dir artifacts/craft-vita exec vitest run src/fixtures/pronunciation/pronunciationMetrics.test.ts",
+  "corpus": {
+    "description": "192 degraded interviewer utterances (48 hand-authored questions x 4 accent profiles) built from the repo's existing technical/interview language, with hand-labeled true intent (16 intents, 3 questions each).",
+    "total": 192,
+    "profiles": 4,
+    "intents": 16
+  },
+  "before": {
+    "intentAccuracy": 0.5365,
+    "falseAnswerRate": 0.4635
+  },
+  "after": {
+    "intentAccuracy": 0.9688,
+    "falseAnswerRate": 0
+  },
+  "targets": {
+    "intentAccuracyMin": 0.92,
+    "falseAnswerRateMax": 0.03
+  },
+  "perProfile": [
+    {
+      "profileId": "south_indian",
+      "n": 48,
+      "accuracyBefore": 0.6042,
+      "accuracyAfter": 0.9792,
+      "falseAnswerRateBefore": 0.3958,
+      "falseAnswerRateAfter": 0
+    },
+    {
+      "profileId": "east_asian",
+      "n": 48,
+      "accuracyBefore": 0.5417,
+      "accuracyAfter": 0.9375,
+      "falseAnswerRateBefore": 0.4583,
+      "falseAnswerRateAfter": 0
+    },
+    {
+      "profileId": "arabic",
+      "n": 48,
+      "accuracyBefore": 0.5833,
+      "accuracyAfter": 0.9792,
+      "falseAnswerRateBefore": 0.4167,
+      "falseAnswerRateAfter": 0
+    },
+    {
+      "profileId": "hispanic",
+      "n": 48,
+      "accuracyBefore": 0.4167,
+      "accuracyAfter": 0.9792,
+      "falseAnswerRateBefore": 0.5833,
+      "falseAnswerRateAfter": 0
+    }
+  ],
+  "gate": {
+    "answer": 92,
+    "hedge": 70,
+    "clarify": 30
+  },
+  "repair": {
+    "calls": 113,
+    "segmentsRepaired": 0,
+    "avgElapsedMs": 18,
+    "maxElapsedMs": 18,
+    "withinBudgetRate": 1,
+    "budgetMs": 150
+  },
+  "rescue": {
+    "spans": 121,
+    "tokens": 196,
+    "reasons": {
+      "variant": 114,
+      "homophone_context": 4,
+      "phonetic": 3
+    }
+  },
+  "hardRule": {
+    "itemsChecked": 192,
+    "violations": 0
+  }
+}

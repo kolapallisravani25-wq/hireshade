@@ -65,10 +65,64 @@ export interface LlmRouterResult {
 
 export type AsrProviderKind = "mock" | "deepgram";
 
+/**
+ * What an ASR backend can actually deliver. Everything is optional so an
+ * adapter that predates the pronunciation layer keeps working (the consumer
+ * must treat an absent capability as "not supported").
+ */
+export interface AsrProviderCapabilities {
+  /** Emits more than one transcript hypothesis (`alternatives` on the event). */
+  nBest?: boolean;
+  /** Emits per-word confidence (`words[].confidence`). */
+  wordConfidence?: boolean;
+  /** Accepts a boosting vocabulary to bias the decoder towards domain terms. */
+  keywordBoosting?: boolean;
+}
+
+/** One alternative spelling for a single word from the decoder lattice. */
+export interface AsrWordAlternative {
+  word: string;
+  /** 0..1 decoder confidence for this spelling. */
+  confidence: number;
+}
+
+/** A recognised word with its decoder confidence (G-039). */
+export interface AsrWord {
+  word: string;
+  /** Confidence in [0, 1]. Missing on adapters without word confidence. */
+  confidence: number;
+  /** Offset from the utterance start, in media ms (when the backend reports it). */
+  startMs?: number;
+  endMs?: number;
+  /** Competing spellings for this word, when the backend exposes them. */
+  alternatives?: AsrWordAlternative[];
+}
+
+/** One full n-best transcript hypothesis (G-039). */
+export interface AsrNBestAlternative {
+  text: string;
+  /** 0..1 decoder confidence for this whole hypothesis. */
+  confidence: number;
+  words?: AsrWord[];
+}
+
+/**
+ * A decoder vocabulary entry. Deepgram's `keywords` query parameter accepts
+ * `term:boost` (boost is an integer multiplier, e.g. 2). Adapters that cannot
+ * boost ignore this field.
+ */
+export interface AsrKeywordBoost {
+  term: string;
+  /** Integer boost multiplier (Deepgram default 1, useful range 1-5). */
+  boost?: number;
+}
+
 export interface TranscriptPartial {
   /** Offset from the utterance start, in media ms. */
   atMs: number;
   text: string;
+  words?: AsrWord[];
+  alternatives?: AsrNBestAlternative[];
 }
 
 /** One scripted interviewer utterance (fixture data, media-time anchored). */
@@ -81,6 +135,10 @@ export interface TranscriptUtterance {
   text: string;
   /** Interim previews emitted while the interviewer is still speaking. */
   partials?: TranscriptPartial[];
+  /** Per-word confidence for the final, when the script/backend provides it. */
+  words?: AsrWord[];
+  /** N-best alternatives for the final, when the script/backend provides them. */
+  alternatives?: AsrNBestAlternative[];
 }
 
 export interface AsrEvent {
@@ -92,6 +150,10 @@ export interface AsrEvent {
   /** Wall-clock time (ms) when the provider emitted it. */
   atMs: number;
   isFinal: boolean;
+  /** Per-word confidence for this event, when the backend reports it (G-039). */
+  words?: AsrWord[];
+  /** N-best hypotheses for this event, when the backend reports them (G-039). */
+  alternatives?: AsrNBestAlternative[];
 }
 
 export interface AsrStreamOptions {
@@ -101,6 +163,17 @@ export interface AsrStreamOptions {
   /** Silence that must pass after speech before a final is emitted (default 700). */
   endpointSilenceMs?: number;
   language?: string;
+  /**
+   * Domain vocabulary to bias the decoder (G-039). Adapters that support it
+   * forward the list; others ignore it. Backward compatible: omitted = no boost.
+   */
+  keywords?: (string | AsrKeywordBoost)[];
+  /** Ask for up to N hypotheses (G-039). Adapters without n-best ignore it. */
+  nBestAlternatives?: number;
+  /** Ask for word-level confidence when the adapter supports it. */
+  wordConfidence?: boolean;
+  /** Optional language hints for code-switched audio (primary first). */
+  languageHints?: string[];
   /** Wall clock, injectable for deterministic tests. */
   now?: () => number;
   /** Async delivery callback (required for real providers). Mocks also return events. */
@@ -121,6 +194,8 @@ export interface AsrStream {
 export interface AsrProvider {
   readonly id: string;
   readonly kind: AsrProviderKind;
+  /** Optional feature advertisement (G-039). Absent = no extended features. */
+  readonly capabilities?: AsrProviderCapabilities;
   isConfigured(): boolean;
   openStream(opts: AsrStreamOptions): AsrStream;
 }

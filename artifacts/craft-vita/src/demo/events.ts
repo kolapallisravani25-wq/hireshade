@@ -13,6 +13,7 @@ export type DemoEventType =
   | "asr.partial"
   | "asr.final"
   | "asr.end_of_utterance"
+  | "pronunciation.understanding"
   | "question.detected"
   | "question.ignored"
   | "prompt.built"

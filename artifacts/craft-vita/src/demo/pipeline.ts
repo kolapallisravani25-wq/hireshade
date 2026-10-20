@@ -32,6 +32,12 @@ import type { FixtureDef } from "./fixtures";
 import type { DemoEmit, DemoEvent, DemoStreamId } from "./events";
 import { buildDemoPromptInputs } from "./demoSession";
 import type { LatencySample } from "./metrics";
+import {
+  understandTranscript,
+  type PronunciationUnderstandingResult,
+  type RepairProvider,
+  type PronunciationVocabulary,
+} from "@/features/pronunciation";
 
 export interface DemoClock {
   now(): number;
@@ -66,6 +72,16 @@ export interface StreamFinalOutcome {
   answerSuppressed: boolean;
   suppressionReason: string | null;
   detector: { question: string; ignoredNoise: boolean; confidenceScore: number } | null;
+  /** Pronunciation-layer outcome for this final, when the flag is enabled. */
+  pronunciation?: {
+    decision: "answer" | "hedge" | "clarify";
+    confidence: number;
+    corrections: number;
+    repairElapsedMs: number;
+    answerLanguage: string;
+    finalText: string;
+    codeSwitched: boolean;
+  };
 }
 
 export interface PipelineStreamOutcome {
@@ -102,6 +118,17 @@ export interface DemoPipelineOptions {
   vadConfig?: Partial<VadConfig>;
   /** Fail when the VAD segment count does not match the fixture script. */
   requireSegmentMatch?: boolean;
+  /**
+   * Optional pronunciation-robust understanding (G-039). Disabled by default so
+   * the keyless demo keeps its exact behaviour; the demo runner can switch it
+   * on to exercise the pronunciation path.
+   */
+  pronunciation?: {
+    vocabulary: PronunciationVocabulary;
+    repairProvider?: RepairProvider;
+    sessionLanguage?: string;
+    gateThreshold?: number;
+  };
   onEvent?: (event: DemoEvent) => void;
   /** Wall-clock safety valve for tests. */
   maxWallMs?: number;
@@ -295,7 +322,10 @@ export async function runDemoPipeline(opts: DemoPipelineOptions): Promise<DemoPi
     });
   };
 
-  const handleAsrEvents = (rt: StreamRuntime, asrEvents: ReturnType<AsrStream["pushAudio"]>) => {
+  const handleAsrEvents = async (
+    rt: StreamRuntime,
+    asrEvents: ReturnType<AsrStream["pushAudio"]>,
+  ): Promise<void> => {
     for (const event of asrEvents) {
       const meta = rt.segmentMeta.get(event.segmentId);
       if (!meta) continue;
@@ -338,14 +368,90 @@ export async function runDemoPipeline(opts: DemoPipelineOptions): Promise<DemoPi
         },
       });
 
+      // ── Optional pronunciation-robust understanding (G-039) ───────────────
+      let finalText = event.text;
+      let understanding: PronunciationUnderstandingResult | null = null;
+      if (opts.pronunciation) {
+        understanding = await understandTranscript(
+          {
+            segmentId: event.segmentId,
+            text: event.text,
+            words: event.words,
+            alternatives: event.alternatives,
+          },
+          {
+            vocabulary: opts.pronunciation.vocabulary,
+            repairProvider: opts.pronunciation.repairProvider,
+            sessionLanguage:
+              opts.pronunciation.sessionLanguage ?? opts.sessionCreate.language,
+            gateThreshold: opts.pronunciation.gateThreshold,
+            priorTurns: messages.slice(-2).map((message) => message.text),
+            resumeContext: opts.resumeContext,
+            now: () => clock.now(),
+          },
+        );
+        finalText = understanding.gate.question;
+        emit({
+          type: "pronunciation.understanding",
+          atMs: rel(clock.now()),
+          mediaMs,
+          stream: rt.input.stream,
+          data: {
+            segmentId: event.segmentId,
+            decision: understanding.gate.decision,
+            confidence: understanding.confidence,
+            corrections: understanding.rescue.rescues.length + understanding.repair.applied.length,
+            repairElapsedMs: understanding.repair.elapsedMs,
+            answerLanguage: understanding.answerLanguage,
+            codeSwitched: understanding.codeSwitch.isCodeSwitched,
+            codeSwitchSecondary: understanding.codeSwitch.secondaryLanguages.map((hint) => hint.code),
+            finalText: understanding.finalText,
+            clarification: understanding.gate.clarificationText ?? null,
+            hedge: understanding.gate.hedgeText ?? null,
+          },
+        });
+
+        if (understanding.gate.decision === "clarify") {
+          rt.outcome.finals.push({
+            segmentId: event.segmentId,
+            text: event.text,
+            answerSuppressed: true,
+            suppressionReason: "pronunciation_clarification",
+            detector: null,
+            pronunciation: {
+              decision: understanding.gate.decision,
+              confidence: understanding.confidence,
+              corrections:
+                understanding.rescue.rescues.length + understanding.repair.applied.length,
+              repairElapsedMs: understanding.repair.elapsedMs,
+              answerLanguage: understanding.answerLanguage,
+              finalText: understanding.finalText,
+              codeSwitched: understanding.codeSwitch.isCodeSwitched,
+            },
+          });
+          emit({
+            type: "question.ignored",
+            atMs: rel(clock.now()),
+            mediaMs,
+            stream: rt.input.stream,
+            data: {
+              reason: "pronunciation_clarification",
+              detector: null,
+              clarification: understanding.gate.clarificationText ?? null,
+            },
+          });
+          continue;
+        }
+      }
+
       messages.push({
         sender: rt.input.stream === "screen" ? "Interviewer" : "User",
-        text: event.text,
+        text: finalText,
         timestamp: mediaMs,
       });
 
       const detection = detectActiveQuestion({
-        liveInterimText: event.text,
+        liveInterimText: finalText,
         allMessages: messages,
         cutoffTimestamp: 0,
       });
@@ -405,6 +511,20 @@ export async function runDemoPipeline(opts: DemoPipelineOptions): Promise<DemoPi
         answerSuppressed: false,
         suppressionReason: null,
         detector: detectorSummary,
+        ...(understanding
+          ? {
+              pronunciation: {
+                decision: understanding.gate.decision,
+                confidence: understanding.confidence,
+                corrections:
+                  understanding.rescue.rescues.length + understanding.repair.applied.length,
+                repairElapsedMs: understanding.repair.elapsedMs,
+                answerLanguage: understanding.answerLanguage,
+                finalText: understanding.finalText,
+                codeSwitched: understanding.codeSwitch.isCodeSwitched,
+              },
+            }
+          : {}),
       });
       emit({
         type: "question.detected",
@@ -570,7 +690,7 @@ export async function runDemoPipeline(opts: DemoPipelineOptions): Promise<DemoPi
               f32Bytes.byteLength / 4,
             );
             rt.outcome.bytesFed += f32Bytes.byteLength;
-            handleAsrEvents(rt, rt.asrStream.pushAudio(f32));
+            await handleAsrEvents(rt, rt.asrStream.pushAudio(f32));
           }
         }
       }
@@ -580,7 +700,7 @@ export async function runDemoPipeline(opts: DemoPipelineOptions): Promise<DemoPi
     if (!audioEnded && mediaCursor >= sessionDurationMs - 1e-6) {
       audioEnded = true;
       for (const rt of runtimes) {
-        handleAsrEvents(rt, rt.asrStream.endAudio());
+        await handleAsrEvents(rt, rt.asrStream.endAudio());
       }
     }
 
