@@ -49,29 +49,105 @@ const FILLER_WORDS = new Set([
 ]);
 
 /**
- * Question opening phrases that indicate a question is starting
+ * Words that, as the FIRST meaningful word of an utterance, make it a
+ * question/imperative-question. Start-anchored on purpose: matching these as
+ * substrings anywhere turned ordinary candidate statements into "questions"
+ * (e.g. "My code ... which causes re-renders", "I know how React handles
+ * state", "I explained how the cache worked").
  */
-const QUESTION_OPENERS = [
-  "can you",
-  "could you",
-  "would you",
-  "will you",
-  "tell me",
-  "explain",
+const QUESTION_START_WORDS = new Set([
+  // wh- words (apostrophe forms are letter-normalised before lookup)
   "what",
+  "whats",
   "how",
+  "hows",
   "why",
+  "whys",
   "when",
   "where",
   "who",
   "which",
+  "whose",
+  // auxiliaries
+  "can",
+  "could",
+  "would",
+  "should",
+  "will",
+  "shall",
+  "may",
+  "might",
+  "is",
+  "are",
+  "was",
+  "were",
+  "do",
+  "does",
+  "did",
+  "have",
+  "has",
+  "had",
+  "am",
+  // interview imperatives that are questions in disguise
+  "tell",
+  "walk",
+  "talk",
+  "explain",
   "describe",
-  "what's",
-  "how's",
-  "why's",
+  "give",
+  "share",
+  "show",
+  "define",
+  "compare",
+  "contrast",
+  "discuss",
+  "design",
+  "implement",
+  "write",
+  "build",
+  "find",
+  "calculate",
+  "propose",
+  "outline",
+  "summarize",
+  "list",
+  "name",
+  "suppose",
+  "imagine",
+  "continue",
+  "elaborate",
+  "clarify",
+  "expand",
+]);
+
+/**
+ * Multi-word question openers that may legitimately appear EMBEDDED in a
+ * merged STT snapshot ("so, can you explain ..."). Matched on word boundaries
+ * so "explained"/"whoever" style false positives never fire.
+ */
+const EMBEDDED_QUESTION_OPENERS = [
+  "can you",
+  "could you",
+  "would you",
+  "will you",
   "can we",
   "could we",
   "would we",
+  "tell me",
+  "walk me through",
+  "talk me through",
+  "give me",
+  "show me",
+  "what about",
+  "how about",
+  "do you",
+  "did you",
+  "have you",
+  "are you",
+  "is there",
+  "are there",
+  "does it",
+  "do we",
 ];
 
 /**
@@ -86,23 +162,33 @@ function removeFillerWords(text: string): string {
   return cleaned.join(" ");
 }
 
+/** Word-boundary phrase test (regex-safe). */
+function containsPhrase(text: string, phrase: string): boolean {
+  const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\b${escaped}\\b`, "i").test(text);
+}
+
 /**
- * Detects if the transcript contains a question
+ * Detects if the transcript contains a question.
+ *
+ * Precision-oriented rewrite (G-016): a literal "?" always counts, otherwise
+ * the utterance must START with a question/imperative word, or contain an
+ * unambiguous multi-word question opener. Single wh-words buried inside a
+ * statement ("I know how React handles state") no longer count.
  */
 function isQuestion(text: string): boolean {
-  const lower = text.toLowerCase();
-  
+  const lower = text.toLowerCase().trim();
+  if (!lower) return false;
+
   // Check for question marks
   if (lower.includes("?")) return true;
-  
-  // Check for question openers
-  for (const opener of QUESTION_OPENERS) {
-    if (lower.startsWith(opener) || lower.includes(opener)) {
-      return true;
-    }
-  }
-  
-  return false;
+
+  // First meaningful word (letters only, so "what's" → "whats").
+  const firstWord = lower.split(/\s+/)[0].replace(/[^a-z]/g, "");
+  if (QUESTION_START_WORDS.has(firstWord)) return true;
+
+  // Unambiguous embedded openers (merged snapshots).
+  return EMBEDDED_QUESTION_OPENERS.some((opener) => containsPhrase(lower, opener));
 }
 
 /**

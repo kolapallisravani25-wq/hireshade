@@ -101,8 +101,53 @@ const TECH_TOPIC_RE = new RegExp(
 
 // Utterances that are administrative noise (interviewer wrangling the call,
 // asking for ID, camera adjustments) — must not be treated as questions.
-const ADMIN_NOISE_RE =
-  /\b(aadhaar|pan card|driver's? licen[sc]e|passport|government id|photo id|camera|webcam|mic|microphone|audible|hear me|hear you|volume|louder|softer|mute|unmute|show it|show me your (?:id|face|screen)|rejoin|reconnect|refresh|reload|share (?:your )?screen|screen share|connection|network|internet|wifi|latency|lag|freeze|frozen|wait a (?:minute|moment|second|sec)|hold on|one moment|bear with me|sorry (?:can you|could you)|repeat that|say (?:it |that )?again|come again|didn'?t catch|didn'?t (?:hear|get)|break for|coffee break|water break|five minutes?|excuse me|hang on)\b/i;
+//
+// G-016 tightening: bare device/network words (camera, mic, connection,
+// network, latency, frozen, ...) used to match ANY utterance containing them,
+// which suppressed real technical questions ("How would you reduce tail
+// latency?", "What causes a network partition?", "How do you debug a frozen UI
+// thread?"). Those words now only count inside an explicit call-management
+// phrase.
+const ADMIN_NOISE_RE = new RegExp(
+  "\\b(?:" +
+    [
+      // identity / documents
+      "aadhaar|pan card|driver's? licen[sc]e|passport|government id|photo id",
+      // audio/video + screen-sharing controls
+      "hear me|hear you|hear us|can you hear|are you audible|audible",
+      "see (?:my|the|your) (?:shared |full |whole )?(?:screen|code|slide|editor|terminal|cursor|window)",
+      "screen (?:is )?(?:not )?(?:visible|shared|sharing|frozen|freezing|laggy)",
+      "share (?:your |my |the )?(?:screen|slides?|window|file)|screen ?share|sharing (?:my|your) screen",
+      "unmute|on mute|my (?:mic|microphone|camera|webcam|audio) (?:is|was)? ?(?:not working|off|on|muted|mute)",
+      "(?:camera|webcam|mic|microphone|audio|volume) (?:is )?(?:not working|off|on|muted)|louder|softer",
+      "(?:connection|internet|wifi|network) (?:dropped|is (?:bad|slow|unstable|lagging)|keeps? (?:dropping|disconnecting))",
+      "breaking up|you'?re breaking|you are breaking",
+      "rejoin|reconnect|refresh|reload|link in the chat|join (?:the )?(?:call|meeting)",
+      // waiting / scheduling / call wrangling
+      "wait a (?:minute|moment|second|sec)|hold on|hang on|one moment|bear with me|sorry (?:can you|could you)|repeat that|say (?:it |that )?again|come again|didn'?t catch|didn'?t (?:hear|get)|break for|coffee break|water break|five minutes?|excuse me",
+      "ready to (?:start|begin)|move on to|next (?:section|question)|are you there",
+    ].join("|") +
+    ")\\b",
+  "i",
+);
+
+// Small talk / pleasantries. Never an interview question, even when phrased as
+// one ("how are you doing today?", "how's your day going?").
+const SMALL_TALK_RE = new RegExp(
+  "\\b(?:" +
+    [
+      "how are you(?: doing)?(?: today)?|how'?re you|how are things",
+      "how'?s (?:your|the) (?:day|weekend|evening|morning|weather|job|flight|trip)|how is (?:your|the) (?:day|weekend|evening|morning|weather|job|flight|trip)",
+      "how (?:was|were) (?:your|the) (?:day|weekend|evening|morning|week|holiday|flight|trip|interview)",
+      "how do you (?:like )?(?:the |your )?(?:weather|city|job|team|office|place)",
+      "nice to meet you|pleasure to meet you|good to (?:meet|see) you",
+      "good (?:morning|afternoon|evening)|have a (?:great|good|nice) (?:day|weekend|evening|one)",
+      "thanks for (?:taking|joining|your time|the time)|thank you(?: for| so much)?|i appreciate (?:that|it)|appreciate it",
+      "sounds good|sounds great|talk to you soon|see you (?:soon|later)|no worries|same to you|you too|good luck|hope you (?:had|have)|that'?s (?:exciting|great|awesome)",
+    ].join("|") +
+    ")\\b",
+  "i",
+);
 
 export function stripLeadingConjunctionsAndFillers(text: string): string {
   let cleaned = text.trim();
@@ -320,6 +365,7 @@ export function detectActiveQuestion(input: {
       detectIntent(normalizedQuestion).cleanedQuestion || normalizedQuestion.trim();
     const baseNoise = !cleanedQuestion || isFillerPhrase(cleanedQuestion);
     const isAdminNoise = ADMIN_NOISE_RE.test(cleanedQuestion);
+    const isSmallTalk = SMALL_TALK_RE.test(cleanedQuestion);
     const incomplete = isLikelyIncomplete(cleanedQuestion);
     const semanticDependency = hasSemanticDependency(cleanedQuestion);
     const isFollowUp = semanticDependency;
@@ -330,7 +376,7 @@ export function detectActiveQuestion(input: {
       !isFollowUp &&
       !!cleanedQuestion &&
       answeredKeySet.has(normalizeQuestionKey(cleanedQuestion));
-    const isNoise = baseNoise || isAdminNoise || alreadyAnswered;
+    const isNoise = baseNoise || isAdminNoise || isSmallTalk || alreadyAnswered;
     const currentTopic = deriveTopic(cleanedQuestion);
     const previousTopic = deriveTopic(selectedQuestion);
     const topicChanged =
@@ -348,7 +394,7 @@ export function detectActiveQuestion(input: {
       confidenceScore: clampConfidence(
         confidence
           - (incomplete ? 0.28 : 0)
-          - (isAdminNoise ? 0.3 : 0)
+          - (isAdminNoise || isSmallTalk ? 0.3 : 0)
           - (alreadyAnswered ? 0.5 : 0),
       ),
       ignoredNoise: isNoise,

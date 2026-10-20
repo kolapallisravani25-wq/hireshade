@@ -1,0 +1,53 @@
+COMMAND: pnpm test  (cwd: artifacts/craft-vita)
+EXITCODE=0
+
+node.exe : $ vitest run
+At C:\Program Files\nodejs\pnpm.ps1:16 char:5
++     & "$basedir/node$exe"  "$basedir/node_modules/corepack/dist/pnpm. ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ($ vitest run:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+ RUN  v4.1.9 D:/hireshade/artifacts/craft-vita
+
+ ✓ src/lib/instructions.test.ts (8 tests) 109ms
+ ✓ src/lib/languages.test.ts (30 tests) 151ms
+ ✓ src/overlay/hotkeys.test.ts (23 tests) 216ms
+ ✓ src/lib/meetingDetection.test.ts (45 tests) 348ms
+ ✓ src/features/session/detection/activeQuestionDetector.test.ts (4 tests) 130ms
+ ✓ src/lib/transcript-stabilizer.test.ts (37 tests) 247ms
+ ✓ src/lib/utterance-completeness.test.ts (13 tests) 29ms
+ ✓ src/demo/wav.test.ts (2 tests) 33ms
+ ✓ src/demo/vad.test.ts (8 tests) 95ms
+ ✓ src/overlay/overlayGeometry.test.ts (14 tests) 57ms
+ ✓ src/features/mockInterview/interviewLoop.test.ts (14 tests) 200ms
+ ✓ src/tauriSecurityManifest.test.ts (4 tests) 97ms
+ ✓ src/demo/pipeline.test.ts (5 tests) 1702ms
+     ✓ drives fixture audio through VAD -> mock ASR -> real detector -> real prompt -> mock LLM  424ms
+     ✓ surfaces LLM failures as answer.error instead of hanging  350ms
+ ✓ src/features/meetingDetection/meetingAutoDetector.test.ts (11 tests) 165ms
+ ✓ src/demo/metrics.test.ts (9 tests) 35ms
+ ✓ src/demo/overlayStream.test.ts (5 tests) 31ms
+ ✓ src/overlay/tauriCsp.test.ts (4 tests) 143ms
+ ✓ src/features/session/audio/audioSessionController.test.ts (2 tests) 80ms
+ ✓ src/features/session/hooks/autoScrollPolicy.test.ts (14 tests) 77ms
+ ✓ src/features/session/hooks/cancellableListener.test.ts (4 tests) 32ms
+ ✓ src/features/session/hooks/autoGenTrailingTranscript.test.ts (11 tests) 30ms
+ ✓ src/features/coding/codingMode.test.ts (29 tests) 63ms
+ ✓ src/features/session/hooks/autoGenQuestionSource.test.ts (10 tests) 22ms
+ ✓ src/sensitiveLogging.test.ts (3 tests) 24ms
+ ✓ src/lib/generation-pipeline.test.ts (13 tests) 28ms
+ ✓ src/types/ai-answer.test.ts (4 tests) 17ms
+ ✓ src/pages/Sessions/ActiveSession/answerScrollPolicy.test.ts (9 tests) 29ms
+ ✓ src/hooks/useAIChat.test.ts (10 tests) 112ms
+ ✓ src/features/session/detection/classifierMetrics.test.ts (7 tests) 33ms
+ ✓ src/features/session/audio/systemHealth.test.ts (11 tests) 32ms
+ ✓ src/features/session/audio/captureStatus.test.ts (9 tests) 28ms
+ ✓ src/demo/demoSession.test.ts (4 tests) 25ms
+
+ Test Files  32 passed (32)
+      Tests  376 passed (376)
+   Start at  19:23:37
+   Duration  19.92s (transform 47.16s, setup 0ms, import 53.58s, tests 4.42s, environment 48ms)
+

@@ -1,0 +1,4 @@
+COMMAND: pnpm exec tsc -p tsconfig.json --noEmit
+EXITCODE=0
+DURATION_SEC=96.7
+OUTPUT:
