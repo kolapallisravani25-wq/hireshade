@@ -58,7 +58,8 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self' https://clerk.hireshade.com https://*.clerk.accounts.dev https://*.clerk.com https://checkout.razorpay.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://img.clerk.com https://*.clerk.com https://*.clerk.accounts.dev https://*.razorpay.com https://hireshade.com https://*.hireshade.com; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost https://hireshade.com https://*.hireshade.com https://*.clerk.com https://*.clerk.accounts.dev https://clerk.hireshade.com https://api.razorpay.com https://checkout.razorpay.com https://lumberjack.razorpay.com https://challenges.cloudflare.com wss://api.deepgram.com ws://127.0.0.1:* ws://localhost:* http://127.0.0.1:* http://localhost:*; media-src 'self' blob: data: mediastream:; frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com https://*.clerk.com https://*.clerk.accounts.dev https://challenges.cloudflare.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
+      "devCsp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost ws://localhost:5173 ws://127.0.0.1:5173 http://localhost:5173 http://127.0.0.1:5173 ws: wss: https: http:; media-src 'self' blob: data: mediastream:; frame-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'"
     }
   },
   "bundle": {

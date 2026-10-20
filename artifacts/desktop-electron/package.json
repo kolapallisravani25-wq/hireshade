@@ -5,8 +5,11 @@
   "main": "main.js",
   "description": "Parallel Electron desktop shell for the HireShade web UI (stealth/capture-protected windows)",
   "scripts": {
+    "build:helpers": "node scripts/build-main-helpers.js",
+    "predev": "node scripts/build-main-helpers.js",
     "dev": "node scripts/dev.js",
     "build:ui": "node scripts/build-ui.js",
+    "prestart": "node scripts/build-main-helpers.js",
     "start": "electron ."
   },
   "devDependencies": {

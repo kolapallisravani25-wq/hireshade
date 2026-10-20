@@ -1,6 +1,7 @@
 mod screen_protect;
-mod focus_bypass;
 mod cursor;
+use cursor::{hide_system_cursor, show_system_cursor};
+use screen_protect::set_screen_protection;
 use tauri::{Manager, Emitter, WebviewWindowBuilder, WebviewUrl, AppHandle, Window, PhysicalPosition, LogicalPosition, LogicalSize, command};
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_opener::OpenerExt;
@@ -259,6 +260,10 @@ fn toggle_floating(app: AppHandle) -> Result<(), String> {
             .build()
             .map_err(|e| e.to_string())?;
 
+        if let Some(win) = app.get_webview_window("floating") {
+            screen_protect::apply_on_create(&win);
+        }
+
         #[cfg(target_os = "windows")]
         if let Some(win) = app.get_webview_window("floating") {
             if let Ok(hwnd) = win.hwnd() {
@@ -321,6 +326,10 @@ async fn show_mini_top_center(app: AppHandle) -> Result<(), String> {
         .build()
         .map_err(|e| e.to_string())?,
     };
+
+    // Re-created mini overlays must re-apply capture exclusion (Tauri's
+    // builder content_protected only covers the initial creation path).
+    screen_protect::apply_on_create(&window);
 
     window
         .set_size(LogicalSize::new(700u32, 222u32))
@@ -544,12 +553,22 @@ fn set_mini_size_instant(app: AppHandle, width: u32, height: u32) -> Result<(), 
 #[tauri::command]
 fn toggle_content_protection(app: AppHandle, protected: bool) -> Result<(), String> {
     let mut applied = 0u8;
-    for label in ["mini", "launcher", "main", "floating"] {
+    for label in ["mini", "launcher", "floating"] {
         if let Some(win) = app.get_webview_window(label) {
-            win.set_content_protected(protected)
-                .map_err(|e| format!("set_content_protected({label}): {e}"))?;
+            // Explicit Win32 affinity (0x11 with 0x01 fallback) on Windows;
+            // Tauri's cross-platform content protection elsewhere.
+            screen_protect::apply_to_window(&win, protected)
+                .map_err(|e| format!("screen_protect({label}): {e}"))?;
             applied += 1;
         }
+    }
+    // The dashboard ("main") is intentionally created with
+    // content_protected(false); keep it on Tauri's cross-platform API so the
+    // existing Privacy Mode behavior for that window is unchanged.
+    if let Some(main) = app.get_webview_window("main") {
+        main.set_content_protected(protected)
+            .map_err(|e| format!("set_content_protected(main): {e}"))?;
+        applied += 1;
     }
     if applied == 0 {
         return Err("no overlay window is currently open".into());
@@ -2116,10 +2135,11 @@ fn stop_mic_transcription() {}
 // not gate system-audio loopback or mic capture behind a TCC-style permission,
 // so these report "granted".
 //
-// TODO(macos): implement real permission checks (CGPreflightScreenCaptureAccess
-// for screen recording, AVCaptureDevice authorizationStatus for the mic) so the
-// macOS grant/prompt/restart flow is accurate. Until then macOS also reports
-// "granted" and relies on the OS prompt fired when capture first starts.
+// Gap G-036 (DEFERRED — no macOS host to verify): implement real permission
+// checks (CGPreflightScreenCaptureAccess for screen recording, AVCaptureDevice
+// authorizationStatus for the mic) so the macOS grant/prompt/restart flow is
+// accurate. Until then macOS also reports "granted" and relies on the OS prompt
+// fired when capture first starts.
 #[derive(serde::Serialize)]
 struct MacPermissionPayload {
     status: String,
@@ -2544,6 +2564,10 @@ fn show_launcher_widget(app: AppHandle) -> Result<(), String> {
         .get_webview_window("launcher")
         .ok_or("launcher window not found")?;
 
+    // Launcher is an overlay too: keep capture exclusion explicit on every
+    // show (the window config only applies it at first creation).
+    screen_protect::apply_on_create(&window);
+
     window
         // The launcher hosts the expanded "create session" card (company, job
         // description, resume, model, Create button) plus the settings menu,
@@ -2690,6 +2714,17 @@ pub fn run() {
                             );
                         }
                     }
+                }
+            }
+
+            // ── Capture protection for every configured overlay window ─────
+            // Re-assert WDA_EXCLUDEFROMCAPTURE (0x11) with the WDA_MONITOR
+            // fallback on the windows created from tauri.conf.json. This makes
+            // the stealth module live instead of dead code and guarantees the
+            // documented fallback on older Windows builds.
+            for label in ["mini", "launcher"] {
+                if let Some(win) = app.get_webview_window(label) {
+                    screen_protect::apply_on_create(&win);
                 }
             }
 
@@ -2985,7 +3020,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             toggle_floating, capture_screen, show_mini_top_center, set_mini_state,
             set_mini_size_instant, toggle_content_protection, set_cursor_passthrough,
-            get_cursor_position,
+            get_cursor_position, set_screen_protection,
+            hide_system_cursor, show_system_cursor,
             start_audio_stream, stop_audio_stream, list_audio_devices,
             start_display_audio_stream, stop_display_audio_stream,
             start_system_audio_transcription, stop_system_audio_transcription,
