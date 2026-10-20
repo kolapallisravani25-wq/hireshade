@@ -54,6 +54,8 @@ import { extractInterviewKeywordsFromParts } from "@/utils/keywordExtractor";
 import { buildAdaptiveAiContext } from "@/features/session/context/adaptiveAiContext";
 import { normalizeSttTranscript } from "@/features/session/transcript/stt-normalizer";
 import { resolveDeepgramKey } from "@/lib/deepgramAuth";
+import { buildDeepgramAsrPayload } from "@/lib/languages";
+import { routeAnalyzeScreenCodingMode } from "@/features/coding/analyzeScreenCodingRoute";
 
 /**
  * Segments a single transcript chunk into individual interview questions.
@@ -236,21 +238,6 @@ export default function ActiveSession() {
   // Using a ref allows handleTranscript (defined before useAIChat) to call
   // handleAiAnswer without creating a forward-reference ordering problem.
   const handleAiAnswerRef = useRef<((sessionId: string, payload: AIAnswerRequestPayload, aiModel: string) => void) | null>(null);
-
-  const getLanguageCode = (lang: string) => {
-    const mapping: Record<string, string> = {
-      English: "en",
-      Spanish: "es",
-      French: "fr",
-      German: "de",
-      Hindi: "hi",
-      Arabic: "ar",
-      Chinese: "zh",
-      Portuguese: "pt",
-      Japanese: "ja",
-    };
-    return mapping[lang] || "en";
-  };
 
   const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(
     !!location.state?.showConnect,
@@ -1029,7 +1016,7 @@ export default function ActiveSession() {
   const micTranscription = useDeepgram({
     apiKey: "", // minted server-side via resolveDeepgramKey; never bundled
     model: "nova-3",
-    language: getLanguageCode(selectedLanguage),
+    language: buildDeepgramAsrPayload(selectedLanguage).language,
     keyterms: deepgramKeyterms,
     onTranscript: onUserTranscript,
   });
@@ -1043,7 +1030,7 @@ export default function ActiveSession() {
   const tabTranscription = useNativeTabTranscription({
     apiKey: "", // minted server-side via resolveDeepgramKey; never bundled
     model: "nova-3",
-    language: getLanguageCode(selectedLanguage),
+    language: buildDeepgramAsrPayload(selectedLanguage).language,
     onTranscript: onInterviewerTranscript,
     enabled: !isConnectDialogOpen && !isTauri(),
   });
@@ -1058,7 +1045,7 @@ export default function ActiveSession() {
   const tabAudioTranscription = useDeepgram({
     apiKey: "", // minted server-side via resolveDeepgramKey; never bundled
     model: "nova-3",
-    language: getLanguageCode(selectedLanguage),
+    language: buildDeepgramAsrPayload(selectedLanguage).language,
     keyterms: deepgramKeyterms,
     onTranscript: onInterviewerTranscript,
     inputStream: streamHasAudio ? stream : null,
@@ -1227,7 +1214,7 @@ export default function ActiveSession() {
         setTauriMicConnecting(true);
         try {
           await invoke("start_mic_transcription", {
-            language: getLanguageCode(selectedLanguage),
+            language: buildDeepgramAsrPayload(selectedLanguage).language,
             model: "nova-3",
             keyterms: deepgramKeyterms,
             apiKey: await resolveDeepgramKey(),
@@ -1706,6 +1693,11 @@ export default function ActiveSession() {
             fallbackQuestion: "",
             liveInterimQuestion: mergedTabInterimTranscript || activeMicInterimTranscript || "",
           });
+          // G-023: route coding questions through the structured contract.
+          const codingRoute = routeAnalyzeScreenCodingMode({
+            question: adaptiveContext.currentQuestion,
+            transcript: adaptiveContext.recentTranscriptWindow.join("\n"),
+          });
           await handleAnalyzeScreen(id, screenshot, selectedModel, {
             transcript:
               adaptiveContext.recentTranscriptWindow.length > 0
@@ -1738,7 +1730,7 @@ export default function ActiveSession() {
                 }
               : {}),
             sourcePlatform: isTauri() ? "tauri" : "web",
-            answerMode: "auto",
+            answerMode: codingRoute.answerMode,
           });
         } else {
           console.warn("No screenshot could be captured.");

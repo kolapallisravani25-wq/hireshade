@@ -28,6 +28,7 @@ import { type Resume } from "@/components/Resume/ResumeSelector";
 import { type Document } from "@/components/Document/DocumentSelector";
 import { toast } from "sonner";
 import { getAuthHeaders } from "@/lib/globalAuth";
+import { validateInstructions } from "@/lib/instructions";
 import { useCreditsBalance } from "@/hooks/useCreditsBalance";
 import { OutOfCreditsDialog } from "@/components/Billing/OutOfCreditsDialog";
 import { BuyCreditsDialog } from "@/components/Billing/BuyCreditsDialog";
@@ -98,6 +99,15 @@ export default function CreateSessionDialog({
       toast.error("Please select a primary project.");
       return;
     }
+    // G-020: block leaving the language/instructions step with an oversized
+    // instructions draft instead of letting the API reject the whole session.
+    if (step === 5) {
+      const validation = validateInstructions(sessionData.instructions);
+      if (!validation.ok) {
+        toast.error(validation.error ?? "Instructions are too long.");
+        return;
+      }
+    }
     if (step < 8) {
       setStep((curr) => (curr + 1) as Step);
     }
@@ -117,6 +127,12 @@ export default function CreateSessionDialog({
   };
 
   const createSession = async () => {
+    // Last-line client guard; the API independently rejects >20,000 chars.
+    const instructionsValidation = validateInstructions(sessionData.instructions);
+    if (!instructionsValidation.ok) {
+      toast.error(instructionsValidation.error ?? "Instructions are too long.");
+      return;
+    }
     setLoading(true);
     // Prefer the synced backend id, but fall back to the Clerk user id so a
     // cleared localStorage (e.g. after a data wipe) doesn't block creation.

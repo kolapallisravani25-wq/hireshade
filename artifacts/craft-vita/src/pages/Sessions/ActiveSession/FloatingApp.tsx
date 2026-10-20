@@ -128,21 +128,6 @@ class AnswerAreaErrorBoundary extends React.Component<
   }
 }
 
-const getLanguageCode = (lang: string): string => {
-  const mapping: Record<string, string> = {
-    English: "en",
-    Spanish: "es",
-    French: "fr",
-    German: "de",
-    Hindi: "hi",
-    Arabic: "ar",
-    Chinese: "zh",
-    Portuguese: "pt",
-    Japanese: "ja",
-  };
-  return mapping[lang] || "en";
-};
-
 //  CodeBlock (for markdown rendering)
 const CodeBlock = ({
   children,

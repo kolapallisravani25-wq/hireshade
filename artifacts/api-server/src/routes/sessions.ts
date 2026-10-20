@@ -13,6 +13,11 @@ import { streamChatComplete, chatComplete, isAiConfigured } from "../lib/openrou
 import { hasExpectedFileSignature } from "../lib/uploadValidation.js";
 import { rateLimitAiOr429 } from "../lib/aiRateLimit.js";
 import { buildInterviewSystemPrompt, computeContextPresence } from "../lib/interviewPrompt.js";
+import { instructionsTooLongPayload, validateInstructions } from "../lib/instructions.js";
+import {
+  normalizeSessionLanguage,
+  SESSION_LANGUAGES,
+} from "../lib/languages.js";
 import { getResumeContextById } from "../lib/resumeContext.js";
 import { assessQuestionReadiness } from "../lib/questionReadiness.js";
 import type { ChatMessage } from "../lib/openrouter.js";
@@ -198,10 +203,31 @@ router.post("/create-session", requireAuth, formParser, async (req, res) => {
     const jobDescription = body["jobDescription"] ?? "";
     const resumeId = body["resumeId"] || null;
     const documentId = body["documentId"] || null;
-    const language = body["language"] ?? "English";
+    const languageInput = body["language"] ?? "English";
     const simpleLanguage = body["simpleLanguage"] === "true";
     const extraContext = body["extraContext"] ?? "";
     const instructions = body["instructions"] ?? "";
+
+    // G-020: instructions are capped at 20,000 chars. The client counter is a
+    // UX affordance only — this boundary also covers crafted form posts.
+    const instructionsValidation = validateInstructions(instructions);
+    if (!instructionsValidation.ok) {
+      res.status(400).json(instructionsTooLongPayload(instructions));
+      return;
+    }
+
+    // G-021: the language must be one the registry can prompt/translate for.
+    const languageEntry = normalizeSessionLanguage(languageInput);
+    if (!languageEntry) {
+      res.status(400).json({
+        error: `Unsupported language: ${languageInput}`,
+        message: `Unsupported language: ${languageInput}`,
+        code: "UNSUPPORTED_LANGUAGE",
+        supportedLanguageCount: SESSION_LANGUAGES.length,
+      });
+      return;
+    }
+    const language = languageEntry.englishName;
     const aiModel = body["aiModel"] ?? "anthropic/claude-haiku-4.5";
     // Opt-in: auto-generation spends credits, so an absent field must mean OFF.
     const autoGenerateResponse = body["autoGenerateAI"] === "true";
@@ -429,6 +455,32 @@ router.post("/:id/activate", requireAuth, async (req, res) => {
       }
     }
 
+    // G-021: language chosen in the Connect dialog must actually persist. The
+    // wizard creates the session with the default language, then the user can
+    // change it right before activation — previously those fields were ignored,
+    // so the ASR payload and the answer prompt disagreed with the UI. Only the
+    // language and simple-language flag are persisted here (NOT aiModel: the
+    // model is a billing-sensitive choice owned by session creation).
+    const activationBody = (req.body ?? {}) as Record<string, unknown>;
+    let activationLanguage: string | undefined;
+    if (typeof activationBody["language"] === "string") {
+      const entry = normalizeSessionLanguage(activationBody["language"]);
+      if (!entry) {
+        res.status(400).json({
+          error: `Unsupported language: ${activationBody["language"]}`,
+          message: `Unsupported language: ${activationBody["language"]}`,
+          code: "UNSUPPORTED_LANGUAGE",
+          supportedLanguageCount: SESSION_LANGUAGES.length,
+        });
+        return;
+      }
+      activationLanguage = entry.englishName;
+    }
+    const activationSimpleLanguage =
+      typeof activationBody["simpleLanguage"] === "boolean"
+        ? activationBody["simpleLanguage"]
+        : undefined;
+
     // Anchor the start time once. On rejoin we keep the original startedAt so
     // the timer resumes from real elapsed time instead of restarting.
     const startedAt = session.startedAt ?? new Date();
@@ -446,7 +498,15 @@ router.post("/:id/activate", requireAuth, async (req, res) => {
     try {
       activated = await db
         .update(sessionsTable)
-        .set({ status: "ACTIVE", startedAt, updatedAt: new Date() })
+        .set({
+          status: "ACTIVE",
+          startedAt,
+          updatedAt: new Date(),
+          ...(activationLanguage ? { language: activationLanguage } : {}),
+          ...(activationSimpleLanguage !== undefined
+            ? { simpleLanguage: activationSimpleLanguage }
+            : {}),
+        })
         .where(
           sql`${sessionsTable.id} = ${sessionId}
             AND ${sessionsTable.userId} = ${userId}

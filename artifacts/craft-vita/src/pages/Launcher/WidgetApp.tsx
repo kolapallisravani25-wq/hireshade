@@ -91,6 +91,11 @@ import { useSessionCreation } from "@/features/session/hooks/useSessionCreation"
 import { HoverTooltip } from "@/shared/components/HoverTooltip";
 import { CreditsBadge } from "@/shared/components/CreditsBadge";
 import { WidgetSelect } from "@/shared/components/WidgetSelect";
+import { languageSelectOptions } from "@/lib/languages";
+
+// G-021: registry-driven language list (50+). The persisted value stays the
+// canonical English name so existing sessions keep resolving.
+const WIDGET_LANGUAGE_OPTIONS = languageSelectOptions();
 import { tauriEvents } from "@/services/tauriEvents";
 import { tauriOverlay } from "@/services/tauriOverlay";
 import { getDesktopClerkOptions } from "@/lib/clerkOptions";
@@ -909,11 +914,7 @@ function WidgetContent() {
                                         dispatch(updateSessionInfo({ language: val }))
                                       }
                                       placeholder="Language"
-                                      options={[
-                                        { value: "English", label: "English" },
-                                        { value: "Spanish", label: "Spanish" },
-                                        { value: "French", label: "French" },
-                                      ]}
+                                      options={WIDGET_LANGUAGE_OPTIONS}
                                     />
                                   </div>
 

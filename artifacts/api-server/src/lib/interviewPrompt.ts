@@ -1,4 +1,6 @@
 import type { sessionsTable } from "@workspace/db/schema";
+import { sessionLanguagePromptDirective } from "./languages.js";
+import { codingGuidanceForAnswerMode } from "./codingMode.js";
 
 type Session = typeof sessionsTable.$inferSelect;
 
@@ -144,8 +146,16 @@ export function buildInterviewSystemPrompt(opts: BuildPromptOpts): string {
   if (session.simpleLanguage) {
     parts.push("Plain-language mode is enabled. Include a simple explanation and avoid unnecessary jargon.");
   }
-  if (session.language && session.language !== "English") {
-    parts.push(`Respond in ${session.language}.`);
+  // Language directive comes from the shared registry (G-021): it names the
+  // language in its native spelling and forces the whole answer into it, instead
+  // of the old ad-hoc "Respond in <English name>." line.
+  const languageDirective = sessionLanguagePromptDirective(session.language);
+  if (
+    languageDirective &&
+    languageDirective !== "Respond in English." &&
+    session.language !== "English"
+  ) {
+    parts.push(languageDirective);
   }
   if (session.instructions) {
     parts.push(`Custom session instructions from the user:\n${session.instructions}`);
@@ -155,6 +165,12 @@ export function buildInterviewSystemPrompt(opts: BuildPromptOpts): string {
   }
   if (answerMode && ANSWER_MODE_GUIDANCE[answerMode]) {
     parts.push(ANSWER_MODE_GUIDANCE[answerMode]!);
+  }
+  // G-023: coding questions get the structured answer contract (approach,
+  // complexity, edge cases, code) on top of the generic code_required guidance.
+  const codingGuidance = codingGuidanceForAnswerMode(answerMode);
+  if (codingGuidance) {
+    parts.push(codingGuidance);
   }
 
   return parts.join("\n\n");

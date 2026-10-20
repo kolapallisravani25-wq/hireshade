@@ -17,6 +17,13 @@ import {
 } from "@/components/ui/tooltip";
 import { Globe, Cpu, MoreHorizontal, Info, Sparkles } from "lucide-react";
 import { ModelSelector } from "@/pages/Sessions/ActiveSession/components/ModelSelector";
+import { languageSelectOptions } from "@/lib/languages";
+import {
+  MAX_INSTRUCTIONS_CHARS,
+  instructionsCounterLabel,
+  isInstructionsNearLimit,
+  validateInstructions,
+} from "@/lib/instructions";
 
 interface Step4Props {
   data: {
@@ -28,11 +35,9 @@ interface Step4Props {
   onChange: (field: string, value: any) => void;
 }
 
-const LANGUAGES = [
-  { value: "English", label: "English" },
-  { value: "Spanish", label: "Spanish" },
-  { value: "French", label: "French" },
-];
+// Registry-driven: 50+ languages with native names. The persisted value stays
+// the canonical English name so existing sessions keep resolving.
+const LANGUAGES = languageSelectOptions();
 
 const AI_MODELS = [
   {
@@ -140,8 +145,34 @@ export function Step4_LanguageAISettings({ data, onChange }: Step4Props) {
           placeholder="Be more technical, use a more casual tone, use JavaScript when generating code examples, etc."
           className="field-sizing-fixed h-32 min-h-32 max-h-32 overflow-y-auto rounded-xl bg-background border-border/80 p-4 text-[14px] leading-relaxed resize-none shadow-sm focus:ring-primary/10"
           value={data.instructions}
+          maxLength={MAX_INSTRUCTIONS_CHARS}
+          aria-invalid={!validateInstructions(data.instructions).ok}
+          aria-describedby="instructions-counter"
           onChange={(e) => onChange("instructions", e.target.value)}
         />
+        {/* G-020: live 20,000-char counter + inline validation. `maxLength` blocks
+            typing/pasting past the cap; the API re-validates server-side. */}
+        <div className="flex items-center justify-between px-0.5 gap-3">
+          <p
+            id="instructions-counter"
+            className={
+              !validateInstructions(data.instructions).ok
+                ? "text-[11px] font-semibold text-destructive"
+                : isInstructionsNearLimit(data.instructions)
+                  ? "text-[11px] font-semibold text-amber-500"
+                  : "text-[11px] text-muted-foreground"
+            }
+          >
+            {validateInstructions(data.instructions).ok
+              ? isInstructionsNearLimit(data.instructions)
+                ? `${instructionsCounterLabel(data.instructions)} — approaching the 20,000 character limit`
+                : `${instructionsCounterLabel(data.instructions)} characters`
+              : validateInstructions(data.instructions).error}
+          </p>
+          <span className="text-[11px] text-muted-foreground shrink-0">
+            {MAX_INSTRUCTIONS_CHARS.toLocaleString()} max
+          </span>
+        </div>
       </div>
 
       {/* AI Model Selection */}

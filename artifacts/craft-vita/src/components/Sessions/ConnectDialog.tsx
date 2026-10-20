@@ -40,6 +40,8 @@ import { toast } from "sonner";
 import { getAuthHeaders } from "@/lib/globalAuth";
 import { ModelSelector } from "@/pages/Sessions/ActiveSession/components/ModelSelector";
 import { BuyCreditsDialog } from "@/components/Billing/BuyCreditsDialog";
+import { MockInterviewDialog } from "@/components/Sessions/MockInterview/MockInterviewDialog";
+import { getLanguageName, languageSelectOptions } from "@/lib/languages";
 import {
   Popover,
   PopoverContent,
@@ -73,17 +75,9 @@ interface ConnectDialogProps {
   aiModel: string;
 }
 
-const LANGUAGES = [
-  { value: "English", label: "English" },
-  { value: "Spanish", label: "Spanish" },
-  { value: "French", label: "French" },
-  { value: "German", label: "German" },
-  { value: "Hindi", label: "Hindi" },
-  { value: "Arabic", label: "Arabic" },
-  { value: "Chinese", label: "Chinese" },
-  { value: "Portuguese", label: "Portuguese" },
-  { value: "Japanese", label: "Japanese" },
-];
+// G-021: registry-driven (50+ languages, native names). Persisted value remains
+// the canonical English name; the API normalises legacy names like "Chinese".
+const LANGUAGES = languageSelectOptions();
 
 const HOW_TO_CONNECT = [
   { icon: Video, label: "Zoom" },
@@ -119,16 +113,21 @@ export function ConnectDialog({
   //     simpleLanguage: initialSimple,
   //     aiModel: initialAIModel,
   //   });
-  const [language, setLanguage] = React.useState(initialLanguage);
+  // Normalise legacy stored names (e.g. "Chinese") to the registry's canonical
+  // label so the 50+ select can show the current value instead of a placeholder.
+  const [language, setLanguage] = React.useState(() =>
+    getLanguageName(initialLanguage),
+  );
   const [simpleLanguage, setSimpleLanguage] = React.useState(initialSimple);
   const [aiModel, setAIModel] = React.useState(initialAIModel);
   const [activating, setActivating] = React.useState(false);
   const [buyCreditsOpen, setBuyCreditsOpen] = React.useState(false);
+  const [mockInterviewOpen, setMockInterviewOpen] = React.useState(false);
 
   // Sync props when dialog reopens with new session
   React.useEffect(() => {
     if (open) {
-      setLanguage(initialLanguage);
+      setLanguage(getLanguageName(initialLanguage));
       setSimpleLanguage(initialSimple);
       setAIModel(initialAIModel);
     }
@@ -345,8 +344,11 @@ export function ConnectDialog({
                   </span>{" "}
                   on YouTube and test HireShade that way.
                 </p>
-                <button className="text-[12px] text-primary font-semibold hover:underline flex items-center gap-1">
-                  Example video: Mock Interview
+                <button
+                  onClick={() => setMockInterviewOpen(true)}
+                  className="text-[12px] text-primary font-semibold hover:underline flex items-center gap-1"
+                >
+                  Open mock interview practice
                   <ExternalLink className="h-3 w-3" />
                 </button>
               </div>
@@ -410,6 +412,12 @@ export function ConnectDialog({
             open={buyCreditsOpen}
             onOpenChange={setBuyCreditsOpen}
             onSuccess={refreshBalance}
+          />
+
+          {/* G-022: local mock-interview practice loop (typed answers, mock TTS/ASR). */}
+          <MockInterviewDialog
+            open={mockInterviewOpen}
+            onOpenChange={setMockInterviewOpen}
           />
 
           {/* Footer Actions */}

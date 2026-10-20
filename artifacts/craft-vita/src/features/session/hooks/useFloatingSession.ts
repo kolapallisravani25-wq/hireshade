@@ -26,6 +26,8 @@ import { createAudioSessionController } from "@/features/session/audio/audioSess
 import { deriveCaptureStatus } from "@/features/session/audio/captureStatus";
 import { classifySystemHealth } from "@/features/session/audio/systemHealth";
 import { extractInterviewKeywordsFromParts } from "@/utils/keywordExtractor";
+import { buildDeepgramAsrPayload } from "@/lib/languages";
+import { routeAnalyzeScreenCodingMode } from "@/features/coding/analyzeScreenCodingRoute";
 import { normalizeSttTranscript } from "@/features/session/transcript/stt-normalizer";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
@@ -201,21 +203,6 @@ function removeOverlap(lastText: string, newText: string): string {
   }
   
   return newText;
-}
-
-function getLanguageCode(lang: string): string {
-  const mapping: Record<string, string> = {
-    English: "en",
-    Spanish: "es",
-    French: "fr",
-    German: "de",
-    Hindi: "hi",
-    Arabic: "ar",
-    Chinese: "zh",
-    Portuguese: "pt",
-    Japanese: "ja",
-  };
-  return mapping[lang] || "en";
 }
 
 // Fallback window (ms) used only when no AI answer has been given yet in this
@@ -1537,7 +1524,10 @@ export function useFloatingSession() {
     if (!sessionInfoRef.current) return;
     if (systemStartInFlightRef.current) return;
     systemStartInFlightRef.current = true;
-    const lang = getLanguageCode(sessionInfoRef.current.language ?? "English");
+    // G-021: language comes from the 50+ registry, not a hard-coded 9-item map.
+    const asrPayload = buildDeepgramAsrPayload(
+      sessionInfoRef.current.language ?? "English",
+    );
     const keyterms = buildDeepgramKeyterms();
     try {
       setTabError(null);
@@ -1554,8 +1544,8 @@ export function useFloatingSession() {
       try {
         const dgKey = await resolveDeepgramKey();
         await invoke("start_system_audio_transcription", {
-          language: lang,
-          model: "nova-3",
+          language: asrPayload.language,
+          model: asrPayload.model,
           keyterms,
           apiKey: dgKey,
         });
@@ -2098,7 +2088,7 @@ export function useFloatingSession() {
   }, [dispatch, isDupeMessage]);
 
   // ── Auto-expand responses panel ─────────────────────────────────────────────
-  // TODO(follow-up): rendered component coverage for the responses panel
+  // Gap G-037 (PARTIAL): rendered component coverage for the responses panel
   // scroll behavior — pending jsdom/@testing-library approval. Decision logic
   // is unit-tested in autoScrollPolicy.test.ts; the panel rendering wiring in
   // FloatingApp remains manually verified only.
@@ -3035,6 +3025,14 @@ export function useFloatingSession() {
         expandedReason: adaptiveContext.expandedReason,
       });
 
+      // G-023: coding questions get the structured answer contract
+      // (approach → complexity → edge cases → code) through the existing
+      // Analyze Screen route; everything else stays on "auto".
+      const codingRoute = routeAnalyzeScreenCodingMode({
+        question: adaptiveContext.currentQuestion || contextQuestion,
+        transcript: adaptiveContext.recentTranscriptWindow.join("\n"),
+      });
+
       isAnalyzeEmittingRef.current = true;
       setIsCapturing(true);
       try {
@@ -3068,7 +3066,7 @@ export function useFloatingSession() {
               ignoredNoise: false,
             },
             sourcePlatform: "tauri",
-            answerMode: "auto",
+            answerMode: codingRoute.answerMode,
           },
         );
       } finally {
@@ -3167,9 +3165,12 @@ export function useFloatingSession() {
         const keyterms = buildDeepgramKeyterms();
         try {
           const dgKey = await resolveDeepgramKey();
+          const asrPayload = buildDeepgramAsrPayload(
+            sessionInfoRef.current.language ?? "English",
+          );
           await invoke("start_mic_transcription", {
-            language: getLanguageCode(sessionInfoRef.current.language ?? "English"),
-            model: "nova-3",
+            language: asrPayload.language,
+            model: asrPayload.model,
             keyterms,
             apiKey: dgKey,
           });
